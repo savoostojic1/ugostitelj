@@ -34,9 +34,10 @@ function normalizeReservations(raw: unknown): PropertyExportReservation[] {
       check_in: toExportDateOnly(String(r.check_in)),
       check_out: toExportDateOnly(String(r.check_out)),
       platform: String(r.platform ?? "custom"),
-      is_manual: Boolean(r.is_manual),
-      source: r.source != null ? String(r.source) : null,
-    });
+        is_manual: Boolean(r.is_manual),
+        source: r.source != null ? String(r.source) : null,
+        guest_phone: r.guest_phone != null ? String(r.guest_phone) : null,
+      });
   }
 
   return rows.filter((r) => r.is_manual);

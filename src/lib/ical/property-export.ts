@@ -15,6 +15,7 @@ export interface PropertyExportReservation {
   platform: CalendarPlatform | string;
   is_manual?: boolean;
   source?: string | null;
+  guest_phone?: string | null;
 }
 
 function asPlatform(
@@ -67,6 +68,9 @@ function buildExportDescription(
 
   if (reservation.is_manual) {
     const parts = [reservation.title.trim()];
+    if (reservation.guest_phone?.trim()) {
+      parts.push(reservation.guest_phone.trim());
+    }
     if (reservation.source?.trim()) {
       parts.push(reservation.source.trim());
     }

@@ -80,6 +80,7 @@ export default function ManualReservationsPage() {
                 </p>
                 <p className="text-sm text-muted-foreground">
                   {r.source}
+                  {r.guest_phone && <> · {r.guest_phone}</>}
                   {r.price != null && (
                     <>
                       {" "}

@@ -131,6 +131,7 @@ export function useCreateManualReservation() {
           platform: "custom",
           is_manual: true,
           source: input.source.trim(),
+          guest_phone: input.guest_phone?.trim() || null,
           price: input.price,
         })
         .select()
@@ -197,6 +198,7 @@ export function useUpdateManualReservation() {
           check_in: input.check_in,
           check_out: input.check_out,
           source: input.source.trim(),
+          guest_phone: input.guest_phone?.trim() || null,
           price: input.price,
         })
         .eq("id", input.id)

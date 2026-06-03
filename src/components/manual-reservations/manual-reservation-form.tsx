@@ -43,6 +43,7 @@ export function ManualReservationForm({
   const [checkIn, setCheckIn] = useState("");
   const [checkOut, setCheckOut] = useState("");
   const [source, setSource] = useState("");
+  const [guestPhone, setGuestPhone] = useState("");
   const [price, setPrice] = useState("");
 
   const { data: reservation, isLoading: reservationLoading } =
@@ -64,6 +65,7 @@ export function ManualReservationForm({
     setCheckIn(reservation.check_in);
     setCheckOut(reservation.check_out);
     setSource(reservation.source ?? "");
+    setGuestPhone(reservation.guest_phone ?? "");
     setPrice(
       reservation.price != null ? String(reservation.price) : ""
     );
@@ -136,6 +138,7 @@ export function ManualReservationForm({
       check_in: checkIn,
       check_out: checkOut,
       source: trimmedSource,
+      guest_phone: guestPhone.trim() || null,
       price: parsedPrice,
     };
 
@@ -221,6 +224,19 @@ export function ManualReservationForm({
           placeholder="npr. Marko Petrović"
           required
           autoFocus={!isEdit}
+        />
+      </div>
+
+      <div className="space-y-2">
+        <Label htmlFor="guestPhone">Broj telefona</Label>
+        <Input
+          id="guestPhone"
+          type="tel"
+          inputMode="tel"
+          autoComplete="tel"
+          value={guestPhone}
+          onChange={(e) => setGuestPhone(e.target.value)}
+          placeholder="npr. +382 67 123 456"
         />
       </div>
 

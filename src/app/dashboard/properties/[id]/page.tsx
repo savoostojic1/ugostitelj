@@ -111,6 +111,7 @@ export default function PropertyDetailPage({
                         <p className="text-xs text-muted-foreground">
                           {formatStayPeriodLabel(r.check_in, r.check_out)}
                           {r.is_manual && r.source && <> · {r.source}</>}
+                          {r.is_manual && r.guest_phone && <> · {r.guest_phone}</>}
                           {r.is_manual && r.price != null && (
                             <> · {formatPrice(r.price)}</>
                           )}

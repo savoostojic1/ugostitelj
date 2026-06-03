@@ -45,6 +45,7 @@ export interface Reservation {
   platform: CalendarPlatform;
   is_manual?: boolean;
   source?: string | null;
+  guest_phone?: string | null;
   price?: number | null;
   created_at: string;
   updated_at: string;
@@ -68,6 +69,7 @@ export type ManualReservationInsert = {
   check_in: string;
   check_out: string;
   source: string;
+  guest_phone?: string | null;
   price: number;
 };
 
