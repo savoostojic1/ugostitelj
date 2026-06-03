@@ -2,7 +2,6 @@
 
 import { useMemo } from "react";
 import {
-  addDays,
   eachDayOfInterval,
   endOfMonth,
   endOfWeek,
@@ -19,6 +18,7 @@ import {
   buildReservationShadeMap,
   getReservationBarShade,
 } from "@/lib/reservations/calendar-shades";
+import { getCalendarWeekSegments } from "@/lib/reservations/calendar-week-segments";
 import {
   isSameCalendarDay,
   isStayNight,
@@ -75,76 +75,6 @@ function TurnoverTag({
     >
       {type}
     </span>
-  );
-}
-
-interface WeekSegment {
-  reservation: Reservation;
-  startCol: number;
-  stayEndCol: number;
-  lane: number;
-}
-
-function assignLanes(segments: Omit<WeekSegment, "lane">[]): WeekSegment[] {
-  const lanes: WeekSegment[] = [];
-  const laneEnds: number[] = [];
-
-  for (const seg of segments) {
-    let lane = 0;
-    while (laneEnds[lane] !== undefined && laneEnds[lane] >= seg.startCol) {
-      lane++;
-    }
-    laneEnds[lane] = seg.stayEndCol;
-    lanes.push({ ...seg, lane });
-  }
-  return lanes;
-}
-
-function getWeekSegments(weekDays: Date[], reservations: Reservation[]) {
-  const raw: Omit<WeekSegment, "lane">[] = [];
-
-  for (const r of reservations) {
-    const checkIn = parseDateOnly(r.check_in);
-    const checkOut = parseDateOnly(r.check_out);
-    const lastNight = addDays(checkOut, -1);
-
-    const touchesWeek = weekDays.some(
-      (d) => isStayNight(r.check_in, r.check_out, d)
-    );
-    if (!touchesWeek) continue;
-
-    let startCol = weekDays.findIndex((d) => isSameCalendarDay(d, checkIn));
-    if (startCol < 0) {
-      startCol = weekDays.findIndex((d) =>
-        isStayNight(r.check_in, r.check_out, d)
-      );
-      if (startCol < 0) startCol = 0;
-    }
-
-    let stayEndCol = weekDays.findIndex((d) => isSameCalendarDay(d, lastNight));
-    if (stayEndCol < 0) {
-      for (let i = weekDays.length - 1; i >= 0; i--) {
-        if (isStayNight(r.check_in, r.check_out, weekDays[i])) {
-          stayEndCol = i;
-          break;
-        }
-      }
-      if (stayEndCol < 0) stayEndCol = startCol;
-    }
-
-    raw.push({
-      reservation: r,
-      startCol,
-      stayEndCol: Math.max(stayEndCol, startCol),
-    });
-  }
-
-  return assignLanes(
-    raw.sort(
-      (a, b) =>
-        parseDateOnly(a.reservation.check_in).getTime() -
-        parseDateOnly(b.reservation.check_in).getTime()
-    )
   );
 }
 
@@ -235,7 +165,7 @@ export function MonthlyCalendar({ reservations }: MonthlyCalendarProps) {
 
       <div className="divide-y">
         {weeks.map((weekDays, wi) => {
-          const segments = getWeekSegments(weekDays, visibleReservations);
+          const segments = getCalendarWeekSegments(weekDays, visibleReservations);
           const maxLane =
             segments.length > 0
               ? Math.max(...segments.map((s) => s.lane)) + 1

@@ -7,6 +7,7 @@ import {
   ClipboardPen,
   Home,
   LayoutDashboard,
+  LayoutGrid,
   LogOut,
   Menu,
   Plus,
@@ -20,6 +21,7 @@ import { useRouter } from "next/navigation";
 
 const nav = [
   { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
+  { href: "/dashboard/calendars", label: "Kalendari", icon: LayoutGrid },
   { href: "/dashboard/properties", label: "Properties", icon: Home },
   {
     href: "/dashboard/manual-reservations",
