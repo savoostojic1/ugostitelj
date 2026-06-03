@@ -17,7 +17,7 @@ function escapeIcsText(value: string): string {
 }
 
 function toIcsDate(date: string): string {
-  return date.replace(/-/g, "").split("T")[0];
+  return date.split("T")[0].replace(/-/g, "");
 }
 
 function formatUtcStamp(date = new Date()): string {

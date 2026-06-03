@@ -1,9 +1,10 @@
-import type { CalendarPlatform } from "@/types/database";
 import {
   generateIcsCalendar,
   type IcsExportEvent,
 } from "@/lib/ical/generate-ics";
+import { toExportDateOnly } from "@/lib/calendar/export-filter";
 import { getReservationDisplayKind } from "@/lib/reservations/display";
+import type { CalendarPlatform } from "@/types/database";
 
 export interface PropertyExportReservation {
   id: string;
@@ -11,13 +12,28 @@ export interface PropertyExportReservation {
   title: string;
   check_in: string;
   check_out: string;
-  platform: CalendarPlatform;
+  platform: CalendarPlatform | string;
   is_manual?: boolean;
   source?: string | null;
 }
 
+function asPlatform(
+  platform: CalendarPlatform | string
+): CalendarPlatform {
+  if (platform === "airbnb" || platform === "booking" || platform === "custom") {
+    return platform;
+  }
+  return "custom";
+}
+
 function buildExportSummary(reservation: PropertyExportReservation): string {
-  if (getReservationDisplayKind(reservation) === "manual_block") {
+  const platform = asPlatform(reservation.platform);
+  if (
+    getReservationDisplayKind({
+      title: reservation.title,
+      platform,
+    }) === "manual_block"
+  ) {
     return "Not available";
   }
 
@@ -25,11 +41,11 @@ function buildExportSummary(reservation: PropertyExportReservation): string {
     return "Reserved";
   }
 
-  if (reservation.platform === "booking") {
+  if (platform === "booking") {
     return "Reserved (Booking)";
   }
 
-  if (reservation.platform === "airbnb") {
+  if (platform === "airbnb") {
     return "Reserved (Airbnb)";
   }
 
@@ -39,7 +55,13 @@ function buildExportSummary(reservation: PropertyExportReservation): string {
 function buildExportDescription(
   reservation: PropertyExportReservation
 ): string | undefined {
-  if (getReservationDisplayKind(reservation) === "manual_block") {
+  const platform = asPlatform(reservation.platform);
+  if (
+    getReservationDisplayKind({
+      title: reservation.title,
+      platform,
+    }) === "manual_block"
+  ) {
     return "Blocked in Ugostitelj";
   }
 
@@ -61,8 +83,8 @@ export function buildPropertyExportEvents(
     uid: `export-${reservation.id}`,
     summary: buildExportSummary(reservation),
     description: buildExportDescription(reservation),
-    checkIn: reservation.check_in,
-    checkOut: reservation.check_out,
+    checkIn: toExportDateOnly(reservation.check_in),
+    checkOut: toExportDateOnly(reservation.check_out),
   }));
 }
 

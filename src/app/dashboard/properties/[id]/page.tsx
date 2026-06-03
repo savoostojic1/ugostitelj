@@ -53,6 +53,7 @@ export default function PropertyDetailPage({
         <PropertyExportCalendar
           propertyName={property.name}
           exportToken={property.export_token}
+          reservations={reservations}
         />
       )}
     </>

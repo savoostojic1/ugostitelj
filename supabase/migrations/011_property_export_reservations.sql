@@ -7,7 +7,7 @@ returns table (
   title text,
   check_in date,
   check_out date,
-  platform public.calendar_platform,
+  platform text,
   is_manual boolean,
   source text
 )
@@ -22,7 +22,7 @@ as $$
     r.title,
     r.check_in,
     r.check_out,
-    r.platform,
+    r.platform::text,
     coalesce(r.is_manual, false) as is_manual,
     r.source
   from public.reservations r
