@@ -92,23 +92,22 @@ export function validateIcsUrl(
     if (!lower.includes("airbnb.")) {
       return {
         error: "URL ne liči na Airbnb kalendar.",
-        hint: "Airbnb: Calendar → Availability settings → Export calendar → kopiraj .ics link.",
+        hint: "Airbnb: Calendar → Availability → Export calendar → kopiraj cijeli link.",
       };
     }
 
-    if (!lower.includes("/calendar/ical/") && !lower.endsWith(".ics")) {
+    const looksLikeExport =
+      lower.includes("/calendar/ical/") ||
+      (lower.includes("/ical/") && lower.includes(".ics"));
+
+    if (!looksLikeExport) {
       return {
         error: "Ovo ne izgleda kao Airbnb iCal Export link.",
-        hint: "Treba link oblika: airbnb.com/calendar/ical/....ics?s=...",
+        hint: "Treba link sa airbnb.com/calendar/ical/... (Export calendar, ne Import).",
       };
     }
 
-    if (lower.includes("/calendar/ical/") && !lower.includes("s=")) {
-      return {
-        error: "Airbnb linku vjerovatno nedostaje tajni ključ (?s=...).",
-        hint: "Kopiraj cijeli link iz Export calendar, ne skraćenu verziju.",
-      };
-    }
+    // Airbnb ponekad nema ?s= — ne blokiraj; stvarna provjera je pri sync fetch-u.
   }
 
   return null;
@@ -135,7 +134,8 @@ export function formatIcsFetchError(
     }
     if (platform === "airbnb") {
       return (
-        "Airbnb ne prihvata ovaj link (HTTP 400). Calendar → Export calendar → kopiraj cijeli .ics URL sa ?s= parametrom."
+        "Airbnb ne prihvata ovaj link (HTTP 400). Calendar → Export calendar → kopiraj cijeli link. " +
+        "Probaj ga otvoriti u browseru — treba da preuzme .ics ili prikaže BEGIN:VCALENDAR."
       );
     }
     return `Kalendar nije dostupan (HTTP 400). Provjeri da je link Export URL, ne Import.`;

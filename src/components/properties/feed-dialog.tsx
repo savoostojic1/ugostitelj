@@ -205,7 +205,7 @@ export function FeedDialog({ open, onOpenChange, propertyId, feed }: FeedDialogP
             />
             <p className="text-xs text-muted-foreground">
               {platform === "airbnb" &&
-                "Airbnb: Calendar → Availability → Export calendar. Link mora imati /calendar/ical/ i ?s= ključ."}
+                "Airbnb: Calendar → Availability → Export calendar. Kopiraj cijeli link (webcal:// pretvaramo u https)."}
               {platform === "booking" &&
                 "Booking: Rates & availability → Sync calendars → Add connection → Skip to export → Copy link. Mora biti ical.html?t=... ili ical.booking.com/v1/export?t=... (NE Import link)."}
               {platform === "custom" &&
