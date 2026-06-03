@@ -43,6 +43,9 @@ export interface Reservation {
   check_in: string;
   check_out: string;
   platform: CalendarPlatform;
+  is_manual?: boolean;
+  source?: string | null;
+  price?: number | null;
   created_at: string;
   updated_at: string;
 }
@@ -58,3 +61,12 @@ export type CalendarFeedInsert = Pick<
 >;
 
 export type PropertyInsert = Pick<Property, "name">;
+
+export type ManualReservationInsert = {
+  property_id: string;
+  title: string;
+  check_in: string;
+  check_out: string;
+  source: string;
+  price: number;
+};

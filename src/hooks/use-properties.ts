@@ -68,9 +68,13 @@ export function usePropertyFeeds(propertyId: string) {
   });
 }
 
-export function useReservations(propertyId?: string) {
+export function useReservations(
+  propertyId?: string,
+  options?: { enabled?: boolean }
+) {
   return useQuery({
     queryKey: propertyId ? ["reservations", propertyId] : ["reservations"],
+    enabled: options?.enabled ?? true,
     queryFn: async () => {
       const supabase = createClient();
       const user = await requireUser(supabase);

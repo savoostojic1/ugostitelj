@@ -2,7 +2,6 @@
 
 import { use } from "react";
 import Link from "next/link";
-import { format, parseISO } from "date-fns";
 import { ArrowLeft } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -11,12 +10,13 @@ import { ConnectedFeeds } from "@/components/properties/connected-feeds";
 import { PropertyNameEditor } from "@/components/properties/property-name-editor";
 import { PropertyDeleteButton } from "@/components/properties/property-delete-button";
 import { PropertyExportCalendar } from "@/components/properties/property-export-calendar";
-import { useProperty, useReservations } from "@/hooks/use-properties";
+import { PropertyCalendarNav } from "@/components/properties/property-calendar-nav";
+import { useProperty, usePropertyFeeds, useReservations } from "@/hooks/use-properties";
 import { PLATFORM_LABELS, PLATFORM_COLORS } from "@/lib/constants";
 import { formatReservationLabel } from "@/lib/reservations/display";
 import { formatStayPeriodLabel } from "@/lib/dates/calendar-date";
+import { formatPrice } from "@/lib/format/price";
 import { cn } from "@/lib/utils";
-import { getDashboardStats } from "@/lib/dashboard-stats";
 
 export default function PropertyDetailPage({
   params,
@@ -25,6 +25,7 @@ export default function PropertyDetailPage({
 }) {
   const { id } = use(params);
   const { data: property, isLoading } = useProperty(id);
+  const { data: feeds = [], isLoading: feedsLoading } = usePropertyFeeds(id);
   const { data: reservations = [] } = useReservations(id);
 
   if (isLoading) {
@@ -42,7 +43,20 @@ export default function PropertyDetailPage({
     );
   }
 
-  const stats = getDashboardStats([property], reservations);
+  const isSetupState =
+    !feedsLoading && feeds.length === 0 && reservations.length === 0;
+
+  const calendarSetup = (
+    <>
+      <ConnectedFeeds propertyId={id} />
+      {property.export_token && (
+        <PropertyExportCalendar
+          propertyName={property.name}
+          exportToken={property.export_token}
+        />
+      )}
+    </>
+  );
 
   return (
     <div className="space-y-8">
@@ -58,110 +72,69 @@ export default function PropertyDetailPage({
         <PropertyDeleteButton propertyId={id} propertyName={property.name} />
       </div>
 
-      <div className="grid gap-4 sm:grid-cols-2">
-        <Card>
-          <CardHeader className="pb-2">
-            <CardTitle className="text-sm text-muted-foreground">
-              Dolasci
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-2">
-            {stats.upcomingArrivals.slice(0, 3).map((r) => (
-              <div key={r.id} className="text-sm">
-                <span className="font-medium">
-                  {formatReservationLabel(r.title, r.platform)}
-                </span>
-                <span className="text-muted-foreground">
-                  {" "}
-                  · {format(parseISO(r.check_in), "d. MMM")}
-                </span>
-              </div>
-            ))}
-            {stats.upcomingArrivals.length === 0 && (
-              <p className="text-sm text-muted-foreground">Nema</p>
-            )}
-          </CardContent>
-        </Card>
-        <Card>
-          <CardHeader className="pb-2">
-            <CardTitle className="text-sm text-muted-foreground">
-              Odlasci
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-2">
-            {stats.upcomingDepartures.slice(0, 3).map((r) => (
-              <div key={r.id} className="text-sm">
-                <span className="font-medium">
-                  {formatReservationLabel(r.title, r.platform)}
-                </span>
-                <span className="text-muted-foreground">
-                  {" "}
-                  · {format(parseISO(r.check_out), "d. MMM")}
-                </span>
-              </div>
-            ))}
-            {stats.upcomingDepartures.length === 0 && (
-              <p className="text-sm text-muted-foreground">Nema</p>
-            )}
-          </CardContent>
-        </Card>
-      </div>
+      {feedsLoading && reservations.length === 0 ? (
+        <p className="text-sm text-muted-foreground">Učitavanje…</p>
+      ) : isSetupState ? (
+        calendarSetup
+      ) : (
+        <>
+          <div>
+            <div className="mb-4 flex items-center justify-between gap-3">
+              <h2 className="text-lg font-semibold">Kalendar</h2>
+              <PropertyCalendarNav propertyId={id} />
+            </div>
+            <MonthlyCalendar reservations={reservations} propertyId={id} />
+          </div>
 
-      <ConnectedFeeds propertyId={id} />
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-base">Rezervacije</CardTitle>
+            </CardHeader>
+            <CardContent className="divide-y divide-border">
+              {reservations.length === 0 ? (
+                <p className="py-4 text-sm text-muted-foreground">
+                  Nema rezervacija. Pokreni sync na povezanim kalendarima.
+                </p>
+              ) : (
+                reservations.map((r) => {
+                  const colors = PLATFORM_COLORS[r.platform];
+                  return (
+                    <div
+                      key={r.id}
+                      className="flex flex-wrap items-center justify-between gap-2 py-3 first:pt-0"
+                    >
+                      <div>
+                        <p className="text-sm font-medium">
+                          {formatReservationLabel(r.title, r.platform)}
+                        </p>
+                        <p className="text-xs text-muted-foreground">
+                          {formatStayPeriodLabel(r.check_in, r.check_out)}
+                          {r.is_manual && r.source && <> · {r.source}</>}
+                          {r.is_manual && r.price != null && (
+                            <> · {formatPrice(r.price)}</>
+                          )}
+                        </p>
+                      </div>
+                      <span
+                        className={cn(
+                          "rounded-md border px-2 py-0.5 text-xs",
+                          r.is_manual
+                            ? "border-violet-500/40 bg-violet-500/15 text-violet-600 dark:text-violet-300"
+                            : cn(colors.bg, colors.border, colors.text)
+                        )}
+                      >
+                        {r.is_manual ? "Ručno" : PLATFORM_LABELS[r.platform]}
+                      </span>
+                    </div>
+                  );
+                })
+              )}
+            </CardContent>
+          </Card>
 
-      {property.export_token && (
-        <PropertyExportCalendar
-          propertyName={property.name}
-          exportToken={property.export_token}
-        />
+          {calendarSetup}
+        </>
       )}
-
-      <div>
-        <h2 className="mb-4 text-lg font-semibold">Kalendar</h2>
-        <MonthlyCalendar reservations={reservations} propertyId={id} />
-      </div>
-
-      <Card>
-        <CardHeader>
-          <CardTitle className="text-base">Rezervacije</CardTitle>
-        </CardHeader>
-        <CardContent className="divide-y divide-border">
-          {reservations.length === 0 ? (
-            <p className="py-4 text-sm text-muted-foreground">
-              Poveži kalendar i pokreni sync.
-            </p>
-          ) : (
-            reservations.map((r) => {
-              const colors = PLATFORM_COLORS[r.platform];
-              return (
-                <div
-                  key={r.id}
-                  className="flex flex-wrap items-center justify-between gap-2 py-3 first:pt-0"
-                >
-                  <div>
-                    <p className="text-sm font-medium">
-                      {formatReservationLabel(r.title, r.platform)}
-                    </p>
-                    <p className="text-xs capitalize text-muted-foreground">
-                      {formatStayPeriodLabel(r.check_in, r.check_out)}
-                    </p>
-                  </div>
-                  <span
-                    className={cn(
-                      "rounded-md border px-2 py-0.5 text-xs",
-                      colors.bg,
-                      colors.border,
-                      colors.text
-                    )}
-                  >
-                    {PLATFORM_LABELS[r.platform]}
-                  </span>
-                </div>
-              );
-            })
-          )}
-        </CardContent>
-      </Card>
     </div>
   );
 }

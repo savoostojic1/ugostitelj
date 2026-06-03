@@ -4,6 +4,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import {
   CalendarDays,
+  ClipboardPen,
   Home,
   LayoutDashboard,
   LogOut,
@@ -20,6 +21,11 @@ import { useRouter } from "next/navigation";
 const nav = [
   { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
   { href: "/dashboard/properties", label: "Properties", icon: Home },
+  {
+    href: "/dashboard/manual-reservations",
+    label: "Ručne rezervacije",
+    icon: ClipboardPen,
+  },
   { href: "/dashboard/arrivals", label: "Arrivals & Departures", icon: CalendarDays },
 ];
 
