@@ -3,6 +3,7 @@
 export interface IcsExportEvent {
   uid: string;
   summary: string;
+  description?: string;
   checkIn: string;
   checkOut: string;
 }
@@ -19,17 +20,28 @@ function toIcsDate(date: string): string {
   return date.replace(/-/g, "").split("T")[0];
 }
 
+function formatUtcStamp(date = new Date()): string {
+  return date.toISOString().replace(/[-:]/g, "").replace(/\.\d{3}Z$/, "Z");
+}
+
 function formatEvent(event: IcsExportEvent): string[] {
-  return [
+  const lines = [
     "BEGIN:VEVENT",
     `UID:${escapeIcsText(event.uid)}@ugostitelj.me`,
+    `DTSTAMP:${formatUtcStamp()}`,
     `SUMMARY:${escapeIcsText(event.summary)}`,
     `DTSTART;VALUE=DATE:${toIcsDate(event.checkIn)}`,
     `DTEND;VALUE=DATE:${toIcsDate(event.checkOut)}`,
     "STATUS:CONFIRMED",
     "TRANSP:OPAQUE",
-    "END:VEVENT",
   ];
+
+  if (event.description) {
+    lines.push(`DESCRIPTION:${escapeIcsText(event.description)}`);
+  }
+
+  lines.push("END:VEVENT");
+  return lines;
 }
 
 export function generateIcsCalendar(options: {

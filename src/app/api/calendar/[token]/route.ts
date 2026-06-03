@@ -1,7 +1,10 @@
 import { NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { parseExportToken } from "@/lib/calendar/export-url";
-import { generateEmptyIcsCalendar } from "@/lib/ical/generate-ics";
+import {
+  generatePropertyExportIcs,
+  type PropertyExportReservation,
+} from "@/lib/ical/property-export";
 
 export const runtime = "nodejs";
 
@@ -17,16 +20,26 @@ export async function GET(
   }
 
   const supabase = await createClient();
-  const { data, error } = await supabase.rpc("get_property_export_by_token", {
-    token,
-  });
+  const { data: propertyRows, error: propertyError } = await supabase.rpc(
+    "get_property_export_by_token",
+    { token }
+  );
 
-  if (error || !data?.length) {
+  if (propertyError || !propertyRows?.length) {
     return new NextResponse("Not found", { status: 404 });
   }
 
-  const row = data[0] as { property_id: string; property_name: string };
-  const ics = generateEmptyIcsCalendar(row.property_name);
+  const row = propertyRows[0] as { property_id: string; property_name: string };
+
+  const { data: reservationRows, error: reservationsError } =
+    await supabase.rpc("get_property_export_reservations", { token });
+
+  if (reservationsError) {
+    return new NextResponse("Export unavailable", { status: 500 });
+  }
+
+  const reservations = (reservationRows ?? []) as PropertyExportReservation[];
+  const ics = generatePropertyExportIcs(row.property_name, reservations);
 
   return new NextResponse(ics, {
     status: 200,

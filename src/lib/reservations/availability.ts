@@ -43,25 +43,30 @@ export function findStayRangeConflict(
 
 export function getReservationsOnNight(
   reservations: Reservation[],
-  day: Date
+  day: Date,
+  excludeId?: string
 ): Reservation[] {
-  return reservations.filter((r) =>
-    isStayNight(r.check_in, r.check_out, day)
+  return reservations.filter(
+    (r) =>
+      (!excludeId || r.id !== excludeId) &&
+      isStayNight(r.check_in, r.check_out, day)
   );
 }
 
 export function isNightOccupied(
   reservations: Reservation[],
-  day: Date
+  day: Date,
+  excludeId?: string
 ): boolean {
-  return getReservationsOnNight(reservations, day).length > 0;
+  return getReservationsOnNight(reservations, day, excludeId).length > 0;
 }
 
 export function canCheckInOnDay(
   reservations: Reservation[],
-  day: Date
+  day: Date,
+  excludeId?: string
 ): boolean {
-  return !isNightOccupied(reservations, day);
+  return !isNightOccupied(reservations, day, excludeId);
 }
 
 export function isDayInSelectedRange(
@@ -83,10 +88,13 @@ export function formatConflictMessage(conflict: Reservation): string {
 export function validateStayRange(
   reservations: Reservation[],
   checkIn: string,
-  checkOut: string
+  checkOut: string,
+  options?: { excludeId?: string; allowPastCheckIn?: boolean }
 ):
   | { ok: true }
   | { ok: false; message: string; conflict?: Reservation } {
+  const excludeId = options?.excludeId;
+
   if (!checkIn || !checkOut) {
     return { ok: false, message: "Izaberi dolazak i odlazak na kalendaru" };
   }
@@ -96,17 +104,25 @@ export function validateStayRange(
       message: "Datum odlaska mora biti poslije dolaska",
     };
   }
-  if (parseDateOnly(checkIn) < startOfDay(new Date())) {
+  if (
+    !options?.allowPastCheckIn &&
+    parseDateOnly(checkIn) < startOfDay(new Date())
+  ) {
     return { ok: false, message: "Dolazak ne može biti u prošlosti" };
   }
-  if (!canCheckInOnDay(reservations, parseDateOnly(checkIn))) {
+  if (!canCheckInOnDay(reservations, parseDateOnly(checkIn), excludeId)) {
     return {
       ok: false,
       message: "Dan dolaska je već zauzet",
     };
   }
 
-  const conflict = findStayRangeConflict(reservations, checkIn, checkOut);
+  const conflict = findStayRangeConflict(
+    reservations,
+    checkIn,
+    checkOut,
+    excludeId
+  );
   if (conflict) {
     return {
       ok: false,
@@ -122,9 +138,10 @@ export type DayAvailabilityKind = "free" | "occupied" | "blocked";
 
 export function getDayAvailabilityKind(
   reservations: Reservation[],
-  day: Date
+  day: Date,
+  excludeId?: string
 ): DayAvailabilityKind {
-  const onNight = getReservationsOnNight(reservations, day);
+  const onNight = getReservationsOnNight(reservations, day, excludeId);
   if (onNight.length === 0) return "free";
 
   const hasBlock = onNight.some(
@@ -135,9 +152,10 @@ export function getDayAvailabilityKind(
 
 export function getDayAvailabilityLabel(
   reservations: Reservation[],
-  day: Date
+  day: Date,
+  excludeId?: string
 ): string | null {
-  const onNight = getReservationsOnNight(reservations, day);
+  const onNight = getReservationsOnNight(reservations, day, excludeId);
   if (onNight.length === 0) return null;
 
   return onNight

@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { Plus, Trash2 } from "lucide-react";
+import { Pencil, Plus, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import {
@@ -88,16 +88,25 @@ export default function ManualReservationsPage() {
                   )}
                 </p>
               </div>
-              <Button
-                variant="ghost"
-                size="icon"
-                className="shrink-0 self-end sm:self-center"
-                onClick={() => handleDelete(r.id, r.title)}
-                disabled={deleteReservation.isPending}
-                aria-label={`Obriši ${r.title}`}
-              >
-                <Trash2 className="h-4 w-4 text-destructive" />
-              </Button>
+              <div className="flex shrink-0 gap-1 self-end sm:self-center">
+                <Button variant="ghost" size="icon" asChild>
+                  <Link
+                    href={`/dashboard/manual-reservations/${r.id}/edit`}
+                    aria-label={`Uredi ${r.title}`}
+                  >
+                    <Pencil className="h-4 w-4" />
+                  </Link>
+                </Button>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  onClick={() => handleDelete(r.id, r.title)}
+                  disabled={deleteReservation.isPending}
+                  aria-label={`Obriši ${r.title}`}
+                >
+                  <Trash2 className="h-4 w-4 text-destructive" />
+                </Button>
+              </div>
             </CardContent>
           </Card>
         ))}

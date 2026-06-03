@@ -37,6 +37,7 @@ interface ReservationDatePickerProps {
   checkOut: string;
   onChange: (checkIn: string, checkOut: string) => void;
   isLoading?: boolean;
+  excludeReservationId?: string;
 }
 
 const WEEKDAYS = ["Pon", "Uto", "Sri", "Čet", "Pet", "Sub", "Ned"];
@@ -47,6 +48,7 @@ export function ReservationDatePicker({
   checkOut,
   onChange,
   isLoading,
+  excludeReservationId,
 }: ReservationDatePickerProps) {
   const today = startOfDay(new Date());
   const [viewMonth, setViewMonth] = useState(() =>
@@ -67,10 +69,14 @@ export function ReservationDatePicker({
   const upcomingOccupied = useMemo(() => {
     const todayKey = format(today, "yyyy-MM-dd");
     return [...reservations]
-      .filter((r) => r.check_out > todayKey)
+      .filter(
+        (r) =>
+          r.check_out > todayKey &&
+          (!excludeReservationId || r.id !== excludeReservationId)
+      )
       .sort((a, b) => a.check_in.localeCompare(b.check_in))
       .slice(0, 8);
-  }, [reservations, today]);
+  }, [reservations, today, excludeReservationId]);
 
   const selectionLabel =
     checkIn && checkOut
@@ -80,7 +86,7 @@ export function ReservationDatePicker({
         : "Klikni dan dolaska, zatim dan odlaska";
 
   function handleDayClick(day: Date) {
-    if (day < today) {
+    if (!excludeReservationId && day < today) {
       toast.error("Ne možeš birati datume u prošlosti");
       return;
     }
@@ -88,8 +94,12 @@ export function ReservationDatePicker({
     const dateKey = format(day, "yyyy-MM-dd");
 
     if (!checkIn || (checkIn && checkOut)) {
-      if (!canCheckInOnDay(reservations, day)) {
-        const label = getDayAvailabilityLabel(reservations, day);
+      if (!canCheckInOnDay(reservations, day, excludeReservationId)) {
+        const label = getDayAvailabilityLabel(
+          reservations,
+          day,
+          excludeReservationId
+        );
         toast.error(
           label
             ? `Zauzeto: ${label}. Izaberi slobodan dan za dolazak.`
@@ -102,7 +112,7 @@ export function ReservationDatePicker({
     }
 
     if (dateKey <= checkIn) {
-      if (!canCheckInOnDay(reservations, day)) {
+      if (!canCheckInOnDay(reservations, day, excludeReservationId)) {
         toast.error("Ovaj dan je zauzet — izaberi slobodan dolazak");
         return;
       }
@@ -110,7 +120,10 @@ export function ReservationDatePicker({
       return;
     }
 
-    const validation = validateStayRange(reservations, checkIn, dateKey);
+    const validation = validateStayRange(reservations, checkIn, dateKey, {
+      excludeId: excludeReservationId,
+      allowPastCheckIn: !!excludeReservationId,
+    });
     if (!validation.ok) {
       toast.error(validation.message);
       return;
@@ -171,10 +184,18 @@ export function ReservationDatePicker({
             <div key={wi} className="grid grid-cols-7 gap-1">
               {weekDays.map((day) => {
                 const inMonth = isSameMonth(day, viewMonth);
-                const isPast = day < today;
+                const isPast = !excludeReservationId && day < today;
                 const dateKey = format(day, "yyyy-MM-dd");
-                const availability = getDayAvailabilityKind(reservations, day);
-                const tooltip = getDayAvailabilityLabel(reservations, day);
+                const availability = getDayAvailabilityKind(
+                  reservations,
+                  day,
+                  excludeReservationId
+                );
+                const tooltip = getDayAvailabilityLabel(
+                  reservations,
+                  day,
+                  excludeReservationId
+                );
                 const isSelectedStart = !!checkIn && dateKey === checkIn;
                 const isSelectedEnd = !!checkOut && dateKey === checkOut;
                 const inRange = isDayInSelectedRange(checkIn, checkOut, day);
@@ -276,7 +297,8 @@ export function ReservationDatePicker({
                 <span className="text-xs text-muted-foreground">
                   {getDayAvailabilityKind(
                     reservations,
-                    parseDateOnly(r.check_in)
+                    parseDateOnly(r.check_in),
+                    excludeReservationId
                   ) === "blocked"
                     ? "Blokirano"
                     : r.title}

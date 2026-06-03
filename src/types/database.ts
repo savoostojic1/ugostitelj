@@ -70,3 +70,7 @@ export type ManualReservationInsert = {
   source: string;
   price: number;
 };
+
+export type ManualReservationUpdate = ManualReservationInsert & {
+  id: string;
+};

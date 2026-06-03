@@ -30,11 +30,11 @@ export function PropertyExportCalendar({
   return (
     <Card>
       <CardHeader>
-        <CardTitle className="text-base">Export link (za Airbnb)</CardTitle>
+        <CardTitle className="text-base">Export link (Airbnb & Booking)</CardTitle>
         <p className="text-sm text-muted-foreground">
-          Zalijepi ovaj link u Airbnb kao <strong>Import calendar</strong>.
-          Ugostitelj će kasnije slati zauzete datume ka Airbnb-u. Za sada je
-          kalendar prazan.
+          Zalijepi isti link u Airbnb i Booking kao{" "}
+          <strong>Import calendar</strong>. Ručne rezervacije i rezervacije sa
+          drugih kanala automatski blokiraju datume na oba portala.
         </p>
       </CardHeader>
       <CardContent className="space-y-3">
@@ -57,8 +57,9 @@ export function PropertyExportCalendar({
           </Button>
         </div>
         <p className="text-xs text-muted-foreground">
-          Airbnb: Calendar → Availability → Import calendar → paste URL. Link
-          ostaje isti za ovu nekretninu ({propertyName}).
+          Airbnb: Calendar → Availability → Import calendar. Booking: Extranet →
+          Sync calendars → Import calendar. Airbnb obično osvježava link svakih
+          ~1h; nakon ručne rezervacije sačekaj sync ili ručno osvježi kalendar.
         </p>
       </CardContent>
     </Card>
