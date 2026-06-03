@@ -23,7 +23,7 @@ export function DashboardSyncBar() {
   }
 
   return (
-    <div className="sticky top-[calc(env(safe-area-inset-top,0px)+3.5rem)] z-20 border-b border-border/80 bg-background/95 px-4 py-3 backdrop-blur supports-[backdrop-filter]:bg-background/80 md:top-0 md:px-8">
+    <div className="border-b border-border bg-background px-4 py-2.5 md:sticky md:top-0 md:z-20 md:border-border/80 md:bg-background/95 md:py-3 md:px-8 md:backdrop-blur supports-[backdrop-filter]:md:bg-background/80">
       <div className="mx-auto flex max-w-7xl justify-end">
         <Button
           variant="outline"
