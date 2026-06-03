@@ -74,7 +74,11 @@ export function DateEventsList() {
     useReservations();
   const { calendarMonth, setCalendarMonth } = useUiStore();
 
-  const todayKey = format(startOfDay(new Date()), "yyyy-MM-dd");
+  const today = useMemo(() => startOfDay(new Date()), []);
+  const todayKey = format(today, "yyyy-MM-dd");
+  const isCurrentMonth =
+    calendarMonth.getFullYear() === today.getFullYear() &&
+    calendarMonth.getMonth() === today.getMonth();
 
   const propertyColors = useMemo(
     () =>
@@ -87,8 +91,8 @@ export function DateEventsList() {
   );
 
   const dayGroups = useMemo(
-    () => buildMonthDayGroups(reservations, calendarMonth),
-    [reservations, calendarMonth]
+    () => buildMonthDayGroups(reservations, calendarMonth, { from: today }),
+    [reservations, calendarMonth, today]
   );
 
   const isLoading = loadingProperties || loadingReservations;
@@ -123,6 +127,7 @@ export function DateEventsList() {
             variant="outline"
             size="icon"
             className="h-8 w-8 border-border/80 bg-background/80"
+            disabled={isCurrentMonth}
             onClick={() =>
               setCalendarMonth(
                 new Date(
@@ -163,7 +168,12 @@ export function DateEventsList() {
       </div>
 
       <div className="divide-y divide-border/60">
-        {dayGroups.map((group) => {
+        {dayGroups.length === 0 ? (
+          <p className="px-4 py-12 text-center text-sm text-muted-foreground">
+            Nema upcoming dana za ovaj mjesec.
+          </p>
+        ) : (
+          dayGroups.map((group) => {
           const isToday = group.dateKey === todayKey;
 
           return (
@@ -210,7 +220,8 @@ export function DateEventsList() {
               </div>
             </div>
           );
-        })}
+        })
+        )}
       </div>
     </div>
   );

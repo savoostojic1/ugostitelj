@@ -103,11 +103,19 @@ function pushEvent(
 
 export function buildMonthDayGroups(
   reservations: ReservationWithProperty[],
-  month: Date
+  month: Date,
+  options?: { from?: Date }
 ): DayEventGroup[] {
   const monthStart = startOfMonth(month);
   const monthEnd = endOfMonth(month);
-  const days = eachDayOfInterval({ start: monthStart, end: monthEnd });
+  const from = startOfDay(options?.from ?? monthStart);
+
+  if (monthEnd < from) {
+    return [];
+  }
+
+  const rangeStart = monthStart > from ? monthStart : from;
+  const days = eachDayOfInterval({ start: rangeStart, end: monthEnd });
   const byDate = new Map<string, DayEvent[]>(
     days.map((day) => [format(day, "yyyy-MM-dd"), []])
   );
