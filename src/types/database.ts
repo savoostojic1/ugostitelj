@@ -15,6 +15,7 @@ export interface Property {
   name: string;
   address: string | null;
   image_url: string | null;
+  export_token?: string;
   created_at: string;
   updated_at: string;
 }

@@ -10,6 +10,7 @@ import { MonthlyCalendar } from "@/components/calendar/monthly-calendar";
 import { ConnectedFeeds } from "@/components/properties/connected-feeds";
 import { PropertyNameEditor } from "@/components/properties/property-name-editor";
 import { PropertyDeleteButton } from "@/components/properties/property-delete-button";
+import { PropertyExportCalendar } from "@/components/properties/property-export-calendar";
 import { useProperty, useReservations } from "@/hooks/use-properties";
 import { PLATFORM_LABELS, PLATFORM_COLORS } from "@/lib/constants";
 import { formatReservationLabel } from "@/lib/reservations/display";
@@ -107,6 +108,13 @@ export default function PropertyDetailPage({
       </div>
 
       <ConnectedFeeds propertyId={id} />
+
+      {property.export_token && (
+        <PropertyExportCalendar
+          propertyName={property.name}
+          exportToken={property.export_token}
+        />
+      )}
 
       <div>
         <h2 className="mb-4 text-lg font-semibold">Kalendar</h2>

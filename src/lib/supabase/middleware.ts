@@ -39,7 +39,10 @@ export async function updateSession(request: NextRequest) {
       path.startsWith("/login") ||
       path.startsWith("/register") ||
       path.startsWith("/forgot-password");
-    const isPublicRoute = path === "/" || isAuthRoute;
+    const isPublicRoute =
+      path === "/" ||
+      isAuthRoute ||
+      path.startsWith("/api/calendar");
 
     if (!user && path.startsWith("/dashboard")) {
       const redirectUrl = request.nextUrl.clone();
