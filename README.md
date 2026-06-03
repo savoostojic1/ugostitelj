@@ -1,36 +1,87 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Ugostitelj
 
-## Getting Started
+Property calendar dashboard for short-term rental hosts. Connect Airbnb and Booking.com calendars via iCal/ICS URLs and view all reservations in one unified calendar.
 
-First, run the development server:
+## Stack
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+- Next.js 15 · TypeScript · Tailwind CSS · shadcn/ui
+- Supabase (Auth + Postgres)
+- TanStack React Query · Zustand
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## Setup
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+1. **Supabase project**
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+   Create a project at [supabase.com](https://supabase.com).
 
-## Learn More
+2. **Database**
 
-To learn more about Next.js, take a look at the following resources:
+   Run migrations in order in the Supabase SQL editor:
+   - `supabase/migrations/001_initial_schema.sql`
+   - `supabase/migrations/002_no_auto_data_for_new_users.sql` (if you already ran 001 before this change)
+   - `supabase/migrations/004_fix_calendar_feeds_rls.sql` (if adding calendar feeds fails with RLS)
+   - `supabase/migrations/005_create_calendar_feeds.sql` (if you see `PGRST205` / table not found)
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+   New users start with **no** properties, feeds, or reservations — they add everything manually.
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+3. **Environment**
+
+   Copy `.env.example` to `.env.local`:
+
+   ```bash
+   cp .env.example .env.local
+   ```
+
+   Set `NEXT_PUBLIC_SUPABASE_URL` and `NEXT_PUBLIC_SUPABASE_ANON_KEY` from Project Settings → API.
+
+4. **Auth redirect URLs** (Supabase → Authentication → URL Configuration)
+
+   - Site URL: `http://localhost:3000` (production: your Vercel domain)
+   - Redirect URLs: `http://localhost:3000/**`, `https://your-domain.vercel.app/**`
+
+5. **Run**
+
+   ```bash
+   npm install
+   npm run dev
+   ```
+
+   Open [http://localhost:3000](http://localhost:3000).
 
 ## Deploy on Vercel
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+1. Push this repo to GitHub (root = folder with `package.json`, not a subfolder).
+2. Import the repo in [Vercel](https://vercel.com/new) — framework should auto-detect **Next.js**.
+3. **Root Directory**: leave empty (`.`).
+4. Add environment variables from `.env.example`:
+   - `NEXT_PUBLIC_SUPABASE_URL`
+   - `NEXT_PUBLIC_SUPABASE_ANON_KEY`
+5. Deploy.
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+`vercel.json` at the repo root pins the Next.js framework preset.
+
+## Core flow
+
+1. Register / sign in → Dashboard
+2. **New Property** → name, address, image URL
+3. On the property page → **Connected Calendars** → add Airbnb / Booking / custom ICS URL
+4. **Sync Now** → reservations import into `reservations` table
+5. View **Reservation Calendar**, dashboard overview, and **Arrivals & Departures**
+
+## Database tables
+
+| Table            | Purpose                                      |
+|------------------|----------------------------------------------|
+| `users`          | Profile linked to `auth.users`               |
+| `properties`     | Rental properties per host                   |
+| `calendar_feeds` | iCal URLs per property                       |
+| `reservations`   | Imported stays (check-in/out, platform)    |
+
+## API
+
+- `POST /api/sync` — body `{ "feedId": "..." }` or `{ "propertyId": "..." }` to sync ICS feeds
+
+## Notes
+
+- No direct Airbnb/Booking APIs — calendar sync only via public ICS URLs
+- Row Level Security ensures users only access their own data

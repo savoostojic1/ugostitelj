@@ -1,26 +1,128 @@
 @import "tailwindcss";
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --background: #fafafa;
+  --foreground: #0a0a0a;
+  --card: #ffffff;
+  --card-foreground: #0a0a0a;
+  --popover: #ffffff;
+  --popover-foreground: #0a0a0a;
+  --primary: #6366f1;
+  --primary-foreground: #fafafa;
+  --secondary: #f4f4f5;
+  --secondary-foreground: #18181b;
+  --muted: #f4f4f5;
+  --muted-foreground: #71717a;
+  --accent: #f4f4f5;
+  --accent-foreground: #18181b;
+  --destructive: #ef4444;
+  --destructive-foreground: #fafafa;
+  --border: #e4e4e7;
+  --input: #e4e4e7;
+  --ring: #6366f1;
+  --radius: 0.75rem;
+
+  /* Kalendar — dashboard */
+  --calendar-check-in: #059669;
+  --calendar-check-in-soft: #d1fae5;
+  --calendar-check-in-ring: #6ee7b7;
+  --calendar-check-out: #e11d48;
+  --calendar-check-out-soft: #ffe4e6;
+  --calendar-check-out-ring: #fda4af;
+  --calendar-date-bg: #f8fafc;
+  --calendar-date-text: #334155;
+  --calendar-date-today-bg: #eef2ff;
+  --calendar-date-today-text: #4f46e5;
+  --calendar-date-today-ring: #c7d2fe;
+  --calendar-row-today: #f5f7ff;
+  --calendar-property-1: #6366f1;
+  --calendar-property-2: #ec4899;
+  --calendar-property-3: #14b8a6;
+  --calendar-property-4: #f59e0b;
+  --calendar-property-5: #8b5cf6;
+  --calendar-property-6: #0ea5e9;
+  --calendar-property-7: #10b981;
+  --calendar-property-8: #f97316;
+  --calendar-property-9: #a855f7;
+  --calendar-property-10: #06b6d4;
+}
+
+.dark {
+  --background: #09090b;
+  --foreground: #fafafa;
+  --card: #111113;
+  --card-foreground: #fafafa;
+  --popover: #111113;
+  --popover-foreground: #fafafa;
+  --primary: #818cf8;
+  --primary-foreground: #09090b;
+  --secondary: #1c1c1f;
+  --secondary-foreground: #fafafa;
+  --muted: #1c1c1f;
+  --muted-foreground: #a1a1aa;
+  --accent: #1c1c1f;
+  --accent-foreground: #fafafa;
+  --destructive: #dc2626;
+  --destructive-foreground: #fafafa;
+  --border: #27272a;
+  --input: #27272a;
+  --ring: #818cf8;
+
+  --calendar-check-in: #34d399;
+  --calendar-check-in-soft: #064e3b;
+  --calendar-check-in-ring: #059669;
+  --calendar-check-out: #fb7185;
+  --calendar-check-out-soft: #881337;
+  --calendar-check-out-ring: #e11d48;
+  --calendar-date-bg: #18181b;
+  --calendar-date-text: #e4e4e7;
+  --calendar-date-today-bg: #1e1b4b;
+  --calendar-date-today-text: #a5b4fc;
+  --calendar-date-today-ring: #4338ca;
+  --calendar-row-today: #13131a;
+  --calendar-property-1: #818cf8;
+  --calendar-property-2: #f472b6;
+  --calendar-property-3: #2dd4bf;
+  --calendar-property-4: #fbbf24;
+  --calendar-property-5: #a78bfa;
+  --calendar-property-6: #38bdf8;
+  --calendar-property-7: #4ade80;
+  --calendar-property-8: #fb923c;
+  --calendar-property-9: #c084fc;
+  --calendar-property-10: #22d3ee;
 }
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --radius-lg: var(--radius);
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+* {
+  border-color: var(--border);
 }
 
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: var(--font-sans), system-ui, sans-serif;
 }
