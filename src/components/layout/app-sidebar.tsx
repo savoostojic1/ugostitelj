@@ -86,11 +86,13 @@ export function AppSidebar() {
       <aside className="hidden w-60 shrink-0 border-r border-border bg-card md:block">
         {content}
       </aside>
-      <div className="flex items-center gap-2 border-b border-border bg-card p-3 md:hidden">
-        <Button variant="ghost" size="icon" onClick={() => setSidebarOpen(true)}>
-          <Menu className="h-5 w-5" />
-        </Button>
-        <span className="font-semibold">Ugostitelj</span>
+      <div className="sticky top-0 z-30 border-b border-border bg-card pt-safe md:hidden">
+        <div className="flex h-14 items-center gap-2 px-3">
+          <Button variant="ghost" size="icon" onClick={() => setSidebarOpen(true)}>
+            <Menu className="h-5 w-5" />
+          </Button>
+          <span className="font-semibold">Ugostitelj</span>
+        </div>
       </div>
       {sidebarOpen && (
         <div className="fixed inset-0 z-50 md:hidden">
@@ -98,16 +100,16 @@ export function AppSidebar() {
             className="absolute inset-0 bg-black/60"
             onClick={() => setSidebarOpen(false)}
           />
-          <aside className="absolute left-0 top-0 h-full w-72 bg-card shadow-xl">
+          <aside className="absolute left-0 top-0 flex h-full w-72 flex-col bg-card pt-safe shadow-xl">
             <Button
               variant="ghost"
               size="icon"
-              className="absolute right-2 top-2"
+              className="absolute right-2 top-[calc(env(safe-area-inset-top,0px)+0.5rem)]"
               onClick={() => setSidebarOpen(false)}
             >
               <X className="h-4 w-4" />
             </Button>
-            {content}
+            <div className="flex min-h-0 flex-1 flex-col">{content}</div>
           </aside>
         </div>
       )}
