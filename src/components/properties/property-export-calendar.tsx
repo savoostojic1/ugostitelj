@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { buildPropertyExportUrl } from "@/lib/calendar/export-url";
-import { isExportableReservation } from "@/lib/calendar/export-filter";
+import { isManualExportReservation } from "@/lib/calendar/export-filter";
 import type { Reservation } from "@/types/database";
 import { toast } from "sonner";
 
@@ -22,7 +22,7 @@ export function PropertyExportCalendar({
 }: PropertyExportCalendarProps) {
   const exportUrl = buildPropertyExportUrl(exportToken);
   const exportableCount = reservations.filter((r) =>
-    isExportableReservation(r.check_out)
+    isManualExportReservation(r)
   ).length;
 
   async function copyUrl() {
@@ -39,10 +39,10 @@ export function PropertyExportCalendar({
       <CardHeader>
         <CardTitle className="text-base">Export link (Airbnb & Booking)</CardTitle>
         <p className="text-sm text-muted-foreground">
-          Ne uploaduj fajl ručno. Kopiraj <strong>link ispod</strong> i zalijepi
-          ga u Airbnb i Booking kao <strong>Import calendar URL</strong>. Oba
-          portala povlače taj link automatski i blokiraju datume iz liste
-          događaja u kalendaru.
+          Kopiraj <strong>link ispod</strong> i zalijepi ga u Airbnb i Booking kao{" "}
+          <strong>Import calendar URL</strong>. U export idu samo{" "}
+          <strong>ručne rezervacije</strong> koje dodaš u Ugostitelju — ne Airbnb/Booking
+          sync.
         </p>
       </CardHeader>
       <CardContent className="space-y-4">
@@ -75,14 +75,14 @@ export function PropertyExportCalendar({
           {exportableCount > 0 ? (
             <>
               <strong>{exportableCount}</strong>{" "}
-              {exportableCount === 1 ? "rezervacija" : "rezervacije"} u exportu
-              (datumi koje Airbnb/Booking treba da blokiraju).
+              {exportableCount === 1 ? "ručna rezervacija" : "ručne rezervacije"}{" "}
+              u exportu (datumi koje Airbnb/Booking treba da blokiraju).
             </>
           ) : (
             <>
-              Export je trenutno <strong>prazan</strong> — nema budućih
-              rezervacija za ovaj bungalov. Dodaj ručnu rezervaciju ili sync
-              kalendare.
+              Export je trenutno <strong>prazan</strong> — nema budućih ručnih
+              rezervacija za ovaj bungalov. Dodaj ih u meniju{" "}
+              <strong>Ručne rezervacije</strong>.
             </>
           )}
         </div>
@@ -90,15 +90,13 @@ export function PropertyExportCalendar({
         <div className="rounded-lg border border-border/80 bg-muted/20 p-3 text-sm">
           <p className="font-medium">Kako platforme znaju šta da blokiraju</p>
           <p className="mt-1 text-muted-foreground">
-            Svaka rezervacija u Ugostitelju postaje jedan događaj u .ics fajlu
-            sa <strong>dolaskom</strong> (DTSTART) i <strong>odlaskom</strong>{" "}
-            (DTEND). Airbnb i Booking čitaju te datume i zatvaraju te noći u
-            kalendaru dostupnosti.
+            Svaka <strong>ručna rezervacija</strong> postaje jedan događaj u
+            .ics fajlu sa dolaskom (DTSTART) i odlaskom (DTEND). Airbnb i
+            Booking povlače link i zatvaraju te datume.
           </p>
           <ul className="mt-2 list-inside list-disc space-y-1 text-muted-foreground">
-            <li>Ručne rezervacije → blokiraju oba portala</li>
-            <li>Booking rezervacije (sync) → blokiraju Airbnb</li>
-            <li>Airbnb rezervacije (sync) → blokiraju Booking</li>
+            <li>Ručne rezervacije iz Ugostitelja → idu u export</li>
+            <li>Airbnb / Booking sync → ne idu u export</li>
           </ul>
         </div>
 

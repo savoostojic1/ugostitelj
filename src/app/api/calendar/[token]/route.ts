@@ -9,7 +9,7 @@ import {
 
 export const runtime = "nodejs";
 
-const EXPORT_VERSION = "2";
+const EXPORT_VERSION = "3";
 
 interface ExportCalendarPayload {
   property_id: string;
@@ -39,7 +39,7 @@ function normalizeReservations(raw: unknown): PropertyExportReservation[] {
     });
   }
 
-  return rows;
+  return rows.filter((r) => r.is_manual);
 }
 
 async function loadExportPayload(
