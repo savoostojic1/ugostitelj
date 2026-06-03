@@ -18,17 +18,42 @@ export async function POST(request: Request) {
   const body = await request.json();
   const feedId = body.feedId as string | undefined;
   const propertyId = body.propertyId as string | undefined;
+  const syncAll = body.syncAll === true;
 
-  if (!feedId && !propertyId) {
+  if (!feedId && !propertyId && !syncAll) {
     return NextResponse.json(
-      { error: "feedId or propertyId required" },
+      { error: "feedId, propertyId, or syncAll required" },
       { status: 400 }
     );
   }
 
   let feeds: CalendarFeed[] = [];
 
-  if (feedId) {
+  if (syncAll) {
+    const { data: properties, error: propsError } = await supabase
+      .from("properties")
+      .select("id")
+      .eq("user_id", user.id);
+
+    if (propsError) {
+      return NextResponse.json({ error: propsError.message }, { status: 500 });
+    }
+
+    const propertyIds = properties?.map((p) => p.id) ?? [];
+    if (propertyIds.length === 0) {
+      return NextResponse.json({ results: [] });
+    }
+
+    const { data, error } = await supabase
+      .from("calendar_feeds")
+      .select("*")
+      .in("property_id", propertyIds);
+
+    if (error) {
+      return NextResponse.json({ error: error.message }, { status: 500 });
+    }
+    feeds = (data ?? []) as CalendarFeed[];
+  } else if (feedId) {
     const { data: feed, error } = await supabase
       .from("calendar_feeds")
       .select("*")

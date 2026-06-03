@@ -3,6 +3,7 @@ import "server-only";
 import { addDays } from "date-fns";
 import { parseDateOnly } from "@/lib/dates/calendar-date";
 import type { CalendarPlatform } from "@/types/database";
+import { fetchIcsText } from "./fetch-ics";
 import { parseIcsDate, parseIcsEvents } from "./parse-ics";
 import {
   classifyCalendarEvent,
@@ -35,29 +36,7 @@ export async function fetchAndParseIcs(
   icsUrl: string,
   platform: CalendarPlatform
 ): Promise<{ reservations: ParsedReservation[]; stats: IcsParseStats }> {
-  const response = await fetch(icsUrl, {
-    headers: {
-      "User-Agent":
-        "Mozilla/5.0 (compatible; Ugostitelj/1.0; +https://ugostitelj.me)",
-      Accept: "text/calendar, text/plain, */*",
-    },
-    signal: AbortSignal.timeout(30000),
-    cache: "no-store",
-  });
-
-  if (!response.ok) {
-    throw new Error(
-      `Booking/Airbnb kalendar nije dostupan (HTTP ${response.status}). Koristi Export link iz extraneta, ne Import.`
-    );
-  }
-
-  const icsText = await response.text();
-  if (!icsText.includes("BEGIN:VCALENDAR")) {
-    const preview = icsText.replace(/\s+/g, " ").slice(0, 80);
-    throw new Error(
-      `Odgovor nije iCal (.ics). ${preview ? `Početak: „${preview}…“` : "Prazan odgovor."} Treba Export URL, ne API ključ.`
-    );
-  }
+  const icsText = await fetchIcsText(icsUrl, platform);
 
   const events = parseIcsEvents(icsText);
   const reservations: ParsedReservation[] = [];

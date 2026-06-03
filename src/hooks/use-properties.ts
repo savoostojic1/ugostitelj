@@ -3,6 +3,7 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { createClient } from "@/lib/supabase/client";
 import { requireUser } from "@/lib/supabase/require-user";
+import { postSyncAll } from "@/lib/sync/sync-all";
 import type { CalendarFeed, Property, PropertyInsert, Reservation } from "@/types/database";
 
 export function useProperties() {
@@ -166,6 +167,22 @@ export function useDeleteProperty() {
       qc.removeQueries({ queryKey: ["properties", id] });
       qc.invalidateQueries({ queryKey: ["reservations"] });
       qc.invalidateQueries({ queryKey: ["calendar_feeds"] });
+    },
+  });
+}
+
+export function useSyncAll() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: async () => {
+      const json = await postSyncAll();
+      const failed = json.results.find((r) => r.error);
+      if (failed?.error) throw new Error(failed.error);
+      return json;
+    },
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ["calendar_feeds"] });
+      qc.invalidateQueries({ queryKey: ["reservations"] });
     },
   });
 }
