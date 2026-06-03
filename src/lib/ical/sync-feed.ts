@@ -11,6 +11,7 @@ export async function syncCalendarFeed(
   feed: CalendarFeed
 ): Promise<{
   imported: number;
+  removed: number;
   totalEvents: number;
   skippedBlocked: number;
   skippedInvalid: number;
@@ -32,6 +33,8 @@ export async function syncCalendarFeed(
       feed.platform
     );
 
+    const parsedUidSet = new Set(parsed.map((r) => r.external_uid));
+
     if (parsed.length > 0) {
       const rows = parsed.map((r) => ({
         property_id: feed.property_id,
@@ -42,6 +45,7 @@ export async function syncCalendarFeed(
         check_in: r.check_in,
         check_out: r.check_out,
         platform: r.platform,
+        is_manual: false,
       }));
 
       const { error: upsertError } = await supabase
@@ -49,6 +53,29 @@ export async function syncCalendarFeed(
         .upsert(rows, { onConflict: "property_id,external_uid" });
 
       if (upsertError) throw upsertError;
+    }
+
+    const { data: existing, error: existingError } = await supabase
+      .from("reservations")
+      .select("id, external_uid, is_manual")
+      .eq("calendar_feed_id", feed.id);
+
+    if (existingError) throw existingError;
+
+    const staleIds =
+      existing
+        ?.filter((r) => !r.is_manual && !parsedUidSet.has(r.external_uid))
+        .map((r) => r.id) ?? [];
+
+    let removed = 0;
+    if (staleIds.length > 0) {
+      const { error: deleteError } = await supabase
+        .from("reservations")
+        .delete()
+        .in("id", staleIds);
+
+      if (deleteError) throw deleteError;
+      removed = staleIds.length;
     }
 
     await supabase
@@ -62,6 +89,7 @@ export async function syncCalendarFeed(
 
     return {
       imported: parsed.length,
+      removed,
       totalEvents: stats.totalEvents,
       skippedBlocked: stats.skippedBlocked,
       skippedInvalid: stats.skippedInvalid,
@@ -77,6 +105,7 @@ export async function syncCalendarFeed(
       .eq("id", feed.id);
     return {
       imported: 0,
+      removed: 0,
       totalEvents: 0,
       skippedBlocked: 0,
       skippedInvalid: 0,

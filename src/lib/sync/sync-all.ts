@@ -3,6 +3,7 @@ import { formatSyncResultMessage } from "@/lib/ical/sync-message";
 export interface SyncFeedResult {
   feedId?: string;
   imported?: number;
+  removed?: number;
   totalEvents?: number;
   skippedBlocked?: number;
   skippedInvalid?: number;
@@ -28,6 +29,7 @@ export async function postSyncAll(): Promise<{
 export function aggregateSyncResults(results: SyncFeedResult[]) {
   type Totals = {
     imported: number;
+    removed: number;
     totalEvents: number;
     skippedBlocked: number;
     skippedInvalid: number;
@@ -36,11 +38,12 @@ export function aggregateSyncResults(results: SyncFeedResult[]) {
   return results.reduce<Totals>(
     (acc, r) => ({
       imported: acc.imported + (r.imported ?? 0),
+      removed: acc.removed + (r.removed ?? 0),
       totalEvents: acc.totalEvents + (r.totalEvents ?? 0),
       skippedBlocked: acc.skippedBlocked + (r.skippedBlocked ?? 0),
       skippedInvalid: acc.skippedInvalid + (r.skippedInvalid ?? 0),
     }),
-    { imported: 0, totalEvents: 0, skippedBlocked: 0, skippedInvalid: 0 }
+    { imported: 0, removed: 0, totalEvents: 0, skippedBlocked: 0, skippedInvalid: 0 }
   );
 }
 
