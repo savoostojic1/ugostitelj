@@ -9,6 +9,7 @@ import {
   LayoutDashboard,
   LayoutGrid,
   LogOut,
+  MessageSquare,
   Menu,
   Plus,
   X,
@@ -28,6 +29,7 @@ const nav = [
     label: "Ručne rezervacije",
     icon: ClipboardPen,
   },
+  { href: "/dashboard/porouka", label: "Porouka", icon: MessageSquare },
   { href: "/dashboard/arrivals", label: "Arrivals & Departures", icon: CalendarDays },
 ];
 

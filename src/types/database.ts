@@ -76,3 +76,18 @@ export type ManualReservationInsert = {
 export type ManualReservationUpdate = ManualReservationInsert & {
   id: string;
 };
+
+export interface SavedMessage {
+  id: string;
+  user_id: string;
+  name: string;
+  body: string;
+  created_at: string;
+  updated_at: string;
+}
+
+export type SavedMessageInsert = Pick<SavedMessage, "name" | "body">;
+
+export type SavedMessageUpdate = SavedMessageInsert & {
+  id: string;
+};

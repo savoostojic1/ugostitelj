@@ -2,6 +2,7 @@
 
 import { RefreshCw } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { SavedMessagesDropdown } from "@/components/dashboard/saved-messages-dropdown";
 import { useSyncAll } from "@/hooks/use-properties";
 import { formatSyncAllResultMessage } from "@/lib/sync/sync-all";
 import { markSyncCompleted } from "@/lib/sync/constants";
@@ -24,7 +25,8 @@ export function DashboardSyncBar() {
 
   return (
     <div className="border-b border-border bg-background px-4 py-2.5 md:sticky md:top-0 md:z-20 md:border-border/80 md:bg-background/95 md:py-3 md:px-8 md:backdrop-blur supports-[backdrop-filter]:md:bg-background/80">
-      <div className="mx-auto flex max-w-7xl justify-end">
+      <div className="mx-auto flex max-w-7xl justify-end gap-2">
+        <SavedMessagesDropdown />
         <Button
           variant="outline"
           size="sm"

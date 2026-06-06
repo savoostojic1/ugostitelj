@@ -34,6 +34,40 @@ export function platformShort(platform: CalendarPlatform): string {
   return "•";
 }
 
+export type ReservationOriginCode = "airbnb" | "booking" | "direct";
+
+export function getReservationOriginCode(
+  reservation: Pick<Reservation, "platform" | "is_manual" | "source">
+): ReservationOriginCode {
+  if (reservation.is_manual) return "direct";
+  switch (reservation.platform) {
+    case "airbnb":
+      return "airbnb";
+    case "booking":
+      return "booking";
+    default:
+      return "direct";
+  }
+}
+
+export const ORIGIN_CODE_LETTERS: Record<ReservationOriginCode, string> = {
+  airbnb: "A",
+  booking: "B",
+  direct: "D",
+};
+
+export const ORIGIN_CODE_LABELS: Record<ReservationOriginCode, string> = {
+  airbnb: "Airbnb",
+  booking: "Booking.com",
+  direct: "Direktno",
+};
+
+export function getReservationOriginLabel(
+  reservation: Pick<Reservation, "platform" | "is_manual" | "source">
+): string {
+  return ORIGIN_CODE_LABELS[getReservationOriginCode(reservation)];
+}
+
 export function getPlatformBarClasses(
   platform: CalendarPlatform,
   kind: ReservationDisplayKind

@@ -6,10 +6,14 @@ import {
   startOfDay,
   startOfMonth,
 } from "date-fns";
-import { parseDateOnly } from "@/lib/dates/calendar-date";
+import { isStayNight, parseDateOnly } from "@/lib/dates/calendar-date";
+import {
+  getReservationOriginCode,
+  type ReservationOriginCode,
+} from "@/lib/reservations/display";
 import type { CalendarPlatform, Reservation } from "@/types/database";
 
-export type DayEventType = "check_in" | "check_out";
+export type DayEventType = "check_in" | "check_out" | "stayover" | "empty";
 
 export interface DayEvent {
   key: string;
@@ -26,6 +30,8 @@ export interface PropertyDayCard {
   propertyId: string;
   propertyName: string;
   types: DayEventType[];
+  /** Izvor dolaska — A / B / D */
+  checkInOriginCode?: ReservationOriginCode | null;
 }
 
 export interface DayEventGroup {
@@ -39,12 +45,16 @@ export interface DayEventGroup {
 
 const EVENT_TYPE_ORDER: Record<DayEventType, number> = {
   check_out: 0,
-  check_in: 1,
+  empty: 1,
+  check_in: 2,
+  stayover: 3,
 };
 
 export const DAY_EVENT_LABELS: Record<DayEventType, string> = {
   check_out: "Checkout",
   check_in: "Check in",
+  stayover: "Stayover",
+  empty: "Empty",
 };
 
 export function formatCleaningCount(count: number): string {
@@ -66,29 +76,83 @@ function sortPropertyCards(cards: PropertyDayCard[]): PropertyDayCard[] {
   );
 }
 
-function groupEventsByProperty(events: DayEvent[]): PropertyDayCard[] {
-  const byProperty = new Map<string, PropertyDayCard>();
+function getPropertyDayTypes(
+  propertyId: string,
+  day: Date,
+  dateKey: string,
+  reservations: ReservationWithProperty[]
+): DayEventType[] {
+  const propertyReservations = reservations.filter(
+    (r) => r.property_id === propertyId
+  );
 
-  for (const event of events) {
-    const existing = byProperty.get(event.propertyId);
-    if (!existing) {
-      byProperty.set(event.propertyId, {
-        propertyId: event.propertyId,
-        propertyName: event.propertyName,
-        types: [event.type],
-      });
-      continue;
-    }
-    if (!existing.types.includes(event.type)) {
-      existing.types.push(event.type);
+  let hasCheckIn = false;
+  let hasCheckOut = false;
+  let hasStay = false;
+
+  for (const reservation of propertyReservations) {
+    const checkInKey = reservation.check_in.split("T")[0];
+    const checkOutKey = reservation.check_out.split("T")[0];
+
+    if (checkInKey === dateKey) hasCheckIn = true;
+    if (checkOutKey === dateKey) hasCheckOut = true;
+    if (isStayNight(reservation.check_in, reservation.check_out, day)) {
+      hasStay = true;
     }
   }
 
-  for (const card of byProperty.values()) {
-    card.types.sort((a, b) => EVENT_TYPE_ORDER[a] - EVENT_TYPE_ORDER[b]);
+  const types: DayEventType[] = [];
+  if (hasCheckOut) types.push("check_out");
+  if (hasCheckIn) types.push("check_in");
+  if (types.length === 0 && hasStay) types.push("stayover");
+  if (types.length === 0) {
+    types.push("empty");
+  } else if (hasCheckOut && !hasCheckIn && !hasStay) {
+    types.push("empty");
   }
 
-  return sortPropertyCards(Array.from(byProperty.values()));
+  return types;
+}
+
+function getCheckInOriginCode(
+  propertyId: string,
+  dateKey: string,
+  reservations: ReservationWithProperty[]
+): ReservationOriginCode | null {
+  const checkingIn = reservations.find(
+    (r) =>
+      r.property_id === propertyId && r.check_in.split("T")[0] === dateKey
+  );
+  if (!checkingIn) return null;
+  return getReservationOriginCode(checkingIn);
+}
+
+function buildPropertyDayCards(
+  properties: { id: string; name: string }[],
+  day: Date,
+  dateKey: string,
+  reservations: ReservationWithProperty[]
+): PropertyDayCard[] {
+  return sortPropertyCards(
+    properties.map((property) => {
+      const types = getPropertyDayTypes(
+        property.id,
+        day,
+        dateKey,
+        reservations
+      );
+      types.sort((a, b) => EVENT_TYPE_ORDER[a] - EVENT_TYPE_ORDER[b]);
+      const hasCheckIn = types.includes("check_in");
+      return {
+        propertyId: property.id,
+        propertyName: property.name,
+        types,
+        checkInOriginCode: hasCheckIn
+          ? getCheckInOriginCode(property.id, dateKey, reservations)
+          : null,
+      };
+    })
+  );
 }
 
 function pushEvent(
@@ -102,6 +166,7 @@ function pushEvent(
 }
 
 export function buildMonthDayGroups(
+  properties: { id: string; name: string }[],
   reservations: ReservationWithProperty[],
   month: Date,
   options?: { from?: Date }
@@ -158,7 +223,7 @@ export function buildMonthDayGroups(
       date: day,
       dayNumber: format(day, "d"),
       cleaningCount: countCheckouts(events),
-      properties: groupEventsByProperty(events),
+      properties: buildPropertyDayCards(properties, day, dateKey, reservations),
     };
   });
 }
@@ -215,7 +280,20 @@ export function buildDateEventGroups(
         date,
         dayNumber: format(date, "d"),
         cleaningCount: countCheckouts(events),
-        properties: groupEventsByProperty(events),
+        properties: buildPropertyDayCards(
+          Array.from(
+            new Map(
+              reservations.map((r) => [
+                r.property_id,
+                r.properties?.name ?? "Nekretnina",
+              ])
+            ),
+            ([id, name]) => ({ id, name })
+          ),
+          date,
+          dateKey,
+          reservations
+        ),
       };
     });
 }
