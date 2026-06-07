@@ -9,8 +9,10 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import {
   buildMonthDayGroups,
+  computeMonthFreeDaysSummary,
   DAY_EVENT_LABELS,
   formatCleaningCount,
+  formatFreeDaysCount,
   type DayEventType,
   type PropertyDayCard,
 } from "@/lib/reservations/date-events";
@@ -166,6 +168,14 @@ export function DateEventsList() {
     [properties, reservations, calendarMonth, today]
   );
 
+  const freeDaysSummary = useMemo(
+    () =>
+      computeMonthFreeDaysSummary(properties, reservations, calendarMonth, {
+        from: today,
+      }),
+    [properties, reservations, calendarMonth, today]
+  );
+
   const isLoading = loadingProperties || loadingReservations;
 
   if (isLoading) {
@@ -188,8 +198,50 @@ export function DateEventsList() {
   }
 
   return (
-    <div className="overflow-hidden rounded-2xl border border-border/80 bg-card shadow-sm">
-      <div className="flex flex-col gap-3 border-b border-border/80 bg-muted/20 px-4 py-4 sm:flex-row sm:items-center sm:justify-between">
+    <div className="space-y-4">
+      {freeDaysSummary.daysInRange > 0 && (
+        <div className="rounded-2xl border border-border/80 bg-card px-4 py-3 shadow-sm">
+          <div className="flex flex-col gap-3">
+            <div className="flex flex-wrap items-baseline gap-x-3 gap-y-1">
+              <p className="text-sm font-medium text-foreground">
+                Slobodni dani do kraja mjeseca
+              </p>
+              <p className="text-sm text-muted-foreground">
+                Ukupno:{" "}
+                <span className="font-semibold tabular-nums text-foreground">
+                  {formatFreeDaysCount(freeDaysSummary.totalFreeDays)}
+                </span>
+              </p>
+            </div>
+            <div className="flex flex-wrap gap-2">
+              {freeDaysSummary.properties.map((property) => {
+                const colors =
+                  propertyColors.get(property.propertyId) ??
+                  getPropertyCalendarColor(0);
+
+                return (
+                  <div
+                    key={property.propertyId}
+                    className="flex items-center gap-2 rounded-xl border border-border/70 bg-muted/20 px-3 py-2 text-sm"
+                  >
+                    <span
+                      className="h-2.5 w-2.5 shrink-0 rounded-full"
+                      style={{ background: colors.solid }}
+                    />
+                    <span className="font-medium">{property.propertyName}</span>
+                    <span className="tabular-nums text-muted-foreground">
+                      {formatFreeDaysCount(property.freeDays)}
+                    </span>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        </div>
+      )}
+
+      <div className="overflow-hidden rounded-2xl border border-border/80 bg-card shadow-sm">
+        <div className="flex flex-col gap-3 border-b border-border/80 bg-muted/20 px-4 py-4 sm:flex-row sm:items-center sm:justify-between">
         <h2 className="text-lg font-semibold capitalize tracking-tight">
           {format(calendarMonth, "MMMM yyyy", { locale: sr })}
         </h2>
@@ -297,6 +349,7 @@ export function DateEventsList() {
         })
         )}
       </div>
+    </div>
     </div>
   );
 }

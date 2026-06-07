@@ -62,6 +62,92 @@ export function formatCleaningCount(count: number): string {
   return `${count} čišćenja`;
 }
 
+export function formatFreeDaysCount(count: number): string {
+  const mod10 = count % 10;
+  const mod100 = count % 100;
+
+  if (mod100 >= 11 && mod100 <= 14) {
+    return `${count} slobodnih dana`;
+  }
+  if (mod10 === 1) return `${count} slobodan dan`;
+  if (mod10 >= 2 && mod10 <= 4) return `${count} slobodna dana`;
+  return `${count} slobodnih dana`;
+}
+
+export interface PropertyFreeDaysSummary {
+  propertyId: string;
+  propertyName: string;
+  freeDays: number;
+}
+
+export interface MonthFreeDaysSummary {
+  properties: PropertyFreeDaysSummary[];
+  totalFreeDays: number;
+  daysInRange: number;
+}
+
+function getMonthDayRange(
+  month: Date,
+  options?: { from?: Date }
+): Date[] {
+  const monthStart = startOfMonth(month);
+  const monthEnd = endOfMonth(month);
+  const from = startOfDay(options?.from ?? monthStart);
+
+  if (monthEnd < from) {
+    return [];
+  }
+
+  const rangeStart = monthStart > from ? monthStart : from;
+  return eachDayOfInterval({ start: rangeStart, end: monthEnd });
+}
+
+function isPropertyFreeOnDay(
+  propertyId: string,
+  day: Date,
+  reservations: ReservationWithProperty[]
+): boolean {
+  return !reservations.some(
+    (reservation) =>
+      reservation.property_id === propertyId &&
+      isStayNight(reservation.check_in, reservation.check_out, day)
+  );
+}
+
+export function computeMonthFreeDaysSummary(
+  properties: { id: string; name: string }[],
+  reservations: ReservationWithProperty[],
+  month: Date,
+  options?: { from?: Date }
+): MonthFreeDaysSummary {
+  const days = getMonthDayRange(month, options);
+
+  const propertySummaries = [...properties]
+    .sort((a, b) => a.name.localeCompare(b.name, "sr"))
+    .map((property) => {
+      let freeDays = 0;
+      for (const day of days) {
+        if (isPropertyFreeOnDay(property.id, day, reservations)) {
+          freeDays++;
+        }
+      }
+      return {
+        propertyId: property.id,
+        propertyName: property.name,
+        freeDays,
+      };
+    });
+
+  return {
+    properties: propertySummaries,
+    totalFreeDays: propertySummaries.reduce(
+      (sum, property) => sum + property.freeDays,
+      0
+    ),
+    daysInRange: days.length,
+  };
+}
+
 function countCheckouts(events: DayEvent[]): number {
   return events.filter((event) => event.type === "check_out").length;
 }
@@ -171,16 +257,11 @@ export function buildMonthDayGroups(
   month: Date,
   options?: { from?: Date }
 ): DayEventGroup[] {
-  const monthStart = startOfMonth(month);
-  const monthEnd = endOfMonth(month);
-  const from = startOfDay(options?.from ?? monthStart);
-
-  if (monthEnd < from) {
+  const days = getMonthDayRange(month, options);
+  if (days.length === 0) {
     return [];
   }
 
-  const rangeStart = monthStart > from ? monthStart : from;
-  const days = eachDayOfInterval({ start: rangeStart, end: monthEnd });
   const byDate = new Map<string, DayEvent[]>(
     days.map((day) => [format(day, "yyyy-MM-dd"), []])
   );
