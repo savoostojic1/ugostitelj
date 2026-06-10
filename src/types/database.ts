@@ -9,6 +9,15 @@ export interface User {
   updated_at: string;
 }
 
+export interface PropertyPriceRule {
+  id: string;
+  property_id: string;
+  start_date: string;
+  end_date: string;
+  price_per_night: number;
+  created_at: string;
+}
+
 export interface Property {
   id: string;
   user_id: string;
@@ -16,8 +25,59 @@ export interface Property {
   address: string | null;
   image_url: string | null;
   export_token?: string;
+  slug?: string | null;
+  short_description?: string | null;
+  description?: string | null;
+  capacity?: number | null;
+  amenities?: string[];
+  house_rules?: string | null;
+  starting_price?: number | null;
+  gallery_urls?: string[];
+  is_public?: boolean;
+  seo_title?: string | null;
+  seo_description?: string | null;
   created_at: string;
   updated_at: string;
+}
+
+export interface HostProfile {
+  id: string;
+  username: string;
+  business_name: string | null;
+  cover_image_url: string | null;
+  logo_url: string | null;
+  description: string | null;
+  contact_email: string | null;
+  contact_phone: string | null;
+  location: string | null;
+  map_embed_url?: string | null;
+  social_links: Record<string, string>;
+  is_published: boolean;
+  created_at: string;
+  updated_at: string;
+}
+
+export type BookingRequestStatus =
+  | "pending"
+  | "accepted"
+  | "rejected"
+  | "contacted";
+
+export interface BookingRequest {
+  id: string;
+  property_id: string;
+  host_id: string;
+  guest_name: string;
+  email: string;
+  phone: string;
+  check_in: string;
+  check_out: string;
+  guest_count: number;
+  message: string | null;
+  status: BookingRequestStatus;
+  created_at: string;
+  updated_at: string;
+  properties?: { name: string; slug: string | null } | null;
 }
 
 export interface CalendarFeed {

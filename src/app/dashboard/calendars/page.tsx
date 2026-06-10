@@ -108,7 +108,7 @@ export default function CalendarsOverviewPage() {
         {grouped.map(({ property, reservations: propertyReservations }) => (
           <div key={property.id} className="min-w-0 space-y-1.5">
             <Link
-              href={`/dashboard/properties/${property.id}`}
+              href={`/dashboard/properties/${property.id}/calendar`}
               className="block truncate text-sm font-semibold hover:text-primary"
             >
               {property.name}

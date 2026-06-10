@@ -104,7 +104,7 @@ function EventSquare({
 
   return (
     <Link
-      href={`/dashboard/properties/${card.propertyId}`}
+      href={`/dashboard/properties/${card.propertyId}/calendar`}
       className={cn(
         "flex min-h-[5.5rem] w-full min-w-0 flex-col items-center justify-center gap-2 rounded-2xl px-2.5 py-2.5 text-center shadow-md ring-1 transition-all hover:scale-[1.02] hover:shadow-lg",
         "sm:w-32 sm:shrink-0",

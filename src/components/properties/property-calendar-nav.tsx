@@ -20,7 +20,7 @@ export function PropertyCalendarNav({ propertyId }: { propertyId: string }) {
       {prev ? (
         <Button variant="outline" size="icon" className="h-8 w-8 shrink-0" asChild>
           <Link
-            href={`/dashboard/properties/${prev.id}`}
+            href={`/dashboard/properties/${prev.id}/calendar`}
             aria-label={`Prethodna nekretnina: ${prev.name}`}
             title={prev.name}
           >
@@ -46,7 +46,7 @@ export function PropertyCalendarNav({ propertyId }: { propertyId: string }) {
       {next ? (
         <Button variant="outline" size="icon" className="h-8 w-8 shrink-0" asChild>
           <Link
-            href={`/dashboard/properties/${next.id}`}
+            href={`/dashboard/properties/${next.id}/calendar`}
             aria-label={`Sljedeća nekretnina: ${next.name}`}
             title={next.name}
           >

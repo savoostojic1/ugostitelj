@@ -15,9 +15,9 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Ugostitelj — Kalendar za domaćine",
+  title: "Ugostitelj — Kalendar i javni sajt za domaćine",
   description:
-    "Unified calendar dashboard for short-term rental hosts. Sync Airbnb and Booking.com iCal feeds.",
+    "Povežite Airbnb i Booking.com kalendare, upravljajte svim jedinicama i objavite javni sajt za direktne booking upite — besplatno.",
   applicationName: "Ugostitelj",
   appleWebApp: {
     capable: true,

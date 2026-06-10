@@ -2,21 +2,17 @@
 
 import { use } from "react";
 import Link from "next/link";
-import { ArrowLeft } from "lucide-react";
+import { ArrowLeft, CalendarDays } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { MonthlyCalendar } from "@/components/calendar/monthly-calendar";
-import { ConnectedFeeds } from "@/components/properties/connected-feeds";
+import { Card, CardContent } from "@/components/ui/card";
 import { PropertyNameEditor } from "@/components/properties/property-name-editor";
 import { PropertyDeleteButton } from "@/components/properties/property-delete-button";
+import { PropertyDetailNav } from "@/components/properties/property-detail-nav";
+import { ConnectedFeeds } from "@/components/properties/connected-feeds";
 import { PropertyExportCalendar } from "@/components/properties/property-export-calendar";
-import { PropertyCalendarNav } from "@/components/properties/property-calendar-nav";
+import { PropertyPricingSettings } from "@/components/properties/property-pricing-settings";
+import { PropertyPublicSettings } from "@/components/properties/property-public-settings";
 import { useProperty, usePropertyFeeds, useReservations } from "@/hooks/use-properties";
-import { PLATFORM_LABELS, PLATFORM_COLORS } from "@/lib/constants";
-import { formatReservationLabel } from "@/lib/reservations/display";
-import { formatStayPeriodLabel } from "@/lib/dates/calendar-date";
-import { formatPrice } from "@/lib/format/price";
-import { cn } from "@/lib/utils";
 
 export default function PropertyDetailPage({
   params,
@@ -43,10 +39,10 @@ export default function PropertyDetailPage({
     );
   }
 
-  const isSetupState =
+  const needsCalendarSetup =
     !feedsLoading && feeds.length === 0 && reservations.length === 0;
 
-  const calendarSetup = (
+  const calendarIntegrations = (
     <>
       <ConnectedFeeds propertyId={id} />
       {property.export_token && (
@@ -73,70 +69,36 @@ export default function PropertyDetailPage({
         <PropertyDeleteButton propertyId={id} propertyName={property.name} />
       </div>
 
-      {feedsLoading && reservations.length === 0 ? (
-        <p className="text-sm text-muted-foreground">Učitavanje…</p>
-      ) : isSetupState ? (
-        calendarSetup
-      ) : (
-        <>
+      <PropertyDetailNav propertyId={id} />
+
+      <Card className="border-primary/20 bg-primary/5">
+        <CardContent className="flex flex-col gap-4 p-5 sm:flex-row sm:items-center sm:justify-between">
           <div>
-            <div className="mb-4 flex items-center justify-between gap-3">
-              <h2 className="text-lg font-semibold">Kalendar</h2>
-              <PropertyCalendarNav propertyId={id} />
-            </div>
-            <MonthlyCalendar reservations={reservations} propertyId={id} />
+            <p className="font-medium">Kalendar i rezervacije</p>
+            <p className="mt-1 text-sm text-muted-foreground">
+              {needsCalendarSetup
+                ? "Povežite kalendare ispod, zatim otvorite kalendar za pregled zauzetosti."
+                : "Pregledajte kalendar i rezervacije."}
+            </p>
           </div>
+          <Button asChild className="shrink-0">
+            <Link href={`/dashboard/properties/${id}/calendar`}>
+              <CalendarDays className="h-4 w-4" />
+              Otvori kalendar
+            </Link>
+          </Button>
+        </CardContent>
+      </Card>
 
-          <Card>
-            <CardHeader>
-              <CardTitle className="text-base">Rezervacije</CardTitle>
-            </CardHeader>
-            <CardContent className="divide-y divide-border">
-              {reservations.length === 0 ? (
-                <p className="py-4 text-sm text-muted-foreground">
-                  Nema rezervacija. Pokreni sync na povezanim kalendarima.
-                </p>
-              ) : (
-                reservations.map((r) => {
-                  const colors = PLATFORM_COLORS[r.platform];
-                  return (
-                    <div
-                      key={r.id}
-                      className="flex flex-wrap items-center justify-between gap-2 py-3 first:pt-0"
-                    >
-                      <div>
-                        <p className="text-sm font-medium">
-                          {formatReservationLabel(r.title, r.platform)}
-                        </p>
-                        <p className="text-xs text-muted-foreground">
-                          {formatStayPeriodLabel(r.check_in, r.check_out)}
-                          {r.is_manual && r.source && <> · {r.source}</>}
-                          {r.is_manual && r.guest_phone && <> · {r.guest_phone}</>}
-                          {r.is_manual && r.price != null && (
-                            <> · {formatPrice(r.price)}</>
-                          )}
-                        </p>
-                      </div>
-                      <span
-                        className={cn(
-                          "rounded-md border px-2 py-0.5 text-xs",
-                          r.is_manual
-                            ? "border-violet-500/40 bg-violet-500/15 text-violet-600 dark:text-violet-300"
-                            : cn(colors.bg, colors.border, colors.text)
-                        )}
-                      >
-                        {r.is_manual ? "Ručno" : PLATFORM_LABELS[r.platform]}
-                      </span>
-                    </div>
-                  );
-                })
-              )}
-            </CardContent>
-          </Card>
-
-          {calendarSetup}
-        </>
+      {feedsLoading && reservations.length === 0 ? (
+        <p className="text-sm text-muted-foreground">Učitavanje kalendara…</p>
+      ) : (
+        calendarIntegrations
       )}
+
+      <PropertyPricingSettings property={property} />
+
+      <PropertyPublicSettings property={property} />
     </div>
   );
 }

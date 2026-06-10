@@ -42,7 +42,10 @@ export async function updateSession(request: NextRequest) {
     const isPublicRoute =
       path === "/" ||
       isAuthRoute ||
-      path.startsWith("/api/calendar");
+      path.startsWith("/api/calendar") ||
+      path.startsWith("/api/booking-requests") ||
+      path.startsWith("/api/public/") ||
+      path.startsWith("/host/");
 
     if (!user && path.startsWith("/dashboard")) {
       const redirectUrl = request.nextUrl.clone();

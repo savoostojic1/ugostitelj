@@ -10,6 +10,8 @@ import {
   LayoutGrid,
   LogOut,
   MessageSquare,
+  Globe,
+  Inbox,
   Menu,
   Plus,
   X,
@@ -30,6 +32,12 @@ const nav = [
     icon: ClipboardPen,
   },
   { href: "/dashboard/porouka", label: "Porouka", icon: MessageSquare },
+  { href: "/dashboard/public-site", label: "Javni sajt", icon: Globe },
+  {
+    href: "/dashboard/booking-requests",
+    label: "Booking upiti",
+    icon: Inbox,
+  },
   { href: "/dashboard/arrivals", label: "Arrivals & Departures", icon: CalendarDays },
 ];
 
