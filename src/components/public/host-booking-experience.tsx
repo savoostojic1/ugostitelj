@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import Image from "next/image";
 import { format, addDays } from "date-fns";
 import { appLocale } from "@/lib/dates/locale";
@@ -18,6 +18,7 @@ import { HostPropertyResultCard } from "@/components/public/host-property-result
 import { HostAllUnitsSection } from "@/components/public/host-all-units-section";
 import { HostReservePanel } from "@/components/public/host-reserve-panel";
 import { PublicSectionHeader } from "@/components/public/public-section-header";
+import { scrollBelowPublicSearch } from "@/lib/public/scroll-anchors";
 import type {
   HostSearchParams,
   PublicHostProfile,
@@ -54,11 +55,31 @@ export function HostBookingExperience({
     null
   );
   const [unitsViewMode, setUnitsViewMode] = useState<UnitsViewMode>("none");
+  const [unitsScrollOnOpen, setUnitsScrollOnOpen] = useState(0);
+  const scrollBelowSearchRef = useRef(false);
 
   const hasCover = Boolean(host.cover_image_url);
 
+  useEffect(() => {
+    if (!scrollBelowSearchRef.current || loading) return;
+
+    scrollBelowSearchRef.current = false;
+    scrollBelowPublicSearch();
+  }, [
+    loading,
+    hasSearched,
+    results.length,
+    selectedProperty,
+    error,
+  ]);
+
   function openAllUnitsAvailability() {
     setUnitsViewMode("availability");
+    setUnitsScrollOnOpen((count) => count + 1);
+  }
+
+  function queueScrollBelowSearch() {
+    scrollBelowSearchRef.current = true;
   }
 
   async function runSearch(
@@ -97,12 +118,12 @@ export function HostBookingExperience({
         const match = properties.find((p) => p.id === options.selectPropertyId);
         if (match) {
           setSelectedProperty(match);
-          document
-            .getElementById("booking-results")
-            ?.scrollIntoView({ behavior: "smooth", block: "start" });
+          queueScrollBelowSearch();
         } else {
           toast.error("This unit is not available for the selected dates");
         }
+      } else {
+        queueScrollBelowSearch();
       }
     } catch (err) {
       setError(err instanceof Error ? err.message : "Error");
@@ -204,13 +225,15 @@ export function HostBookingExperience({
         </div>
         <div className="public-section-inner public-section--sheet-inner">
         {selectedProperty && appliedSearch ? (
-          <HostReservePanel
-            property={selectedProperty}
-            search={appliedSearch}
-            onBack={() => setSelectedProperty(null)}
-          />
+          <div data-booking-panel="reserve">
+            <HostReservePanel
+              property={selectedProperty}
+              search={appliedSearch}
+              onBack={() => setSelectedProperty(null)}
+            />
+          </div>
         ) : !hasSearched ? (
-          <div className="space-y-8">
+          <div className="space-y-8" data-booking-panel="intro">
             <PublicSectionHeader
               index="01"
               kicker="Availability"
@@ -229,11 +252,17 @@ export function HostBookingExperience({
             </div>
           </div>
         ) : error ? (
-          <div className="public-card border-red-200/80 bg-red-50 px-6 py-12 text-center">
+          <div
+            className="public-card border-red-200/80 bg-red-50 px-6 py-12 text-center"
+            data-booking-panel="error"
+          >
             <p className="font-semibold text-red-800">{error}</p>
           </div>
         ) : results.length === 0 ? (
-          <div className="public-card public-animate-in flex flex-col items-center px-6 py-16 text-center md:px-10 md:py-20">
+          <div
+            className="public-card public-animate-in flex flex-col items-center px-6 py-16 text-center md:px-10 md:py-20"
+            data-booking-panel="empty"
+          >
             <div className="mb-5 flex h-14 w-14 items-center justify-center rounded-2xl bg-zinc-100 text-zinc-500">
               <SearchX className="h-7 w-7" />
             </div>
@@ -260,7 +289,7 @@ export function HostBookingExperience({
             </button>
           </div>
         ) : (
-          <div className="space-y-10">
+          <div className="space-y-10" data-booking-panel="results">
             <div className="flex flex-col gap-6 md:flex-row md:items-end md:justify-between">
               <PublicSectionHeader
                 index="01"
@@ -287,7 +316,10 @@ export function HostBookingExperience({
                     key={property.id}
                     property={property}
                     search={appliedSearch}
-                    onReserve={() => setSelectedProperty(property)}
+                    onReserve={() => {
+                      setSelectedProperty(property);
+                      queueScrollBelowSearch();
+                    }}
                   />
                 ) : null
               )}
@@ -301,6 +333,7 @@ export function HostBookingExperience({
         username={username}
         viewMode={unitsViewMode}
         onViewModeChange={setUnitsViewMode}
+        scrollOnOpen={unitsScrollOnOpen}
         onUnitReserve={handleUnitReserve}
         reservingPropertyId={reservingPropertyId}
       />

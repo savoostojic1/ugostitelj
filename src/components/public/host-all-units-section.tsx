@@ -5,6 +5,7 @@ import { Building2, CalendarDays, Loader2 } from "lucide-react";
 import { HostUnitCard } from "@/components/public/host-unit-card";
 import { HostUnitAvailabilityCard } from "@/components/public/host-unit-availability-card";
 import { PublicSectionHeader } from "@/components/public/public-section-header";
+import { scrollBelowUnitsActions } from "@/lib/public/scroll-anchors";
 import type { PublicHostProperty } from "@/lib/public/types";
 import { cn } from "@/lib/utils";
 
@@ -14,6 +15,7 @@ interface HostAllUnitsSectionProps {
   username: string;
   viewMode?: UnitsViewMode;
   onViewModeChange?: (mode: UnitsViewMode) => void;
+  scrollOnOpen?: number;
   onUnitReserve?: (
     property: PublicHostProperty,
     dates: { checkIn: string; checkOut: string }
@@ -25,6 +27,7 @@ export function HostAllUnitsSection({
   username,
   viewMode: viewModeProp,
   onViewModeChange,
+  scrollOnOpen = 0,
   onUnitReserve,
   reservingPropertyId,
 }: HostAllUnitsSectionProps) {
@@ -35,15 +38,7 @@ export function HostAllUnitsSection({
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [loaded, setLoaded] = useState(false);
-  const prevViewModeRef = useRef(viewMode);
-
-  function scrollBelowUnitsActions() {
-    const actions = document.querySelector(".public-units-actions");
-    if (!actions) return;
-
-    const top = actions.getBoundingClientRect().bottom + window.scrollY + 12;
-    window.scrollTo({ top, behavior: "smooth" });
-  }
+  const scrollAfterLoadRef = useRef(false);
 
   async function ensurePropertiesLoaded() {
     if (loaded) return;
@@ -63,7 +58,15 @@ export function HostAllUnitsSection({
       setError(err instanceof Error ? err.message : "Error");
     } finally {
       setLoading(false);
+      if (scrollAfterLoadRef.current) {
+        scrollAfterLoadRef.current = false;
+        scrollBelowUnitsActions();
+      }
     }
+  }
+
+  function queueScrollBelowActions() {
+    scrollAfterLoadRef.current = true;
   }
 
   useEffect(() => {
@@ -73,16 +76,26 @@ export function HostAllUnitsSection({
   }, [viewMode]);
 
   useEffect(() => {
-    const opened =
-      prevViewModeRef.current === "none" && viewMode !== "none";
-    prevViewModeRef.current = viewMode;
+    if (scrollOnOpen > 0) {
+      queueScrollBelowActions();
+    }
+  }, [scrollOnOpen]);
 
-    if (!opened || loading) return;
+  useEffect(() => {
+    if (viewMode === "none" || loading || !scrollAfterLoadRef.current || !loaded) {
+      return;
+    }
 
-    requestAnimationFrame(() => {
-      requestAnimationFrame(scrollBelowUnitsActions);
-    });
-  }, [viewMode, loading]);
+    scrollAfterLoadRef.current = false;
+    scrollBelowUnitsActions();
+  }, [viewMode, loading, loaded]);
+
+  async function openView(mode: Exclude<UnitsViewMode, "none">) {
+    queueScrollBelowActions();
+    if (!loaded) setLoading(true);
+    setViewMode(mode);
+    await ensurePropertiesLoaded();
+  }
 
   async function handleUnitsToggle() {
     if (viewMode === "units") {
@@ -90,8 +103,7 @@ export function HostAllUnitsSection({
       return;
     }
 
-    setViewMode("units");
-    await ensurePropertiesLoaded();
+    await openView("units");
   }
 
   async function handleAvailabilityToggle() {
@@ -100,8 +112,7 @@ export function HostAllUnitsSection({
       return;
     }
 
-    setViewMode("availability");
-    await ensurePropertiesLoaded();
+    await openView("availability");
   }
 
   const count = properties.length;
@@ -119,44 +130,44 @@ export function HostAllUnitsSection({
         />
 
         <div className="public-units-actions">
-            <button
-              type="button"
-              onClick={(e) => {
-                void handleUnitsToggle();
-                e.currentTarget.blur();
-              }}
-              className={cn(
-                "public-btn-choice",
-                viewMode === "units" && "public-btn-choice--active"
-              )}
-            >
-              <span className="public-btn-choice-icon" aria-hidden>
-                <Building2 className="h-5 w-5" />
-              </span>
-              <span className="public-btn-choice-label">
-                {viewMode === "units" ? "Hide units" : "Show all units"}
-              </span>
-            </button>
-            <button
-              type="button"
-              onClick={(e) => {
-                void handleAvailabilityToggle();
-                e.currentTarget.blur();
-              }}
-              className={cn(
-                "public-btn-choice",
-                viewMode === "availability" && "public-btn-choice--active"
-              )}
-            >
-              <span className="public-btn-choice-icon" aria-hidden>
-                <CalendarDays className="h-5 w-5" />
-              </span>
-              <span className="public-btn-choice-label">
-                {viewMode === "availability"
-                  ? "Hide availability"
-                  : "View availability for all units"}
-              </span>
-            </button>
+          <button
+            type="button"
+            onClick={(e) => {
+              void handleUnitsToggle();
+              e.currentTarget.blur();
+            }}
+            className={cn(
+              "public-btn-choice",
+              viewMode === "units" && "public-btn-choice--active"
+            )}
+          >
+            <span className="public-btn-choice-icon" aria-hidden>
+              <Building2 className="h-5 w-5" />
+            </span>
+            <span className="public-btn-choice-label">
+              {viewMode === "units" ? "Hide units" : "Show all units"}
+            </span>
+          </button>
+          <button
+            type="button"
+            onClick={(e) => {
+              void handleAvailabilityToggle();
+              e.currentTarget.blur();
+            }}
+            className={cn(
+              "public-btn-choice",
+              viewMode === "availability" && "public-btn-choice--active"
+            )}
+          >
+            <span className="public-btn-choice-icon" aria-hidden>
+              <CalendarDays className="h-5 w-5" />
+            </span>
+            <span className="public-btn-choice-label">
+              {viewMode === "availability"
+                ? "Hide availability"
+                : "View availability for all units"}
+            </span>
+          </button>
         </div>
 
         {expanded ? (

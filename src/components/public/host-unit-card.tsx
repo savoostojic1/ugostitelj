@@ -8,6 +8,7 @@ import { PublicPropertyGallery } from "@/components/public/public-property-galle
 import { PublicPropertyAvailabilityCalendar } from "@/components/public/public-property-availability-calendar";
 import { usePublicStayPrice } from "@/hooks/use-public-stay-price";
 import { formatEuro, parseStartingPrice } from "@/lib/public/stay-price";
+import { scrollBelowUnitCalendarToggle } from "@/lib/public/scroll-anchors";
 import type { PublicHostProperty } from "@/lib/public/types";
 import { cn } from "@/lib/utils";
 
@@ -88,7 +89,15 @@ export function HostUnitCard({
 
           <button
             type="button"
-            onClick={() => setCalendarOpen((v) => !v)}
+            data-unit-calendar-toggle={property.id}
+            onClick={(e) => {
+              const opening = !calendarOpen;
+              setCalendarOpen(opening);
+              e.currentTarget.blur();
+              if (opening) {
+                scrollBelowUnitCalendarToggle(property.id);
+              }
+            }}
             className="public-btn public-btn-secondary w-full justify-between px-4 py-3 sm:w-auto"
             aria-expanded={calendarOpen}
           >
@@ -107,7 +116,10 @@ export function HostUnitCard({
       </div>
 
       {calendarOpen ? (
-        <div className="border-t border-[var(--public-border)] bg-[var(--public-bg-elevated)] p-4 md:p-6">
+        <div
+          data-unit-calendar={property.id}
+          className="border-t border-[var(--public-border)] bg-[var(--public-bg-elevated)] p-4 md:p-6"
+        >
           <PublicPropertyAvailabilityCalendar
             propertyId={property.id}
             checkIn={checkIn}

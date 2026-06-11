@@ -10,6 +10,7 @@ import {
   PublicMiniCalendar,
   type PublicCalendarMode,
 } from "@/components/public/public-mini-calendar";
+import { scrollIntoViewIfNeeded } from "@/lib/public/scroll-anchors";
 import { cn } from "@/lib/utils";
 
 interface HostSearchDateRangeProps {
@@ -68,7 +69,16 @@ export function HostSearchDateRange({
   function openCalendar(nextMode: PublicCalendarMode) {
     setMode(nextMode);
     setOpen(true);
-    requestAnimationFrame(updatePosition);
+    requestAnimationFrame(() => {
+      if (containerRef.current) {
+        scrollIntoViewIfNeeded(containerRef.current, {
+          block: "center",
+          behavior: "smooth",
+        });
+      }
+      updatePosition();
+      requestAnimationFrame(updatePosition);
+    });
   }
 
   function handleDaySelect(isoDate: string) {

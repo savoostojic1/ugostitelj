@@ -84,7 +84,10 @@ export function HostPropertyResultCard({
 
             <button
               type="button"
-              onClick={onReserve}
+              onClick={(e) => {
+                e.currentTarget.blur();
+                onReserve();
+              }}
               className="public-btn public-btn-primary w-full px-6 py-3.5 sm:w-auto"
             >
               Reserve
