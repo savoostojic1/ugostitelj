@@ -52,7 +52,11 @@ export async function GET(request: Request) {
     .order("last_synced_at", { ascending: true, nullsFirst: true });
 
   if (error) {
-    return NextResponse.json({ error: error.message }, { status: 500 });
+    const message =
+      error.message === "Invalid API key"
+        ? "Invalid SUPABASE_SERVICE_ROLE_KEY — use the service_role key from the same Supabase project as NEXT_PUBLIC_SUPABASE_URL"
+        : error.message;
+    return NextResponse.json({ error: message }, { status: 500 });
   }
 
   const allFeeds = (feeds ?? []) as CalendarFeed[];
