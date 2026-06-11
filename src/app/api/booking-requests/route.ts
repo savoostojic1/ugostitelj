@@ -33,7 +33,7 @@ export async function POST(request: Request) {
       !checkOut
     ) {
       return NextResponse.json(
-        { error: "Popunite sva obavezna polja" },
+        { error: "Please fill in all required fields" },
         { status: 400 }
       );
     }
@@ -52,7 +52,7 @@ export async function POST(request: Request) {
 
     if (error) {
       const msg = error.message.includes("not available")
-        ? "Odabrani datumi nisu dostupni"
+        ? "The selected dates are not available"
         : error.message.includes("not found")
           ? "Property not found"
           : "Failed to submit request";

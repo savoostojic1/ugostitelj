@@ -17,6 +17,7 @@ import { HostSearchBar } from "@/components/public/host-search-bar";
 import { HostPropertyResultCard } from "@/components/public/host-property-result-card";
 import { HostAllUnitsSection } from "@/components/public/host-all-units-section";
 import { HostReservePanel } from "@/components/public/host-reserve-panel";
+import { PublicSectionHeader } from "@/components/public/public-section-header";
 import type {
   HostSearchParams,
   PublicHostProfile,
@@ -58,11 +59,6 @@ export function HostBookingExperience({
 
   function openAllUnitsAvailability() {
     setUnitsViewMode("availability");
-    requestAnimationFrame(() => {
-      document
-        .getElementById("jedinice")
-        ?.scrollIntoView({ behavior: "smooth", block: "start" });
-    });
   }
 
   async function runSearch(
@@ -129,35 +125,32 @@ export function HostBookingExperience({
 
   return (
     <div>
-      <section className="relative isolate overflow-visible">
-        <div className="absolute inset-0 overflow-hidden">
+      <section className="public-hero">
+        <div className="public-hero-media" aria-hidden>
           {hasCover ? (
-            <>
-              <Image
-                src={host.cover_image_url!}
-                alt=""
-                fill
-                priority
-                className="object-cover"
-                sizes="100vw"
-                unoptimized
-              />
-              <div
-                className="absolute inset-0"
-                style={{ background: "var(--public-hero-overlay)" }}
-              />
-            </>
-          ) : (
-            <div
-              className="absolute inset-0"
-              style={{ background: "var(--public-hero-overlay-soft)" }}
+            <Image
+              src={host.cover_image_url!}
+              alt=""
+              fill
+              priority
+              className="object-cover"
+              sizes="100vw"
+              unoptimized
             />
+          ) : (
+            <div className="public-hero-fallback absolute inset-0" />
           )}
+          <div className="public-hero-scrim absolute inset-0" />
         </div>
 
-        <div className="relative mx-auto flex min-h-[28rem] w-full max-w-6xl flex-col items-center px-5 py-12 md:min-h-[34rem] md:px-10 md:py-16">
-          <div className="flex w-full flex-1 flex-col items-center justify-center py-6 text-center md:py-10">
-            <div className="public-animate-in public-hero-text public-hero-center flex w-full max-w-3xl flex-col items-center">
+        <div className="public-hero-inner">
+          <div className="public-hero-copy">
+            <div className="public-animate-in public-hero-text public-hero-center flex flex-col items-center">
+              <p className="public-hero-welcome">
+                <Sparkles className="h-3.5 w-3.5" aria-hidden />
+                Welcome
+              </p>
+
               {host.logo_url ? (
                 <div className="mb-5 flex h-14 w-14 items-center justify-center overflow-hidden rounded-2xl border border-white/20 bg-white/95 p-2 shadow-lg backdrop-blur-sm md:mb-6">
                   <Image
@@ -185,29 +178,31 @@ export function HostBookingExperience({
               </h1>
 
               {host.description ? (
-                <p className="mx-auto mt-4 max-w-2xl text-base leading-relaxed text-white/85 md:mt-5 md:text-lg">
+                <p className="public-hero-description mx-auto mt-4 max-w-2xl text-base leading-relaxed md:mt-5 md:text-lg">
                   {host.description}
                 </p>
-              ) : null}
+              ) : (
+                <p className="public-hero-description mx-auto mt-4 max-w-xl text-base leading-relaxed md:mt-5 md:text-lg">
+                  We look forward to hosting you — pick your dates and find the
+                  perfect stay.
+                </p>
+              )}
             </div>
-          </div>
-
-          <div className="relative z-10 w-full max-w-5xl shrink-0 pt-2 md:pt-4">
-            <HostSearchBar
-              value={search}
-              onChange={setSearch}
-              onSearch={runSearch}
-              loading={loading}
-              floating
-            />
           </div>
         </div>
       </section>
 
-      <section
-        id="booking-results"
-        className="mx-auto max-w-6xl px-5 pb-20 pt-12 md:px-10 md:pb-24 md:pt-14"
-      >
+      <section id="booking-results" className="public-section--sheet">
+        <div className="public-hero-search">
+          <HostSearchBar
+            value={search}
+            onChange={setSearch}
+            onSearch={runSearch}
+            loading={loading}
+            floating
+          />
+        </div>
+        <div className="public-section-inner public-section--sheet-inner">
         {selectedProperty && appliedSearch ? (
           <HostReservePanel
             property={selectedProperty}
@@ -215,15 +210,23 @@ export function HostBookingExperience({
             onBack={() => setSelectedProperty(null)}
           />
         ) : !hasSearched ? (
-          <div className="public-card public-animate-in flex flex-col items-center px-8 py-16 text-center md:px-12 md:py-20">
-            <div className="mb-5 flex h-14 w-14 items-center justify-center rounded-2xl bg-[var(--public-accent-soft)] text-[var(--public-accent)]">
-              <CalendarSearch className="h-7 w-7" />
+          <div className="space-y-8">
+            <PublicSectionHeader
+              index="01"
+              kicker="Availability"
+              title="Find your stay"
+              description="Pick dates and guests above — we'll show only units free for your trip."
+              icon={<CalendarSearch className="h-3.5 w-3.5" />}
+            />
+            <div className="public-card public-card-featured public-animate-in flex flex-col items-center px-8 py-14 text-center md:px-12 md:py-16">
+              <div className="mb-5 flex h-14 w-14 items-center justify-center rounded-2xl bg-[var(--public-accent-soft)] text-[var(--public-accent)]">
+                <CalendarSearch className="h-7 w-7" />
+              </div>
+              <p className="max-w-md text-[15px] leading-relaxed text-[var(--public-muted)]">
+                Use the search bar to check real-time availability across all
+                units.
+              </p>
             </div>
-            <h2 className="public-heading text-2xl">Find available accommodation</h2>
-            <p className="mt-3 max-w-md text-[15px] leading-relaxed text-[var(--public-muted)]">
-              Enter your stay dates and number of guests — we&apos;ll show only
-              available options for your dates
-            </p>
           </div>
         ) : error ? (
           <div className="public-card border-red-200/80 bg-red-50 px-6 py-12 text-center">
@@ -258,21 +261,19 @@ export function HostBookingExperience({
           </div>
         ) : (
           <div className="space-y-10">
-            <div className="public-animate-in flex flex-col gap-3 border-b border-[var(--public-border)] pb-8 md:flex-row md:items-end md:justify-between">
-              <div>
-                <p className="public-eyebrow mb-2">
-                  <Sparkles className="h-3.5 w-3.5 text-[var(--public-accent)]" />
-                  Search results
-                </p>
-                <h2 className="public-heading text-2xl md:text-3xl">
-                  {results.length}{" "}
-                  {results.length === 1 ? "available unit" : "available units"}
-                </h2>
-              </div>
+            <div className="flex flex-col gap-6 md:flex-row md:items-end md:justify-between">
+              <PublicSectionHeader
+                index="01"
+                kicker="Search results"
+                title={`${results.length} ${results.length === 1 ? "unit available" : "units available"}`}
+                icon={<Sparkles className="h-3.5 w-3.5" />}
+                align="left"
+                className="mb-0 max-w-xl"
+              />
               {appliedSearch ? (
-                <p className="text-sm text-[var(--public-muted)]">
-                  {format(new Date(appliedSearch.checkIn + "T12:00:00"), "d. MMM", { locale: appLocale })} –{" "}
-                  {format(new Date(appliedSearch.checkOut + "T12:00:00"), "d. MMM yyyy", { locale: appLocale })} ·{" "}
+                <p className="shrink-0 rounded-full border border-[var(--public-border)] bg-[var(--public-tint)] px-4 py-2 text-sm text-[var(--public-muted)]">
+                  {format(new Date(appliedSearch.checkIn + "T12:00:00"), "d MMM", { locale: appLocale })} –{" "}
+                  {format(new Date(appliedSearch.checkOut + "T12:00:00"), "d MMM yyyy", { locale: appLocale })} ·{" "}
                   {appliedSearch.guests}{" "}
                   {appliedSearch.guests === 1 ? "guest" : "guests"}
                 </p>
@@ -293,19 +294,8 @@ export function HostBookingExperience({
             </div>
           </div>
         )}
-      </section>
-
-      {hasSearched && !selectedProperty ? (
-        <div className="sticky bottom-0 z-40 border-t border-[var(--public-border)] bg-[var(--public-bg-elevated)]/95 px-4 py-4 shadow-[var(--public-shadow-md)] backdrop-blur-xl md:hidden">
-          <HostSearchBar
-            value={search}
-            onChange={setSearch}
-            onSearch={runSearch}
-            loading={loading}
-            compact
-          />
         </div>
-      ) : null}
+      </section>
 
       <HostAllUnitsSection
         username={username}

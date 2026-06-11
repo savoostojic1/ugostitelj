@@ -202,7 +202,7 @@ export function HostReservePanel({
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 className={inputClass}
-                placeholder="ime@email.com"
+                placeholder="you@email.com"
               />
             </div>
             <div className="space-y-2">
@@ -216,7 +216,7 @@ export function HostReservePanel({
                 value={phone}
                 onChange={(e) => setPhone(e.target.value)}
                 className={inputClass}
-                placeholder="+382 …"
+                placeholder="+1 555 000 0000"
               />
             </div>
           </div>

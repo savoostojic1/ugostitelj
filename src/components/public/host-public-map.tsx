@@ -8,6 +8,7 @@ import {
   isAllowedMapEmbedUrl,
   setEmbedZoom,
 } from "@/lib/public/google-maps-embed";
+import { PublicSectionHeader } from "@/components/public/public-section-header";
 import { cn } from "@/lib/utils";
 
 const MIN_ZOOM = 1;
@@ -80,24 +81,17 @@ export function HostPublicMap({ host }: HostPublicMapProps) {
   if (!embedUrl || !isAllowedMapEmbedUrl(embedUrl)) return null;
 
   return (
-    <section className="border-t border-[var(--public-border)] bg-[var(--public-bg-subtle)]">
-      <div className="mx-auto max-w-6xl px-5 py-14 md:px-10 md:py-16">
-        <div className="public-animate-in mx-auto max-w-2xl text-center">
-          <p className="public-eyebrow mb-3 justify-center">
-            <MapPin className="h-3.5 w-3.5" />
-            Location
-          </p>
-          <h2 className="public-heading text-2xl md:text-3xl">
-            Where to find us
-          </h2>
-          {host.location ? (
-            <p className="mt-3 text-[15px] text-[var(--public-muted)]">
-              {host.location}
-            </p>
-          ) : null}
-        </div>
+    <section className="public-section--map">
+      <div className="public-section-inner public-section--map-inner">
+        <PublicSectionHeader
+          index="03"
+          kicker="Location"
+          title="Where to find us"
+          description={host.location ?? undefined}
+          icon={<MapPin className="h-3.5 w-3.5" />}
+        />
 
-        <div className="public-animate-in public-animate-in-delay-2 mt-8 overflow-hidden rounded-2xl border border-[var(--public-border)] bg-white shadow-[var(--public-shadow-md)]">
+        <div className="public-animate-in public-animate-in-delay-2 mt-10 overflow-hidden rounded-2xl border border-[var(--public-border)] bg-white shadow-[var(--public-shadow-md)]">
           <div className="relative aspect-[16/10] w-full bg-[var(--public-bg-subtle)] md:aspect-[21/9]">
             {sources.map((src, index) => (
               <iframe

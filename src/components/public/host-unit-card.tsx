@@ -39,7 +39,7 @@ export function HostUnitCard({
   }
 
   return (
-    <article className="public-card overflow-hidden">
+    <article className="public-card public-card-interactive overflow-hidden">
       <div
         className={cn(
           "grid gap-0",

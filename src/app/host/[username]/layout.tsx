@@ -1,4 +1,5 @@
 import { Plus_Jakarta_Sans } from "next/font/google";
+import { ForcePublicLightTheme } from "@/components/public/force-public-light-theme";
 
 const publicSans = Plus_Jakarta_Sans({
   variable: "--font-public-sans",
@@ -12,6 +13,9 @@ export default function HostPublicLayout({
   children: React.ReactNode;
 }) {
   return (
-    <div className={`light ${publicSans.variable}`}>{children}</div>
+    <div className={publicSans.variable}>
+      <ForcePublicLightTheme />
+      {children}
+    </div>
   );
 }

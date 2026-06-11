@@ -15,7 +15,7 @@ export async function GET(
 
   if (!checkIn || !checkOut) {
     return NextResponse.json(
-      { error: "Nedostaju datumi boravka" },
+      { error: "Stay dates are required" },
       { status: 400 }
     );
   }

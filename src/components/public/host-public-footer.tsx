@@ -12,13 +12,13 @@ export function HostPublicFooter({ host }: HostPublicFooterProps) {
   const facebook = host.social_links?.facebook;
 
   return (
-    <footer className="border-t border-[var(--public-border)] bg-[var(--public-bg-elevated)]">
-      <div className="mx-auto max-w-6xl px-5 py-14 md:px-10 md:py-16">
+    <footer className="public-section--footer">
+      <div className="public-section-inner public-section--footer-inner">
         <div className="grid gap-10 md:grid-cols-[1.2fr_1fr] md:gap-16">
           <div>
             <div className="flex items-center gap-3">
               {host.logo_url ? (
-                <div className="relative h-11 w-11 overflow-hidden rounded-xl border border-[var(--public-border)] bg-white">
+                <div className="relative h-11 w-11 overflow-hidden rounded-xl border border-[var(--public-border)] bg-white shadow-sm">
                   <Image
                     src={host.logo_url}
                     alt=""

@@ -1,9 +1,10 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Building2, CalendarDays, Loader2 } from "lucide-react";
 import { HostUnitCard } from "@/components/public/host-unit-card";
 import { HostUnitAvailabilityCard } from "@/components/public/host-unit-availability-card";
+import { PublicSectionHeader } from "@/components/public/public-section-header";
 import type { PublicHostProperty } from "@/lib/public/types";
 import { cn } from "@/lib/utils";
 
@@ -34,6 +35,15 @@ export function HostAllUnitsSection({
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [loaded, setLoaded] = useState(false);
+  const prevViewModeRef = useRef(viewMode);
+
+  function scrollBelowUnitsActions() {
+    const actions = document.querySelector(".public-units-actions");
+    if (!actions) return;
+
+    const top = actions.getBoundingClientRect().bottom + window.scrollY + 12;
+    window.scrollTo({ top, behavior: "smooth" });
+  }
 
   async function ensurePropertiesLoaded() {
     if (loaded) return;
@@ -62,6 +72,18 @@ export function HostAllUnitsSection({
     }
   }, [viewMode]);
 
+  useEffect(() => {
+    const opened =
+      prevViewModeRef.current === "none" && viewMode !== "none";
+    prevViewModeRef.current = viewMode;
+
+    if (!opened || loading) return;
+
+    requestAnimationFrame(() => {
+      requestAnimationFrame(scrollBelowUnitsActions);
+    });
+  }, [viewMode, loading]);
+
   async function handleUnitsToggle() {
     if (viewMode === "units") {
       setViewMode("none");
@@ -86,58 +108,59 @@ export function HostAllUnitsSection({
   const expanded = viewMode !== "none";
 
   return (
-    <section
-      id="jedinice"
-      className="border-t border-[var(--public-border)] bg-[var(--public-bg-subtle)]"
-    >
-      <div className="mx-auto max-w-6xl px-5 py-16 md:px-10 md:py-20">
-        <div className="public-animate-in mx-auto max-w-2xl text-center">
-          <p className="public-eyebrow mb-3 justify-center">
-            <Building2 className="h-3.5 w-3.5" />
-            Our accommodation
-          </p>
-          <h2 className="public-heading text-3xl md:text-4xl">
-            Browse all our units
-          </h2>
-          <p className="mt-4 text-[15px] leading-relaxed text-[var(--public-muted)]">
-            Explore the full selection and check available dates for each unit
-            individually.
-          </p>
+    <section id="units" className="public-section--tinted">
+      <div className="public-section-inner public-section--tinted-inner">
+        <PublicSectionHeader
+          index="02"
+          kicker="Our accommodation"
+          title="Browse all units"
+          description="Explore the full selection and check available dates for each unit individually."
+          icon={<Building2 className="h-3.5 w-3.5" />}
+        />
 
-          <div className="mt-8 flex flex-col items-stretch justify-center gap-3 sm:flex-row sm:items-center">
+        <div className="public-units-actions">
             <button
               type="button"
-              onClick={handleUnitsToggle}
+              onClick={(e) => {
+                void handleUnitsToggle();
+                e.currentTarget.blur();
+              }}
               className={cn(
-                "public-btn px-6 py-3.5 sm:px-8",
-                viewMode === "units"
-                  ? "public-btn-primary"
-                  : "public-btn-secondary"
+                "public-btn-choice",
+                viewMode === "units" && "public-btn-choice--active"
               )}
             >
-              <Building2 className="h-4 w-4" />
-              {viewMode === "units" ? "Hide units" : "Show all units"}
+              <span className="public-btn-choice-icon" aria-hidden>
+                <Building2 className="h-5 w-5" />
+              </span>
+              <span className="public-btn-choice-label">
+                {viewMode === "units" ? "Hide units" : "Show all units"}
+              </span>
             </button>
             <button
               type="button"
-              onClick={handleAvailabilityToggle}
+              onClick={(e) => {
+                void handleAvailabilityToggle();
+                e.currentTarget.blur();
+              }}
               className={cn(
-                "public-btn px-6 py-3.5 sm:px-8",
-                viewMode === "availability"
-                  ? "public-btn-primary"
-                  : "public-btn-secondary"
+                "public-btn-choice",
+                viewMode === "availability" && "public-btn-choice--active"
               )}
             >
-              <CalendarDays className="h-4 w-4" />
-              {viewMode === "availability"
-                ? "Hide availability"
-                : "View availability for all units"}
+              <span className="public-btn-choice-icon" aria-hidden>
+                <CalendarDays className="h-5 w-5" />
+              </span>
+              <span className="public-btn-choice-label">
+                {viewMode === "availability"
+                  ? "Hide availability"
+                  : "View availability for all units"}
+              </span>
             </button>
-          </div>
         </div>
 
         {expanded ? (
-          <div className="mt-12">
+          <div id="units-expanded" className="public-units-expanded">
             {loading ? (
               <div className="flex items-center justify-center py-16 text-sm text-[var(--public-muted)]">
                 <Loader2 className="mr-2 h-5 w-5 animate-spin" />

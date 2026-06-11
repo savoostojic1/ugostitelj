@@ -10,7 +10,7 @@ export function PublicShell({
   host?: PublicHostProfile;
 }) {
   return (
-    <div className="public-site min-h-screen bg-[var(--public-bg)] text-[var(--public-fg)] selection:bg-[var(--public-accent-soft)] selection:text-[var(--public-accent)]">
+    <div className="public-site public-page-bg min-h-screen text-[var(--public-fg)] selection:bg-[var(--public-accent-soft)] selection:text-[var(--public-accent)]">
       <main>{children}</main>
       {host ? <HostPublicMap host={host} /> : null}
       {host ? <HostPublicFooter host={host} /> : null}
