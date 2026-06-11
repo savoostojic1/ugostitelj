@@ -43,6 +43,7 @@ export async function updateSession(request: NextRequest) {
       path === "/" ||
       isAuthRoute ||
       path.startsWith("/api/calendar") ||
+      path.startsWith("/api/cron/") ||
       path.startsWith("/api/booking-requests") ||
       path.startsWith("/api/public/") ||
       path.startsWith("/host/");
