@@ -102,11 +102,11 @@ export function ManualReservationForm({
     const parsedPrice = Number(price.replace(",", "."));
 
     if (!propertyId) {
-      toast.error("Izaberi bungalov");
+      toast.error("Select a property");
       return;
     }
     if (!trimmedName) {
-      toast.error("Unesi ime gosta");
+      toast.error("Enter guest name");
       return;
     }
 
@@ -124,11 +124,11 @@ export function ManualReservationForm({
     }
 
     if (!trimmedSource) {
-      toast.error("Unesi odakle dolazi rezervacija");
+      toast.error("Enter where the booking came from");
       return;
     }
     if (!Number.isFinite(parsedPrice) || parsedPrice < 0) {
-      toast.error("Unesi ispravnu cijenu");
+      toast.error("Enter a valid price");
       return;
     }
 
@@ -147,7 +147,7 @@ export function ManualReservationForm({
         { id: reservationId, ...payload },
         {
           onSuccess: () => {
-            toast.success("Rezervacija sačuvana");
+            toast.success("Reservation saved");
             if (onSuccess) {
               onSuccess();
             } else {
@@ -156,7 +156,7 @@ export function ManualReservationForm({
           },
           onError: (err) => {
             toast.error(
-              err instanceof Error ? err.message : "Greška pri čuvanju"
+              err instanceof Error ? err.message : "Failed to save"
             );
           },
         }
@@ -166,7 +166,7 @@ export function ManualReservationForm({
 
     createReservation.mutate(payload, {
       onSuccess: () => {
-        toast.success("Ručna rezervacija dodata");
+        toast.success("Manual reservation added");
         if (onSuccess) {
           onSuccess();
         } else {
@@ -174,23 +174,23 @@ export function ManualReservationForm({
         }
       },
       onError: (err) => {
-        toast.error(err instanceof Error ? err.message : "Greška pri dodavanju");
+        toast.error(err instanceof Error ? err.message : "Failed to add");
       },
     });
   }
 
   if (propertiesLoading || (isEdit && reservationLoading)) {
-    return <p className="text-sm text-muted-foreground">Učitavanje…</p>;
+    return <p className="text-sm text-muted-foreground">Loading…</p>;
   }
 
   if (isEdit && !reservation) {
-    return <p className="text-sm text-muted-foreground">Rezervacija nije pronađena.</p>;
+    return <p className="text-sm text-muted-foreground">Reservation not found.</p>;
   }
 
   if (properties.length === 0) {
     return (
       <p className="text-sm text-muted-foreground">
-        Prvo dodaj nekretninu u meniju Properties.
+        Add a property first from the Properties menu.
       </p>
     );
   }
@@ -200,10 +200,10 @@ export function ManualReservationForm({
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
       <div className="space-y-2">
-        <Label htmlFor="property">Bungalov</Label>
+        <Label htmlFor="property">Property</Label>
         <Select value={propertyId} onValueChange={setPropertyId} required>
           <SelectTrigger id="property">
-            <SelectValue placeholder="Izaberi bungalov" />
+            <SelectValue placeholder="Select property" />
           </SelectTrigger>
           <SelectContent>
             {properties.map((p) => (
@@ -216,19 +216,19 @@ export function ManualReservationForm({
       </div>
 
       <div className="space-y-2">
-        <Label htmlFor="guestName">Ime gosta</Label>
+        <Label htmlFor="guestName">Guest name</Label>
         <Input
           id="guestName"
           value={guestName}
           onChange={(e) => setGuestName(e.target.value)}
-          placeholder="npr. Marko Petrović"
+          placeholder="e.g. John Smith"
           required
           autoFocus={!isEdit}
         />
       </div>
 
       <div className="space-y-2">
-        <Label htmlFor="guestPhone">Broj telefona</Label>
+        <Label htmlFor="guestPhone">Phone number</Label>
         <Input
           id="guestPhone"
           type="tel"
@@ -236,7 +236,7 @@ export function ManualReservationForm({
           autoComplete="tel"
           value={guestPhone}
           onChange={(e) => setGuestPhone(e.target.value)}
-          placeholder="npr. +382 67 123 456"
+          placeholder="e.g. +1 555 123 4567"
         />
       </div>
 
@@ -251,23 +251,23 @@ export function ManualReservationForm({
         />
       ) : (
         <p className="rounded-lg border border-dashed border-border p-4 text-sm text-muted-foreground">
-          Prvo izaberi bungalov da vidiš zauzete datume.
+          Select a property first to see occupied dates.
         </p>
       )}
 
       <div className="space-y-2">
-        <Label htmlFor="source">Odakle dolazi</Label>
+        <Label htmlFor="source">Booking source</Label>
         <Input
           id="source"
           value={source}
           onChange={(e) => setSource(e.target.value)}
-          placeholder="npr. Direktno, Instagram, preporuka"
+          placeholder="e.g. Direct, Instagram, referral"
           required
         />
       </div>
 
       <div className="space-y-2">
-        <Label htmlFor="price">Cijena (€)</Label>
+        <Label htmlFor="price">Price (€)</Label>
         <Input
           id="price"
           type="number"
@@ -276,7 +276,7 @@ export function ManualReservationForm({
           step="0.01"
           value={price}
           onChange={(e) => setPrice(e.target.value)}
-          placeholder="npr. 120"
+          placeholder="e.g. 120"
           required
         />
       </div>
@@ -288,10 +288,10 @@ export function ManualReservationForm({
           disabled={isPending || !propertyId || !checkIn || !checkOut}
         >
           {isPending
-            ? "Čuvanje…"
+            ? "Saving…"
             : isEdit
-              ? "Sačuvaj izmjene"
-              : "Dodaj rezervaciju"}
+              ? "Save changes"
+              : "Add reservation"}
         </Button>
         <Button
           type="button"
@@ -299,7 +299,7 @@ export function ManualReservationForm({
           className="sm:flex-1"
           onClick={() => router.push(cancelHref)}
         >
-          Otkaži
+          Cancel
         </Button>
       </div>
     </form>

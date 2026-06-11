@@ -22,14 +22,14 @@ export async function GET(
 
   if (checkOut <= checkIn) {
     return NextResponse.json(
-      { error: "Datum odlaska mora biti poslije dolaska" },
+      { error: "Check-out must be after check-in" },
       { status: 400 }
     );
   }
 
   if (parseDateOnly(checkIn) < startOfDay(new Date())) {
     return NextResponse.json(
-      { error: "Dolazak ne može biti u prošlosti" },
+      { error: "Check-in cannot be in the past" },
       { status: 400 }
     );
   }
@@ -43,7 +43,7 @@ export async function GET(
 
   if (error) {
     return NextResponse.json(
-      { error: "Cijena nije dostupna" },
+      { error: "Price not available" },
       { status: 500 }
     );
   }

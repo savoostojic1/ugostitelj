@@ -1,4 +1,5 @@
 import { addDays, format } from "date-fns";
+import { appLocale } from "@/lib/dates/locale";
 
 /** YYYY-MM-DD iz baze — bez timezone pomaka (parseISO na '2025-06-15' zna pogrešiti dan). */
 export function parseDateOnly(isoDate: string): Date {
@@ -39,23 +40,18 @@ export function formatStayNightsLabel(
   const lastNight = getLastOccupiedNight(checkOutExclusive);
 
   if (isSameCalendarDay(inD, lastNight)) {
-    return format(inD, "d. MMM");
+    return format(inD, "d MMM", { locale: appLocale });
   }
-  return `${format(inD, "d.")}–${format(lastNight, "d. MMM")}`;
+  return `${format(inD, "d", { locale: appLocale })}–${format(lastNight, "d MMM", { locale: appLocale })}`;
 }
 
-/** Pun opis za tooltip / listu: "13.–14. jun · odlazak 15. jun" */
+/** Full label for tooltips and lists: "13–14 Jun · checkout 15 Jun" */
 export function formatStayPeriodLabel(
   checkIn: string,
   checkOutExclusive: string
 ): string {
   const nights = formatStayNightsLabel(checkIn, checkOutExclusive);
   const outD = parseDateOnly(checkOutExclusive);
-  const inD = parseDateOnly(checkIn);
-  const lastNight = getLastOccupiedNight(checkOutExclusive);
 
-  if (isSameCalendarDay(inD, lastNight)) {
-    return `${nights} · odlazak ${format(outD, "d. MMM")}`;
-  }
-  return `${nights} · odlazak ${format(outD, "d. MMM")}`;
+  return `${nights} · checkout ${format(outD, "d MMM", { locale: appLocale })}`;
 }

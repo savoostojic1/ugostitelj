@@ -46,7 +46,7 @@ export function PropertyGalleryUpload({
 
     const slotsLeft = MAX_PROPERTY_GALLERY - value.length;
     if (slotsLeft <= 0) {
-      toast.error(`Maksimalno ${MAX_PROPERTY_GALLERY} slika`);
+      toast.error(`Maximum ${MAX_PROPERTY_GALLERY} images`);
       return;
     }
 
@@ -71,11 +71,11 @@ export function PropertyGalleryUpload({
       onChange([...value, ...uploaded]);
       toast.success(
         uploaded.length === 1
-          ? "Slika dodata"
-          : `${uploaded.length} slike dodate`
+          ? "Image added"
+          : `${uploaded.length} images added`
       );
     } catch (err) {
-      toast.error(err instanceof Error ? err.message : "Upload nije uspio");
+      toast.error(err instanceof Error ? err.message : "Upload failed");
     } finally {
       setUploading(false);
     }
@@ -87,9 +87,9 @@ export function PropertyGalleryUpload({
       const supabase = createClient();
       await removePropertyGalleryImage(supabase, url).catch(() => undefined);
       onChange(value.filter((item) => item !== url));
-      toast.success("Slika uklonjena");
+      toast.success("Image removed");
     } catch (err) {
-      toast.error(err instanceof Error ? err.message : "Uklanjanje nije uspjelo");
+      toast.error(err instanceof Error ? err.message : "Remove failed");
     } finally {
       setRemovingUrl(null);
     }
@@ -106,7 +106,7 @@ export function PropertyGalleryUpload({
   return (
     <div className="space-y-3">
       <div className="flex items-center justify-between gap-3">
-        <Label>Galerija slika</Label>
+        <Label>Image gallery</Label>
         <span className="text-xs text-muted-foreground">
           {value.length}/{MAX_PROPERTY_GALLERY}
         </span>
@@ -130,7 +130,7 @@ export function PropertyGalleryUpload({
               {index === 0 ? (
                 <span className="absolute left-2 top-2 inline-flex items-center gap-1 rounded-md bg-black/55 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-white">
                   <Star className="h-3 w-3" />
-                  Naslovna
+                  Cover
                 </span>
               ) : null}
               <div className="absolute inset-x-0 bottom-0 flex items-center justify-between gap-1 bg-gradient-to-t from-black/70 to-transparent p-2 opacity-0 transition group-hover:opacity-100">
@@ -140,7 +140,7 @@ export function PropertyGalleryUpload({
                     disabled={index === 0}
                     onClick={() => moveImage(index, -1)}
                     className="flex h-7 w-7 items-center justify-center rounded-md bg-white/90 text-foreground disabled:opacity-40"
-                    aria-label="Pomjeri lijevo"
+                    aria-label="Move left"
                   >
                     <ChevronLeft className="h-4 w-4" />
                   </button>
@@ -149,7 +149,7 @@ export function PropertyGalleryUpload({
                     disabled={index === value.length - 1}
                     onClick={() => moveImage(index, 1)}
                     className="flex h-7 w-7 items-center justify-center rounded-md bg-white/90 text-foreground disabled:opacity-40"
-                    aria-label="Pomjeri desno"
+                    aria-label="Move right"
                   >
                     <ChevronRight className="h-4 w-4" />
                   </button>
@@ -159,7 +159,7 @@ export function PropertyGalleryUpload({
                   disabled={removingUrl === url}
                   onClick={() => handleRemove(url)}
                   className="flex h-7 w-7 items-center justify-center rounded-md bg-white/90 text-red-600"
-                  aria-label="Ukloni sliku"
+                  aria-label="Remove image"
                 >
                   {removingUrl === url ? (
                     <Loader2 className="h-4 w-4 animate-spin" />
@@ -173,7 +173,7 @@ export function PropertyGalleryUpload({
         </div>
       ) : (
         <div className="flex aspect-[2/1] items-center justify-center rounded-lg border border-dashed border-border bg-muted/40 text-sm text-muted-foreground">
-          Još nema slika za ovu jedinicu
+          No images for this listing yet
         </div>
       )}
 
@@ -198,12 +198,12 @@ export function PropertyGalleryUpload({
           ) : (
             <ImagePlus className="h-4 w-4" />
           )}
-          {uploading ? "Upload…" : "Dodaj slike"}
+          {uploading ? "Uploading…" : "Add images"}
         </Button>
       </div>
       <p className={cn("text-xs text-muted-foreground")}>
-        Do {MAX_PROPERTY_GALLERY} slika · JPG, PNG, WebP ili GIF · najviše 5 MB
-        po slici · prva slika je naslovna na javnom sajtu
+        Up to {MAX_PROPERTY_GALLERY} images · JPG, PNG, WebP or GIF · up to 5 MB
+        per image · first image is the cover on your booking site
       </p>
     </div>
   );

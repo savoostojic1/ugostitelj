@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { Pencil, Plus, Trash2 } from "lucide-react";
+import { DashboardPageHeader } from "@/components/dashboard/dashboard-page-header";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import {
@@ -17,47 +18,44 @@ export default function ManualReservationsPage() {
   const deleteReservation = useDeleteManualReservation();
 
   function handleDelete(id: string, guestName: string) {
-    if (!confirm(`Obriši ručnu rezervaciju za ${guestName}?`)) return;
+    if (!confirm(`Delete manual reservation for ${guestName}?`)) return;
 
     deleteReservation.mutate(id, {
-      onSuccess: () => toast.success("Rezervacija obrisana"),
+      onSuccess: () => toast.success("Reservation deleted"),
       onError: (err) =>
-        toast.error(err instanceof Error ? err.message : "Brisanje nije uspjelo"),
+        toast.error(err instanceof Error ? err.message : "Delete failed"),
     });
   }
 
   return (
     <div className="space-y-8">
-      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-        <div>
-          <h1 className="text-2xl font-semibold tracking-tight">
-            Ručne rezervacije
-          </h1>
-          <p className="text-muted-foreground">
-            Rezervacije koje uneseš ručno, van Airbnb/Booking kalendara
-          </p>
-        </div>
-        <Button asChild>
-          <Link href="/dashboard/manual-reservations/new">
-            <Plus className="h-4 w-4" />
-            Nova rezervacija
-          </Link>
-        </Button>
-      </div>
+      <DashboardPageHeader
+        eyebrow="Bookings"
+        title="Manual bookings"
+        description="Reservations you enter manually, outside Airbnb/Booking calendars"
+        actions={
+          <Button asChild>
+            <Link href="/dashboard/manual-reservations/new">
+              <Plus className="h-4 w-4" />
+              New reservation
+            </Link>
+          </Button>
+        }
+      />
 
       {isLoading && (
-        <p className="text-sm text-muted-foreground">Učitavanje…</p>
+        <p className="text-sm text-muted-foreground">Loading…</p>
       )}
 
       {!isLoading && reservations.length === 0 && (
         <Card className="border-dashed">
           <CardContent className="flex flex-col items-center py-16 text-center">
             <p className="mb-4 text-muted-foreground">
-              Još nema ručnih rezervacija.
+              No manual reservations yet.
             </p>
             <Button asChild>
               <Link href="/dashboard/manual-reservations/new">
-                Dodaj prvu rezervaciju
+                Add first reservation
               </Link>
             </Button>
           </CardContent>
@@ -93,7 +91,7 @@ export default function ManualReservationsPage() {
                 <Button variant="ghost" size="icon" asChild>
                   <Link
                     href={`/dashboard/manual-reservations/${r.id}/edit`}
-                    aria-label={`Uredi ${r.title}`}
+                    aria-label={`Edit ${r.title}`}
                   >
                     <Pencil className="h-4 w-4" />
                   </Link>
@@ -103,7 +101,7 @@ export default function ManualReservationsPage() {
                   size="icon"
                   onClick={() => handleDelete(r.id, r.title)}
                   disabled={deleteReservation.isPending}
-                  aria-label={`Obriši ${r.title}`}
+                  aria-label={`Delete ${r.title}`}
                 >
                   <Trash2 className="h-4 w-4 text-destructive" />
                 </Button>

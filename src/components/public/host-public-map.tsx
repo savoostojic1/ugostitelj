@@ -85,10 +85,10 @@ export function HostPublicMap({ host }: HostPublicMapProps) {
         <div className="public-animate-in mx-auto max-w-2xl text-center">
           <p className="public-eyebrow mb-3 justify-center">
             <MapPin className="h-3.5 w-3.5" />
-            Lokacija
+            Location
           </p>
           <h2 className="public-heading text-2xl md:text-3xl">
-            Gdje se nalazimo
+            Where to find us
           </h2>
           {host.location ? (
             <p className="mt-3 text-[15px] text-[var(--public-muted)]">
@@ -102,7 +102,7 @@ export function HostPublicMap({ host }: HostPublicMapProps) {
             {sources.map((src, index) => (
               <iframe
                 key={`map-layer-${index}`}
-                title={`Mapa — ${host.business_name}`}
+                title={`Map — ${host.business_name}`}
                 src={src}
                 className={cn(
                   "absolute inset-0 h-full w-full border-0 transition-opacity duration-300",
@@ -131,7 +131,7 @@ export function HostPublicMap({ host }: HostPublicMapProps) {
                   "hover:bg-[var(--public-accent-soft)] hover:text-[var(--public-accent)]",
                   "disabled:cursor-not-allowed disabled:opacity-40"
                 )}
-                aria-label="Uvećaj mapu"
+                aria-label="Zoom in map"
               >
                 <Plus className="h-4 w-4" />
               </button>
@@ -147,7 +147,7 @@ export function HostPublicMap({ host }: HostPublicMapProps) {
                   "hover:bg-[var(--public-accent-soft)] hover:text-[var(--public-accent)]",
                   "disabled:cursor-not-allowed disabled:opacity-40"
                 )}
-                aria-label="Umanji mapu"
+                aria-label="Zoom out map"
               >
                 <Minus className="h-4 w-4" />
               </button>

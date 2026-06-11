@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
-import { syncCalendarFeed } from "@/lib/ical/sync-feed";
+import { syncCalendarFeeds } from "@/lib/sync/sync-feeds-batch";
 import type { CalendarFeed } from "@/types/database";
 
 export const runtime = "nodejs";
@@ -91,11 +91,7 @@ export async function POST(request: Request) {
     feeds = (data ?? []) as CalendarFeed[];
   }
 
-  const results = [];
-  for (const feed of feeds) {
-    const result = await syncCalendarFeed(supabase, feed);
-    results.push({ feedId: feed.id, ...result });
-  }
+  const results = await syncCalendarFeeds(supabase, feeds);
 
   const failed = results.find((r) => r.error);
   if (failed?.error) {

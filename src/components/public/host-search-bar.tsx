@@ -57,11 +57,11 @@ export function HostSearchBar({
               compact ? "min-h-[4.5rem] py-2.5" : "min-h-[5.25rem] py-3.5"
             )}
           >
-            <span className="public-label mb-2">Gosti</span>
+            <span className="public-label mb-2">Guests</span>
             <div className="flex items-center gap-2.5">
               <button
                 type="button"
-                aria-label="Manje gostiju"
+                aria-label="Fewer guests"
                 disabled={value.guests <= 1}
                 onClick={() =>
                   onChange({
@@ -78,7 +78,7 @@ export function HostSearchBar({
               </span>
               <button
                 type="button"
-                aria-label="Više gostiju"
+                aria-label="More guests"
                 onClick={() =>
                   onChange({ ...value, guests: value.guests + 1 })
                 }
@@ -104,7 +104,7 @@ export function HostSearchBar({
             ) : (
               <Search className="h-4 w-4" />
             )}
-            {loading ? "Tražim…" : "Pretraži"}
+            {loading ? "Searching…" : "Search"}
           </button>
         </div>
       </div>

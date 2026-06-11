@@ -2,137 +2,136 @@ import type { Metadata } from "next";
 import Link from "next/link";
 
 export const metadata: Metadata = {
-  title: "Uslovi korištenja — Ugostitelj",
-  description: "Uslovi korištenja platforme Ugostitelj za domaćine i goste.",
+  title: "Terms of service — Hostvia",
+  description: "Terms of use for the Hostvia platform for hosts and guests.",
 };
 
 export default function UsloviPage() {
   return (
     <article className="mx-auto max-w-3xl px-4 py-16 md:px-6 md:py-20">
-      <p className="marketing-eyebrow mb-4">Pravno</p>
+      <p className="marketing-eyebrow mb-4">Legal</p>
       <h1 className="marketing-heading text-3xl md:text-4xl">
-        Uslovi korištenja
+        Terms of service
       </h1>
       <p className="mt-4 text-sm text-muted-foreground">
-        Posljednje ažuriranje: {new Date().getFullYear()}
+        Last updated: {new Date().getFullYear()}
       </p>
 
       <div className="prose-marketing mt-10 space-y-8 text-muted-foreground">
         <section>
           <h2 className="text-lg font-semibold text-foreground">
-            1. Prihvatanje uslova
+            1. Acceptance of terms
           </h2>
           <p className="mt-3 leading-relaxed">
-            Korištenjem platforme Ugostitelj („Usluga“) prihvatate ove uslove.
-            Ako se ne slažete, nemojte koristiti Uslugu. Uslugu pružamo domaćinima
-            kratkoročnog smještaja za upravljanje kalendarima i javnim stranicama
-            za booking upite.
+            By using the Hostvia platform (&ldquo;Service&rdquo;), you accept
+            these terms. If you do not agree, do not use the Service. We provide
+            the Service to short-term rental hosts for managing calendars and
+            public pages for booking inquiries.
           </p>
         </section>
 
         <section>
           <h2 className="text-lg font-semibold text-foreground">
-            2. Nalog i odgovornost
+            2. Account and responsibility
           </h2>
           <p className="mt-3 leading-relaxed">
-            Odgovorni ste za tačnost informacija koje unesete, sigurnost naloga
-            i sve aktivnosti na vašem nalogu. Obavezni ste unositi tačne podatke
-            o smještaju, cijenama i dostupnosti.
+            You are responsible for the accuracy of information you enter,
+            account security and all activity on your account. You must enter
+            accurate details about accommodation, pricing and availability.
           </p>
         </section>
 
         <section>
           <h2 className="text-lg font-semibold text-foreground">
-            3. Priroda usluge
+            3. Nature of the service
           </h2>
           <p className="mt-3 leading-relaxed">
-            Ugostitelj nije travel agencija niti payment procesor. Pružamo
-            alate za sinhronizaciju kalendara i prijem booking upita. Ugovor o
-            smještaju nastaje između domaćina i gosta — mi nismo strana u tom
-            ugovoru.
+            Hostvia is not a travel agency or payment processor. We provide
+            tools for calendar sync and receiving booking inquiries. The
+            accommodation agreement is between host and guest — we are not a
+            party to that agreement.
           </p>
         </section>
 
         <section>
           <h2 className="text-lg font-semibold text-foreground">
-            4. Booking upiti
+            4. Booking inquiries
           </h2>
           <p className="mt-3 leading-relaxed">
-            Upiti koje gosti šalju preko javnog sajta nisu garantovana
-            rezervacija. Domaćin samostalno odlučuje da li prihvata upit i
-            dogovara detalje plaćanja direktno sa gostom.
+            Inquiries sent by guests through the public site are not guaranteed
+            reservations. The host independently decides whether to accept an
+            inquiry and arranges payment details directly with the guest.
           </p>
         </section>
 
         <section>
           <h2 className="text-lg font-semibold text-foreground">
-            5. iCal sinhronizacija
+            5. iCal sync
           </h2>
           <p className="mt-3 leading-relaxed">
-            iCal integracija zavisi od platformi trećih strana (Airbnb,
-            Booking.com). Ne garantujemo trenutnu sinhronizaciju u svim
-            situacijama. Preporučujemo redovnu provjeru kalendara.
+            iCal integration depends on third-party platforms (Airbnb,
+            Booking.com). We do not guarantee instant sync in all situations. We
+            recommend checking your calendars regularly.
           </p>
         </section>
 
         <section>
           <h2 className="text-lg font-semibold text-foreground">
-            6. Zabranjena upotreba
+            6. Prohibited use
           </h2>
           <p className="mt-3 leading-relaxed">
-            Zabranjeno je koristiti Uslugu za nezakonite aktivnosti, unošenje
-            lažnih podataka, zloupotrebu podataka gostiju ili pokušaj ometanja
-            rada platforme.
+            You may not use the Service for illegal activities, entering false
+            data, misusing guest data or attempting to disrupt platform
+            operations.
           </p>
         </section>
 
         <section>
           <h2 className="text-lg font-semibold text-foreground">
-            7. Intelektualna svojina
+            7. Intellectual property
           </h2>
           <p className="mt-3 leading-relaxed">
-            Platforma, dizajn i softver su vlasništvo Ugostitelja. Sadržaj koji
-            domaćin uploaduje (fotografije, opisi) ostaje vlasništvo domaćina,
-            uz licencu za prikaz na javnom sajtu.
+            The platform, design and software are owned by Hostvia. Content
+            uploaded by hosts (photos, descriptions) remains the property of the
+            host, with a license to display it on the public site.
           </p>
         </section>
 
         <section>
           <h2 className="text-lg font-semibold text-foreground">
-            8. Ograničenje odgovornosti
+            8. Limitation of liability
           </h2>
           <p className="mt-3 leading-relaxed">
-            Usluga se pruža „kakva jeste“. Ne odgovaramo za gubitke nastale
-            zbog grešaka sinhronizacije, propuštenih rezervacija ili sporova
-            između domaćina i gostiju, osim u mjeri propisane primjenjivim
-            zakonima.
+            The Service is provided &ldquo;as is&rdquo;. We are not liable for
+            losses caused by sync errors, missed reservations or disputes between
+            hosts and guests, except to the extent required by applicable law.
           </p>
         </section>
 
         <section>
           <h2 className="text-lg font-semibold text-foreground">
-            9. Promjene uslova
+            9. Changes to terms
           </h2>
           <p className="mt-3 leading-relaxed">
-            Možemo ažurirati ove uslove. O značajnim promjenama obavijestićemo
-            registrovane korisnike. Nastavak korištenja nakon promjena znači
-            prihvatanje novih uslova.
+            We may update these terms. We will notify registered users of
+            significant changes. Continued use after changes means acceptance of
+            the new terms.
           </p>
         </section>
 
         <section>
-          <h2 className="text-lg font-semibold text-foreground">10. Kontakt</h2>
+          <h2 className="text-lg font-semibold text-foreground">10. Contact</h2>
           <p className="mt-3 leading-relaxed">
-            Pitanja o uslovima:{" "}
+            Questions about these terms:{" "}
             <a
-              href="mailto:hello@ugostitelj.me"
+              href="mailto:hello@hostvia.me"
               className="text-primary hover:underline"
             >
-              hello@ugostitelj.me
+              hello@hostvia.me
             </a>
-            . Više o podacima u{" "}
+            . More about data in our{" "}
             <Link href="/privatnost" className="text-primary hover:underline">
-              Politici privatnosti
+              Privacy policy
             </Link>
             .
           </p>

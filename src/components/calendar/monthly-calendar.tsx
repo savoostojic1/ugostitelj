@@ -26,7 +26,9 @@ import {
 } from "@/lib/dates/calendar-date";
 import {
   formatReservationLabel,
+  getReservationDisplayKind,
 } from "@/lib/reservations/display";
+import { appLocale } from "@/lib/dates/locale";
 import type { Reservation } from "@/types/database";
 import { useUiStore } from "@/stores/ui-store";
 
@@ -35,7 +37,7 @@ interface MonthlyCalendarProps {
   propertyId?: string;
 }
 
-const WEEKDAYS = ["Pon", "Uto", "Sri", "Čet", "Pet", "Sub", "Ned"];
+const WEEKDAYS = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
 
 function isCheckInDay(reservation: Reservation, day: Date) {
   return isSameCalendarDay(day, parseDateOnly(reservation.check_in));
@@ -92,7 +94,7 @@ export function MonthlyCalendar({ reservations }: MonthlyCalendarProps) {
   }
 
   const visibleReservations = reservations.filter(
-    (r) => formatReservationLabel(r.title, r.platform) !== "Blokirano"
+    (r) => getReservationDisplayKind(r) !== "manual_block"
   );
 
   const shadeMap = useMemo(
@@ -103,10 +105,10 @@ export function MonthlyCalendar({ reservations }: MonthlyCalendarProps) {
   const today = new Date();
 
   return (
-    <div className="overflow-hidden rounded-2xl border border-border bg-card shadow-sm">
+    <div className="overflow-hidden rounded-2xl border border-border bg-card text-card-foreground shadow-sm">
       <div className="flex flex-col gap-3 border-b px-4 py-4 sm:flex-row sm:items-center sm:justify-between">
         <h3 className="text-lg font-semibold capitalize">
-          {format(calendarMonth, "MMMM yyyy")}
+          {format(calendarMonth, "MMMM yyyy", { locale: appLocale })}
         </h3>
         <div className="flex items-center gap-1">
           <Button
@@ -131,7 +133,7 @@ export function MonthlyCalendar({ reservations }: MonthlyCalendarProps) {
             className="h-8"
             onClick={() => setCalendarMonth(new Date())}
           >
-            Danas
+            Today
           </Button>
           <Button
             variant="outline"
@@ -287,22 +289,22 @@ export function MonthlyCalendar({ reservations }: MonthlyCalendarProps) {
         </span>
         <span className="flex items-center gap-1.5">
           <span className="h-2.5 w-5 rounded-md bg-amber-700" />
-          Ručno blokirano
+          Manually blocked
         </span>
         <span className="flex items-center gap-1.5">
           <span className="rounded bg-emerald-500/15 px-1 py-px text-[9px] font-bold text-emerald-600">
             in
           </span>
-          Dolazak
+          Check-in
         </span>
         <span className="flex items-center gap-1.5">
           <span className="rounded bg-red-500/15 px-1 py-px text-[9px] font-bold text-red-600">
             out
           </span>
-          Odlazak
+          Check-out
         </span>
         <span className="text-muted-foreground/70">
-          Svaka traka — druga nijansa (Airbnb crvena, Booking plava)
+          Each bar uses a different shade (Airbnb red, Booking blue)
         </span>
       </div>
     </div>

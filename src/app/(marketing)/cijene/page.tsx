@@ -8,19 +8,19 @@ import { pricingPlans } from "@/lib/marketing/content";
 import { cn } from "@/lib/utils";
 
 export const metadata: Metadata = {
-  title: "Cijene — Ugostitelj",
+  title: "Pricing — Hostvia",
   description:
-    "Trenutno besplatan pristup svim funkcijama Ugostitelja — kalendar, javni sajt i booking upiti.",
+    "Currently free access to all Hostvia features — calendar, booking site and inquiries.",
 };
 
 export default function CijenePage() {
   return (
     <>
       <PageHero
-        eyebrow="Cijene"
-        title="Jednostavno i transparentno"
-        description="Trenutno su sve funkcije besplatne dok traje raniji pristup. Bez skrivenih troškova, bez kartice pri registraciji."
-        primaryCta={{ label: "Kreni besplatno", href: "/register" }}
+        eyebrow="Pricing"
+        title="Simple and transparent"
+        description="All features are currently free during early access. No hidden costs, no credit card required to sign up."
+        primaryCta={{ label: "Start free", href: "/register" }}
       />
 
       <section className="mx-auto max-w-6xl px-4 py-16 md:px-6 md:py-20">
@@ -37,7 +37,7 @@ export default function CijenePage() {
             >
               {plan.highlighted ? (
                 <span className="absolute -top-3 left-6 rounded-full bg-primary px-3 py-1 text-xs font-semibold text-primary-foreground">
-                  Preporučeno
+                  Recommended
                 </span>
               ) : null}
               <h3 className="text-xl font-semibold">{plan.name}</h3>
@@ -74,15 +74,15 @@ export default function CijenePage() {
 
       <section className="border-y border-border bg-card/30 py-16 md:py-20">
         <div className="mx-auto max-w-3xl px-4 text-center md:px-6">
-          <h2 className="marketing-heading text-2xl">Šta je uključeno?</h2>
+          <h2 className="marketing-heading text-2xl">What&apos;s included?</h2>
           <p className="mt-4 text-muted-foreground">
-            Besplatni plan uključuje sve što domaćin treba za svakodnevni rad:
-            sinhronizaciju kalendara, javni sajt, booking upite, cijene po
-            datumima, galeriju, mapu, ručne rezervacije i iCal export.
+            The free plan includes everything a host needs for day-to-day work:
+            calendar sync, booking site, inquiries, date-based pricing,
+            gallery, map, manual bookings and iCal export.
           </p>
           <p className="mt-4 text-sm text-muted-foreground">
-            Pro plan će biti dostupan kasnije za veće portfolije i timove.
-            Javiti ćemo unaprijed prije bilo kakve promjene cijena.
+            The Pro plan will be available later for larger portfolios and teams.
+            We will notify you in advance before any pricing changes.
           </p>
         </div>
       </section>

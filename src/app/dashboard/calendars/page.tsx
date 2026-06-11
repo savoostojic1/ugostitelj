@@ -5,8 +5,10 @@ import { ChevronLeft, ChevronRight } from "lucide-react";
 import { format } from "date-fns";
 import { Button } from "@/components/ui/button";
 import { CompactPropertyCalendar } from "@/components/calendar/compact-property-calendar";
+import { DashboardPageHeader } from "@/components/dashboard/dashboard-page-header";
 import { useProperties, useReservations } from "@/hooks/use-properties";
 import { useUiStore } from "@/stores/ui-store";
+import { getPropertyCalendarColor } from "@/lib/properties/property-colors";
 import type { Reservation } from "@/types/database";
 
 function groupByProperty(
@@ -39,86 +41,106 @@ export default function CalendarsOverviewPage() {
   const grouped = groupByProperty(properties, reservations);
 
   return (
-    <div className="space-y-6">
-      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-        <div>
-          <h1 className="text-2xl font-semibold tracking-tight">Kalendari</h1>
-          <p className="text-muted-foreground">
-            Pregled zauzetosti svih smještaja
-          </p>
-        </div>
-        <div className="flex items-center gap-1">
-          <Button
-            variant="outline"
-            size="icon"
-            className="h-8 w-8"
-            onClick={() =>
-              setCalendarMonth(
-                new Date(
-                  calendarMonth.getFullYear(),
-                  calendarMonth.getMonth() - 1,
-                  1
+    <div className="space-y-8">
+      <DashboardPageHeader
+        eyebrow="Calendar view"
+        title="Calendars"
+        description="Occupancy across all properties"
+        actions={
+          <div className="flex items-center gap-1 rounded-lg border border-white/8 bg-black/20 p-1">
+            <Button
+              variant="ghost"
+              size="icon"
+              className="h-8 w-8 text-zinc-300 hover:bg-white/5 hover:text-white"
+              onClick={() =>
+                setCalendarMonth(
+                  new Date(
+                    calendarMonth.getFullYear(),
+                    calendarMonth.getMonth() - 1,
+                    1
+                  )
                 )
-              )
-            }
-          >
-            <ChevronLeft className="h-4 w-4" />
-          </Button>
-          <span className="min-w-[8rem] text-center text-sm font-semibold capitalize">
-            {format(calendarMonth, "MMMM yyyy")}
-          </span>
-          <Button
-            variant="outline"
-            size="sm"
-            className="h-8"
-            onClick={() => setCalendarMonth(new Date())}
-          >
-            Danas
-          </Button>
-          <Button
-            variant="outline"
-            size="icon"
-            className="h-8 w-8"
-            onClick={() =>
-              setCalendarMonth(
-                new Date(
-                  calendarMonth.getFullYear(),
-                  calendarMonth.getMonth() + 1,
-                  1
+              }
+            >
+              <ChevronLeft className="h-4 w-4" />
+            </Button>
+            <span className="min-w-[8.5rem] text-center text-sm font-semibold capitalize text-white">
+              {format(calendarMonth, "MMMM yyyy")}
+            </span>
+            <Button
+              variant="ghost"
+              size="sm"
+              className="h-8 text-zinc-300 hover:bg-white/5 hover:text-white"
+              onClick={() => setCalendarMonth(new Date())}
+            >
+              Today
+            </Button>
+            <Button
+              variant="ghost"
+              size="icon"
+              className="h-8 w-8 text-zinc-300 hover:bg-white/5 hover:text-white"
+              onClick={() =>
+                setCalendarMonth(
+                  new Date(
+                    calendarMonth.getFullYear(),
+                    calendarMonth.getMonth() + 1,
+                    1
+                  )
                 )
-              )
-            }
-          >
-            <ChevronRight className="h-4 w-4" />
-          </Button>
-        </div>
-      </div>
+              }
+            >
+              <ChevronRight className="h-4 w-4" />
+            </Button>
+          </div>
+        }
+      />
 
-      {isLoading && (
-        <p className="text-sm text-muted-foreground">Učitavanje…</p>
-      )}
+      {isLoading && <p className="text-sm text-zinc-500">Loading…</p>}
 
       {!isLoading && properties.length === 0 && (
-        <p className="text-sm text-muted-foreground">
-          Nema smještaja. Dodaj prvi u meniju Properties.
-        </p>
+        <div className="hostvia-panel py-16 text-center">
+          <p className="text-zinc-400">
+            No properties yet. Add your first property to see calendars.
+          </p>
+          <Link
+            href="/dashboard/properties/new"
+            className="hostvia-btn-gradient mt-4 inline-flex h-10 items-center rounded-lg px-5 text-sm font-semibold"
+          >
+            Add property
+          </Link>
+        </div>
       )}
 
-      <div className="grid grid-cols-2 gap-3 md:grid-cols-3 lg:grid-cols-4">
-        {grouped.map(({ property, reservations: propertyReservations }) => (
-          <div key={property.id} className="min-w-0 space-y-1.5">
-            <Link
-              href={`/dashboard/properties/${property.id}/calendar`}
-              className="block truncate text-sm font-semibold hover:text-primary"
-            >
-              {property.name}
-            </Link>
-            <CompactPropertyCalendar
-              reservations={propertyReservations}
-              month={calendarMonth}
-            />
-          </div>
-        ))}
+      <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+        {grouped.map(({ property, reservations: propertyReservations }, i) => {
+          const colors = getPropertyCalendarColor(i);
+          return (
+            <div key={property.id} className="hostvia-panel overflow-hidden">
+              <div className="flex items-center gap-2 border-b border-white/6 px-4 py-3">
+                <span
+                  className="h-2.5 w-2.5 rounded-full"
+                  style={{ background: colors.solid }}
+                />
+                <Link
+                  href={`/dashboard/properties/${property.id}/calendar`}
+                  className="truncate text-sm font-semibold text-white hover:text-violet-200"
+                >
+                  {property.name}
+                </Link>
+              </div>
+              <div className="p-3">
+                <CompactPropertyCalendar
+                  reservations={propertyReservations}
+                  month={calendarMonth}
+                />
+                <p className="mt-3 text-xs text-zinc-500">
+                  {propertyReservations.length} reservation
+                  {propertyReservations.length !== 1 ? "s" : ""}
+                </p>
+              </div>
+            </div>
+          );
+        })}
       </div>
     </div>
   );

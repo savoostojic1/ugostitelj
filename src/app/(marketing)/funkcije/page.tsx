@@ -11,29 +11,29 @@ import {
 } from "@/lib/marketing/content";
 
 export const metadata: Metadata = {
-  title: "Funkcije — Ugostitelj",
+  title: "Features — Hostvia",
   description:
-    "iCal sinhronizacija, više jedinica, javni sajt, cijene po datumima, booking upiti i operativni dashboard za domaćine.",
+    "iCal sync, multiple units, booking site, date-based pricing, booking inquiries and an operations dashboard for hosts.",
 };
 
 export default function FunkcijePage() {
   return (
     <>
       <PageHero
-        eyebrow="Funkcije"
-        title="Kompletan alat za moderne domaćine"
-        description="Ugostitelj spaja sinhronizaciju platformi, operativni kalendar i javni sajt za direktne upite — bez API integracija i bez komplikacija."
-        primaryCta={{ label: "Kreni besplatno", href: "/register" }}
+        eyebrow="Features"
+        title="A complete toolkit for modern hosts"
+        description="Hostvia combines platform sync, an operations calendar and a public site for direct inquiries — no API integrations and no hassle."
+        primaryCta={{ label: "Start free", href: "/register" }}
       />
 
       <section className="mx-auto max-w-6xl px-4 py-16 md:px-6 md:py-20">
         <div className="max-w-2xl">
           <h2 className="marketing-heading text-2xl md:text-3xl">
-            Osnovne funkcije
+            Core features
           </h2>
           <p className="mt-3 text-muted-foreground">
-            Sve što vam treba da vodite smještaj profesionalno, bilo da imate
-            jedan apartman ili cijelo naselje.
+            Everything you need to run your accommodation professionally,
+            whether you have one apartment or an entire property.
           </p>
         </div>
         <FeatureGrid features={coreFeatures} className="mt-10" />
@@ -43,11 +43,11 @@ export default function FunkcijePage() {
         <div className="mx-auto max-w-6xl px-4 md:px-6">
           <div className="max-w-2xl">
             <h2 className="marketing-heading text-2xl md:text-3xl">
-              Dashboard i operativa
+              Dashboard & operations
             </h2>
             <p className="mt-3 text-muted-foreground">
-              Pored sinhronizacije, Ugostitelj pomaže u svakodnevnom radu —
-              dolasci, poruke, ručne rezervacije i export.
+              Beyond sync, Hostvia helps with day-to-day work — arrivals,
+              messages, manual bookings and export.
             </p>
           </div>
           <div className="mt-10 grid gap-6 md:grid-cols-2">
@@ -69,39 +69,40 @@ export default function FunkcijePage() {
       <section className="mx-auto max-w-6xl px-4 py-16 md:px-6 md:py-20">
         <div className="grid gap-8 lg:grid-cols-2">
           <div className="marketing-card rounded-2xl border border-border bg-card p-8">
-            <h3 className="text-xl font-semibold">iCal sinhronizacija</h3>
+            <h3 className="text-xl font-semibold">iCal sync</h3>
             <p className="mt-3 text-sm leading-relaxed text-muted-foreground">
-              Airbnb i Booking.com nude iCal link za svaku listing jedinicu.
-              Zalijepite ga u Ugostitelj i rezervacije se automatski uvezu. Nema
-              potrebe za API ključevima ili tehničkim znanjem.
+              Airbnb and Booking.com provide an iCal link for each listing.
+              Paste it into Hostvia and reservations import automatically. No API
+              keys or technical knowledge required.
             </p>
             <p className="mt-3 text-sm leading-relaxed text-muted-foreground">
-              Kalendari se osvježavaju u pozadini. Ručno pokrenite sync kad
-              god želite brzu provjeru.
-            </p>
-          </div>
-          <div className="marketing-card rounded-2xl border border-border bg-card p-8">
-            <h3 className="text-xl font-semibold">Export natrag na platforme</h3>
-            <p className="mt-3 text-sm leading-relaxed text-muted-foreground">
-              Ručne rezervacije i blokade koje unesete u Ugostitelj možete
-              izvesti kao iCal link. Dodajte ga u Airbnb ili Booking.com da
-              platforme vide iste datume — smanjujete rizik duplog booka.
+              Calendars refresh in the background. Trigger a manual sync
+              whenever you want a quick check.
             </p>
           </div>
           <div className="marketing-card rounded-2xl border border-border bg-card p-8">
-            <h3 className="text-xl font-semibold">Cijene po datumima</h3>
+            <h3 className="text-xl font-semibold">Export back to platforms</h3>
             <p className="mt-3 text-sm leading-relaxed text-muted-foreground">
-              Postavite osnovnu cijenu po noći, zatim dodajte pravila za
-              određene periode — sezona, praznici, vikendi. Gosti na javnom
-              sajtu vide tačan ukupan iznos za odabrani boravak.
+              Manual bookings and blocks you enter in Hostvia can be exported as
+              an iCal link. Add it to Airbnb or Booking.com so platforms see
+              the same dates — reducing the risk of double bookings.
             </p>
           </div>
           <div className="marketing-card rounded-2xl border border-border bg-card p-8">
-            <h3 className="text-xl font-semibold">Booking upiti</h3>
+            <h3 className="text-xl font-semibold">Date-based pricing</h3>
             <p className="mt-3 text-sm leading-relaxed text-muted-foreground">
-              Gosti popunjavaju formu sa imenom, emailom i telefonom. Vi
-              dobijate upit u dashboardu, pregledate detalje i kontaktirate
-              gosta direktno. Vi odlučujete da li prihvatate rezervaciju.
+              Set a base nightly rate, then add rules for specific periods —
+              seasons, holidays, weekends. Guests on your public site see the
+              exact total for their selected stay.
+            </p>
+          </div>
+          <div className="marketing-card rounded-2xl border border-border bg-card p-8">
+            <h3 className="text-xl font-semibold">Booking inquiries</h3>
+            <p className="mt-3 text-sm leading-relaxed text-muted-foreground">
+              Guests fill out a form with their name, email and phone. You
+              receive the inquiry in your dashboard, review the details and
+              contact the guest directly. You decide whether to accept the
+              booking.
             </p>
           </div>
         </div>
@@ -109,12 +110,12 @@ export default function FunkcijePage() {
         <div className="mt-10 flex flex-wrap gap-4">
           <Button asChild>
             <Link href="/javni-sajt">
-              Javni sajt u detalje
+              Booking site in detail
               <ArrowRight className="h-4 w-4" />
             </Link>
           </Button>
           <Button variant="outline" asChild>
-            <Link href="/kako-radi">Kako početi</Link>
+            <Link href="/kako-radi">How to get started</Link>
           </Button>
         </div>
       </section>

@@ -1,4 +1,4 @@
-/** Normalizacija i validacija iCal URL-ova (Booking Export vs Import). */
+/** Normalize and validate iCal URLs (Booking Export vs Import). */
 
 import type { CalendarPlatform } from "@/types/database";
 
@@ -40,7 +40,7 @@ export function validateIcsUrl(
 
   if (!url.startsWith("http://") && !url.startsWith("https://")) {
     return {
-      error: "URL mora počinjati sa http:// ili https://",
+      error: "URL must start with http:// or https://",
     };
   }
 
@@ -52,15 +52,15 @@ export function validateIcsUrl(
         !lower.includes("/ical"))
     ) {
       return {
-        error: "Ovo izgleda kao IMPORT link (uvoz u Booking).",
-        hint: "Treba EXPORT: Extranet → Rates & availability → Sync calendars → Add connection → Skip to export → Copy link.",
+        error: "This looks like an IMPORT link (into Booking).",
+        hint: "You need EXPORT: Extranet → Rates & availability → Sync calendars → Add connection → Skip to export → Copy link.",
       };
     }
 
     if (lower.includes("extranet_ng/manage/ical.html") && !lower.includes("?t=")) {
       return {
-        error: "Ovo je stranica kalendara, ne Export link.",
-        hint: "Na toj stranici klikni Copy link / Export calendar — URL mora imati ?t= token.",
+        error: "This is the calendar page, not an Export link.",
+        hint: "On that page click Copy link / Export calendar — the URL must include a ?t= token.",
       };
     }
 
@@ -72,8 +72,8 @@ export function validateIcsUrl(
 
     if (!looksLikeBookingExport) {
       return {
-        error: "URL ne liči na Booking Export kalendar.",
-        hint: "Ispravan format: admin.booking.com/.../ical.html?t=... ili ical.booking.com/v1/export?t=...",
+        error: "URL does not look like a Booking Export calendar.",
+        hint: "Correct format: admin.booking.com/.../ical.html?t=... or ical.booking.com/v1/export?t=...",
       };
     }
 
@@ -82,8 +82,8 @@ export function validateIcsUrl(
       !lower.includes("t=")
     ) {
       return {
-        error: "Booking Export linku nedostaje token (?t=...).",
-        hint: "Kopiraj cijeli link iz „Copy link“, ne samo adresu stranice.",
+        error: "Booking Export link is missing the token (?t=...).",
+        hint: "Copy the full link from “Copy link”, not just the page address.",
       };
     }
   }
@@ -91,8 +91,8 @@ export function validateIcsUrl(
   if (platform === "airbnb") {
     if (!lower.includes("airbnb.")) {
       return {
-        error: "URL ne liči na Airbnb kalendar.",
-        hint: "Airbnb: Calendar → Availability → Export calendar → kopiraj cijeli link.",
+        error: "URL does not look like an Airbnb calendar.",
+        hint: "Airbnb: Calendar → Availability → Export calendar → copy the full link.",
       };
     }
 
@@ -102,12 +102,10 @@ export function validateIcsUrl(
 
     if (!looksLikeExport) {
       return {
-        error: "Ovo ne izgleda kao Airbnb iCal Export link.",
-        hint: "Treba link sa airbnb.com/calendar/ical/... (Export calendar, ne Import).",
+        error: "This does not look like an Airbnb iCal Export link.",
+        hint: "You need a link with airbnb.com/calendar/ical/... (Export calendar, not Import).",
       };
     }
-
-    // Airbnb ponekad nema ?s= — ne blokiraj; stvarna provjera je pri sync fetch-u.
   }
 
   return null;
@@ -128,32 +126,32 @@ export function formatIcsFetchError(
   if (status === 400) {
     if (platform === "booking") {
       return (
-        "Booking ne prihvata ovaj link (HTTP 400). Koristi Export link: Sync calendars → Skip to export → Copy link. " +
-        "Link mora sadržavati ical.html?t=... ili ical.booking.com/v1/export?t=... — ne Import link sa drugog kanala."
+        "Booking rejected this link (HTTP 400). Use the Export link: Sync calendars → Skip to export → Copy link. " +
+        "The URL must contain ical.html?t=... or ical.booking.com/v1/export?t=... — not an Import link from another channel."
       );
     }
     if (platform === "airbnb") {
       return (
-        "Airbnb ne prihvata ovaj link (HTTP 400). Calendar → Export calendar → kopiraj cijeli link. " +
-        "Probaj ga otvoriti u browseru — treba da preuzme .ics ili prikaže BEGIN:VCALENDAR."
+        "Airbnb rejected this link (HTTP 400). Calendar → Export calendar → copy the full link. " +
+        "Try opening it in a browser — it should download .ics or show BEGIN:VCALENDAR."
       );
     }
-    return `Kalendar nije dostupan (HTTP 400). Provjeri da je link Export URL, ne Import.`;
+    return `Calendar unavailable (HTTP 400). Check that the link is an Export URL, not Import.`;
   }
 
   if (status === 403 || status === 401) {
-    return `Pristup kalendaru odbijen (HTTP ${status}). Link je možda istekao — generiši novi Export link u extranetu.`;
+    return `Calendar access denied (HTTP ${status}). The link may have expired — generate a new Export link in the extranet.`;
   }
 
   if (status === 404) {
-    return `Kalendar nije pronađen (HTTP 404). Link je neispravan ili uklonjen — kopiraj novi Export link.`;
+    return `Calendar not found (HTTP 404). The link is invalid or removed — copy a new Export link.`;
   }
 
   if (platform === "booking" && !lower.includes("ical")) {
-    return `Booking kalendar nije dostupan (HTTP ${status}). URL mora sadržavati /ical/ — koristi Copy link iz Export sekcije.`;
+    return `Booking calendar unavailable (HTTP ${status}). URL must contain /ical/ — use Copy link from the Export section.`;
   }
 
-  return `Kalendar nije dostupan (HTTP ${status}). Provjeri Export link iz extraneta (ne Import).`;
+  return `Calendar unavailable (HTTP ${status}). Check the Export link from the extranet (not Import).`;
 }
 
 export function buildIcsFetchHeaders(

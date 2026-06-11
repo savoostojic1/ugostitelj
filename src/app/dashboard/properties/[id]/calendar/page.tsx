@@ -27,15 +27,15 @@ export default function PropertyCalendarPage({
     useReservations(id);
 
   if (isLoading) {
-    return <p className="text-muted-foreground">Učitavanje…</p>;
+    return <p className="text-muted-foreground">Loading…</p>;
   }
 
   if (!property) {
     return (
       <div className="space-y-4">
-        <p>Nekretnina nije pronađena</p>
+        <p className="text-foreground">Property not found</p>
         <Button asChild variant="outline">
-          <Link href="/dashboard/properties">Nazad na listu</Link>
+          <Link href="/dashboard/properties">Back to list</Link>
         </Button>
       </div>
     );
@@ -46,17 +46,15 @@ export default function PropertyCalendarPage({
       <Button variant="ghost" size="sm" asChild>
         <Link href="/dashboard/properties">
           <ArrowLeft className="h-4 w-4" />
-          Nekretnine
+          Properties
         </Link>
       </Button>
 
       <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
         <div className="space-y-1">
-          <h1 className="text-2xl font-semibold tracking-tight">
-            {property.name}
-          </h1>
+          <h1 className="hostvia-dashboard-title">{property.name}</h1>
           <p className="text-sm text-muted-foreground">
-            Kalendar i rezervacije
+            Calendar & reservations
           </p>
         </div>
         <PropertyDeleteButton propertyId={id} propertyName={property.name} />
@@ -66,11 +64,11 @@ export default function PropertyCalendarPage({
 
       <div>
         <div className="mb-4 flex items-center justify-between gap-3">
-          <h2 className="text-lg font-semibold">Kalendar</h2>
+          <h2 className="text-lg font-semibold text-foreground">Calendar</h2>
           <PropertyCalendarNav propertyId={id} />
         </div>
         {reservationsLoading ? (
-          <p className="text-sm text-muted-foreground">Učitavanje…</p>
+          <p className="text-sm text-muted-foreground">Loading…</p>
         ) : (
           <MonthlyCalendar reservations={reservations} propertyId={id} />
         )}
@@ -78,15 +76,14 @@ export default function PropertyCalendarPage({
 
       <Card>
         <CardHeader>
-          <CardTitle className="text-base">Rezervacije</CardTitle>
+          <CardTitle className="text-base">Reservations</CardTitle>
         </CardHeader>
         <CardContent className="divide-y divide-border">
           {reservationsLoading ? (
-            <p className="py-4 text-sm text-muted-foreground">Učitavanje…</p>
+            <p className="py-4 text-sm text-muted-foreground">Loading…</p>
           ) : reservations.length === 0 ? (
             <p className="py-4 text-sm text-muted-foreground">
-              Nema rezervacija. Povežite kalendare u podešavanjima i pokrenite
-              sync.
+              No reservations. Connect calendars in settings and run sync.
             </p>
           ) : (
             reservations.map((r) => {
@@ -117,7 +114,7 @@ export default function PropertyCalendarPage({
                         : cn(colors.bg, colors.border, colors.text)
                     )}
                   >
-                    {r.is_manual ? "Ručno" : PLATFORM_LABELS[r.platform]}
+                    {r.is_manual ? "Manual" : PLATFORM_LABELS[r.platform]}
                   </span>
                 </div>
               );

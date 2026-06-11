@@ -1,4 +1,5 @@
 import { format, startOfDay } from "date-fns";
+import { appLocale } from "@/lib/dates/locale";
 import {
   isStayNight,
   parseDateOnly,
@@ -9,7 +10,7 @@ import {
   getReservationDisplayKind,
 } from "./display";
 
-/** Preklapanje noćenja [aIn, aOut) i [bIn, bOut). */
+/** Overlap of stay nights [aIn, aOut) and [bIn, bOut). */
 export function rangesOverlapStayNights(
   aIn: string,
   aOut: string,
@@ -81,8 +82,8 @@ export function isDayInSelectedRange(
 export function formatConflictMessage(conflict: Reservation): string {
   const label = formatReservationLabel(conflict.title, conflict.platform);
   const kind = getReservationDisplayKind(conflict);
-  const type = kind === "manual_block" ? "Blokada" : label;
-  return `Preklapa se sa: ${type} (${format(parseDateOnly(conflict.check_in), "d. MMM")} – odlazak ${format(parseDateOnly(conflict.check_out), "d. MMM")})`;
+  const type = kind === "manual_block" ? "Block" : label;
+  return `Overlaps with: ${type} (${format(parseDateOnly(conflict.check_in), "d MMM", { locale: appLocale })} – checkout ${format(parseDateOnly(conflict.check_out), "d MMM", { locale: appLocale })})`;
 }
 
 export function validateStayRange(
@@ -96,24 +97,24 @@ export function validateStayRange(
   const excludeId = options?.excludeId;
 
   if (!checkIn || !checkOut) {
-    return { ok: false, message: "Izaberi dolazak i odlazak na kalendaru" };
+    return { ok: false, message: "Select check-in and check-out on the calendar" };
   }
   if (checkOut <= checkIn) {
     return {
       ok: false,
-      message: "Datum odlaska mora biti poslije dolaska",
+      message: "Check-out must be after check-in",
     };
   }
   if (
     !options?.allowPastCheckIn &&
     parseDateOnly(checkIn) < startOfDay(new Date())
   ) {
-    return { ok: false, message: "Dolazak ne može biti u prošlosti" };
+    return { ok: false, message: "Check-in cannot be in the past" };
   }
   if (!canCheckInOnDay(reservations, parseDateOnly(checkIn), excludeId)) {
     return {
       ok: false,
-      message: "Dan dolaska je već zauzet",
+      message: "Check-in day is already occupied",
     };
   }
 

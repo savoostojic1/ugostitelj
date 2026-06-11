@@ -25,9 +25,13 @@ export function SavedMessagesDropdown() {
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <Button variant="outline" size="sm" className="gap-2">
+        <Button
+          variant="outline"
+          size="sm"
+          className="h-8 gap-2 border-white/10 bg-white/[0.03] text-zinc-300 hover:bg-white/[0.06] hover:text-white"
+        >
           <Copy className="h-4 w-4" />
-          Poruke
+          Messages
           <ChevronDown className="h-4 w-4 opacity-50" />
         </Button>
       </DropdownMenuTrigger>
@@ -39,9 +43,9 @@ export function SavedMessagesDropdown() {
               event.preventDefault();
               try {
                 await copyMessageText(message.body);
-                toast.success(`"${message.name}" kopirano`);
+                toast.success(`"${message.name}" copied`);
               } catch {
-                toast.error("Kopiranje nije uspjelo");
+                toast.error("Copy failed");
               }
             }}
           >

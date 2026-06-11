@@ -14,7 +14,7 @@ import {
   startOfMonth,
   startOfWeek,
 } from "date-fns";
-import { sr } from "date-fns/locale";
+import { appLocale } from "@/lib/dates/locale";
 import { ChevronLeft, ChevronRight, Loader2 } from "lucide-react";
 import { toast } from "sonner";
 import { parseDateOnly } from "@/lib/dates/calendar-date";
@@ -26,7 +26,7 @@ import { isPublicDayBlocked } from "@/lib/public/day-status";
 import type { PublicReservationSpan } from "@/lib/public/types";
 import { cn } from "@/lib/utils";
 
-const WEEKDAYS = ["Po", "Ut", "Sr", "Če", "Pe", "Su", "Ne"];
+const WEEKDAYS = ["Mo", "Tu", "We", "Th", "Fr", "Sa", "Su"];
 
 interface PublicPropertyAvailabilityCalendarProps {
   propertyId: string;
@@ -71,12 +71,12 @@ export function PublicPropertyAvailabilityCalendar({
     fetch(`/api/public/properties/${propertyId}/reservations`)
       .then(async (res) => {
         const data = await res.json();
-        if (!res.ok) throw new Error(data.error ?? "Greška");
+        if (!res.ok) throw new Error(data.error ?? "Error");
         if (!cancelled) setReservations(data.reservations ?? []);
       })
       .catch((err) => {
         if (!cancelled) {
-          setError(err instanceof Error ? err.message : "Greška");
+          setError(err instanceof Error ? err.message : "Error");
         }
       })
       .finally(() => {
@@ -104,10 +104,10 @@ export function PublicPropertyAvailabilityCalendar({
 
   const selectionHint =
     checkIn && checkOut
-      ? `${format(checkInDate!, "d. MMM", { locale: sr })} – ${format(checkOutDate!, "d. MMM yyyy", { locale: sr })}`
+      ? `${format(checkInDate!, "d. MMM", { locale: appLocale })} – ${format(checkOutDate!, "d. MMM yyyy", { locale: appLocale })}`
       : checkIn
-        ? `${format(checkInDate!, "d. MMM yyyy", { locale: sr })} · izaberite odlazak`
-        : "Kliknite dolazak, zatim odlazak · ponovni klik poništava izbor";
+        ? `${format(checkInDate!, "d. MMM yyyy", { locale: appLocale })} · select check-out`
+        : "Click check-in, then check-out · click again to clear";
 
   function handleDayClick(day: Date) {
     if (!onRangeChange) return;
@@ -126,7 +126,7 @@ export function PublicPropertyAvailabilityCalendar({
 
     if (!checkIn || (checkIn && checkOut)) {
       if (!canPublicCheckInOnDay(reservations, day)) {
-        toast.error("Ovaj dan je zauzet — izaberite slobodan dolazak");
+        toast.error("This day is unavailable — choose an open check-in date");
         return;
       }
       onRangeChange(dateKey, "");
@@ -135,7 +135,7 @@ export function PublicPropertyAvailabilityCalendar({
 
     if (dateKey <= checkIn) {
       if (!canPublicCheckInOnDay(reservations, day)) {
-        toast.error("Ovaj dan je zauzet — izaberite slobodan dolazak");
+        toast.error("This day is unavailable — choose an open check-in date");
         return;
       }
       onRangeChange(dateKey, "");
@@ -162,7 +162,7 @@ export function PublicPropertyAvailabilityCalendar({
         <Loader2
           className={cn("mr-2 animate-spin", compact ? "h-3.5 w-3.5" : "h-4 w-4")}
         />
-        Učitavam…
+        Loading…
       </div>
     );
   }
@@ -201,14 +201,14 @@ export function PublicPropertyAvailabilityCalendar({
               "flex items-center justify-center rounded-full border border-[var(--public-border)] bg-white text-[var(--public-muted)] transition hover:border-[var(--public-border-strong)] hover:text-[var(--public-fg)]",
               compact ? "h-7 w-7" : "h-9 w-9"
             )}
-            aria-label="Prethodni mjesec"
+            aria-label="Previous month"
           >
             <ChevronLeft className={compact ? "h-3.5 w-3.5" : "h-4 w-4"} />
           </button>
           <div className="min-w-0 text-center">
             {compact ? (
               <p className="text-[10px] font-semibold uppercase tracking-wide text-[var(--public-muted)]">
-                Dostupnost
+                Availability
               </p>
             ) : null}
             <p
@@ -218,7 +218,7 @@ export function PublicPropertyAvailabilityCalendar({
               )}
             >
               {format(viewMonth, compact ? "LLL yyyy" : "LLLL yyyy", {
-                locale: sr,
+                locale: appLocale,
               })}
             </p>
           </div>
@@ -229,7 +229,7 @@ export function PublicPropertyAvailabilityCalendar({
               "flex items-center justify-center rounded-full border border-[var(--public-border)] bg-white text-[var(--public-muted)] transition hover:border-[var(--public-border-strong)] hover:text-[var(--public-fg)]",
               compact ? "h-7 w-7" : "h-9 w-9"
             )}
-            aria-label="Sljedeći mjesec"
+            aria-label="Next month"
           >
             <ChevronRight className={compact ? "h-3.5 w-3.5" : "h-4 w-4"} />
           </button>
@@ -373,12 +373,12 @@ export function PublicPropertyAvailabilityCalendar({
                         className="h-full w-full"
                         title={
                           inSelection
-                            ? "Kliknite da poništite"
+                            ? "Click to clear"
                             : selectingCheckOut && blocked
-                              ? "Moguć odlazak"
+                              ? "Possible check-out"
                               : blocked
-                                ? "Zauzeto"
-                                : "Slobodno"
+                                ? "Occupied"
+                                : "Available"
                         }
                       >
                         {cellContent}
@@ -388,10 +388,10 @@ export function PublicPropertyAvailabilityCalendar({
                         className="h-full w-full"
                         title={
                           isPast
-                            ? "Prošlost"
+                            ? "Past"
                             : blocked
-                              ? "Zauzeto"
-                              : "Slobodno"
+                              ? "Occupied"
+                              : "Available"
                         }
                       >
                         {cellContent}
@@ -425,7 +425,7 @@ export function PublicPropertyAvailabilityCalendar({
                   compact ? "h-2.5 w-2.5" : "h-4 w-4 rounded-md shadow-sm shadow-emerald-500/25"
                 )}
               />
-              Slobodno
+              Available
             </span>
             <span
               className={cn(
@@ -439,7 +439,7 @@ export function PublicPropertyAvailabilityCalendar({
                   compact ? "h-2.5 w-2.5" : "h-4 w-4 rounded-md"
                 )}
               />
-              Zauzeto
+              Occupied
             </span>
             {onRangeChange ? (
               <span
@@ -454,7 +454,7 @@ export function PublicPropertyAvailabilityCalendar({
                     compact ? "h-2.5 w-2.5" : "h-4 w-4 rounded-md"
                   )}
                 />
-                Vaš izbor
+                Your selection
               </span>
             ) : null}
           </div>

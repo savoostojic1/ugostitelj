@@ -15,14 +15,14 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Ugostitelj — Kalendar i javni sajt za domaćine",
+  title: "Hostvia — Booking website & reservation dashboard",
   description:
-    "Povežite Airbnb i Booking.com kalendare, upravljajte svim jedinicama i objavite javni sajt za direktne booking upite — besplatno.",
-  applicationName: "Ugostitelj",
+    "Get your own booking website and manage all reservations in one place. Direct bookings, calendar sync, and a beautiful dashboard for property owners.",
+  applicationName: "Hostvia",
   appleWebApp: {
     capable: true,
     statusBarStyle: "black-translucent",
-    title: "Ugostitelj",
+    title: "Hostvia",
   },
   formatDetection: {
     telephone: false,
@@ -32,8 +32,8 @@ export const metadata: Metadata = {
 
 export const viewport: Viewport = {
   themeColor: [
-    { media: "(prefers-color-scheme: light)", color: "#6366f1" },
-    { media: "(prefers-color-scheme: dark)", color: "#6366f1" },
+    { media: "(prefers-color-scheme: light)", color: "#8b5cf6" },
+    { media: "(prefers-color-scheme: dark)", color: "#8b5cf6" },
   ],
   width: "device-width",
   initialScale: 1,
@@ -47,7 +47,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="sr" suppressHydrationWarning>
+    <html lang="en" suppressHydrationWarning>
       <body
         className={`${geistSans.variable} ${geistMono.variable} min-h-screen antialiased`}
         suppressHydrationWarning

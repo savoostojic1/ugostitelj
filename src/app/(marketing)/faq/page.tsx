@@ -7,9 +7,9 @@ import { Button } from "@/components/ui/button";
 import { faqItems } from "@/lib/marketing/content";
 
 export const metadata: Metadata = {
-  title: "FAQ — Ugostitelj",
+  title: "FAQ — Hostvia",
   description:
-    "Odgovori na česta pitanja o iCal sinhronizaciji, javnom sajtu, booking upitima i korištenju Ugostitelja.",
+    "Answers to common questions about iCal sync, booking site, inquiries and using Hostvia.",
 };
 
 export default function FaqPage() {
@@ -17,22 +17,22 @@ export default function FaqPage() {
     <>
       <PageHero
         eyebrow="FAQ"
-        title="Česta pitanja"
-        description="Sve što domaćini najčešće pitaju prije nego što krenu — od iCal linkova do booking upita."
-        primaryCta={{ label: "Kreni besplatno", href: "/register" }}
-        secondaryCta={{ label: "Kontakt", href: "/kontakt" }}
+        title="Frequently asked questions"
+        description="What hosts ask most before getting started — from iCal links to booking inquiries."
+        primaryCta={{ label: "Start free", href: "/register" }}
+        secondaryCta={{ label: "Contact", href: "/kontakt" }}
       />
 
       <section className="mx-auto max-w-3xl px-4 py-16 md:px-6 md:py-20">
         <FaqAccordion items={faqItems} />
         <div className="mt-10 rounded-2xl border border-border bg-card p-6 text-center">
-          <p className="font-medium">Niste našli odgovor?</p>
+          <p className="font-medium">Didn&apos;t find your answer?</p>
           <p className="mt-2 text-sm text-muted-foreground">
-            Pišite nam — rado ćemo pomoći oko podešavanja kalendara ili javnog
-            sajta.
+            Email us — we&apos;re happy to help with calendar setup or your
+            booking site.
           </p>
           <Button className="mt-4" variant="outline" asChild>
-            <Link href="/kontakt">Kontaktiraj nas</Link>
+            <Link href="/kontakt">Contact us</Link>
           </Button>
         </div>
       </section>

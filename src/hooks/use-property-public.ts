@@ -32,7 +32,7 @@ export function useUpdatePropertyPublic() {
       const slug = input.slug.trim().toLowerCase();
       if (input.is_public && !isValidSlug(slug)) {
         throw new Error(
-          "URL slug mora biti 2–50 znakova (mala slova, brojevi, crtice)"
+          "URL slug must be 2–50 characters (lowercase letters, numbers, hyphens)"
         );
       }
 
@@ -70,7 +70,7 @@ export function useUpdatePropertyPublic() {
 
       if (error) {
         if (error.code === "23505") {
-          throw new Error("Taj URL slug je već zauzet");
+          throw new Error("That URL slug is already taken");
         }
         throw error;
       }

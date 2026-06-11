@@ -22,9 +22,9 @@ export default function Error({
         textAlign: "center",
       }}
     >
-      <h2 style={{ fontSize: 18, fontWeight: 600 }}>Nešto nije u redu</h2>
+      <h2 style={{ fontSize: 18, fontWeight: 600 }}>Something went wrong</h2>
       <p style={{ fontSize: 14, opacity: 0.7, maxWidth: 400 }}>
-        {error.message || "Pokušaj ponovo ili restartuj dev server."}
+        {error.message || "Try again or restart the dev server."}
       </p>
       <div style={{ display: "flex", gap: 8 }}>
         <button
@@ -39,7 +39,7 @@ export default function Error({
             cursor: "pointer",
           }}
         >
-          Pokušaj ponovo
+          Try again
         </button>
         <Link
           href="/"
@@ -51,7 +51,7 @@ export default function Error({
             textDecoration: "none",
           }}
         >
-          Početna
+          Home
         </Link>
       </div>
     </div>

@@ -49,7 +49,7 @@ export function aggregateSyncResults(results: SyncFeedResult[]) {
 
 export function formatSyncAllResultMessage(results: SyncFeedResult[]): string {
   if (results.length === 0) {
-    return "Nema povezanih kalendara za sync.";
+    return "No connected calendars to sync.";
   }
 
   const failed = results.find((r) => r.error);

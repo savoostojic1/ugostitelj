@@ -11,31 +11,31 @@ import {
 } from "lucide-react";
 
 export const marketingNav = [
-  { href: "/funkcije", label: "Funkcije" },
-  { href: "/kako-radi", label: "Kako radi" },
-  { href: "/javni-sajt", label: "Javni sajt" },
-  { href: "/cijene", label: "Cijene" },
+  { href: "/funkcije", label: "Features" },
+  { href: "/kako-radi", label: "How it works" },
+  { href: "/javni-sajt", label: "Booking site" },
+  { href: "/cijene", label: "Pricing" },
   { href: "/faq", label: "FAQ" },
 ] as const;
 
 export const marketingFooter = {
   product: [
-    { href: "/funkcije", label: "Funkcije" },
-    { href: "/kako-radi", label: "Kako radi" },
-    { href: "/javni-sajt", label: "Javni sajt" },
-    { href: "/cijene", label: "Cijene" },
+    { href: "/funkcije", label: "Features" },
+    { href: "/kako-radi", label: "How it works" },
+    { href: "/javni-sajt", label: "Booking site" },
+    { href: "/cijene", label: "Pricing" },
   ],
   company: [
-    { href: "/o-nama", label: "O nama" },
-    { href: "/kontakt", label: "Kontakt" },
+    { href: "/o-nama", label: "About" },
+    { href: "/kontakt", label: "Contact" },
     { href: "/faq", label: "FAQ" },
   ],
   legal: [
-    { href: "/privatnost", label: "Privatnost" },
-    { href: "/uslovi", label: "Uslovi korištenja" },
+    { href: "/privatnost", label: "Privacy" },
+    { href: "/uslovi", label: "Terms of service" },
   ],
   contact: {
-    email: "hello@ugostitelj.me",
+    email: "hello@hostvia.me",
   },
 } as const;
 
@@ -48,206 +48,206 @@ export interface MarketingFeature {
 export const coreFeatures: MarketingFeature[] = [
   {
     icon: RefreshCw,
-    title: "iCal sinhronizacija",
+    title: "iCal sync",
     description:
-      "Povežite Airbnb i Booking.com kalendare jednim linkom. Sve rezervacije se automatski povlače u jedan pregled.",
+      "Connect Airbnb and Booking.com calendars with one link. All reservations sync into a single view.",
   },
   {
     icon: Layers,
-    title: "Više jedinica na jednom mjestu",
+    title: "All units in one place",
     description:
-      "Upravljajte apartmanima, bungalovima i sobama iz jednog dashboarda — sa zasebnim kalendarima po jedinici.",
+      "Manage apartments, bungalows and rooms from one dashboard — with separate calendars per unit.",
   },
   {
     icon: Globe,
-    title: "Vaš javni sajt",
+    title: "Your booking website",
     description:
-      "Objavite stranicu za goste sa pretragom datuma, galerijom, mapom i direktnim upitima za rezervaciju.",
+      "Publish a guest-facing page with date search, gallery, map and direct booking inquiries.",
   },
   {
     icon: Wallet,
-    title: "Cijene po datumima",
+    title: "Date-based pricing",
     description:
-      "Postavite osnovnu cijenu i posebne cijene za sezonu, praznike ili vikende — gosti vide tačan iznos boravka.",
+      "Set a base price and special rates for seasons, holidays or weekends — guests see the exact stay total.",
   },
   {
     icon: Upload,
-    title: "Ručne rezervacije i export",
+    title: "Manual bookings & export",
     description:
-      "Blokirajte datume, unesite direktne bookinge i izvezite kalendar natrag na platforme.",
+      "Block dates, add direct bookings and export your calendar back to platforms.",
   },
   {
     icon: MessageSquare,
-    title: "Booking upiti",
+    title: "Booking inquiries",
     description:
-      "Gosti šalju upit direktno vama — bez provizije platforme. Vi odlučujete da li prihvatate.",
+      "Guests send inquiries directly to you — no platform commission. You decide whether to accept.",
   },
 ];
 
 export const howItWorksSteps = [
   {
     step: "01",
-    title: "Napravite nalog",
+    title: "Create your account",
     description:
-      "Registracija traje manje od minute. Dodajte prvu jedinicu — apartman, sobu ili bungalov.",
+      "Sign up in under a minute. Add your first unit — apartment, room or bungalow.",
   },
   {
     step: "02",
-    title: "Povežite kalendare",
+    title: "Connect calendars",
     description:
-      "Zalijepite iCal link sa Airbnb-a ili Booking.com-a. Rezervacije se automatski sinhronizuju.",
+      "Paste your iCal link from Airbnb or Booking.com. Reservations sync automatically.",
   },
   {
     step: "03",
-    title: "Objavite javni sajt",
+    title: "Publish your booking site",
     description:
-      "Dodajte fotografije, opis, cijene i lokaciju. Podijelite link sa gostima i društvenim mrežama.",
+      "Add photos, description, pricing and location. Share your link with guests and on social media.",
   },
   {
     step: "04",
-    title: "Primajte upite",
+    title: "Receive inquiries",
     description:
-      "Gosti biraju datume, vide dostupnost i cijenu, pa vam šalju upit. Vi potvrdite i dogovorite detalje.",
+      "Guests pick dates, see availability and price, then send you an inquiry. You confirm and arrange details.",
   },
 ];
 
 export const publicSiteFeatures: MarketingFeature[] = [
   {
     icon: CalendarDays,
-    title: "Pretraga po datumu",
+    title: "Date search",
     description:
-      "Gosti biraju dolazak, odlazak i broj osoba — vide samo slobodne jedinice sa tačnom cijenom boravka.",
+      "Guests choose check-in, check-out and number of guests — and only see available units with accurate stay pricing.",
   },
   {
     icon: Layers,
-    title: "Pregled svih jedinica",
+    title: "All units overview",
     description:
-      "Kalendar dostupnosti po jedinici, galerija do 10 fotografija i jasne informacije o kapacitetu.",
+      "Per-unit availability calendar, gallery up to 10 photos and clear capacity information.",
   },
   {
     icon: Globe,
-    title: "Profesionalan izgled",
+    title: "Professional look",
     description:
-      "Cover fotografija, brendirani profil, mapa lokacije i kontakt — sve bez programiranja.",
+      "Cover photo, branded profile, location map and contact — no coding required.",
   },
   {
     icon: Users,
-    title: "Direktni odnos sa gostom",
+    title: "Direct guest relationship",
     description:
-      "Upiti idu direktno vama. Nema posrednika, nema skrivenih provizija na direktne bookinge.",
+      "Inquiries go straight to you. No middleman, no hidden fees on direct bookings.",
   },
 ];
 
 export const pricingPlans = [
   {
-    name: "Besplatno",
-    price: "0 €",
-    period: "trenutno",
-    description: "Sve funkcije dostupne dok traje raniji pristup.",
+    name: "Free",
+    price: "$0",
+    period: "for now",
+    description: "All features available during early access.",
     highlighted: true,
     features: [
-      "Neograničen broj jedinica",
+      "Unlimited units",
       "iCal sync (Airbnb, Booking.com)",
-      "Javni sajt sa booking upitima",
-      "Cijene po datumima",
-      "Galerija i mapa lokacije",
-      "Ručne rezervacije i iCal export",
-      "PWA — instalacija na telefon",
+      "Booking site with inquiries",
+      "Date-based pricing",
+      "Gallery & location map",
+      "Manual bookings & iCal export",
+      "PWA — install on your phone",
     ],
-    cta: "Kreni besplatno",
+    cta: "Start free",
     href: "/register",
   },
   {
     name: "Pro",
-    price: "Uskoro",
+    price: "Soon",
     period: "",
-    description: "Napredne funkcije za veće portfolije i timove.",
+    description: "Advanced features for larger portfolios and teams.",
     highlighted: false,
     features: [
-      "Sve iz Besplatnog plana",
-      "Više korisnika po nalogu",
-      "Prioritetna podrška",
-      "Napredna analitika",
-      "Prilagođeni domen",
+      "Everything in Free",
+      "Multiple users per account",
+      "Priority support",
+      "Advanced analytics",
+      "Custom domain",
     ],
-    cta: "Kontaktiraj nas",
+    cta: "Contact us",
     href: "/kontakt",
   },
 ];
 
 export const faqItems = [
   {
-    question: "Šta je Ugostitelj?",
+    question: "What is Hostvia?",
     answer:
-      "Ugostitelj je platforma za domaćine kratkoročnog smještaja. Kombinuje kalendar za Airbnb i Booking.com sa vašim vlastitim javnim sajtom za direktne upite gostiju — sve na jednom mjestu.",
+      "Hostvia is a platform for short-term rental hosts. It combines an Airbnb and Booking.com calendar with your own booking website for direct guest inquiries — all in one place.",
   },
   {
-    question: "Da li trebam Airbnb ili Booking API?",
+    question: "Do I need the Airbnb or Booking API?",
     answer:
-      "Ne. Ugostitelj koristi iCal (ICS) kalendare koje platforme već nude. Zalijepite link, rezervacije se automatski uvezu — bez tehničke integracije.",
+      "No. Hostvia uses iCal (ICS) calendars that platforms already provide. Paste the link and reservations import automatically — no technical integration required.",
   },
   {
-    question: "Kako funkcionišu booking upiti?",
+    question: "How do booking inquiries work?",
     answer:
-      "Gost na vašem javnom sajtu bira datume, vidi cijenu i šalje upit sa kontakt podacima. Vi dobijate obavještenje u dashboardu, pregledate detalje i kontaktirate gosta direktno.",
+      "On your public site, guests pick dates, see the price and send an inquiry with contact details. You get notified in the dashboard, review details and contact the guest directly.",
   },
   {
-    question: "Da li gosti mogu platiti preko Ugostitelja?",
+    question: "Can guests pay through Hostvia?",
     answer:
-      "Trenutno Ugostitelj nije payment procesor. Upiti su zahtjev za rezervaciju — plaćanje i potvrda dogovaraju se direktno između vas i gosta.",
+      "Not yet — Hostvia is not a payment processor. Inquiries are reservation requests; payment and confirmation are arranged directly between you and the guest.",
   },
   {
-    question: "Mogu li koristiti Ugostitelj samo kao kalendar?",
+    question: "Can I use Hostvia as a calendar only?",
     answer:
-      "Da. Javni sajt je opcionalan. Možete koristiti dashboard isključivo za sinhronizaciju kalendara, ručne rezervacije i pregled dolazaka i odlazaka.",
+      "Yes. The booking site is optional. You can use the dashboard only for calendar sync, manual bookings and arrivals/departures overview.",
   },
   {
-    question: "Kako se sinhronizuju promjene?",
+    question: "How does sync work?",
     answer:
-      "Kalendari se automatski osvježavaju u pozadini. Možete i ručno pokrenuti sync iz dashboarda kad god želite.",
+      "Calendars refresh automatically in the background. You can also trigger a manual sync from the dashboard anytime.",
   },
   {
-    question: "Da li mogu izvesti kalendar natrag na Airbnb/Booking?",
+    question: "Can I export my calendar back to Airbnb/Booking?",
     answer:
-      "Da. Svaka jedinica ima iCal export link koji možete dodati u Airbnb ili Booking.com da bi platforme vidjele vaše ručne blokade i direktne rezervacije.",
+      "Yes. Each unit has an iCal export link you can add to Airbnb or Booking.com so platforms see your manual blocks and direct bookings.",
   },
   {
-    question: "Za koga je Ugostitelj namijenjen?",
+    question: "Who is Hostvia for?",
     answer:
-      "Za nezavisne domaćine, mala apartmanska naselja i ugostitelje u regionu koji žele jednostavniji rad sa više kanala prodaje i direktnim kontaktom sa gostima.",
+      "Independent hosts, small apartment complexes and property owners who want simpler multi-channel operations and direct guest contact.",
   },
 ];
 
 export const dashboardFeatures = [
   {
-    title: "Pregled kalendara",
+    title: "Calendar overview",
     description:
-      "Mjesečni pregled svih rezervacija — check-in, check-out i boravak u jednom pogledu, sa oznakama platforme.",
+      "Monthly view of all reservations — check-in, check-out and stayovers at a glance, with platform badges.",
   },
   {
-    title: "Kalendari po jedinicama",
+    title: "Per-unit calendars",
     description:
-      "Kompaktan prikaz dostupnosti za svaku jedinicu odjednom — idealno za brzu provjeru slobodnih termina.",
+      "Compact availability view for every unit — ideal for quick free-date checks.",
   },
   {
-    title: "Dolasci i odlasci",
+    title: "Arrivals & departures",
     description:
-      "Operativni pregled ko dolazi i odlazi danas — olakšava planiranje čišćenja i dočeka gostiju.",
+      "Operational view of who is arriving and leaving today — helps plan cleaning and guest welcome.",
   },
   {
-    title: "Porouka",
+    title: "Saved messages",
     description:
-      "Sačuvajte gotove poruke za goste — brže odgovaranje na upite i manje ponavljanja istog teksta.",
+      "Store reusable guest messages — faster replies and less repetitive typing.",
   },
   {
-    title: "PWA aplikacija",
+    title: "PWA app",
     description:
-      "Instalirajte Ugostitelj na telefon kao aplikaciju — brz pristup kalendaru bez otvaranja browsera.",
+      "Install Hostvia on your phone — quick calendar access without opening the browser.",
   },
 ];
 
 export const homepageStats = [
-  { value: "2+", label: "platforme u sync-u" },
-  { value: "1", label: "dashboard za sve" },
-  { value: "0%", label: "provizije na direktne upite" },
+  { value: "2+", label: "platforms synced" },
+  { value: "1", label: "dashboard for all" },
+  { value: "0%", label: "commission on direct bookings" },
 ];

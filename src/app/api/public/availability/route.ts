@@ -13,28 +13,28 @@ export async function GET(request: Request) {
 
   if (!username || !checkIn || !checkOut) {
     return NextResponse.json(
-      { error: "Nedostaju parametri pretrage" },
+      { error: "Missing search parameters" },
       { status: 400 }
     );
   }
 
   if (checkOut <= checkIn) {
     return NextResponse.json(
-      { error: "Datum odlaska mora biti poslije dolaska" },
+      { error: "Check-out must be after check-in" },
       { status: 400 }
     );
   }
 
   if (parseDateOnly(checkIn) < startOfDay(new Date())) {
     return NextResponse.json(
-      { error: "Dolazak ne može biti u prošlosti" },
+      { error: "Check-in cannot be in the past" },
       { status: 400 }
     );
   }
 
   if (!Number.isFinite(guests) || guests < 1) {
     return NextResponse.json(
-      { error: "Unesite broj gostiju" },
+      { error: "Enter number of guests" },
       { status: 400 }
     );
   }
@@ -49,7 +49,7 @@ export async function GET(request: Request) {
 
   if (error) {
     return NextResponse.json(
-      { error: "Pretraga nije uspjela" },
+      { error: "Search failed" },
       { status: 500 }
     );
   }

@@ -1,6 +1,5 @@
 import Link from "next/link";
 import { ArrowRight } from "lucide-react";
-import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 
 interface PageHeroProps {
@@ -23,25 +22,20 @@ export function PageHero({
   className,
 }: PageHeroProps) {
   return (
-    <section
-      className={cn(
-        "marketing-hero relative overflow-hidden border-b border-border",
-        className
-      )}
-    >
-      <div className="marketing-hero-glow pointer-events-none absolute inset-0" />
+    <section className={cn("relative overflow-hidden px-4 py-20 md:px-8 md:py-28", className)}>
+      <div className="pointer-events-none absolute inset-0">
+        <div className="absolute left-1/2 top-0 h-[400px] w-[600px] -translate-x-1/2 rounded-full bg-violet-600/10 blur-[100px]" />
+      </div>
       <div
         className={cn(
-          "relative mx-auto max-w-6xl px-4 py-16 md:px-6 md:py-24",
+          "relative mx-auto max-w-4xl",
           centered && "text-center"
         )}
       >
-        {eyebrow ? (
-          <p className="marketing-eyebrow mb-4">{eyebrow}</p>
-        ) : null}
+        {eyebrow ? <p className="marketing-eyebrow mb-4">{eyebrow}</p> : null}
         <h1
           className={cn(
-            "marketing-heading max-w-4xl text-4xl md:text-5xl lg:text-6xl",
+            "marketing-heading text-4xl text-white md:text-5xl",
             centered && "mx-auto"
           )}
         >
@@ -49,13 +43,13 @@ export function PageHero({
         </h1>
         <p
           className={cn(
-            "mt-6 max-w-2xl text-lg leading-relaxed text-muted-foreground md:text-xl",
-            centered && "mx-auto"
+            "mt-6 text-lg leading-relaxed text-zinc-400",
+            centered && "mx-auto max-w-2xl"
           )}
         >
           {description}
         </p>
-        {primaryCta || secondaryCta ? (
+        {(primaryCta || secondaryCta) && (
           <div
             className={cn(
               "mt-10 flex flex-wrap gap-4",
@@ -63,20 +57,24 @@ export function PageHero({
             )}
           >
             {primaryCta ? (
-              <Button size="lg" asChild>
-                <Link href={primaryCta.href}>
-                  {primaryCta.label}
-                  <ArrowRight className="h-4 w-4" />
-                </Link>
-              </Button>
+              <Link
+                href={primaryCta.href}
+                className="hostvia-btn-gradient inline-flex h-11 items-center gap-2 rounded-xl px-6 text-sm font-semibold"
+              >
+                {primaryCta.label}
+                <ArrowRight className="h-4 w-4" />
+              </Link>
             ) : null}
             {secondaryCta ? (
-              <Button size="lg" variant="outline" asChild>
-                <Link href={secondaryCta.href}>{secondaryCta.label}</Link>
-              </Button>
+              <Link
+                href={secondaryCta.href}
+                className="inline-flex h-11 items-center rounded-xl border border-white/10 bg-white/5 px-6 text-sm font-semibold text-white transition hover:bg-white/10"
+              >
+                {secondaryCta.label}
+              </Link>
             ) : null}
           </div>
-        ) : null}
+        )}
       </div>
     </section>
   );

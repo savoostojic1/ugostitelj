@@ -79,7 +79,7 @@ export function useUpdateSavedMessage() {
         .select("*")
         .single();
 
-      if (error || !data) throw new Error("Poruka nije pronađena");
+      if (error || !data) throw new Error("Message not found");
       return data as SavedMessage;
     },
     onSuccess: () => {

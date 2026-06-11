@@ -9,7 +9,7 @@ export async function GET(_request: Request, { params }: RouteParams) {
   const { id } = await params;
 
   if (!id) {
-    return NextResponse.json({ error: "Nedostaje ID" }, { status: 400 });
+    return NextResponse.json({ error: "Missing ID" }, { status: 400 });
   }
 
   const supabase = await createClient();
@@ -20,7 +20,7 @@ export async function GET(_request: Request, { params }: RouteParams) {
 
   if (error) {
     return NextResponse.json(
-      { error: "Učitavanje nije uspjelo" },
+      { error: "Failed to load" },
       { status: 500 }
     );
   }

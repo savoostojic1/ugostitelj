@@ -72,7 +72,7 @@ export function PublicGalleryLightbox({
         className="fixed inset-0 z-[250] flex flex-col bg-black/92 backdrop-blur-sm"
         role="dialog"
         aria-modal="true"
-        aria-label={`Galerija: ${title}`}
+        aria-label={`Gallery: ${title}`}
       >
         <div className="flex items-center justify-between gap-3 px-4 py-3 text-white">
           <p className="truncate text-sm font-medium">
@@ -88,7 +88,7 @@ export function PublicGalleryLightbox({
               type="button"
               onClick={() => setZoomed((z) => !z)}
               className="flex h-10 w-10 items-center justify-center rounded-full text-white/90 transition hover:bg-white/10"
-              aria-label={zoomed ? "Smanji" : "Uvećaj"}
+              aria-label={zoomed ? "Zoom out" : "Zoom in"}
             >
               {zoomed ? (
                 <ZoomOut className="h-5 w-5" />
@@ -100,7 +100,7 @@ export function PublicGalleryLightbox({
               type="button"
               onClick={onClose}
               className="flex h-10 w-10 items-center justify-center rounded-full text-white/90 transition hover:bg-white/10"
-              aria-label="Zatvori"
+              aria-label="Close"
             >
               <X className="h-5 w-5" />
             </button>
@@ -120,7 +120,7 @@ export function PublicGalleryLightbox({
                   showPrev();
                 }}
                 className="absolute left-3 top-1/2 z-10 flex h-11 w-11 -translate-y-1/2 items-center justify-center rounded-full bg-white/10 text-white backdrop-blur-sm transition hover:bg-white/20 md:left-6"
-                aria-label="Prethodna"
+                aria-label="Previous"
               >
                 <ChevronLeft className="h-6 w-6" />
               </button>
@@ -131,7 +131,7 @@ export function PublicGalleryLightbox({
                   showNext();
                 }}
                 className="absolute right-3 top-1/2 z-10 flex h-11 w-11 -translate-y-1/2 items-center justify-center rounded-full bg-white/10 text-white backdrop-blur-sm transition hover:bg-white/20 md:right-6"
-                aria-label="Sljedeća"
+                aria-label="Next"
               >
                 <ChevronRight className="h-6 w-6" />
               </button>
@@ -189,7 +189,7 @@ export function PublicGalleryLightbox({
                       ? "border-white opacity-100"
                       : "border-white/20 opacity-60 hover:opacity-90"
                   )}
-                  aria-label={`Slika ${i + 1}`}
+                  aria-label={`Image ${i + 1}`}
                 >
                   <Image
                     src={url}

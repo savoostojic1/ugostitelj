@@ -68,7 +68,7 @@ export function FeedDialog({ open, onOpenChange, propertyId, feed }: FeedDialogP
         !trimmedUrl.startsWith("http://") &&
         !trimmedUrl.startsWith("https://")
       ) {
-        throw new Error("ICS URL mora počinjati sa http:// ili https://");
+        throw new Error("ICS URL must start with http:// or https://");
       }
 
       const urlProblem = validateIcsUrl(platform, trimmedUrl);
@@ -94,7 +94,7 @@ export function FeedDialog({ open, onOpenChange, propertyId, feed }: FeedDialogP
 
       if (ownedError) throw ownedError;
       if (!owned) {
-        throw new Error("Nekretnina nije pronađena ili nemate pristup.");
+        throw new Error("Property not found or you do not have access.");
       }
 
       let feedId = feed?.id;
@@ -106,7 +106,7 @@ export function FeedDialog({ open, onOpenChange, propertyId, feed }: FeedDialogP
           .eq("id", feed.id);
         if (error) throw error;
         feedId = feed.id;
-        toast.success("Kalendar ažuriran");
+        toast.success("Calendar updated");
       } else {
         const { data: created, error } = await supabase
           .from("calendar_feeds")
@@ -120,7 +120,7 @@ export function FeedDialog({ open, onOpenChange, propertyId, feed }: FeedDialogP
           .single();
         if (error) throw error;
         feedId = created.id;
-        toast.success("Kalendar dodat");
+        toast.success("Calendar added");
       }
 
       if (feedId) {
@@ -131,7 +131,7 @@ export function FeedDialog({ open, onOpenChange, propertyId, feed }: FeedDialogP
         });
         const syncJson = await syncRes.json();
         if (!syncRes.ok) {
-          toast.error(syncJson.error ?? "Sync nije uspio");
+          toast.error(syncJson.error ?? "Sync failed");
         } else {
           const r = (
             syncJson.results as {
@@ -153,7 +153,7 @@ export function FeedDialog({ open, onOpenChange, propertyId, feed }: FeedDialogP
       qc.invalidateQueries({ queryKey: ["calendar_feeds", propertyId] });
       onOpenChange(false);
     } catch (err) {
-      toast.error(getSupabaseErrorMessage(err, "Greška pri čuvanju kalendara"));
+      toast.error(getSupabaseErrorMessage(err, "Failed to save calendar"));
       console.error("[feed-dialog]", err);
     } finally {
       setLoading(false);
@@ -205,11 +205,11 @@ export function FeedDialog({ open, onOpenChange, propertyId, feed }: FeedDialogP
             />
             <p className="text-xs text-muted-foreground">
               {platform === "airbnb" &&
-                "Airbnb: Calendar → Availability → Export calendar. Kopiraj cijeli link (webcal:// pretvaramo u https)."}
+                "Airbnb: Calendar → Availability → Export calendar. Copy the full link (we convert webcal:// to https)."}
               {platform === "booking" &&
-                "Booking: Rates & availability → Sync calendars → Add connection → Skip to export → Copy link. Mora biti ical.html?t=... ili ical.booking.com/v1/export?t=... (NE Import link)."}
+                "Booking: Rates & availability → Sync calendars → Add connection → Skip to export → Copy link. Must be ical.html?t=... or ical.booking.com/v1/export?t=... (NOT the Import link)."}
               {platform === "custom" &&
-                "Zalijepi javni .ics URL kalendara (http/https)."}
+                "Paste a public .ics calendar URL (http/https)."}
             </p>
           </div>
           <Button type="submit" className="w-full" disabled={loading}>

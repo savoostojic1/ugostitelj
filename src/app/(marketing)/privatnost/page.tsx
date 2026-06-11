@@ -2,124 +2,124 @@ import type { Metadata } from "next";
 import Link from "next/link";
 
 export const metadata: Metadata = {
-  title: "Politika privatnosti — Ugostitelj",
-  description: "Kako Ugostitelj prikuplja, koristi i štiti vaše podatke.",
+  title: "Privacy policy — Hostvia",
+  description: "How Hostvia collects, uses and protects your data.",
 };
 
 export default function PrivatnostPage() {
   return (
     <article className="mx-auto max-w-3xl px-4 py-16 md:px-6 md:py-20">
-      <p className="marketing-eyebrow mb-4">Pravno</p>
+      <p className="marketing-eyebrow mb-4">Legal</p>
       <h1 className="marketing-heading text-3xl md:text-4xl">
-        Politika privatnosti
+        Privacy policy
       </h1>
       <p className="mt-4 text-sm text-muted-foreground">
-        Posljednje ažuriranje: {new Date().getFullYear()}
+        Last updated: {new Date().getFullYear()}
       </p>
 
       <div className="prose-marketing mt-10 space-y-8 text-muted-foreground">
         <section>
-          <h2 className="text-lg font-semibold text-foreground">Uvod</h2>
+          <h2 className="text-lg font-semibold text-foreground">Introduction</h2>
           <p className="mt-3 leading-relaxed">
-            Ugostitelj („mi“, „platforma“) poštuje vašu privatnost. Ova
-            politika objašnjava koje podatke prikupljamo, kako ih koristimo i
-            koja su vaša prava kada koristite našu uslugu kao domaćin ili gost
-            koji šalje booking upit.
+            Hostvia (&ldquo;we&rdquo;, &ldquo;the platform&rdquo;) respects your
+            privacy. This policy explains what data we collect, how we use it and
+            your rights when you use our service as a host or as a guest sending
+            a booking inquiry.
           </p>
         </section>
 
         <section>
           <h2 className="text-lg font-semibold text-foreground">
-            Podaci koje prikupljamo
+            Data we collect
           </h2>
           <ul className="mt-3 list-disc space-y-2 pl-5 leading-relaxed">
             <li>
-              <strong className="text-foreground">Nalog domaćina:</strong> email,
-              lozinka (hashirana), naziv biznisa, kontakt podaci, podešavanja
-              profila i jedinica.
+              <strong className="text-foreground">Host account:</strong> email,
+              password (hashed), business name, contact details, profile and
+              unit settings.
             </li>
             <li>
-              <strong className="text-foreground">Podaci o smještaju:</strong>{" "}
-              nazivi jedinica, cijene, kalendarski podaci, fotografije, opisi i
-              lokacija.
+              <strong className="text-foreground">Accommodation data:</strong>{" "}
+              unit names, prices, calendar data, photos, descriptions and
+              location.
             </li>
             <li>
-              <strong className="text-foreground">Booking upiti:</strong> ime,
-              email, telefon i poruka gosta koje gost dobrovoljno unese na
-              javnom sajtu domaćina.
+              <strong className="text-foreground">Booking inquiries:</strong>{" "}
+              guest name, email, phone and message that the guest voluntarily
+              enters on the host&apos;s public site.
             </li>
             <li>
-              <strong className="text-foreground">Tehnički podaci:</strong> IP
-              adresa, tip uređaja i osnovni logovi potrebni za rad i sigurnost
-              usluge.
+              <strong className="text-foreground">Technical data:</strong> IP
+              address, device type and basic logs required to operate and secure
+              the service.
             </li>
           </ul>
         </section>
 
         <section>
           <h2 className="text-lg font-semibold text-foreground">
-            Kako koristimo podatke
+            How we use data
           </h2>
           <ul className="mt-3 list-disc space-y-2 pl-5 leading-relaxed">
-            <li>Pružanje i održavanje usluge (kalendar, javni sajt, upiti)</li>
-            <li>Sinhronizacija iCal kalendara sa platformama trećih strana</li>
-            <li>Komunikacija sa domaćinima o nalogu i podršci</li>
-            <li>Poboljšanje sigurnosti i funkcionalnosti platforme</li>
+            <li>Providing and maintaining the service (calendar, booking site, inquiries)</li>
+            <li>Syncing iCal calendars with third-party platforms</li>
+            <li>Communicating with hosts about their account and support</li>
+            <li>Improving platform security and functionality</li>
           </ul>
         </section>
 
         <section>
           <h2 className="text-lg font-semibold text-foreground">
-            Dijeljenje podataka
+            Data sharing
           </h2>
           <p className="mt-3 leading-relaxed">
-            Ne prodajemo vaše podatke. Booking upiti koje gost pošalje idu
-            direktno domaćinu čiji javni sajt posjećuju. Koristimo pouzdane
-            pružaoce usluga (npr. hosting, baza podataka) isključivo za rad
-            platforme, uz odgovarajuće ugovore o obradi podataka.
+            We do not sell your data. Booking inquiries sent by a guest go
+            directly to the host whose public site they visit. We use trusted
+            service providers (e.g. hosting, database) solely to operate the
+            platform, under appropriate data processing agreements.
           </p>
         </section>
 
         <section>
           <h2 className="text-lg font-semibold text-foreground">
-            Čuvanje podataka
+            Data retention
           </h2>
           <p className="mt-3 leading-relaxed">
-            Podatke čuvamo dok imate aktivan nalog ili dok je potrebno za
-            pružanje usluge. Možete zatražiti brisanje naloga kontaktiranjem
-            nas putem emaila navedenog na stranici{" "}
+            We retain data while you have an active account or as needed to
+            provide the service. You can request account deletion by contacting
+            us via the email on the{" "}
             <Link href="/kontakt" className="text-primary hover:underline">
-              Kontakt
-            </Link>
-            .
+              Contact
+            </Link>{" "}
+            page.
           </p>
         </section>
 
         <section>
-          <h2 className="text-lg font-semibold text-foreground">Vaša prava</h2>
+          <h2 className="text-lg font-semibold text-foreground">Your rights</h2>
           <p className="mt-3 leading-relaxed">
-            Imate pravo na pristup, ispravku i brisanje svojih podataka, kao i
-            pravo na prigovor obradi u skladu sa važećim propisima o zaštiti
-            podataka. Za ostvarivanje prava kontaktirajte nas na{" "}
+            You have the right to access, correct and delete your data, as well
+            as the right to object to processing in accordance with applicable
+            data protection laws. To exercise your rights, contact us at{" "}
             <a
-              href="mailto:hello@ugostitelj.me"
+              href="mailto:hello@hostvia.me"
               className="text-primary hover:underline"
             >
-              hello@ugostitelj.me
+              hello@hostvia.me
             </a>
             .
           </p>
         </section>
 
         <section>
-          <h2 className="text-lg font-semibold text-foreground">Kontakt</h2>
+          <h2 className="text-lg font-semibold text-foreground">Contact</h2>
           <p className="mt-3 leading-relaxed">
-            Za pitanja o privatnosti pišite na{" "}
+            For privacy questions, email{" "}
             <a
-              href="mailto:hello@ugostitelj.me"
+              href="mailto:hello@hostvia.me"
               className="text-primary hover:underline"
             >
-              hello@ugostitelj.me
+              hello@hostvia.me
             </a>
             .
           </p>

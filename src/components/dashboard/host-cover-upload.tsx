@@ -34,9 +34,9 @@ export function HostCoverUpload({ value, onChange }: HostCoverUploadProps) {
       const user = await requireUser(supabase);
       const url = await uploadHostCoverImage(supabase, user.id, file);
       onChange(url);
-      toast.success("Cover slika uploadovana");
+      toast.success("Cover image uploaded");
     } catch (err) {
-      toast.error(err instanceof Error ? err.message : "Upload nije uspio");
+      toast.error(err instanceof Error ? err.message : "Upload failed");
     } finally {
       setUploading(false);
     }
@@ -49,9 +49,9 @@ export function HostCoverUpload({ value, onChange }: HostCoverUploadProps) {
       const user = await requireUser(supabase);
       await removeHostCoverImage(supabase, user.id);
       onChange("");
-      toast.success("Cover slika uklonjena");
+      toast.success("Cover image removed");
     } catch (err) {
-      toast.error(err instanceof Error ? err.message : "Uklanjanje nije uspjelo");
+      toast.error(err instanceof Error ? err.message : "Remove failed");
     } finally {
       setRemoving(false);
     }
@@ -59,13 +59,13 @@ export function HostCoverUpload({ value, onChange }: HostCoverUploadProps) {
 
   return (
     <div className="space-y-3">
-      <Label>Cover slika</Label>
+      <Label>Cover image</Label>
 
       {value ? (
         <div className="relative aspect-[21/9] w-full overflow-hidden rounded-lg border border-border bg-muted">
           <Image
             src={value}
-            alt="Cover javnog sajta"
+            alt="Booking site cover"
             fill
             className="object-cover"
             sizes="(max-width: 768px) 100vw, 640px"
@@ -74,7 +74,7 @@ export function HostCoverUpload({ value, onChange }: HostCoverUploadProps) {
         </div>
       ) : (
         <div className="flex aspect-[21/9] w-full items-center justify-center rounded-lg border border-dashed border-border bg-muted/40 text-sm text-muted-foreground">
-          Nema cover slike
+          No cover image
         </div>
       )}
 
@@ -98,7 +98,7 @@ export function HostCoverUpload({ value, onChange }: HostCoverUploadProps) {
           ) : (
             <ImagePlus className="h-4 w-4" />
           )}
-          {value ? "Promijeni sliku" : "Uploaduj sliku"}
+          {value ? "Change image" : "Upload image"}
         </Button>
         {value ? (
           <Button
@@ -113,12 +113,12 @@ export function HostCoverUpload({ value, onChange }: HostCoverUploadProps) {
             ) : (
               <Trash2 className="h-4 w-4" />
             )}
-            Ukloni
+            Remove
           </Button>
         ) : null}
       </div>
       <p className="text-xs text-muted-foreground">
-        JPG, PNG, WebP ili GIF · najviše 5 MB · preporučeno 1600×700 px
+        JPG, PNG, WebP or GIF · up to 5 MB · recommended 1600×700 px
       </p>
     </div>
   );

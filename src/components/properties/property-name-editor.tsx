@@ -27,7 +27,7 @@ export function PropertyNameEditor({
   async function handleSave() {
     const trimmed = value.trim();
     if (!trimmed) {
-      toast.error("Naziv ne može biti prazan");
+      toast.error("Name cannot be empty");
       return;
     }
     if (trimmed === name) {
@@ -36,10 +36,10 @@ export function PropertyNameEditor({
     }
     try {
       await update.mutateAsync({ id: propertyId, name: trimmed });
-      toast.success("Naziv ažuriran");
+      toast.success("Name updated");
       setEditing(false);
     } catch (err) {
-      toast.error(err instanceof Error ? err.message : "Greška pri čuvanju");
+      toast.error(err instanceof Error ? err.message : "Failed to save");
     }
   }
 
@@ -61,7 +61,7 @@ export function PropertyNameEditor({
         />
         <div className="flex gap-2">
           <Button type="submit" size="sm" disabled={update.isPending}>
-            {update.isPending ? "Čuvanje…" : "Sačuvaj"}
+            {update.isPending ? "Saving…" : "Save"}
           </Button>
           <Button
             type="button"
@@ -73,7 +73,7 @@ export function PropertyNameEditor({
               setEditing(false);
             }}
           >
-            Otkaži
+            Cancel
           </Button>
         </div>
       </form>
@@ -82,13 +82,13 @@ export function PropertyNameEditor({
 
   return (
     <div className="flex items-center gap-2">
-      <h1 className="text-2xl font-semibold tracking-tight">{name}</h1>
+      <h1 className="hostvia-dashboard-title">{name}</h1>
       <Button
         variant="ghost"
         size="icon"
         className="h-8 w-8 shrink-0"
         onClick={() => setEditing(true)}
-        aria-label="Uredi naziv"
+        aria-label="Edit name"
       >
         <Pencil className="h-4 w-4" />
       </Button>

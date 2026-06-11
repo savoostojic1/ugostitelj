@@ -12,6 +12,7 @@ import { ConnectedFeeds } from "@/components/properties/connected-feeds";
 import { PropertyExportCalendar } from "@/components/properties/property-export-calendar";
 import { PropertyPricingSettings } from "@/components/properties/property-pricing-settings";
 import { PropertyPublicSettings } from "@/components/properties/property-public-settings";
+import { PropertyOverviewStats } from "@/components/dashboard/property-overview-stats";
 import { useProperty, usePropertyFeeds, useReservations } from "@/hooks/use-properties";
 
 export default function PropertyDetailPage({
@@ -25,15 +26,15 @@ export default function PropertyDetailPage({
   const { data: reservations = [] } = useReservations(id);
 
   if (isLoading) {
-    return <p className="text-muted-foreground">Učitavanje…</p>;
+    return <p className="text-muted-foreground">Loading…</p>;
   }
 
   if (!property) {
     return (
       <div className="space-y-4">
-        <p>Nekretnina nije pronađena</p>
+        <p className="text-foreground">Property not found</p>
         <Button asChild variant="outline">
-          <Link href="/dashboard/properties">Nazad na listu</Link>
+          <Link href="/dashboard/properties">Back to list</Link>
         </Button>
       </div>
     );
@@ -60,7 +61,7 @@ export default function PropertyDetailPage({
       <Button variant="ghost" size="sm" asChild>
         <Link href="/dashboard/properties">
           <ArrowLeft className="h-4 w-4" />
-          Nekretnine
+          Properties
         </Link>
       </Button>
 
@@ -71,27 +72,31 @@ export default function PropertyDetailPage({
 
       <PropertyDetailNav propertyId={id} />
 
-      <Card className="border-primary/20 bg-primary/5">
+      {reservations.length > 0 && (
+        <PropertyOverviewStats reservations={reservations} />
+      )}
+
+      <Card className="hostvia-glow-card border-0 bg-transparent">
         <CardContent className="flex flex-col gap-4 p-5 sm:flex-row sm:items-center sm:justify-between">
           <div>
-            <p className="font-medium">Kalendar i rezervacije</p>
+            <p className="font-medium">Calendar & reservations</p>
             <p className="mt-1 text-sm text-muted-foreground">
               {needsCalendarSetup
-                ? "Povežite kalendare ispod, zatim otvorite kalendar za pregled zauzetosti."
-                : "Pregledajte kalendar i rezervacije."}
+                ? "Connect calendars below, then open the calendar to view availability."
+                : "View the calendar and reservations."}
             </p>
           </div>
           <Button asChild className="shrink-0">
             <Link href={`/dashboard/properties/${id}/calendar`}>
               <CalendarDays className="h-4 w-4" />
-              Otvori kalendar
+              Open calendar
             </Link>
           </Button>
         </CardContent>
       </Card>
 
       {feedsLoading && reservations.length === 0 ? (
-        <p className="text-sm text-muted-foreground">Učitavanje kalendara…</p>
+        <p className="text-sm text-muted-foreground">Loading calendars…</p>
       ) : (
         calendarIntegrations
       )}

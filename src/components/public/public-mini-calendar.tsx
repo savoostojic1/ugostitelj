@@ -15,12 +15,12 @@ import {
   startOfMonth,
   startOfWeek,
 } from "date-fns";
-import { sr } from "date-fns/locale";
+import { appLocale } from "@/lib/dates/locale";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { parseDateOnly } from "@/lib/dates/calendar-date";
 
-const WEEKDAYS = ["Po", "Ut", "Sr", "Če", "Pe", "Su", "Ne"];
+const WEEKDAYS = ["Mo", "Tu", "We", "Th", "Fr", "Sa", "Su"];
 
 export type PublicCalendarMode = "check-in" | "check-out";
 
@@ -92,10 +92,10 @@ export function PublicMiniCalendar({
 
   const hint =
     mode === "check-in"
-      ? "Izaberite datum dolaska"
+      ? "Select check-in date"
       : checkIn
-        ? "Izaberite datum odlaska"
-        : "Prvo izaberite dolazak";
+        ? "Select check-out date"
+        : "Select check-in first";
 
   return (
     <div className="w-[18.5rem] select-none">
@@ -105,12 +105,12 @@ export function PublicMiniCalendar({
         </p>
         {checkIn && checkOut ? (
           <p className="mt-1 text-sm font-semibold text-[var(--public-fg)]">
-            {format(checkInDate!, "d. MMM", { locale: sr })} –{" "}
-            {format(checkOutDate!, "d. MMM yyyy", { locale: sr })}
+            {format(checkInDate!, "d. MMM", { locale: appLocale })} –{" "}
+            {format(checkOutDate!, "d. MMM yyyy", { locale: appLocale })}
           </p>
         ) : checkIn ? (
           <p className="mt-1 text-sm font-semibold text-[var(--public-fg)]">
-            Dolazak: {format(checkInDate!, "d. MMM yyyy", { locale: sr })}
+            Check-in: {format(checkInDate!, "d. MMM yyyy", { locale: appLocale })}
           </p>
         ) : null}
       </div>
@@ -121,18 +121,18 @@ export function PublicMiniCalendar({
             type="button"
             onClick={() => setViewMonth((m) => addMonths(m, -1))}
             className="flex h-8 w-8 items-center justify-center rounded-lg text-[var(--public-muted)] transition hover:bg-[var(--public-bg-subtle)] hover:text-[var(--public-fg)]"
-            aria-label="Prethodni mjesec"
+            aria-label="Previous month"
           >
             <ChevronLeft className="h-4 w-4" />
           </button>
           <p className="text-sm font-semibold capitalize text-[var(--public-fg)]">
-            {format(viewMonth, "LLLL yyyy", { locale: sr })}
+            {format(viewMonth, "LLLL yyyy", { locale: appLocale })}
           </p>
           <button
             type="button"
             onClick={() => setViewMonth((m) => addMonths(m, 1))}
             className="flex h-8 w-8 items-center justify-center rounded-lg text-[var(--public-muted)] transition hover:bg-[var(--public-bg-subtle)] hover:text-[var(--public-fg)]"
-            aria-label="Sljedeći mjesec"
+            aria-label="Next month"
           >
             <ChevronRight className="h-4 w-4" />
           </button>

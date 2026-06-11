@@ -1,4 +1,4 @@
-import { formatReservationLabel } from "@/lib/reservations/display";
+import { getReservationDisplayKind } from "@/lib/reservations/display";
 import type { Reservation } from "@/types/database";
 
 /** Jasno različite boje — svaka rezervacija dobija sljedeću u nizu. */
@@ -21,7 +21,7 @@ export function filterVisibleCompactReservations(
   reservations: Reservation[]
 ): Reservation[] {
   return reservations.filter(
-    (r) => formatReservationLabel(r.title, r.platform) !== "Blokirano"
+    (r) => getReservationDisplayKind(r) !== "manual_block"
   );
 }
 

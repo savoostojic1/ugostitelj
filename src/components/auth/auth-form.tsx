@@ -61,7 +61,7 @@ export function AuthForm({ mode }: { mode: AuthMode }) {
     <div className="mx-auto w-full max-w-sm space-y-8">
       <div className="space-y-2 text-center">
         <Link href="/" className="text-xl font-semibold tracking-tight">
-          Ugostitelj
+          Hostvia
         </Link>
         <h1 className="text-2xl font-semibold tracking-tight">{titles[mode]}</h1>
       </div>

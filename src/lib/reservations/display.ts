@@ -59,7 +59,7 @@ export const ORIGIN_CODE_LETTERS: Record<ReservationOriginCode, string> = {
 export const ORIGIN_CODE_LABELS: Record<ReservationOriginCode, string> = {
   airbnb: "Airbnb",
   booking: "Booking.com",
-  direct: "Direktno",
+  direct: "Direct",
 };
 
 export function getReservationOriginLabel(

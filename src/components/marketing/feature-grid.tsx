@@ -24,15 +24,13 @@ export function FeatureGrid({
       {features.map((feature) => (
         <div
           key={feature.title}
-          className="marketing-card rounded-2xl border border-border bg-card p-6"
+          className="hostvia-glow-card p-6"
         >
-          <div className="mb-4 inline-flex rounded-xl bg-primary/10 p-3">
-            <feature.icon className="h-6 w-6 text-primary" />
+          <div className="mb-4 inline-flex rounded-xl bg-violet-500/15 p-3">
+            <feature.icon className="h-6 w-6 text-violet-400" />
           </div>
-          <h3 className="text-lg font-semibold tracking-tight">
-            {feature.title}
-          </h3>
-          <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
+          <h3 className="text-lg font-semibold text-white">{feature.title}</h3>
+          <p className="mt-2 text-sm leading-relaxed text-zinc-400">
             {feature.description}
           </p>
         </div>

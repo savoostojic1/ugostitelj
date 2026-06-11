@@ -45,7 +45,7 @@ export function useManualReservations() {
 
       return (data as Reservation[]).map((r) => ({
         ...r,
-        properties: { name: nameById[r.property_id] ?? "Nekretnina" },
+        properties: { name: nameById[r.property_id] ?? "Property" },
       }));
     },
   });
@@ -66,7 +66,7 @@ export function useManualReservation(id: string) {
         .eq("is_manual", true)
         .single();
 
-      if (error || !data) throw new Error("Rezervacija nije pronađena");
+      if (error || !data) throw new Error("Reservation not found");
 
       const { data: property, error: propError } = await supabase
         .from("properties")
@@ -100,7 +100,7 @@ export function useCreateManualReservation() {
         .eq("user_id", user.id)
         .single();
 
-      if (propError || !property) throw new Error("Nekretnina nije pronađena");
+      if (propError || !property) throw new Error("Property not found");
 
       const { data: existing, error: existingError } = await supabase
         .from("reservations")
@@ -161,7 +161,7 @@ export function useUpdateManualReservation() {
         .single();
 
       if (fetchError || !existingReservation?.is_manual) {
-        throw new Error("Rezervacija nije pronađena");
+        throw new Error("Reservation not found");
       }
 
       const { data: property, error: propError } = await supabase
@@ -171,7 +171,7 @@ export function useUpdateManualReservation() {
         .eq("user_id", user.id)
         .single();
 
-      if (propError || !property) throw new Error("Nekretnina nije pronađena");
+      if (propError || !property) throw new Error("Property not found");
 
       const { data: existing, error: existingError } = await supabase
         .from("reservations")
@@ -229,7 +229,7 @@ export function useDeleteManualReservation() {
         .single();
 
       if (fetchError || !reservation?.is_manual) {
-        throw new Error("Rezervacija nije pronađena");
+        throw new Error("Reservation not found");
       }
 
       const { data: property, error: propError } = await supabase

@@ -42,7 +42,7 @@ export function HostPropertyResultCard({
             variant="card"
           />
           <div className="pointer-events-none absolute left-4 top-4 z-30">
-            <span className="public-badge public-badge-success">Slobodno</span>
+            <span className="public-badge public-badge-success">Available</span>
           </div>
         </div>
 
@@ -71,11 +71,11 @@ export function HostPropertyResultCard({
                   {formatEuro(stayPrice.total)}
                 </p>
                 <p className="mt-1 text-sm text-[var(--public-muted)]">
-                  ukupno za {nightsLabel(stayPrice.nights)}
+                  total for {nightsLabel(stayPrice.nights)}
                 </p>
                 <p className="mt-0.5 text-sm font-medium text-[var(--public-accent)]">
-                  {stayPrice.usesDatePricing ? "prosjek " : ""}
-                  {formatEuro(stayPrice.pricePerNight)} po noći
+                  {stayPrice.usesDatePricing ? "avg " : ""}
+                  {formatEuro(stayPrice.pricePerNight)} per night
                 </p>
               </div>
             ) : (
@@ -87,7 +87,7 @@ export function HostPropertyResultCard({
               onClick={onReserve}
               className="public-btn public-btn-primary w-full px-6 py-3.5 sm:w-auto"
             >
-              Rezerviši
+              Reserve
               <ArrowRight className="h-4 w-4" />
             </button>
           </div>

@@ -1,6 +1,7 @@
 "use client";
 
 import { format, parseISO } from "date-fns";
+import { DashboardPageHeader } from "@/components/dashboard/dashboard-page-header";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useReservations } from "@/hooks/use-properties";
 import { groupArrivalsDepartures } from "@/lib/dashboard-stats";
@@ -93,12 +94,11 @@ export default function ArrivalsPage() {
 
   return (
     <div className="space-y-8">
-      <div>
-        <h1 className="text-2xl font-semibold tracking-tight">Arrivals & Departures</h1>
-        <p className="text-muted-foreground">
-          Today, tomorrow, and this week across all properties
-        </p>
-      </div>
+      <DashboardPageHeader
+        eyebrow="Operations"
+        title="Arrivals & Departures"
+        description="Today, tomorrow, and this week across all properties"
+      />
 
       <Section
         title="Today"

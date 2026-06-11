@@ -21,7 +21,7 @@ export function PropertyCalendarNav({ propertyId }: { propertyId: string }) {
         <Button variant="outline" size="icon" className="h-8 w-8 shrink-0" asChild>
           <Link
             href={`/dashboard/properties/${prev.id}/calendar`}
-            aria-label={`Prethodna nekretnina: ${prev.name}`}
+            aria-label={`Previous property: ${prev.name}`}
             title={prev.name}
           >
             <ChevronLeft className="h-4 w-4" />
@@ -33,7 +33,7 @@ export function PropertyCalendarNav({ propertyId }: { propertyId: string }) {
           size="icon"
           className="h-8 w-8 shrink-0"
           disabled
-          aria-label="Nema prethodne nekretnine"
+          aria-label="No previous property"
         >
           <ChevronLeft className="h-4 w-4" />
         </Button>
@@ -47,7 +47,7 @@ export function PropertyCalendarNav({ propertyId }: { propertyId: string }) {
         <Button variant="outline" size="icon" className="h-8 w-8 shrink-0" asChild>
           <Link
             href={`/dashboard/properties/${next.id}/calendar`}
-            aria-label={`Sljedeća nekretnina: ${next.name}`}
+            aria-label={`Next property: ${next.name}`}
             title={next.name}
           >
             <ChevronRight className="h-4 w-4" />
@@ -59,7 +59,7 @@ export function PropertyCalendarNav({ propertyId }: { propertyId: string }) {
           size="icon"
           className="h-8 w-8 shrink-0"
           disabled
-          aria-label="Nema sljedeće nekretnine"
+          aria-label="No next property"
         >
           <ChevronRight className="h-4 w-4" />
         </Button>

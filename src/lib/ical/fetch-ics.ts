@@ -39,8 +39,8 @@ export async function fetchIcsText(
     const preview = icsText.replace(/\s+/g, " ").slice(0, 120);
     throw new Error(
       preview.toLowerCase().includes("<html")
-        ? "Link vodi na web stranicu, ne na .ics kalendar. Kopiraj Export link (Copy link), ne URL iz adresne trake extraneta."
-        : `Odgovor nije iCal (.ics). ${preview ? `Početak: „${preview}…“` : "Prazan odgovor."}`
+        ? "This link points to a web page, not an .ics calendar. Copy the Export link (Copy link), not the URL from the extranet address bar."
+        : `Response is not iCal (.ics). ${preview ? `Start: "${preview}…"` : "Empty response."}`
     );
   }
 

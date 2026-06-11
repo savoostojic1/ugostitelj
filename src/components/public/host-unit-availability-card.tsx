@@ -3,7 +3,7 @@
 import { useState } from "react";
 import Image from "next/image";
 import { format } from "date-fns";
-import { sr } from "date-fns/locale";
+import { appLocale } from "@/lib/dates/locale";
 import { MapPin, Send, Users } from "lucide-react";
 import { PublicPropertyAvailabilityCalendar } from "@/components/public/public-property-availability-calendar";
 import { usePublicStayPrice } from "@/hooks/use-public-stay-price";
@@ -60,7 +60,7 @@ export function HostUnitAvailabilityCard({
             {property.capacity ? (
               <p className="mt-1 flex items-center gap-1.5 text-xs text-[var(--public-muted)]">
                 <Users className="h-3.5 w-3.5 shrink-0 text-[var(--public-accent)]" />
-                Do {property.capacity} gostiju
+                Up to {property.capacity} guests
               </p>
             ) : null}
             {property.address ? (
@@ -71,7 +71,7 @@ export function HostUnitAvailabilityCard({
             ) : null}
             {startingPrice ? (
               <p className="mt-2 text-xs font-semibold text-[var(--public-accent)]">
-                od {formatEuro(startingPrice)} / noć
+                from {formatEuro(startingPrice)} / night
               </p>
             ) : null}
           </div>
@@ -94,19 +94,19 @@ export function HostUnitAvailabilityCard({
         {checkIn && checkOut && onReserve ? (
           <div className="mt-3 space-y-2 rounded-xl border border-[var(--public-border)] bg-white p-3">
             <p className="text-xs font-semibold text-[var(--public-fg)]">
-              {format(new Date(checkIn + "T12:00:00"), "d. MMM", { locale: sr })}{" "}
+              {format(new Date(checkIn + "T12:00:00"), "d. MMM", { locale: appLocale })}{" "}
               –{" "}
               {format(new Date(checkOut + "T12:00:00"), "d. MMM yyyy", {
-                locale: sr,
+                locale: appLocale,
               })}
             </p>
             {priceLoading ? (
               <p className="text-[11px] text-[var(--public-muted)]">
-                Računam cijenu…
+                Calculating price…
               </p>
             ) : stayPrice ? (
               <p className="text-[11px] text-[var(--public-muted)]">
-                {stayPrice.nights} noći · {formatEuro(stayPrice.total)}
+                {stayPrice.nights} nights · {formatEuro(stayPrice.total)}
               </p>
             ) : null}
             <button
@@ -116,7 +116,7 @@ export function HostUnitAvailabilityCard({
               className="public-btn public-btn-primary w-full py-2.5 text-sm"
             >
               <Send className="h-3.5 w-3.5" />
-              {reserving ? "Provjeravam…" : "Rezerviši"}
+              {reserving ? "Checking…" : "Reserve"}
             </button>
           </div>
         ) : null}

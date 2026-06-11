@@ -15,7 +15,7 @@ export async function generateMetadata({
 }: HostPageProps): Promise<Metadata> {
   const { username } = await params;
   const host = await fetchPublicHost(username);
-  if (!host) return { title: "Domaćin nije pronađen" };
+  if (!host) return { title: "Host not found" };
 
   return buildHostMetadata(
     host.business_name,

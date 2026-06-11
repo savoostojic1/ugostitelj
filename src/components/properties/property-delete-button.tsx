@@ -30,11 +30,11 @@ export function PropertyDeleteButton({
   async function handleDelete() {
     try {
       await deleteProperty.mutateAsync(propertyId);
-      toast.success("Nekretnina obrisana");
+      toast.success("Property deleted");
       setOpen(false);
       router.push("/dashboard/properties");
     } catch (err) {
-      toast.error(err instanceof Error ? err.message : "Greška pri brisanju");
+      toast.error(err instanceof Error ? err.message : "Failed to delete");
     }
   }
 
@@ -47,17 +47,17 @@ export function PropertyDeleteButton({
           className="text-destructive hover:text-destructive"
         >
           <Trash2 className="h-4 w-4" />
-          Obriši
+          Delete
         </Button>
       </DialogTrigger>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>Obriši nekretninu?</DialogTitle>
+          <DialogTitle>Delete property?</DialogTitle>
         </DialogHeader>
         <p className="text-sm text-muted-foreground">
-          Ovo će trajno obrisati{" "}
+          This will permanently delete{" "}
           <span className="font-medium text-foreground">{propertyName}</span>{" "}
-          zajedno sa svim kalendar feedovima i rezervacijama.
+          along with all calendar feeds and reservations.
         </p>
         <div className="flex justify-end gap-2">
           <Button
@@ -65,14 +65,14 @@ export function PropertyDeleteButton({
             onClick={() => setOpen(false)}
             disabled={deleteProperty.isPending}
           >
-            Otkaži
+            Cancel
           </Button>
           <Button
             variant="destructive"
             onClick={handleDelete}
             disabled={deleteProperty.isPending}
           >
-            {deleteProperty.isPending ? "Brisanje…" : "Obriši"}
+            {deleteProperty.isPending ? "Deleting…" : "Delete"}
           </Button>
         </div>
       </DialogContent>

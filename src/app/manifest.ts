@@ -3,17 +3,17 @@ import type { MetadataRoute } from "next";
 export default function manifest(): MetadataRoute.Manifest {
   return {
     id: "/",
-    name: "Ugostitelj",
-    short_name: "Ugostitelj",
+    name: "Hostvia",
+    short_name: "Hostvia",
     description:
-      "Kalendar za domaćine — Airbnb i Booking.com iCal sync.",
+      "Booking website and reservation dashboard for property owners.",
     start_url: "/dashboard",
     scope: "/",
     display: "standalone",
     orientation: "portrait",
-    background_color: "#09090b",
-    theme_color: "#6366f1",
-    lang: "sr",
+    background_color: "#06060a",
+    theme_color: "#8b5cf6",
+    lang: "en",
     categories: ["business", "productivity"],
     icons: [
       {

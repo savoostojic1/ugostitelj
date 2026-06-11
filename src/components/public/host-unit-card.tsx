@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { format } from "date-fns";
-import { sr } from "date-fns/locale";
+import { appLocale } from "@/lib/dates/locale";
 import { CalendarDays, ChevronDown, MapPin, Send, Users } from "lucide-react";
 import { PublicPropertyGallery } from "@/components/public/public-property-gallery";
 import { PublicPropertyAvailabilityCalendar } from "@/components/public/public-property-availability-calendar";
@@ -71,7 +71,7 @@ export function HostUnitCard({
             {property.capacity ? (
               <p className="mt-2 flex items-center gap-2 text-sm text-[var(--public-muted)]">
                 <Users className="h-4 w-4 text-[var(--public-accent)]" />
-                Do {property.capacity} gostiju
+                Up to {property.capacity} guests
               </p>
             ) : null}
             {property.short_description ? (
@@ -81,7 +81,7 @@ export function HostUnitCard({
             ) : null}
             {startingPrice ? (
               <p className="mt-3 text-sm font-semibold text-[var(--public-accent)]">
-                od {formatEuro(startingPrice)} po noći
+                from {formatEuro(startingPrice)} per night
               </p>
             ) : null}
           </div>
@@ -94,7 +94,7 @@ export function HostUnitCard({
           >
             <span className="inline-flex items-center gap-2">
               <CalendarDays className="h-4 w-4 text-[var(--public-accent)]" />
-              Pogledaj dostupnost
+              View availability
             </span>
             <ChevronDown
               className={cn(
@@ -120,20 +120,20 @@ export function HostUnitCard({
               <div>
                 <p className="text-sm font-semibold text-[var(--public-fg)]">
                   {format(new Date(checkIn + "T12:00:00"), "d. MMM", {
-                    locale: sr,
+                    locale: appLocale,
                   })}{" "}
                   –{" "}
                   {format(new Date(checkOut + "T12:00:00"), "d. MMM yyyy", {
-                    locale: sr,
+                    locale: appLocale,
                   })}
                 </p>
                 {priceLoading ? (
                   <p className="mt-1 text-sm text-[var(--public-muted)]">
-                    Računam cijenu…
+                    Calculating price…
                   </p>
                 ) : stayPrice ? (
                   <p className="mt-1 text-sm text-[var(--public-muted)]">
-                    {stayPrice.nights} noći · {formatEuro(stayPrice.total)} ukupno
+                    {stayPrice.nights} nights · {formatEuro(stayPrice.total)} total
                   </p>
                 ) : null}
               </div>
@@ -144,7 +144,7 @@ export function HostUnitCard({
                 className="public-btn public-btn-primary shrink-0 px-6 py-3"
               >
                 <Send className="h-4 w-4" />
-                {reserving ? "Provjeravam…" : "Rezerviši"}
+                {reserving ? "Checking…" : "Reserve"}
               </button>
             </div>
           ) : null}

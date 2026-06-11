@@ -223,7 +223,7 @@ function buildPinEmbed(pin: MapPin): string {
     ? `${pin.label}@${pin.lat},${pin.lng}`
     : `${pin.lat},${pin.lng}`;
 
-  return `https://www.google.com/maps?q=${encodeURIComponent(query)}&ll=${pin.lat},${pin.lng}&z=${pin.zoom}&hl=sr&output=embed`;
+  return `https://www.google.com/maps?q=${encodeURIComponent(query)}&ll=${pin.lat},${pin.lng}&z=${pin.zoom}&hl=en&output=embed`;
 }
 
 /** Pretvara već razriješeni Google Maps URL u iframe embed. */
@@ -250,7 +250,7 @@ export function googleMapsUrlToEmbed(resolvedUrl: string): string | null {
       extractPlaceLabel(resolvedUrl);
 
     if (q) {
-      return `https://www.google.com/maps?q=${encodeURIComponent(q)}&z=17&hl=sr&output=embed`;
+      return `https://www.google.com/maps?q=${encodeURIComponent(q)}&z=17&hl=en&output=embed`;
     }
   } catch {
     return null;

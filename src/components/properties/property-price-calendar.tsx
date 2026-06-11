@@ -13,7 +13,7 @@ import {
   startOfMonth,
   startOfWeek,
 } from "date-fns";
-import { sr } from "date-fns/locale";
+import { appLocale } from "@/lib/dates/locale";
 import { ChevronLeft, ChevronRight, Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -25,7 +25,7 @@ import { resolveNightPriceFromRules } from "@/lib/public/stay-price";
 import type { PropertyPriceRule } from "@/types/database";
 import { cn } from "@/lib/utils";
 
-const WEEKDAYS = ["Po", "Ut", "Sr", "Če", "Pe", "Su", "Ne"];
+const WEEKDAYS = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
 
 function nightHasCustomRule(
   night: string,
@@ -91,10 +91,10 @@ export function PropertyPriceCalendar({
     rangeStart && rangeEnd && rangeStart === rangeEnd;
 
   const selectionLabel = !rangeStart
-    ? "Kliknite dan na kalendaru · drugi klik opciono proširuje period"
+    ? "Click a day on the calendar · second click optionally extends the period"
     : isSingleDay
-      ? format(startDate!, "d. MMM yyyy", { locale: sr })
-      : `${format(startDate!, "d. MMM", { locale: sr })} – ${format(endDate!, "d. MMM yyyy", { locale: sr })}`;
+      ? format(startDate!, "d. MMM yyyy", { locale: appLocale })
+      : `${format(startDate!, "d. MMM", { locale: appLocale })} – ${format(endDate!, "d. MMM yyyy", { locale: appLocale })}`;
 
   function handleDayClick(day: Date) {
     const dateKey = format(day, "yyyy-MM-dd");
@@ -152,12 +152,12 @@ export function PropertyPriceCalendar({
             size="icon"
             className="h-8 w-8"
             onClick={() => setViewMonth((m) => addMonths(m, -1))}
-            aria-label="Prethodni mjesec"
+            aria-label="Previous month"
           >
             <ChevronLeft className="h-4 w-4" />
           </Button>
           <p className="text-sm font-semibold capitalize">
-            {format(viewMonth, "LLLL yyyy", { locale: sr })}
+            {format(viewMonth, "LLLL yyyy", { locale: appLocale })}
           </p>
           <Button
             type="button"
@@ -165,7 +165,7 @@ export function PropertyPriceCalendar({
             size="icon"
             className="h-8 w-8"
             onClick={() => setViewMonth((m) => addMonths(m, 1))}
-            aria-label="Sljedeći mjesec"
+            aria-label="Next month"
           >
             <ChevronRight className="h-4 w-4" />
           </Button>
@@ -261,12 +261,12 @@ export function PropertyPriceCalendar({
       </div>
 
       <div className="rounded-xl border border-border bg-muted/30 p-4">
-        <p className="text-sm font-medium">Nova cijena</p>
+        <p className="text-sm font-medium">New price</p>
         <p className="mt-1 text-xs text-muted-foreground">{selectionLabel}</p>
 
         <div className="mt-4 flex flex-col gap-3 sm:flex-row sm:items-end">
           <div className="flex-1 space-y-2">
-            <Label htmlFor="period-price-input">Cijena (€ / noć)</Label>
+            <Label htmlFor="period-price-input">Price (€ / night)</Label>
             <Input
               id="period-price-input"
               value={periodPrice}
@@ -280,13 +280,13 @@ export function PropertyPriceCalendar({
             disabled={adding || !rangeStart || !periodPrice.trim()}
           >
             <Plus className="h-4 w-4" />
-            {adding ? "Dodavanje…" : "Primijeni cijenu"}
+            {adding ? "Adding…" : "Apply price"}
           </Button>
         </div>
 
         <p className="mt-3 text-xs text-muted-foreground">
-          Plava cijena = poseban period. Sivi broj = osnovna cijena. Uži period
-          ima prednost ako se preklapaju.
+          Blue price = custom period. Gray number = base price. Narrower periods
+          take precedence when they overlap.
         </p>
       </div>
     </div>

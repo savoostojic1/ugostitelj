@@ -32,7 +32,7 @@ export function InstallPrompt() {
   useEffect(() => {
     if (isStandalone()) return;
 
-    const dismissed = localStorage.getItem("ugostitelj-pwa-dismissed");
+    const dismissed = localStorage.getItem("hostvia-pwa-dismissed");
     if (dismissed === "1") return;
 
     if (isIos()) {
@@ -53,7 +53,7 @@ export function InstallPrompt() {
   }, []);
 
   function dismiss() {
-    localStorage.setItem("ugostitelj-pwa-dismissed", "1");
+    localStorage.setItem("hostvia-pwa-dismissed", "1");
     setVisible(false);
   }
 
@@ -62,7 +62,7 @@ export function InstallPrompt() {
     await installEvent.prompt();
     await installEvent.userChoice;
     setVisible(false);
-    localStorage.setItem("ugostitelj-pwa-dismissed", "1");
+    localStorage.setItem("hostvia-pwa-dismissed", "1");
   }
 
   if (!visible || isStandalone()) return null;
@@ -74,26 +74,26 @@ export function InstallPrompt() {
           <Download className="h-5 w-5" />
         </div>
         <div className="min-w-0 flex-1">
-          <p className="font-semibold">Instaliraj aplikaciju</p>
+          <p className="font-semibold">Install app</p>
           {iosHint ? (
             <p className="mt-1 text-sm text-muted-foreground">
               Safari →{" "}
-              <Share className="inline h-3.5 w-3.5 align-text-bottom" /> Podijeli
-              → Dodaj na početni ekran
+              <Share className="inline h-3.5 w-3.5 align-text-bottom" /> Share
+              → Add to Home Screen
             </p>
           ) : (
             <p className="mt-1 text-sm text-muted-foreground">
-              Otvori Ugostitelj direktno sa početnog ekrana, bez browsera.
+              Open Hostvia directly from your home screen, without the browser.
             </p>
           )}
           <div className="mt-3 flex gap-2">
             {!iosHint && installEvent && (
               <Button size="sm" onClick={install}>
-                Instaliraj
+                Install
               </Button>
             )}
             <Button size="sm" variant="ghost" onClick={dismiss}>
-              Ne sada
+              Not now
             </Button>
           </div>
         </div>
@@ -102,7 +102,7 @@ export function InstallPrompt() {
           size="icon"
           className="h-8 w-8 shrink-0"
           onClick={dismiss}
-          aria-label="Zatvori"
+          aria-label="Close"
         >
           <X className="h-4 w-4" />
         </Button>

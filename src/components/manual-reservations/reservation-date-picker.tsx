@@ -12,6 +12,7 @@ import {
   startOfMonth,
   startOfWeek,
 } from "date-fns";
+import { appLocale } from "@/lib/dates/locale";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
@@ -40,7 +41,7 @@ interface ReservationDatePickerProps {
   excludeReservationId?: string;
 }
 
-const WEEKDAYS = ["Pon", "Uto", "Sri", "Čet", "Pet", "Sub", "Ned"];
+const WEEKDAYS = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
 
 export function ReservationDatePicker({
   reservations,
@@ -82,12 +83,12 @@ export function ReservationDatePicker({
     checkIn && checkOut
       ? formatStayPeriodLabel(checkIn, checkOut)
       : checkIn
-        ? `${format(parseDateOnly(checkIn), "d. MMM yyyy")} · izaberi odlazak`
-        : "Klikni dan dolaska, zatim dan odlaska";
+        ? `${format(parseDateOnly(checkIn), "d MMM yyyy", { locale: appLocale })} · select check-out`
+        : "Click check-in day, then check-out day";
 
   function handleDayClick(day: Date) {
     if (!excludeReservationId && day < today) {
-      toast.error("Ne možeš birati datume u prošlosti");
+      toast.error("You cannot select dates in the past");
       return;
     }
 
@@ -102,8 +103,8 @@ export function ReservationDatePicker({
         );
         toast.error(
           label
-            ? `Zauzeto: ${label}. Izaberi slobodan dan za dolazak.`
-            : "Ovaj dan je zauzet — izaberi slobodan dolazak"
+            ? `Occupied: ${label}. Choose a free day for check-in.`
+            : "This day is occupied — choose a free check-in day"
         );
         return;
       }
@@ -113,7 +114,7 @@ export function ReservationDatePicker({
 
     if (dateKey <= checkIn) {
       if (!canCheckInOnDay(reservations, day, excludeReservationId)) {
-        toast.error("Ovaj dan je zauzet — izaberi slobodan dolazak");
+        toast.error("This day is occupied — choose a free check-in day");
         return;
       }
       onChange(dateKey, "");
@@ -133,17 +134,17 @@ export function ReservationDatePicker({
   }
 
   if (isLoading) {
-    return <p className="text-sm text-muted-foreground">Učitavanje kalendara…</p>;
+    return <p className="text-sm text-muted-foreground">Loading calendar…</p>;
   }
 
   return (
     <div className="space-y-3">
       <div className="space-y-1">
-        <Label>Datumi boravka</Label>
+        <Label>Stay dates</Label>
         <p className="text-sm text-muted-foreground">{selectionLabel}</p>
       </div>
 
-      <div className="overflow-hidden rounded-xl border border-border bg-card">
+      <div className="overflow-hidden rounded-xl border border-border bg-card text-card-foreground">
         <div className="flex items-center justify-between border-b px-3 py-2">
           <Button
             type="button"
@@ -155,7 +156,7 @@ export function ReservationDatePicker({
             <ChevronLeft className="h-4 w-4" />
           </Button>
           <span className="text-sm font-semibold capitalize">
-            {format(viewMonth, "MMMM yyyy")}
+            {format(viewMonth, "MMMM yyyy", { locale: appLocale })}
           </span>
           <Button
             type="button"
@@ -267,15 +268,15 @@ export function ReservationDatePicker({
         <div className="flex flex-wrap gap-x-4 gap-y-1 border-t px-3 py-2 text-[11px] text-muted-foreground">
           <span className="flex items-center gap-1.5">
             <span className="h-3 w-3 rounded border border-red-500/25 bg-red-500/10" />
-            Zauzeto
+            Occupied
           </span>
           <span className="flex items-center gap-1.5">
             <span className="h-3 w-3 rounded border border-amber-500/30 bg-amber-500/15" />
-            Blokirano
+            Blocked
           </span>
           <span className="flex items-center gap-1.5">
             <span className="h-3 w-3 rounded border border-primary/30 bg-primary/15" />
-            Tvoj izbor
+            Your selection
           </span>
         </div>
       </div>
@@ -283,7 +284,7 @@ export function ReservationDatePicker({
       {upcomingOccupied.length > 0 && (
         <div className="rounded-lg border border-border/80 bg-muted/20 p-3">
           <p className="mb-2 text-xs font-medium text-muted-foreground">
-            Zauzeti periodi u ovom bungalovu
+            Occupied periods for this property
           </p>
           <ul className="space-y-1.5">
             {upcomingOccupied.map((r) => (
@@ -300,7 +301,7 @@ export function ReservationDatePicker({
                     parseDateOnly(r.check_in),
                     excludeReservationId
                   ) === "blocked"
-                    ? "Blokirano"
+                    ? "Blocked"
                     : r.title}
                 </span>
               </li>

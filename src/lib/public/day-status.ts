@@ -61,8 +61,8 @@ export const PUBLIC_DAY_DOT: Record<PublicDayStatus, string> = {
 };
 
 export const PUBLIC_DAY_LABELS: Record<PublicDayStatus, string> = {
-  available: "Slobodno",
-  occupied: "Zauzeto",
-  check_in: "Dolazak",
-  check_out: "Odlazak",
+  available: "Available",
+  occupied: "Occupied",
+  check_in: "Check-in",
+  check_out: "Check-out",
 };

@@ -39,7 +39,7 @@ export function usePublicStayPrice(
     )
       .then(async (res) => {
         const data = await res.json();
-        if (!res.ok) throw new Error(data.error ?? "Greška");
+        if (!res.ok) throw new Error(data.error ?? "Error");
         if (!cancelled) {
           setQuote(
             resolveStayPriceQuote(

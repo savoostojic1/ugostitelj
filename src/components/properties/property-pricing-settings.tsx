@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { format, parseISO } from "date-fns";
-import { sr } from "date-fns/locale";
+import { appLocale } from "@/lib/dates/locale";
 import { Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -53,9 +53,9 @@ export function PropertyPricingSettings({ property }: PropertyPricingSettingsPro
         startingPrice: Number.isFinite(price) ? price : null,
       },
       {
-        onSuccess: () => toast.success("Osnovna cijena sačuvana"),
+        onSuccess: () => toast.success("Base price saved"),
         onError: (err) =>
-          toast.error(err instanceof Error ? err.message : "Greška"),
+          toast.error(err instanceof Error ? err.message : "Error"),
       }
     );
   }
@@ -69,33 +69,33 @@ export function PropertyPricingSettings({ property }: PropertyPricingSettingsPro
         pricePerNight: price,
       },
       {
-        onSuccess: () => toast.success("Cijena za period dodata"),
+        onSuccess: () => toast.success("Period price added"),
         onError: (err) =>
-          toast.error(err instanceof Error ? err.message : "Greška"),
+          toast.error(err instanceof Error ? err.message : "Error"),
       }
     );
   }
 
   function formatPeriod(start: string, end: string) {
-    const startLabel = format(parseISO(start), "d. MMM yyyy", { locale: sr });
-    const endLabel = format(parseISO(end), "d. MMM yyyy", { locale: sr });
+    const startLabel = format(parseISO(start), "d. MMM yyyy", { locale: appLocale });
+    const endLabel = format(parseISO(end), "d. MMM yyyy", { locale: appLocale });
     return start === end ? startLabel : `${startLabel} – ${endLabel}`;
   }
 
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Cijene po noći</CardTitle>
+        <CardTitle>Nightly prices</CardTitle>
         <p className="text-sm text-muted-foreground">
-          Na kalendaru vidite trenutnu cijenu za svaki dan. Kliknite dan,
-          unesite cijenu i primijenite — ili drugi klik za cijeli period.
+          The calendar shows the current price for each day. Click a day, enter
+          a price and apply — or click a second day to set a full period.
         </p>
       </CardHeader>
       <CardContent className="space-y-6">
         <div className="flex flex-col gap-3 sm:flex-row sm:items-end">
           <div className="flex-1 space-y-2">
             <Label htmlFor={`default-price-${property.id}`}>
-              Osnovna cijena (€ / noć)
+              Base price (€ / night)
             </Label>
             <Input
               id={`default-price-${property.id}`}
@@ -110,12 +110,12 @@ export function PropertyPricingSettings({ property }: PropertyPricingSettingsPro
             onClick={handleSaveDefaultPrice}
             disabled={updateStartingPrice.isPending}
           >
-            {updateStartingPrice.isPending ? "Čuvanje…" : "Sačuvaj osnovnu"}
+            {updateStartingPrice.isPending ? "Saving…" : "Save base price"}
           </Button>
         </div>
 
         {isLoading ? (
-          <p className="text-sm text-muted-foreground">Učitavanje kalendara…</p>
+          <p className="text-sm text-muted-foreground">Loading calendar…</p>
         ) : (
           <PropertyPriceCalendar
             rules={rules}
@@ -127,7 +127,7 @@ export function PropertyPricingSettings({ property }: PropertyPricingSettingsPro
 
         {!isLoading && rules.length > 0 ? (
           <div className="space-y-2">
-            <p className="text-sm font-medium">Postavljeni periodi</p>
+            <p className="text-sm font-medium">Configured periods</p>
             <div className="divide-y divide-border rounded-xl border border-border">
               {rules.map((rule) => (
                 <div
@@ -139,7 +139,7 @@ export function PropertyPricingSettings({ property }: PropertyPricingSettingsPro
                       {formatPeriod(rule.start_date, rule.end_date)}
                     </p>
                     <p className="text-xs text-muted-foreground">
-                      {Number(rule.price_per_night).toFixed(0)} € po noći
+                      {Number(rule.price_per_night).toFixed(0)} € per night
                     </p>
                   </div>
                   <Button
@@ -151,16 +151,16 @@ export function PropertyPricingSettings({ property }: PropertyPricingSettingsPro
                       deleteRule.mutate(
                         { id: rule.id, propertyId: property.id },
                         {
-                          onSuccess: () => toast.success("Period obrisan"),
+                          onSuccess: () => toast.success("Period deleted"),
                           onError: (err) =>
                             toast.error(
-                              err instanceof Error ? err.message : "Greška"
+                              err instanceof Error ? err.message : "Error"
                             ),
                         }
                       )
                     }
                     disabled={deleteRule.isPending}
-                    aria-label="Obriši period"
+                    aria-label="Delete period"
                   >
                     <Trash2 className="h-4 w-4" />
                   </Button>

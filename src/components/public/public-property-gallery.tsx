@@ -89,7 +89,7 @@ export function PublicPropertyGallery({
             type="button"
             onClick={openLightbox}
             className="absolute inset-0 z-0 cursor-zoom-in"
-            aria-label="Otvori fotografiju u punoj veličini"
+            aria-label="Open photo in full size"
           />
 
           <Image
@@ -117,7 +117,7 @@ export function PublicPropertyGallery({
                 type="button"
                 onClick={showPrev}
                 className="absolute left-2 top-1/2 z-20 flex h-8 w-8 -translate-y-1/2 items-center justify-center rounded-full bg-white/95 text-[var(--public-fg)] shadow-md transition hover:scale-105 hover:bg-white md:h-9 md:w-9"
-                aria-label="Prethodna slika"
+                aria-label="Previous image"
               >
                 <ChevronLeft className="h-4 w-4" />
               </button>
@@ -125,7 +125,7 @@ export function PublicPropertyGallery({
                 type="button"
                 onClick={showNext}
                 className="absolute right-2 top-1/2 z-20 flex h-8 w-8 -translate-y-1/2 items-center justify-center rounded-full bg-white/95 text-[var(--public-fg)] shadow-md transition hover:scale-105 hover:bg-white md:h-9 md:w-9"
-                aria-label="Sljedeća slika"
+                aria-label="Next image"
               >
                 <ChevronRight className="h-4 w-4" />
               </button>
@@ -158,7 +158,7 @@ export function PublicPropertyGallery({
                             ? "scale-105 border-white shadow-md"
                             : "border-white/25 opacity-80 hover:border-white/60 hover:opacity-100"
                         )}
-                        aria-label={`Slika ${index + 1}`}
+                        aria-label={`Image ${index + 1}`}
                         aria-current={index === activeIndex}
                       >
                         <Image

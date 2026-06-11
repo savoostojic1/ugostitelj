@@ -20,7 +20,7 @@ export default function NewPropertyPage() {
     e.preventDefault();
     const trimmed = name.trim();
     if (!trimmed) {
-      toast.error("Unesi naziv nekretnine");
+      toast.error("Enter a property name");
       return;
     }
 
@@ -30,7 +30,7 @@ export default function NewPropertyPage() {
       data: { user },
     } = await supabase.auth.getUser();
     if (!user) {
-      toast.error("Nisi prijavljen");
+      toast.error("You are not signed in");
       setLoading(false);
       return;
     }
@@ -49,7 +49,7 @@ export default function NewPropertyPage() {
       toast.error(error.message);
       return;
     }
-    toast.success("Nekretnina dodata");
+    toast.success("Property added");
     router.push(`/dashboard/properties/${data.id}`);
   }
 
@@ -58,28 +58,28 @@ export default function NewPropertyPage() {
       <Button variant="ghost" size="sm" asChild>
         <Link href="/dashboard/properties">
           <ArrowLeft className="h-4 w-4" />
-          Nazad
+          Back
         </Link>
       </Button>
       <Card>
         <CardHeader>
-          <CardTitle>Nova nekretnina</CardTitle>
+          <CardTitle>New property</CardTitle>
         </CardHeader>
         <CardContent>
           <form onSubmit={handleSubmit} className="space-y-4">
             <div className="space-y-2">
-              <Label htmlFor="name">Naziv</Label>
+              <Label htmlFor="name">Name</Label>
               <Input
                 id="name"
                 value={name}
                 onChange={(e) => setName(e.target.value)}
-                placeholder="npr. Bungalov 1"
+                placeholder="e.g. Bungalow 1"
                 required
                 autoFocus
               />
             </div>
             <Button type="submit" className="w-full" disabled={loading}>
-              {loading ? "Dodavanje…" : "Dodaj nekretninu"}
+              {loading ? "Adding…" : "Add property"}
             </Button>
           </form>
         </CardContent>

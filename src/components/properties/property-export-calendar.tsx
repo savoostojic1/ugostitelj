@@ -28,9 +28,9 @@ export function PropertyExportCalendar({
   async function copyUrl() {
     try {
       await navigator.clipboard.writeText(exportUrl);
-      toast.success("Link kopiran");
+      toast.success("Link copied");
     } catch {
-      toast.error("Kopiranje nije uspjelo");
+      toast.error("Copy failed");
     }
   }
 
@@ -39,10 +39,10 @@ export function PropertyExportCalendar({
       <CardHeader>
         <CardTitle className="text-base">Export link (Airbnb & Booking)</CardTitle>
         <p className="text-sm text-muted-foreground">
-          Kopiraj <strong>link ispod</strong> i zalijepi ga u Airbnb i Booking kao{" "}
-          <strong>Import calendar URL</strong>. U export idu samo{" "}
-          <strong>ručne rezervacije</strong> koje dodaš u Ugostitelju — ne Airbnb/Booking
-          sync.
+          Copy the <strong>link below</strong> and paste it into Airbnb and Booking as an{" "}
+          <strong>Import calendar URL</strong>. Only{" "}
+          <strong>manual reservations</strong> you add in Hostvia are exported — not
+          Airbnb/Booking sync.
         </p>
       </CardHeader>
       <CardContent className="space-y-4">
@@ -51,7 +51,7 @@ export function PropertyExportCalendar({
             readOnly
             value={exportUrl}
             className="font-mono text-xs"
-            aria-label={`Export link za ${propertyName}`}
+            aria-label={`Export link for ${propertyName}`}
           />
           <Button
             type="button"
@@ -59,7 +59,7 @@ export function PropertyExportCalendar({
             size="icon"
             className="shrink-0"
             onClick={copyUrl}
-            aria-label="Kopiraj link"
+            aria-label="Copy link"
           >
             <Copy className="h-4 w-4" />
           </Button>
@@ -75,49 +75,49 @@ export function PropertyExportCalendar({
           {exportableCount > 0 ? (
             <>
               <strong>{exportableCount}</strong>{" "}
-              {exportableCount === 1 ? "ručna rezervacija" : "ručne rezervacije"}{" "}
-              u exportu (datumi koje Airbnb/Booking treba da blokiraju).
+              manual reservation{exportableCount === 1 ? "" : "s"} in export (dates
+              Airbnb/Booking should block).
             </>
           ) : (
             <>
-              Export je trenutno <strong>prazan</strong> — nema budućih ručnih
-              rezervacija za ovaj bungalov. Dodaj ih u meniju{" "}
-              <strong>Ručne rezervacije</strong>.
+              Export is currently <strong>empty</strong> — no upcoming manual
+              reservations for this property. Add them from{" "}
+              <strong>Manual bookings</strong>.
             </>
           )}
         </div>
 
         <div className="rounded-lg border border-border/80 bg-muted/20 p-3 text-sm">
-          <p className="font-medium">Kako platforme znaju šta da blokiraju</p>
+          <p className="font-medium">How platforms know what to block</p>
           <p className="mt-1 text-muted-foreground">
-            Svaka <strong>ručna rezervacija</strong> postaje jedan događaj u
-            .ics fajlu sa dolaskom (DTSTART) i odlaskom (DTEND). Airbnb i
-            Booking povlače link i zatvaraju te datume.
+            Each <strong>manual reservation</strong> becomes one event in the
+            .ics file with check-in (DTSTART) and check-out (DTEND). Airbnb and
+            Booking pull the link and close those dates.
           </p>
           <ul className="mt-2 list-inside list-disc space-y-1 text-muted-foreground">
-            <li>Ručne rezervacije iz Ugostitelja → idu u export</li>
-            <li>Airbnb / Booking sync → ne idu u export</li>
+            <li>Manual reservations from Hostvia → included in export</li>
+            <li>Airbnb / Booking sync → not included in export</li>
           </ul>
         </div>
 
         <div className="space-y-2 text-sm">
           <p className="font-medium">1. Airbnb</p>
           <p className="text-muted-foreground">
-            Kalendar → Availability → Import calendar → zalijepi link → Save.
-            Osvježava se otprilike svakih 1–3 sata.
+            Calendar → Availability → Import calendar → paste link → Save.
+            Refreshes roughly every 1–3 hours.
           </p>
           <p className="font-medium">2. Booking.com</p>
           <p className="text-muted-foreground">
             Extranet → Rates &amp; availability → Sync calendars → Import
-            calendar → zalijepi isti link. Sync može trajati do ~2 sata.
+            calendar → paste the same link. Sync can take up to ~2 hours.
           </p>
         </div>
 
         <p className="text-xs text-muted-foreground">
-          Ako otvoriš link u browseru, u fajlu treba da vidiš{" "}
-          <strong>BEGIN:VEVENT</strong> za svaku rezervaciju i{" "}
-          <strong>X-WR-CALNAME:… · Ugostitelj</strong>. Ako toga nema, deploy
-          nije ažuran ili nema rezervacija za export.
+          If you open the link in a browser, the file should contain{" "}
+          <strong>BEGIN:VEVENT</strong> for each reservation and{" "}
+          <strong>X-WR-CALNAME:… · Hostvia</strong>. If not, deploy is
+          outdated or there are no reservations to export.
         </p>
       </CardContent>
     </Card>

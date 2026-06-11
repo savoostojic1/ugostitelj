@@ -27,7 +27,7 @@ function formatUtcStamp(date = new Date()): string {
 function formatEvent(event: IcsExportEvent): string[] {
   const lines = [
     "BEGIN:VEVENT",
-    `UID:${escapeIcsText(event.uid)}@ugostitelj.me`,
+    `UID:${escapeIcsText(event.uid)}@hostvia.me`,
     `DTSTAMP:${formatUtcStamp()}`,
     `SUMMARY:${escapeIcsText(event.summary)}`,
     `DTSTART;VALUE=DATE:${toIcsDate(event.checkIn)}`,
@@ -51,7 +51,7 @@ export function generateIcsCalendar(options: {
   const lines = [
     "BEGIN:VCALENDAR",
     "VERSION:2.0",
-    "PRODID:-//Ugostitelj//Calendar//EN",
+    "PRODID:-//Hostvia//Calendar//EN",
     "CALSCALE:GREGORIAN",
     "METHOD:PUBLISH",
     `X-WR-CALNAME:${escapeIcsText(options.calendarName)}`,

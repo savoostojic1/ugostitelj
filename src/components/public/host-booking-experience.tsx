@@ -3,6 +3,7 @@
 import { useState } from "react";
 import Image from "next/image";
 import { format, addDays } from "date-fns";
+import { appLocale } from "@/lib/dates/locale";
 import {
   CalendarDays,
   CalendarSearch,
@@ -87,7 +88,7 @@ export function HostBookingExperience({
       const data = await res.json();
 
       if (!res.ok) {
-        throw new Error(data.error ?? "Pretraga nije uspjela");
+        throw new Error(data.error ?? "Search failed");
       }
 
       const properties: PublicPropertySearchResult[] = data.properties ?? [];
@@ -104,11 +105,11 @@ export function HostBookingExperience({
             .getElementById("booking-results")
             ?.scrollIntoView({ behavior: "smooth", block: "start" });
         } else {
-          toast.error("Jedinica nije dostupna za odabrane datume");
+          toast.error("This unit is not available for the selected dates");
         }
       }
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Greška");
+      setError(err instanceof Error ? err.message : "Error");
     } finally {
       setLoading(false);
       setReservingPropertyId(null);
@@ -176,7 +177,7 @@ export function HostBookingExperience({
                   {host.location}
                 </p>
               ) : (
-                <p className="public-eyebrow mb-4">Smještaj</p>
+                <p className="public-eyebrow mb-4">Accommodation</p>
               )}
 
               <h1 className="public-heading text-4xl md:text-6xl">
@@ -218,10 +219,10 @@ export function HostBookingExperience({
             <div className="mb-5 flex h-14 w-14 items-center justify-center rounded-2xl bg-[var(--public-accent-soft)] text-[var(--public-accent)]">
               <CalendarSearch className="h-7 w-7" />
             </div>
-            <h2 className="public-heading text-2xl">Pronađite slobodan smještaj</h2>
+            <h2 className="public-heading text-2xl">Find available accommodation</h2>
             <p className="mt-3 max-w-md text-[15px] leading-relaxed text-[var(--public-muted)]">
-              Unesite datume boravka i broj gostiju — prikazaćemo samo dostupne
-              opcije za vaš termin
+              Enter your stay dates and number of guests — we&apos;ll show only
+              available options for your dates
             </p>
           </div>
         ) : error ? (
@@ -233,18 +234,18 @@ export function HostBookingExperience({
             <div className="mb-5 flex h-14 w-14 items-center justify-center rounded-2xl bg-zinc-100 text-zinc-500">
               <SearchX className="h-7 w-7" />
             </div>
-            <h2 className="public-heading text-2xl">Nema slobodnog smještaja</h2>
+            <h2 className="public-heading text-2xl">No available accommodation</h2>
             {appliedSearch ? (
               <p className="mt-2 text-sm font-medium text-[var(--public-fg)]">
-                {format(new Date(appliedSearch.checkIn + "T12:00:00"), "d. MMM")} –{" "}
-                {format(new Date(appliedSearch.checkOut + "T12:00:00"), "d. MMM yyyy")} ·{" "}
+                {format(new Date(appliedSearch.checkIn + "T12:00:00"), "d. MMM", { locale: appLocale })} –{" "}
+                {format(new Date(appliedSearch.checkOut + "T12:00:00"), "d. MMM yyyy", { locale: appLocale })} ·{" "}
                 {appliedSearch.guests}{" "}
-                {appliedSearch.guests === 1 ? "gost" : "gostiju"}
+                {appliedSearch.guests === 1 ? "guest" : "guests"}
               </p>
             ) : null}
             <p className="mt-3 max-w-md text-[15px] leading-relaxed text-[var(--public-muted)]">
-              Za ovaj termin nema slobodnih jedinica. Pogledajte kalendare svih
-              jedinica i pronađite drugi slobodan termin.
+              No units are free for these dates. Browse all unit calendars and
+              find another available date.
             </p>
             <button
               type="button"
@@ -252,7 +253,7 @@ export function HostBookingExperience({
               className="public-btn public-btn-primary mt-8 px-8 py-3.5"
             >
               <CalendarDays className="h-4 w-4" />
-              Pogledaj dostupnost svih jedinica
+              View availability for all units
             </button>
           </div>
         ) : (
@@ -261,21 +262,19 @@ export function HostBookingExperience({
               <div>
                 <p className="public-eyebrow mb-2">
                   <Sparkles className="h-3.5 w-3.5 text-[var(--public-accent)]" />
-                  Rezultati pretrage
+                  Search results
                 </p>
                 <h2 className="public-heading text-2xl md:text-3xl">
                   {results.length}{" "}
-                  {results.length === 1
-                    ? "slobodan smještaj"
-                    : "slobodna smještaja"}
+                  {results.length === 1 ? "available unit" : "available units"}
                 </h2>
               </div>
               {appliedSearch ? (
                 <p className="text-sm text-[var(--public-muted)]">
-                  {format(new Date(appliedSearch.checkIn + "T12:00:00"), "d. MMM")} –{" "}
-                  {format(new Date(appliedSearch.checkOut + "T12:00:00"), "d. MMM yyyy")} ·{" "}
+                  {format(new Date(appliedSearch.checkIn + "T12:00:00"), "d. MMM", { locale: appLocale })} –{" "}
+                  {format(new Date(appliedSearch.checkOut + "T12:00:00"), "d. MMM yyyy", { locale: appLocale })} ·{" "}
                   {appliedSearch.guests}{" "}
-                  {appliedSearch.guests === 1 ? "gost" : "gostiju"}
+                  {appliedSearch.guests === 1 ? "guest" : "guests"}
                 </p>
               ) : null}
             </div>

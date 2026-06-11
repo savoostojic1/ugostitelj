@@ -75,7 +75,7 @@ export function useUpdateHostProfile() {
 
       const username = input.username.trim().toLowerCase();
       if (!isValidUsername(username)) {
-        throw new Error("Korisničko ime mora biti 2–50 znakova (mala slova, brojevi, crtice)");
+        throw new Error("Username must be 2–50 characters (lowercase letters, numbers, hyphens)");
       }
 
       const payload: Record<string, unknown> = {
@@ -106,7 +106,7 @@ export function useUpdateHostProfile() {
 
       if (error) {
         if (error.code === "23505") {
-          throw new Error("To korisničko ime je već zauzeto");
+          throw new Error("That username is already taken");
         }
         throw error;
       }

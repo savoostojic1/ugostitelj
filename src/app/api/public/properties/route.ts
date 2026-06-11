@@ -7,7 +7,7 @@ export async function GET(request: Request) {
   const username = searchParams.get("username")?.trim();
 
   if (!username) {
-    return NextResponse.json({ error: "Nedostaje username" }, { status: 400 });
+    return NextResponse.json({ error: "Missing username" }, { status: 400 });
   }
 
   const supabase = await createClient();
@@ -17,7 +17,7 @@ export async function GET(request: Request) {
 
   if (error) {
     return NextResponse.json(
-      { error: "Učitavanje nije uspjelo" },
+      { error: "Failed to load" },
       { status: 500 }
     );
   }

@@ -20,7 +20,7 @@ export function parseStartingPrice(value: unknown): number | null {
 export function formatEuro(amount: number): string {
   const rounded = Math.round(amount * 100) / 100;
   const hasDecimals = !Number.isInteger(rounded);
-  return new Intl.NumberFormat("sr-RS", {
+  return new Intl.NumberFormat("en-US", {
     style: "currency",
     currency: "EUR",
     minimumFractionDigits: hasDecimals ? 2 : 0,
@@ -79,9 +79,8 @@ export function resolveStayPriceQuote(
 }
 
 export function nightsLabel(nights: number): string {
-  if (nights === 1) return "1 noć";
-  if (nights >= 2 && nights <= 4) return `${nights} noći`;
-  return `${nights} noći`;
+  if (nights === 1) return "1 night";
+  return `${nights} nights`;
 }
 
 export interface PropertyPriceRuleSpan {

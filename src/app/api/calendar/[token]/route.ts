@@ -117,7 +117,7 @@ export async function GET(
   if (!payload) {
     if (error?.includes("get_property_export")) {
       return new NextResponse(
-        "Export nije podešen. Pokreni migracije 010, 011 i 012 u Supabase SQL editoru.",
+        "Export is not configured. Run migrations 010, 011 and 012 in the Supabase SQL editor.",
         { status: 503 }
       );
     }
@@ -133,10 +133,10 @@ export async function GET(
     status: 200,
     headers: {
       "Content-Type": "text/calendar; charset=utf-8",
-      "Content-Disposition": `inline; filename="ugostitelj-${payload.property_id}.ics"`,
+      "Content-Disposition": `inline; filename="hostvia-${payload.property_id}.ics"`,
       "Cache-Control": "no-cache, no-store, must-revalidate",
-      "X-Ugostitelj-Export-Version": EXPORT_VERSION,
-      "X-Ugostitelj-Event-Count": String(payload.reservations.length),
+      "X-Hostvia-Export-Version": EXPORT_VERSION,
+      "X-Hostvia-Event-Count": String(payload.reservations.length),
     },
   });
 }

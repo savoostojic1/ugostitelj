@@ -1,7 +1,5 @@
-"use client";
-
-import { DateEventsList } from "@/components/dashboard/date-events-list";
+import { DashboardOverview } from "@/components/dashboard/dashboard-overview";
 
 export default function DashboardPage() {
-  return <DateEventsList />;
+  return <DashboardOverview />;
 }

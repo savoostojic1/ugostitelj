@@ -13,7 +13,7 @@ export function FaqAccordion({ items }: { items: FaqItem[] }) {
   const [openIndex, setOpenIndex] = useState<number | null>(0);
 
   return (
-    <div className="divide-y divide-border rounded-2xl border border-border bg-card">
+    <div className="hostvia-glow-card divide-y divide-white/5 overflow-hidden">
       {items.map((item, index) => {
         const open = openIndex === index;
         return (
@@ -24,10 +24,10 @@ export function FaqAccordion({ items }: { items: FaqItem[] }) {
               onClick={() => setOpenIndex(open ? null : index)}
               aria-expanded={open}
             >
-              <span className="font-semibold">{item.question}</span>
+              <span className="font-semibold text-white">{item.question}</span>
               <ChevronDown
                 className={cn(
-                  "mt-0.5 h-5 w-5 shrink-0 text-muted-foreground transition",
+                  "mt-0.5 h-5 w-5 shrink-0 text-zinc-500 transition",
                   open && "rotate-180"
                 )}
               />
@@ -39,7 +39,7 @@ export function FaqAccordion({ items }: { items: FaqItem[] }) {
               )}
             >
               <div className="overflow-hidden">
-                <p className="px-6 pb-5 text-sm leading-relaxed text-muted-foreground">
+                <p className="px-6 pb-5 text-sm leading-relaxed text-zinc-400">
                   {item.answer}
                 </p>
               </div>

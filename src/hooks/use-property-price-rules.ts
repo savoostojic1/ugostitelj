@@ -17,7 +17,7 @@ export function usePropertyPriceRules(propertyId: string) {
         .eq("id", propertyId)
         .eq("user_id", user.id)
         .single();
-      if (propError || !property) throw new Error("Nekretnina nije pronađena");
+      if (propError || !property) throw new Error("Property not found");
 
       const { data, error } = await supabase
         .from("property_price_rules")
@@ -50,10 +50,10 @@ export function useCreatePropertyPriceRule() {
       pricePerNight,
     }: CreatePriceRuleInput) => {
       if (endDate < startDate) {
-        throw new Error("Datum kraja mora biti poslije početka");
+        throw new Error("End date must be after start date");
       }
       if (!Number.isFinite(pricePerNight) || pricePerNight <= 0) {
-        throw new Error("Unesite ispravnu cijenu");
+        throw new Error("Enter a valid price");
       }
 
       const supabase = createClient();
@@ -64,7 +64,7 @@ export function useCreatePropertyPriceRule() {
         .eq("id", propertyId)
         .eq("user_id", user.id)
         .single();
-      if (propError || !property) throw new Error("Nekretnina nije pronađena");
+      if (propError || !property) throw new Error("Property not found");
 
       const { data, error } = await supabase
         .from("property_price_rules")
@@ -137,7 +137,7 @@ export function useDeletePropertyPriceRule() {
         .eq("id", propertyId)
         .eq("user_id", user.id)
         .single();
-      if (propError || !property) throw new Error("Nekretnina nije pronađena");
+      if (propError || !property) throw new Error("Property not found");
 
       const { error } = await supabase
         .from("property_price_rules")

@@ -28,7 +28,7 @@ export function validateHostCoverFile(file: File): string | null {
     return "Dozvoljeni formati: JPG, PNG, WebP, GIF";
   }
   if (file.size > MAX_COVER_BYTES) {
-    return "Slika može biti najviše 5 MB";
+    return "Image must be at most 5 MB";
   }
   return null;
 }

@@ -5,15 +5,17 @@ import { usePathname } from "next/navigation";
 import {
   CalendarDays,
   ClipboardPen,
+  Globe,
   Home,
+  Inbox,
   LayoutDashboard,
   LayoutGrid,
   LogOut,
-  MessageSquare,
-  Globe,
-  Inbox,
   Menu,
+  MessageSquare,
   Plus,
+  Sparkles,
+  SprayCan,
   X,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -22,28 +24,43 @@ import { useUiStore } from "@/stores/ui-store";
 import { useSupabase } from "@/hooks/use-supabase";
 import { useRouter } from "next/navigation";
 
-const nav = [
-  { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
-  { href: "/dashboard/calendars", label: "Kalendari", icon: LayoutGrid },
-  { href: "/dashboard/properties", label: "Properties", icon: Home },
+const navGroups = [
   {
-    href: "/dashboard/manual-reservations",
-    label: "Ručne rezervacije",
-    icon: ClipboardPen,
+    label: "Overview",
+    items: [
+      { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
+      { href: "/dashboard/cleanings", label: "Cleanings", icon: SprayCan },
+      { href: "/dashboard/calendars", label: "Calendars", icon: LayoutGrid },
+      { href: "/dashboard/arrivals", label: "Arrivals", icon: CalendarDays },
+    ],
   },
-  { href: "/dashboard/porouka", label: "Porouka", icon: MessageSquare },
-  { href: "/dashboard/public-site", label: "Javni sajt", icon: Globe },
   {
-    href: "/dashboard/booking-requests",
-    label: "Booking upiti",
-    icon: Inbox,
+    label: "Properties",
+    items: [
+      { href: "/dashboard/properties", label: "All properties", icon: Home },
+      {
+        href: "/dashboard/manual-reservations",
+        label: "Manual bookings",
+        icon: ClipboardPen,
+      },
+    ],
   },
-  { href: "/dashboard/arrivals", label: "Arrivals & Departures", icon: CalendarDays },
+  {
+    label: "Direct bookings",
+    items: [
+      { href: "/dashboard/public-site", label: "Booking site", icon: Globe },
+      {
+        href: "/dashboard/booking-requests",
+        label: "Inquiries",
+        icon: Inbox,
+      },
+      { href: "/dashboard/porouka", label: "Messages", icon: MessageSquare },
+    ],
+  },
 ];
 
-export function AppSidebar() {
+function SidebarContent({ onNavigate }: { onNavigate?: () => void }) {
   const pathname = usePathname();
-  const { sidebarOpen, setSidebarOpen } = useUiStore();
   const router = useRouter();
   const supabase = useSupabase();
 
@@ -53,81 +70,121 @@ export function AppSidebar() {
     router.refresh();
   }
 
-  const content = (
+  return (
     <div className="flex h-full flex-col">
-      <div className="flex h-14 items-center gap-2 border-b border-border px-4">
-        <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary/20 text-primary">
-          <CalendarDays className="h-4 w-4" />
-        </div>
-        <span className="font-semibold tracking-tight">Ugostitelj</span>
+      <div className="flex h-16 items-center gap-3 px-5">
+        <Link
+          href="/dashboard"
+          className="flex items-center gap-3"
+          onClick={onNavigate}
+        >
+          <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-to-br from-violet-500 to-cyan-500 shadow-lg shadow-violet-500/25">
+            <Sparkles className="h-4 w-4 text-white" />
+          </div>
+          <div>
+            <span className="font-semibold tracking-tight text-white">
+              hostvia
+            </span>
+            <span className="text-violet-400">.me</span>
+          </div>
+        </Link>
       </div>
-      <nav className="flex-1 space-y-1 p-3">
-        {nav.map((item) => {
-          const active =
-            pathname === item.href ||
-            (item.href !== "/dashboard" && pathname.startsWith(item.href));
-          return (
-            <Link
-              key={item.href}
-              href={item.href}
-              onClick={() => setSidebarOpen(false)}
-              className={cn(
-                "flex items-center gap-3 rounded-lg px-3 py-2 text-sm transition-colors",
-                active
-                  ? "bg-accent text-foreground"
-                  : "text-muted-foreground hover:bg-accent/50 hover:text-foreground"
-              )}
-            >
-              <item.icon className="h-4 w-4" />
-              {item.label}
-            </Link>
-          );
-        })}
+
+      <nav className="flex-1 overflow-y-auto px-2 py-2">
+        {navGroups.map((group) => (
+          <div key={group.label} className="hostvia-sidebar-nav-group">
+            <p className="hostvia-sidebar-nav-label">{group.label}</p>
+            <div className="space-y-0.5">
+              {group.items.map((item) => {
+                const active =
+                  pathname === item.href ||
+                  (item.href !== "/dashboard" &&
+                    pathname.startsWith(item.href));
+                return (
+                  <Link
+                    key={item.href}
+                    href={item.href}
+                    onClick={onNavigate}
+                    className={cn(
+                      "hostvia-sidebar-link",
+                      active && "hostvia-sidebar-link-active"
+                    )}
+                  >
+                    <item.icon className="h-4 w-4 shrink-0 opacity-80" />
+                    {item.label}
+                  </Link>
+                );
+              })}
+            </div>
+          </div>
+        ))}
       </nav>
-      <div className="space-y-2 border-t border-border p-3">
-        <Button asChild className="w-full" size="sm">
-          <Link href="/dashboard/properties/new">
-            <Plus className="h-4 w-4" />
-            New Property
-          </Link>
-        </Button>
-        <Button variant="ghost" className="w-full justify-start" size="sm" onClick={signOut}>
-          <LogOut className="h-4 w-4" />
+
+      <div className="space-y-2 border-t border-white/6 p-3">
+        <Link
+          href="/dashboard/properties/new"
+          onClick={onNavigate}
+          className="hostvia-btn-gradient flex h-9 w-full items-center justify-center gap-2 rounded-lg text-sm font-semibold"
+        >
+          <Plus className="h-4 w-4" />
+          Add property
+        </Link>
+        <button
+          type="button"
+          onClick={signOut}
+          className="hostvia-sidebar-link w-full"
+        >
+          <LogOut className="h-4 w-4 shrink-0" />
           Sign out
-        </Button>
+        </button>
       </div>
     </div>
   );
+}
+
+export function AppSidebar() {
+  const { sidebarOpen, setSidebarOpen } = useUiStore();
 
   return (
     <>
-      <aside className="hidden w-60 shrink-0 border-r border-border bg-card md:block">
-        {content}
+      <aside className="hostvia-sidebar hidden w-64 shrink-0 md:block">
+        <SidebarContent />
       </aside>
-      <div className="sticky top-0 z-30 border-b border-border bg-card pt-safe md:hidden">
-        <div className="flex h-14 items-center gap-2 px-3">
-          <Button variant="ghost" size="icon" onClick={() => setSidebarOpen(true)}>
+
+      <div className="hostvia-sidebar sticky top-0 z-30 pt-safe md:hidden">
+        <div className="flex h-14 items-center gap-3 px-4">
+          <Button
+            variant="ghost"
+            size="icon"
+            className="text-white hover:bg-white/5"
+            onClick={() => setSidebarOpen(true)}
+          >
             <Menu className="h-5 w-5" />
           </Button>
-          <span className="font-semibold">Ugostitelj</span>
+          <span className="font-semibold text-white">
+            hostvia<span className="text-violet-400">.me</span>
+          </span>
         </div>
       </div>
+
       {sidebarOpen && (
         <div className="fixed inset-0 z-50 md:hidden">
           <div
-            className="absolute inset-0 bg-black/60"
+            className="absolute inset-0 bg-black/75 backdrop-blur-sm"
             onClick={() => setSidebarOpen(false)}
           />
-          <aside className="absolute left-0 top-0 flex h-full w-72 flex-col bg-card pt-safe shadow-xl">
+          <aside className="hostvia-sidebar absolute left-0 top-0 flex h-full w-72 flex-col pt-safe shadow-2xl">
             <Button
               variant="ghost"
               size="icon"
-              className="absolute right-2 top-[calc(env(safe-area-inset-top,0px)+0.5rem)]"
+              className="absolute right-2 top-[calc(env(safe-area-inset-top,0px)+0.5rem)] text-white"
               onClick={() => setSidebarOpen(false)}
             >
               <X className="h-4 w-4" />
             </Button>
-            <div className="flex min-h-0 flex-1 flex-col">{content}</div>
+            <div className="flex min-h-0 flex-1 flex-col">
+              <SidebarContent onNavigate={() => setSidebarOpen(false)} />
+            </div>
           </aside>
         </div>
       )}

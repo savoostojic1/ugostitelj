@@ -15,31 +15,31 @@ import { Button } from "@/components/ui/button";
 import { publicSiteFeatures } from "@/lib/marketing/content";
 
 export const metadata: Metadata = {
-  title: "Javni sajt — Ugostitelj",
+  title: "Booking site — Hostvia",
   description:
-    "Profesionalna stranica za goste sa pretragom datuma, galerijom, mapom i direktnim booking upitima — bez provizije.",
+    "A professional guest-facing page with date search, gallery, map and direct booking inquiries — no commission.",
 };
 
 const guestFlow = [
   {
     icon: Search,
-    title: "Pretraga",
-    description: "Gost bira dolazak, odlazak i broj osoba.",
+    title: "Search",
+    description: "Guest picks check-in, check-out and number of guests.",
   },
   {
     icon: CalendarDays,
-    title: "Dostupnost",
-    description: "Vidi samo slobodne jedinice sa cijenom za cijeli boravak.",
+    title: "Availability",
+    description: "They see only available units with the full stay price.",
   },
   {
     icon: Image,
-    title: "Pregled",
-    description: "Galerija, kapacitet, sadržaji i opis jedinice.",
+    title: "Browse",
+    description: "Gallery, capacity, amenities and unit description.",
   },
   {
     icon: Send,
-    title: "Upit",
-    description: "Popuni kontakt formu — vi dobijate upit u dashboardu.",
+    title: "Inquiry",
+    description: "Fill out the contact form — you receive the inquiry in your dashboard.",
   },
 ];
 
@@ -47,33 +47,33 @@ export default function JavniSajtPage() {
   return (
     <>
       <PageHero
-        eyebrow="Javni sajt"
-        title="Vaša stranica za direktne bookinge"
-        description="Svaki domaćin dobija vlastitu stranicu za goste. Pretraga datuma, tačne cijene, galerija i mapa — sve na jednom mjestu, bez posrednika."
-        primaryCta={{ label: "Napravi nalog", href: "/register" }}
-        secondaryCta={{ label: "Pogledaj cijene", href: "/cijene" }}
+        eyebrow="Booking site"
+        title="Your page for direct bookings"
+        description="Every host gets their own guest-facing page. Date search, accurate pricing, gallery and map — all in one place, with no middleman."
+        primaryCta={{ label: "Create account", href: "/register" }}
+        secondaryCta={{ label: "View pricing", href: "/cijene" }}
       />
 
       <section className="mx-auto max-w-6xl px-4 py-16 md:px-6 md:py-20">
         <div className="grid items-center gap-12 lg:grid-cols-2">
           <div>
             <h2 className="marketing-heading text-2xl md:text-3xl">
-              Vaš link, vaš brend
+              Your link, your brand
             </h2>
             <p className="mt-4 leading-relaxed text-muted-foreground">
-              Nakon objave dobijate adresu poput{" "}
+              After publishing you get an address like{" "}
               <code className="rounded bg-muted px-1.5 py-0.5 text-sm">
-                ugostitelj.me/host/vas-nalog
+                hostvia.me/host/your-account
               </code>
-              . Podijelite je na Instagramu, u email potpisu ili na Google
-              profilu — gosti dolaze direktno vama.
+              . Share it on Instagram, in your email signature or on your Google
+              profile — guests come directly to you.
             </p>
             <ul className="mt-6 space-y-4">
               {[
-                "Cover fotografija i profil domaćina",
-                "Kontakt telefon, email i društvene mreže",
-                "Google Maps lokacija",
-                "Sve vaše jedinice na jednom mjestu",
+                "Cover photo and host profile",
+                "Contact phone, email and social links",
+                "Google Maps location",
+                "All your units in one place",
               ].map((item) => (
                 <li key={item} className="flex items-center gap-3 text-sm">
                   <MapPin className="h-4 w-4 text-primary" />
@@ -84,14 +84,14 @@ export default function JavniSajtPage() {
           </div>
           <div className="rounded-2xl border border-border bg-gradient-to-br from-teal-50 to-indigo-50 p-8 dark:from-teal-950/30 dark:to-indigo-950/30">
             <p className="text-sm font-semibold uppercase tracking-wider text-muted-foreground">
-              Primjer URL-a
+              Example URL
             </p>
             <p className="mt-3 text-2xl font-bold tracking-tight">
-              ugostitelj.me/host/apartmani-more
+              hostvia.me/host/sea-apartments
             </p>
             <p className="mt-4 text-sm text-muted-foreground">
-              Gosti vide vaš brend, pretražuju smještaj i šalju upit — bez
-              odlaska na OTA platformu.
+              Guests see your brand, search accommodation and send an inquiry —
+              without leaving for an OTA platform.
             </p>
           </div>
         </div>
@@ -100,7 +100,7 @@ export default function JavniSajtPage() {
       <section className="border-y border-border bg-card/30 py-16 md:py-20">
         <div className="mx-auto max-w-6xl px-4 md:px-6">
           <h2 className="marketing-heading text-2xl md:text-3xl">
-            Šta gosti vide
+            What guests see
           </h2>
           <FeatureGrid features={publicSiteFeatures} columns={2} className="mt-10" />
         </div>
@@ -108,7 +108,7 @@ export default function JavniSajtPage() {
 
       <section className="mx-auto max-w-6xl px-4 py-16 md:px-6 md:py-20">
         <h2 className="marketing-heading text-2xl md:text-3xl">
-          Put gosta do upita
+          Guest journey to inquiry
         </h2>
         <div className="mt-10 grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
           {guestFlow.map((step, index) => (
@@ -117,7 +117,7 @@ export default function JavniSajtPage() {
               className="relative rounded-2xl border border-border bg-card p-6"
             >
               <span className="text-xs font-bold text-primary">
-                Korak {index + 1}
+                Step {index + 1}
               </span>
               <step.icon className="mt-4 h-8 w-8 text-primary" />
               <h3 className="mt-4 font-semibold">{step.title}</h3>
@@ -133,22 +133,22 @@ export default function JavniSajtPage() {
         <div className="mx-auto max-w-6xl px-4 md:px-6">
           <div className="marketing-card rounded-2xl border border-border bg-card p-8 md:p-10">
             <h2 className="marketing-heading text-2xl">
-              Direktni upiti = 0% provizije
+              Direct inquiries = 0% commission
             </h2>
             <p className="mt-4 max-w-2xl text-muted-foreground">
-              Booking upiti nisu instant plaćanje — to je prednost. Vi
-              razgovarate sa gostom, dogovorite detalje i plaćanje direktno.
-              Nema posrednika koji uzima proviziju od direktnog booka.
+              Booking inquiries are not instant payment — that is the advantage.
+              You talk to the guest, agree on details and payment directly. No
+              middleman taking a cut of direct bookings.
             </p>
             <div className="mt-6 flex flex-wrap gap-4">
               <Button asChild>
                 <Link href="/register">
-                  Objavi svoj sajt
+                  Publish your site
                   <ArrowRight className="h-4 w-4" />
                 </Link>
               </Button>
               <Button variant="outline" asChild>
-                <Link href="/faq">Česta pitanja</Link>
+                <Link href="/faq">FAQ</Link>
               </Button>
             </div>
           </div>

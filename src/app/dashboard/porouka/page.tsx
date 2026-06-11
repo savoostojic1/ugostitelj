@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { Pencil, Plus, Trash2 } from "lucide-react";
+import { DashboardPageHeader } from "@/components/dashboard/dashboard-page-header";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import {
@@ -63,11 +64,11 @@ export default function PoroukaPage() {
         { id: editing.id, name: form.name, body: form.body },
         {
           onSuccess: () => {
-            toast.success("Poruka sačuvana");
+            toast.success("Message saved");
             closeDialog();
           },
           onError: (err) =>
-            toast.error(err instanceof Error ? err.message : "Greška"),
+            toast.error(err instanceof Error ? err.message : "Error"),
         }
       );
       return;
@@ -75,21 +76,21 @@ export default function PoroukaPage() {
 
     createMessage.mutate(form, {
       onSuccess: () => {
-        toast.success("Poruka kreirana");
+        toast.success("Message created");
         closeDialog();
       },
       onError: (err) =>
-        toast.error(err instanceof Error ? err.message : "Greška"),
+        toast.error(err instanceof Error ? err.message : "Error"),
     });
   }
 
   function handleDelete(message: SavedMessage) {
-    if (!confirm(`Obriši poruku "${message.name}"?`)) return;
+    if (!confirm(`Delete message "${message.name}"?`)) return;
 
     deleteMessage.mutate(message.id, {
-      onSuccess: () => toast.success("Poruka obrisana"),
+      onSuccess: () => toast.success("Message deleted"),
       onError: (err) =>
-        toast.error(err instanceof Error ? err.message : "Brisanje nije uspjelo"),
+        toast.error(err instanceof Error ? err.message : "Delete failed"),
     });
   }
 
@@ -97,30 +98,29 @@ export default function PoroukaPage() {
 
   return (
     <div className="space-y-8">
-      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-        <div>
-          <h1 className="text-2xl font-semibold tracking-tight">Porouka</h1>
-          <p className="text-muted-foreground">
-            Sačuvaj poruke za brzo kopiranje sa dashboarda
-          </p>
-        </div>
-        <Button onClick={openCreate}>
-          <Plus className="h-4 w-4" />
-          Nova poruka
-        </Button>
-      </div>
+      <DashboardPageHeader
+        eyebrow="Tools"
+        title="Messages"
+        description="Save messages for quick copy from the dashboard"
+        actions={
+          <Button onClick={openCreate}>
+            <Plus className="h-4 w-4" />
+            New message
+          </Button>
+        }
+      />
 
       {isLoading && (
-        <p className="text-sm text-muted-foreground">Učitavanje…</p>
+        <p className="text-sm text-muted-foreground">Loading…</p>
       )}
 
       {!isLoading && messages.length === 0 && (
         <Card className="border-dashed">
           <CardContent className="flex flex-col items-center py-16 text-center">
             <p className="mb-4 text-muted-foreground">
-              Još nema sačuvanih poruka.
+              No saved messages yet.
             </p>
-            <Button onClick={openCreate}>Dodaj prvu poruku</Button>
+            <Button onClick={openCreate}>Add first message</Button>
           </CardContent>
         </Card>
       )}
@@ -140,7 +140,7 @@ export default function PoroukaPage() {
                   variant="ghost"
                   size="icon"
                   onClick={() => openEdit(message)}
-                  aria-label={`Uredi ${message.name}`}
+                  aria-label={`Edit ${message.name}`}
                 >
                   <Pencil className="h-4 w-4" />
                 </Button>
@@ -149,7 +149,7 @@ export default function PoroukaPage() {
                   size="icon"
                   onClick={() => handleDelete(message)}
                   disabled={deleteMessage.isPending}
-                  aria-label={`Obriši ${message.name}`}
+                  aria-label={`Delete ${message.name}`}
                 >
                   <Trash2 className="h-4 w-4 text-destructive" />
                 </Button>
@@ -163,40 +163,40 @@ export default function PoroukaPage() {
         <DialogContent className="sm:max-w-lg">
           <DialogHeader>
             <DialogTitle>
-              {editing ? "Uredi poruku" : "Nova poruka"}
+              {editing ? "Edit message" : "New message"}
             </DialogTitle>
           </DialogHeader>
           <div className="space-y-4">
             <div className="space-y-2">
-              <Label htmlFor="message-name">Naziv</Label>
+              <Label htmlFor="message-name">Name</Label>
               <Input
                 id="message-name"
                 value={form.name}
                 onChange={(e) =>
                   setForm((prev) => ({ ...prev, name: e.target.value }))
                 }
-                placeholder="npr. Dobrodošlica"
+                placeholder="e.g. Welcome message"
               />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="message-body">Tekst poruke</Label>
+              <Label htmlFor="message-body">Message text</Label>
               <Textarea
                 id="message-body"
                 value={form.body}
                 onChange={(e) =>
                   setForm((prev) => ({ ...prev, body: e.target.value }))
                 }
-                placeholder="Unesi tekst koji želiš da kopiraš jednim klikom…"
+                placeholder="Enter text you want to copy with one click…"
                 rows={8}
               />
             </div>
           </div>
           <div className="flex justify-end gap-2 pt-2">
             <Button variant="outline" onClick={closeDialog}>
-              Otkaži
+              Cancel
             </Button>
             <Button onClick={handleSubmit} disabled={isSaving}>
-              {isSaving ? "Čuvanje…" : editing ? "Sačuvaj" : "Kreiraj"}
+              {isSaving ? "Saving…" : editing ? "Save" : "Create"}
             </Button>
           </div>
         </DialogContent>

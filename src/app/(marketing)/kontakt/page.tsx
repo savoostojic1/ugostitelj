@@ -6,17 +6,17 @@ import { Button } from "@/components/ui/button";
 import { marketingFooter } from "@/lib/marketing/content";
 
 export const metadata: Metadata = {
-  title: "Kontakt — Ugostitelj",
+  title: "Contact — Hostvia",
   description:
-    "Kontaktirajte Ugostitelj tim za pitanja o registraciji, iCal sinhronizaciji ili javnom sajtu.",
+    "Contact the Hostvia team with questions about sign-up, iCal sync or your booking site.",
 };
 
 const contactTopics = [
-  "Pomoć pri povezivanju Airbnb ili Booking.com kalendara",
-  "Podešavanje javnog sajta i booking upita",
-  "Pitanja o cijenama i planovima",
-  "Predlozi za nove funkcije",
-  "Partnerstva i saradnja",
+  "Help connecting Airbnb or Booking.com calendars",
+  "Setting up your booking site and inquiries",
+  "Questions about pricing and plans",
+  "Feature suggestions",
+  "Partnerships and collaboration",
 ];
 
 export default function KontaktPage() {
@@ -25,9 +25,9 @@ export default function KontaktPage() {
   return (
     <>
       <PageHero
-        eyebrow="Kontakt"
-        title="Tu smo da pomognemo"
-        description="Imate pitanje o podešavanju, funkcijama ili saradnji? Javite se — odgovaramo u najkraćem mogućem roku."
+        eyebrow="Contact"
+        title="We're here to help"
+        description="Have a question about setup, features or collaboration? Get in touch — we respond as quickly as we can."
       />
 
       <section className="mx-auto max-w-6xl px-4 py-16 md:px-6 md:py-20">
@@ -36,8 +36,8 @@ export default function KontaktPage() {
             <Mail className="h-8 w-8 text-primary" />
             <h2 className="mt-4 text-xl font-semibold">Email</h2>
             <p className="mt-2 text-sm text-muted-foreground">
-              Najbrži način da nas kontaktirate. Opišite pitanje i pošaljite
-              screenshot ako je potrebno.
+              The fastest way to reach us. Describe your question and attach a
+              screenshot if needed.
             </p>
             <a
               href={`mailto:${email}`}
@@ -46,15 +46,15 @@ export default function KontaktPage() {
               {email}
             </a>
             <Button className="mt-6" asChild>
-              <a href={`mailto:${email}?subject=Pitanje%20o%20Ugostitelju`}>
-                Pošalji email
+              <a href={`mailto:${email}?subject=Question%20about%20Hostvia`}>
+                Send email
               </a>
             </Button>
           </div>
 
           <div className="rounded-2xl border border-border bg-card/60 p-8">
             <MessageCircle className="h-8 w-8 text-primary" />
-            <h2 className="mt-4 text-xl font-semibold">Kako možemo pomoći</h2>
+            <h2 className="mt-4 text-xl font-semibold">How we can help</h2>
             <ul className="mt-4 space-y-3">
               {contactTopics.map((topic) => (
                 <li
@@ -70,13 +70,13 @@ export default function KontaktPage() {
         </div>
 
         <div className="mt-12 rounded-2xl border border-primary/20 bg-primary/5 p-8 text-center">
-          <p className="font-semibold">Već imate nalog?</p>
+          <p className="font-semibold">Already have an account?</p>
           <p className="mt-2 text-sm text-muted-foreground">
-            Za tehnička pitanja uključite email naloga i naziv jedinice u
-            poruci — brže ćemo pomoći.
+            For technical questions, include your account email and unit name in
+            your message — we can help faster.
           </p>
           <Button className="mt-4" variant="outline" asChild>
-            <Link href="/login">Prijava u dashboard</Link>
+            <Link href="/login">Log in to dashboard</Link>
           </Button>
         </div>
       </section>

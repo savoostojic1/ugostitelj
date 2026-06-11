@@ -61,7 +61,7 @@ export function CompactPropertyCalendar({
   const today = new Date();
 
   return (
-    <div className="overflow-hidden rounded-lg border border-border bg-card">
+    <div className="overflow-hidden rounded-lg border border-border bg-card text-card-foreground">
       <div className="divide-y divide-border/70">
         {weeks.map((weekDays, wi) => {
           const segments = getCalendarWeekSegments(weekDays, visibleReservations);

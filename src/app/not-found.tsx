@@ -13,9 +13,9 @@ export default function NotFound() {
         textAlign: "center",
       }}
     >
-      <h2 style={{ fontSize: 18, fontWeight: 600 }}>Stranica nije pronađena</h2>
+      <h2 style={{ fontSize: 18, fontWeight: 600 }}>Page not found</h2>
       <Link href="/" style={{ color: "#818cf8" }}>
-        Nazad na početnu
+        Back to home
       </Link>
     </div>
   );

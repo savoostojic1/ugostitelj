@@ -10,7 +10,7 @@ export function buildHostMetadata(
   const title = businessName;
   const desc =
     description?.slice(0, 160) ??
-    `Pogledajte smještaj kod ${businessName} i pošaljite upit za rezervaciju.`;
+    `Browse accommodation at ${businessName} and send a booking inquiry.`;
   const url = `${baseUrl}/host/${username}`;
 
   return {

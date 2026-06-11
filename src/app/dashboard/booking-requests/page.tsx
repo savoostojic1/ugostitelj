@@ -1,73 +1,83 @@
 "use client";
 
+import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { format, parseISO } from "date-fns";
-import { Mail, Phone } from "lucide-react";
+import { appLocale } from "@/lib/dates/locale";
+import { Check, Mail, Phone, X } from "lucide-react";
+import { DashboardPageHeader } from "@/components/dashboard/dashboard-page-header";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import {
+  useAcceptBookingRequest,
   useBookingRequests,
-  useUpdateBookingRequestStatus,
+  useRejectBookingRequest,
 } from "@/hooks/use-booking-requests";
-import type { BookingRequestStatus } from "@/types/database";
-import { cn } from "@/lib/utils";
 import { toast } from "sonner";
 
-const STATUS_LABELS: Record<BookingRequestStatus, string> = {
-  pending: "Na čekanju",
-  accepted: "Prihvaćeno",
-  rejected: "Odbijeno",
-  contacted: "Kontaktirano",
-};
-
-const STATUS_VARIANT: Record<
-  BookingRequestStatus,
-  "default" | "secondary" | "destructive" | "outline"
-> = {
-  pending: "secondary",
-  accepted: "default",
-  rejected: "destructive",
-  contacted: "outline",
-};
-
 export default function BookingRequestsPage() {
+  const router = useRouter();
   const { data: requests = [], isLoading } = useBookingRequests();
-  const updateStatus = useUpdateBookingRequestStatus();
+  const acceptRequest = useAcceptBookingRequest();
+  const rejectRequest = useRejectBookingRequest();
 
-  function setStatus(id: string, status: BookingRequestStatus) {
-    updateStatus.mutate(
-      { id, status },
-      {
-        onSuccess: () => toast.success("Status ažuriran"),
-        onError: (err) =>
-          toast.error(err instanceof Error ? err.message : "Greška"),
-      }
-    );
+  const isPending = acceptRequest.isPending || rejectRequest.isPending;
+  const pendingCount = requests.length;
+
+  function handleAccept(id: string, guestName: string) {
+    acceptRequest.mutate(id, {
+      onSuccess: () => {
+        toast.success(`${guestName} added to manual bookings`, {
+          description: "The calendar has been updated with this stay.",
+          action: {
+            label: "View bookings",
+            onClick: () => router.push("/dashboard/manual-reservations"),
+          },
+        });
+      },
+      onError: (err) =>
+        toast.error(err instanceof Error ? err.message : "Could not accept"),
+    });
   }
 
-  const pendingCount = requests.filter((r) => r.status === "pending").length;
+  function handleReject(id: string, guestName: string) {
+    if (
+      !confirm(
+        `Reject inquiry from ${guestName}? It will be removed from your inbox.`
+      )
+    ) {
+      return;
+    }
+
+    rejectRequest.mutate(id, {
+      onSuccess: () => toast.success("Inquiry rejected"),
+      onError: (err) =>
+        toast.error(err instanceof Error ? err.message : "Could not reject"),
+    });
+  }
 
   return (
     <div className="space-y-8">
-      <div>
-        <h1 className="text-2xl font-semibold tracking-tight">
-          Booking upiti
-        </h1>
-        <p className="text-muted-foreground">
-          Zahtjevi gostiju sa javnog sajta
-          {pendingCount > 0 ? ` · ${pendingCount} novih` : ""}
-        </p>
-      </div>
+      <DashboardPageHeader
+        eyebrow="Bookings"
+        title="Booking inquiries"
+        description={
+          pendingCount > 0
+            ? `${pendingCount} pending ${pendingCount === 1 ? "inquiry" : "inquiries"} from your booking site`
+            : "Guest requests from your booking site"
+        }
+      />
 
       {isLoading && (
-        <p className="text-sm text-muted-foreground">Učitavanje…</p>
+        <p className="text-sm text-muted-foreground">Loading…</p>
       )}
 
       {!isLoading && requests.length === 0 && (
         <Card className="border-dashed">
           <CardContent className="py-16 text-center text-muted-foreground">
-            Još nema booking upita. Objavite javni sajt i smještaj da biste
-            primali upite.
+            No pending inquiries. When a guest submits a request, you can accept
+            it to add a manual booking or reject it to dismiss.
           </CardContent>
         </Card>
       )}
@@ -79,18 +89,21 @@ export default function BookingRequestsPage() {
               <div className="min-w-0 space-y-2">
                 <div className="flex flex-wrap items-center gap-2">
                   <p className="text-lg font-semibold">{request.guest_name}</p>
-                  <Badge variant={STATUS_VARIANT[request.status]}>
-                    {STATUS_LABELS[request.status]}
-                  </Badge>
+                  <Badge variant="secondary">Pending</Badge>
                 </div>
                 <p className="text-sm font-medium">
-                  {request.properties?.name ?? "Smještaj"}
+                  {request.properties?.name ?? "Listing"}
                 </p>
                 <p className="text-sm text-muted-foreground">
-                  {format(parseISO(request.check_in), "d. MMM yyyy")} –{" "}
-                  {format(parseISO(request.check_out), "d. MMM yyyy")} ·{" "}
-                  {request.guest_count}{" "}
-                  {request.guest_count === 1 ? "gost" : "gostiju"}
+                  {format(parseISO(request.check_in), "d MMM yyyy", {
+                    locale: appLocale,
+                  })}{" "}
+                  –{" "}
+                  {format(parseISO(request.check_out), "d MMM yyyy", {
+                    locale: appLocale,
+                  })}{" "}
+                  · {request.guest_count}{" "}
+                  {request.guest_count === 1 ? "guest" : "guests"}
                 </p>
                 <div className="flex flex-wrap gap-4 text-sm text-muted-foreground">
                   <a
@@ -109,38 +122,44 @@ export default function BookingRequestsPage() {
                   </a>
                 </div>
                 {request.message ? (
-                  <p className="rounded-lg bg-muted/50 p-3 text-sm">
+                  <p className="rounded-lg bg-muted/50 p-3 text-sm text-foreground">
                     {request.message}
                   </p>
                 ) : null}
                 <p className="text-xs text-muted-foreground">
-                  {format(parseISO(request.created_at), "d. MMM yyyy, HH:mm")}
+                  Received{" "}
+                  {format(parseISO(request.created_at), "d MMM yyyy, HH:mm", {
+                    locale: appLocale,
+                  })}
                 </p>
               </div>
 
               <div className="flex shrink-0 flex-wrap gap-2">
-                {(
-                  [
-                    ["accepted", "Prihvati"],
-                    ["contacted", "Kontaktirano"],
-                    ["rejected", "Odbij"],
-                  ] as const
-                ).map(([status, label]) => (
-                  <Button
-                    key={status}
-                    size="sm"
-                    variant={request.status === status ? "default" : "outline"}
-                    className={cn(
-                      status === "rejected" &&
-                        request.status !== status &&
-                        "text-destructive"
-                    )}
-                    disabled={updateStatus.isPending}
-                    onClick={() => setStatus(request.id, status)}
+                <Button
+                  size="sm"
+                  disabled={isPending}
+                  onClick={() => handleAccept(request.id, request.guest_name)}
+                >
+                  <Check className="h-4 w-4" />
+                  Accept
+                </Button>
+                <Button
+                  size="sm"
+                  variant="outline"
+                  className="text-destructive hover:text-destructive"
+                  disabled={isPending}
+                  onClick={() => handleReject(request.id, request.guest_name)}
+                >
+                  <X className="h-4 w-4" />
+                  Reject
+                </Button>
+                <Button size="sm" variant="ghost" asChild>
+                  <Link
+                    href={`/dashboard/properties/${request.property_id}/calendar`}
                   >
-                    {label}
-                  </Button>
-                ))}
+                    View calendar
+                  </Link>
+                </Button>
               </div>
             </CardContent>
           </Card>

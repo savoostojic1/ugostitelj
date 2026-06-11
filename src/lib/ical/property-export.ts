@@ -63,7 +63,7 @@ function buildExportDescription(
       platform,
     }) === "manual_block"
   ) {
-    return "Blocked in Ugostitelj";
+    return "Blocked in Hostvia";
   }
 
   if (reservation.is_manual) {
@@ -74,10 +74,10 @@ function buildExportDescription(
     if (reservation.source?.trim()) {
       parts.push(reservation.source.trim());
     }
-    return `Ugostitelj: ${parts.join(" · ")}`;
+    return `Hostvia: ${parts.join(" · ")}`;
   }
 
-  return `Ugostitelj: ${reservation.title.trim()}`;
+  return `Hostvia: ${reservation.title.trim()}`;
 }
 
 export function buildPropertyExportEvents(
@@ -97,7 +97,7 @@ export function generatePropertyExportIcs(
   reservations: PropertyExportReservation[]
 ): string {
   return generateIcsCalendar({
-    calendarName: `${calendarName} · Ugostitelj`,
+    calendarName: `${calendarName} · Hostvia`,
     events: buildPropertyExportEvents(reservations),
   });
 }

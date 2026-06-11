@@ -13,13 +13,13 @@ export function PropertyDetailNav({ propertyId }: { propertyId: string }) {
   const tabs = [
     {
       href: base,
-      label: "Podešavanja",
+      label: "Settings",
       icon: Settings2,
       active: pathname === base,
     },
     {
       href: calendarHref,
-      label: "Kalendar i rezervacije",
+      label: "Calendar & reservations",
       icon: CalendarDays,
       active: pathname.startsWith(calendarHref),
     },

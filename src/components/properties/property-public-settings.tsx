@@ -77,9 +77,9 @@ export function PropertyPublicSettings({ property }: PropertyPublicSettingsProps
         is_public: isPublic,
       },
       {
-        onSuccess: () => toast.success("Javna stranica sačuvana"),
+        onSuccess: () => toast.success("Public page saved"),
         onError: (err) =>
-          toast.error(err instanceof Error ? err.message : "Greška"),
+          toast.error(err instanceof Error ? err.message : "Error"),
       }
     );
   }
@@ -93,16 +93,16 @@ export function PropertyPublicSettings({ property }: PropertyPublicSettingsProps
     <Card>
       <CardHeader className="flex flex-row items-center justify-between gap-4">
         <div>
-          <CardTitle>Javna stranica</CardTitle>
+          <CardTitle>Public page</CardTitle>
           <p className="mt-1 text-sm text-muted-foreground">
-            Prikazuje se na vašem javnom sajtu zajedno sa ostalim smještajem
+            Shown on your booking site alongside your other listings
           </p>
         </div>
         {isPublic && hostPublicUrl ? (
           <Button variant="outline" size="sm" asChild>
             <Link href={hostPublicUrl} target="_blank">
               <ExternalLink className="h-4 w-4" />
-              Pogledaj
+              View
             </Link>
           </Button>
         ) : null}
@@ -115,7 +115,7 @@ export function PropertyPublicSettings({ property }: PropertyPublicSettingsProps
             onChange={(e) => setIsPublic(e.target.checked)}
             className="h-4 w-4 rounded border-border"
           />
-          <span className="text-sm font-medium">Objavi na javnom sajtu</span>
+          <span className="text-sm font-medium">Publish on booking site</span>
         </label>
 
         <PropertyGalleryUpload
@@ -126,12 +126,12 @@ export function PropertyPublicSettings({ property }: PropertyPublicSettingsProps
 
         <div className="grid gap-4 sm:grid-cols-2">
           <div className="space-y-2">
-            <Label htmlFor={`slug-${property.id}`}>ID sekcije (anchor)</Label>
+            <Label htmlFor={`slug-${property.id}`}>Section ID (anchor)</Label>
             <Input
               id={`slug-${property.id}`}
               value={slug}
               onChange={(e) => setSlug(e.target.value.toLowerCase())}
-              placeholder="vila-more"
+              placeholder="sea-view-villa"
             />
             {hostProfile?.username && slug ? (
               <p className="text-xs text-muted-foreground">
@@ -140,7 +140,7 @@ export function PropertyPublicSettings({ property }: PropertyPublicSettingsProps
             ) : null}
           </div>
           <div className="space-y-2">
-            <Label htmlFor={`capacity-${property.id}`}>Kapacitet (gosti)</Label>
+            <Label htmlFor={`capacity-${property.id}`}>Capacity (guests)</Label>
             <Input
               id={`capacity-${property.id}`}
               type="number"
@@ -152,7 +152,7 @@ export function PropertyPublicSettings({ property }: PropertyPublicSettingsProps
         </div>
 
         <div className="space-y-2">
-          <Label htmlFor={`short-${property.id}`}>Kratak opis</Label>
+          <Label htmlFor={`short-${property.id}`}>Short description</Label>
           <Textarea
             id={`short-${property.id}`}
             rows={2}
@@ -163,18 +163,18 @@ export function PropertyPublicSettings({ property }: PropertyPublicSettingsProps
 
         <div className="space-y-2">
           <Label htmlFor={`amenities-${property.id}`}>
-            Sadržaji (odvojeni zarezom)
+            Amenities (comma-separated)
           </Label>
           <Input
             id={`amenities-${property.id}`}
             value={amenitiesText}
             onChange={(e) => setAmenitiesText(e.target.value)}
-            placeholder="WiFi, Parking, Klima, Bazen"
+            placeholder="WiFi, Parking, A/C, Pool"
           />
         </div>
 
         <Button onClick={handleSave} disabled={updatePublic.isPending}>
-          {updatePublic.isPending ? "Čuvanje…" : "Sačuvaj javnu stranicu"}
+          {updatePublic.isPending ? "Saving…" : "Save public page"}
         </Button>
       </CardContent>
     </Card>

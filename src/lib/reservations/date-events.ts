@@ -58,20 +58,13 @@ export const DAY_EVENT_LABELS: Record<DayEventType, string> = {
 };
 
 export function formatCleaningCount(count: number): string {
-  if (count === 1) return "1 čišćenje";
-  return `${count} čišćenja`;
+  if (count === 1) return "1 cleaning";
+  return `${count} cleanings`;
 }
 
 export function formatFreeDaysCount(count: number): string {
-  const mod10 = count % 10;
-  const mod100 = count % 100;
-
-  if (mod100 >= 11 && mod100 <= 14) {
-    return `${count} slobodnih dana`;
-  }
-  if (mod10 === 1) return `${count} slobodan dan`;
-  if (mod10 >= 2 && mod10 <= 4) return `${count} slobodna dana`;
-  return `${count} slobodnih dana`;
+  if (count === 1) return "1 free day";
+  return `${count} free days`;
 }
 
 export interface PropertyFreeDaysSummary {
@@ -123,7 +116,7 @@ export function computeMonthFreeDaysSummary(
   const days = getMonthDayRange(month, options);
 
   const propertySummaries = [...properties]
-    .sort((a, b) => a.name.localeCompare(b.name, "sr"))
+    .sort((a, b) => a.name.localeCompare(b.name, "en"))
     .map((property) => {
       let freeDays = 0;
       for (const day of days) {
@@ -158,7 +151,7 @@ type ReservationWithProperty = Reservation & {
 
 function sortPropertyCards(cards: PropertyDayCard[]): PropertyDayCard[] {
   return [...cards].sort((a, b) =>
-    a.propertyName.localeCompare(b.propertyName, "sr")
+    a.propertyName.localeCompare(b.propertyName, "en")
   );
 }
 
@@ -267,7 +260,7 @@ export function buildMonthDayGroups(
   );
 
   for (const reservation of reservations) {
-    const propertyName = reservation.properties?.name ?? "Nekretnina";
+    const propertyName = reservation.properties?.name ?? "Property";
     const checkInKey = reservation.check_in.split("T")[0];
     const checkOutKey = reservation.check_out.split("T")[0];
 
@@ -320,7 +313,7 @@ export function buildDateEventGroups(
   const byDate = new Map<string, DayEvent[]>();
 
   for (const reservation of reservations) {
-    const propertyName = reservation.properties?.name ?? "Nekretnina";
+    const propertyName = reservation.properties?.name ?? "Property";
 
     const checkIn = parseDateOnly(reservation.check_in);
     const checkOut = parseDateOnly(reservation.check_out);
@@ -366,7 +359,7 @@ export function buildDateEventGroups(
             new Map(
               reservations.map((r) => [
                 r.property_id,
-                r.properties?.name ?? "Nekretnina",
+                r.properties?.name ?? "Property",
               ])
             ),
             ([id, name]) => ({ id, name })

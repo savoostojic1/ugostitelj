@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useMemo } from "react";
 import { format, startOfDay } from "date-fns";
-import { sr } from "date-fns/locale";
+import { appLocale } from "@/lib/dates/locale";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -137,7 +137,7 @@ function EventSquare({
   );
 }
 
-export function DateEventsList() {
+export function DateEventsList({ embedded = false }: { embedded?: boolean }) {
   const { data: properties = [], isLoading: loadingProperties } =
     useProperties();
   const { data: reservations = [], isLoading: loadingReservations } =
@@ -179,7 +179,7 @@ export function DateEventsList() {
   const isLoading = loadingProperties || loadingReservations;
 
   if (isLoading) {
-    return <p className="text-sm text-muted-foreground">Učitavanje…</p>;
+    return <p className="text-sm text-muted-foreground">Loading…</p>;
   }
 
   if (properties.length === 0) {
@@ -187,10 +187,10 @@ export function DateEventsList() {
       <Card className="border-dashed">
         <CardContent className="py-12 text-center">
           <p className="text-sm text-muted-foreground">
-            Dodaj nekretninu da vidiš kalendar.
+            Add a property to see the calendar.
           </p>
           <Button asChild size="sm" className="mt-4">
-            <Link href="/dashboard/properties/new">Dodaj nekretninu</Link>
+            <Link href="/dashboard/properties/new">Add property</Link>
           </Button>
         </CardContent>
       </Card>
@@ -198,17 +198,39 @@ export function DateEventsList() {
   }
 
   return (
-    <div className="space-y-4">
+    <div className={cn("space-y-4", embedded && "text-zinc-200")}>
       {freeDaysSummary.daysInRange > 0 && (
-        <div className="rounded-2xl border border-border/80 bg-card px-4 py-3 shadow-sm">
+        <div
+          className={cn(
+            "px-4 py-3",
+            embedded
+              ? "border-b border-white/6 bg-white/[0.02]"
+              : "hostvia-glow-card"
+          )}
+        >
           <div className="flex flex-col gap-3">
             <div className="flex flex-wrap items-baseline gap-x-3 gap-y-1">
-              <p className="text-sm font-medium text-foreground">
-                Slobodni dani do kraja mjeseca
+              <p
+                className={cn(
+                  "text-sm font-medium",
+                  embedded ? "text-zinc-100" : "text-foreground"
+                )}
+              >
+                Free days until end of month
               </p>
-              <p className="text-sm text-muted-foreground">
-                Ukupno:{" "}
-                <span className="font-semibold tabular-nums text-foreground">
+              <p
+                className={cn(
+                  "text-sm",
+                  embedded ? "text-zinc-400" : "text-muted-foreground"
+                )}
+              >
+                Total:{" "}
+                <span
+                  className={cn(
+                    "font-semibold tabular-nums",
+                    embedded ? "text-zinc-100" : "text-foreground"
+                  )}
+                >
                   {formatFreeDaysCount(freeDaysSummary.totalFreeDays)}
                 </span>
               </p>
@@ -222,14 +244,31 @@ export function DateEventsList() {
                 return (
                   <div
                     key={property.propertyId}
-                    className="flex items-center gap-2 rounded-xl border border-border/70 bg-muted/20 px-3 py-2 text-sm"
+                    className={cn(
+                      "flex items-center gap-2 rounded-xl border px-3 py-2 text-sm",
+                      embedded
+                        ? "border-white/10 bg-white/[0.04]"
+                        : "border-border/70 bg-muted/20"
+                    )}
                   >
                     <span
                       className="h-2.5 w-2.5 shrink-0 rounded-full"
                       style={{ background: colors.solid }}
                     />
-                    <span className="font-medium">{property.propertyName}</span>
-                    <span className="tabular-nums text-muted-foreground">
+                    <span
+                      className={cn(
+                        "font-medium",
+                        embedded ? "text-zinc-100" : "text-foreground"
+                      )}
+                    >
+                      {property.propertyName}
+                    </span>
+                    <span
+                      className={cn(
+                        "tabular-nums",
+                        embedded ? "text-zinc-400" : "text-muted-foreground"
+                      )}
+                    >
                       {formatFreeDaysCount(property.freeDays)}
                     </span>
                   </div>
@@ -240,16 +279,21 @@ export function DateEventsList() {
         </div>
       )}
 
-      <div className="overflow-hidden rounded-2xl border border-border/80 bg-card shadow-sm">
-        <div className="flex flex-col gap-3 border-b border-border/80 bg-muted/20 px-4 py-4 sm:flex-row sm:items-center sm:justify-between">
-        <h2 className="text-lg font-semibold capitalize tracking-tight">
-          {format(calendarMonth, "MMMM yyyy", { locale: sr })}
+      <div
+        className={cn(
+          "overflow-hidden",
+          !embedded && "hostvia-glow-card"
+        )}
+      >
+        <div className="flex flex-col gap-3 border-b border-white/6 bg-white/[0.02] px-4 py-4 sm:flex-row sm:items-center sm:justify-between">
+        <h2 className="text-base font-semibold capitalize tracking-tight text-white">
+          {format(calendarMonth, "MMMM yyyy", { locale: appLocale })}
         </h2>
-        <div className="flex items-center gap-1">
+        <div className="flex items-center gap-1 rounded-lg border border-white/8 bg-black/20 p-1">
           <Button
-            variant="outline"
+            variant="ghost"
             size="icon"
-            className="h-8 w-8 border-border/80 bg-background/80"
+            className="h-8 w-8 text-zinc-300 hover:bg-white/5 hover:text-white"
             disabled={isCurrentMonth}
             onClick={() =>
               setCalendarMonth(
@@ -264,17 +308,17 @@ export function DateEventsList() {
             <ChevronLeft className="h-4 w-4" />
           </Button>
           <Button
-            variant="outline"
+            variant="ghost"
             size="sm"
-            className="h-8 border-border/80 bg-background/80"
+            className="h-8 text-zinc-300 hover:bg-white/5 hover:text-white"
             onClick={() => setCalendarMonth(new Date())}
           >
-            Danas
+            Today
           </Button>
           <Button
-            variant="outline"
+            variant="ghost"
             size="icon"
-            className="h-8 w-8 border-border/80 bg-background/80"
+            className="h-8 w-8 text-zinc-300 hover:bg-white/5 hover:text-white"
             onClick={() =>
               setCalendarMonth(
                 new Date(
@@ -290,10 +334,17 @@ export function DateEventsList() {
         </div>
       </div>
 
-      <div className="flex flex-col gap-3 p-3 sm:gap-0 sm:p-0 sm:divide-y sm:divide-border/60">
+      <div
+        className={cn(
+          "flex flex-col",
+          embedded
+            ? "divide-y divide-white/10"
+            : "gap-3 p-3 sm:gap-0 sm:p-0 sm:divide-y sm:divide-white/10"
+        )}
+      >
         {dayGroups.length === 0 ? (
           <p className="px-4 py-12 text-center text-sm text-muted-foreground">
-            Nema upcoming dana za ovaj mjesec.
+            No upcoming days this month.
           </p>
         ) : (
           dayGroups.map((group) => {
@@ -303,10 +354,14 @@ export function DateEventsList() {
             <div
               key={group.dateKey}
               className={cn(
-                "flex flex-col gap-3 rounded-xl border border-border/70 bg-background p-3 shadow-sm",
-                "sm:flex-row sm:items-center sm:gap-3 sm:rounded-none sm:border-0 sm:bg-transparent sm:p-0 sm:px-4 sm:py-3 sm:shadow-none",
+                "flex flex-col gap-3 p-3 sm:flex-row sm:items-center sm:gap-3 sm:px-4 sm:py-3",
+                embedded
+                  ? "bg-transparent"
+                  : "rounded-xl border border-white/6 bg-white/[0.02] sm:rounded-none sm:border-0 sm:border-b sm:border-white/10 sm:bg-transparent sm:p-0 sm:last:border-b-0",
                 isToday &&
-                  "border-[var(--calendar-date-today-ring)] bg-[var(--calendar-row-today)] sm:border-0"
+                  (embedded
+                    ? "bg-[var(--calendar-row-today)]"
+                    : "border-[var(--calendar-date-today-ring)] bg-[var(--calendar-row-today)]")
               )}
             >
               <div

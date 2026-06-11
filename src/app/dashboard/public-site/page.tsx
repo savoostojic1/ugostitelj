@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { ExternalLink } from "lucide-react";
+import { DashboardPageHeader } from "@/components/dashboard/dashboard-page-header";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -102,7 +103,7 @@ export default function PublicSiteSettingsPage() {
         mapEmbedUrl = await resolveMapEmbedUrl(mapEmbedInput);
         if (!mapEmbedUrl) {
           toast.error(
-            "Google mapa nije prepoznata — provjerite link i pokušajte ponovo"
+            "Google map not recognized — check the link and try again"
           );
           return;
         }
@@ -125,9 +126,9 @@ export default function PublicSiteSettingsPage() {
         is_published: isPublished,
       },
       {
-        onSuccess: () => toast.success("Javni sajt sačuvan"),
+        onSuccess: () => toast.success("Booking site saved"),
         onError: (err) =>
-          toast.error(err instanceof Error ? err.message : "Greška"),
+          toast.error(err instanceof Error ? err.message : "Error"),
       }
     );
     } finally {
@@ -136,33 +137,32 @@ export default function PublicSiteSettingsPage() {
   }
 
   if (isLoading) {
-    return <p className="text-sm text-muted-foreground">Učitavanje…</p>;
+    return <p className="text-sm text-muted-foreground">Loading…</p>;
   }
 
   const publicUrl = username ? `/host/${username}` : null;
 
   return (
     <div className="space-y-8">
-      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-        <div>
-          <h1 className="text-2xl font-semibold tracking-tight">Javni sajt</h1>
-          <p className="text-muted-foreground">
-            Vaša javna stranica za goste — booking upiti direktno vama
-          </p>
-        </div>
-        {isPublished && publicUrl ? (
-          <Button variant="outline" asChild>
-            <Link href={publicUrl} target="_blank">
-              <ExternalLink className="h-4 w-4" />
-              Otvori javni sajt
-            </Link>
-          </Button>
-        ) : null}
-      </div>
+      <DashboardPageHeader
+        eyebrow="Website"
+        title="Booking site"
+        description="Your public page for guests — booking inquiries come directly to you"
+        actions={
+          isPublished && publicUrl ? (
+            <Button variant="outline" asChild>
+              <Link href={publicUrl} target="_blank">
+                <ExternalLink className="h-4 w-4" />
+                Open booking site
+              </Link>
+            </Button>
+          ) : null
+        }
+      />
 
       <Card>
         <CardHeader>
-          <CardTitle>Profil domaćina</CardTitle>
+          <CardTitle>Host profile</CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
           <label className="flex items-center gap-3">
@@ -172,24 +172,24 @@ export default function PublicSiteSettingsPage() {
               onChange={(e) => setIsPublished(e.target.checked)}
               className="h-4 w-4 rounded border-border"
             />
-            <span className="text-sm font-medium">Objavi javni sajt</span>
+            <span className="text-sm font-medium">Publish booking site</span>
           </label>
 
           <div className="grid gap-4 sm:grid-cols-2">
             <div className="space-y-2">
-              <Label htmlFor="username">Korisničko ime (URL)</Label>
+              <Label htmlFor="username">Username (URL)</Label>
               <Input
                 id="username"
                 value={username}
                 onChange={(e) => setUsername(e.target.value.toLowerCase())}
-                placeholder="moj-bungalov"
+                placeholder="my-bungalows"
               />
               {publicUrl ? (
                 <p className="text-xs text-muted-foreground">/host/{username}</p>
               ) : null}
             </div>
             <div className="space-y-2">
-              <Label htmlFor="businessName">Naziv biznisa</Label>
+              <Label htmlFor="businessName">Business name</Label>
               <Input
                 id="businessName"
                 value={businessName}
@@ -199,7 +199,7 @@ export default function PublicSiteSettingsPage() {
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="description">Opis</Label>
+            <Label htmlFor="description">Description</Label>
             <Textarea
               id="description"
               rows={4}
@@ -224,7 +224,7 @@ export default function PublicSiteSettingsPage() {
               />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="phone">Telefon</Label>
+              <Label htmlFor="phone">Phone</Label>
               <Input
                 id="phone"
                 value={contactPhone}
@@ -234,40 +234,40 @@ export default function PublicSiteSettingsPage() {
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="location">Lokacija (tekst)</Label>
+            <Label htmlFor="location">Location (text)</Label>
             <Input
               id="location"
               value={location}
               onChange={(e) => setLocation(e.target.value)}
-              placeholder="Budva, Crna Gora"
+              placeholder="Budva, Montenegro"
             />
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="mapEmbed">Google mapa (opciono)</Label>
+            <Label htmlFor="mapEmbed">Google map (optional)</Label>
             <Textarea
               id="mapEmbed"
               rows={3}
               value={mapEmbedInput}
               onChange={(e) => setMapEmbedInput(e.target.value)}
-              placeholder="https://maps.app.goo.gl/... ili embed link"
+              placeholder="https://maps.app.goo.gl/... or embed link"
               className="font-mono text-xs"
             />
             <p className="text-xs text-muted-foreground">
-              Zalijepite link iz Google Maps (Podijeli) ili kod iz Ugradi mapu.
-              Kratki linkovi poput maps.app.goo.gl takođe rade.
+              Paste a link from Google Maps (Share) or embed code. Short links
+              like maps.app.goo.gl also work.
             </p>
           </div>
 
           {mapPreviewLoading ? (
-            <p className="text-sm text-muted-foreground">Učitavam mapu…</p>
+            <p className="text-sm text-muted-foreground">Loading map…</p>
           ) : null}
 
           {mapPreviewUrl ? (
             <div className="overflow-hidden rounded-xl border border-border">
               <div className="relative aspect-video w-full">
                 <iframe
-                  title="Pregled mape"
+                  title="Map preview"
                   src={mapPreviewUrl}
                   className="absolute inset-0 h-full w-full border-0"
                   loading="lazy"
@@ -300,7 +300,7 @@ export default function PublicSiteSettingsPage() {
             onClick={handleSave}
             disabled={updateProfile.isPending || saving}
           >
-            {updateProfile.isPending || saving ? "Čuvanje…" : "Sačuvaj"}
+            {updateProfile.isPending || saving ? "Saving…" : "Save"}
           </Button>
         </CardContent>
       </Card>

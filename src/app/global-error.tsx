@@ -8,7 +8,7 @@ export default function GlobalError({
   reset: () => void;
 }) {
   return (
-    <html lang="sr">
+    <html lang="en">
       <body
         style={{
           margin: 0,
@@ -23,9 +23,9 @@ export default function GlobalError({
           color: "#fafafa",
         }}
       >
-        <h1 style={{ fontSize: 20, marginBottom: 8 }}>Došlo je do greške</h1>
+        <h1 style={{ fontSize: 20, marginBottom: 8 }}>Something went wrong</h1>
         <p style={{ fontSize: 14, opacity: 0.8, maxWidth: 400, textAlign: "center" }}>
-          {error.message || "Restartuj dev server (Ctrl+C, zatim npm run dev)."}
+          {error.message || "Restart the dev server (Ctrl+C, then npm run dev)."}
         </p>
         <button
           type="button"
@@ -41,7 +41,7 @@ export default function GlobalError({
             fontWeight: 600,
           }}
         >
-          Pokušaj ponovo
+          Try again
         </button>
       </body>
     </html>

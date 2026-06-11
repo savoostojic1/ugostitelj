@@ -19,13 +19,13 @@ export default function EditManualReservationPage({
       <Button variant="ghost" size="sm" asChild>
         <Link href="/dashboard/manual-reservations">
           <ArrowLeft className="h-4 w-4" />
-          Ručne rezervacije
+          Manual bookings
         </Link>
       </Button>
 
       <Card>
         <CardHeader>
-          <CardTitle>Uredi ručnu rezervaciju</CardTitle>
+          <CardTitle>Edit manual reservation</CardTitle>
         </CardHeader>
         <CardContent>
           <ManualReservationForm reservationId={id} />

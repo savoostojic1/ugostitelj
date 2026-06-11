@@ -1,5 +1,6 @@
-export const SYNC_INTERVAL_MS = 60 * 60 * 1000;
-export const LAST_SYNC_STORAGE_KEY = "ugostitelj-last-sync-at";
+/** Client-side auto-sync while the dashboard is open (matches server cron). */
+export const SYNC_INTERVAL_MS = 60 * 60 * 1000; // 1 hour
+export const LAST_SYNC_STORAGE_KEY = "hostvia-last-sync-at";
 
 export function getLastSyncAt(): number {
   if (typeof window === "undefined") return 0;

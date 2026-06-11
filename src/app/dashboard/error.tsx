@@ -8,32 +8,15 @@ export default function DashboardError({
   reset: () => void;
 }) {
   return (
-    <div
-      style={{
-        minHeight: "40vh",
-        display: "flex",
-        flexDirection: "column",
-        alignItems: "center",
-        justifyContent: "center",
-        gap: 12,
-        textAlign: "center",
-      }}
-    >
-      <h2 style={{ fontSize: 18, fontWeight: 600 }}>Greška na dashboardu</h2>
-      <p style={{ fontSize: 14, opacity: 0.7 }}>{error.message}</p>
+    <div className="flex min-h-[40vh] flex-col items-center justify-center gap-3 text-center">
+      <h2 className="text-lg font-semibold text-foreground">Dashboard error</h2>
+      <p className="max-w-md text-sm text-muted-foreground">{error.message}</p>
       <button
         type="button"
         onClick={() => reset()}
-        style={{
-          padding: "8px 16px",
-          borderRadius: 8,
-          border: "none",
-          background: "#818cf8",
-          color: "#fff",
-          cursor: "pointer",
-        }}
+        className="cursor-pointer rounded-lg bg-primary px-4 py-2 text-sm font-medium text-primary-foreground"
       >
-        Pokušaj ponovo
+        Try again
       </button>
     </div>
   );

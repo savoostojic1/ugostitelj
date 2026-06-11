@@ -1,7 +1,14 @@
+import { Plus_Jakarta_Sans } from "next/font/google";
 import { AppSidebar } from "@/components/layout/app-sidebar";
-import { DashboardSyncBar } from "@/components/dashboard/dashboard-sync-bar";
+import { DashboardTopbar } from "@/components/dashboard/dashboard-topbar";
 import { InstallPrompt } from "@/components/pwa/install-prompt";
 import { AutoSync } from "@/components/sync/auto-sync";
+
+const dashboardSans = Plus_Jakarta_Sans({
+  variable: "--font-marketing-sans",
+  subsets: ["latin", "latin-ext"],
+  weight: ["400", "500", "600", "700"],
+});
 
 export default function DashboardLayout({
   children,
@@ -9,12 +16,14 @@ export default function DashboardLayout({
   children: React.ReactNode;
 }) {
   return (
-    <div className="flex min-h-screen flex-col md:flex-row">
+    <div
+      className={`dark hostvia-app hostvia-dashboard-bg flex min-h-screen flex-col md:flex-row ${dashboardSans.variable}`}
+    >
       <AppSidebar />
-      <main className="flex-1 overflow-auto">
-        <DashboardSyncBar />
-        <div className="mx-auto max-w-7xl p-4 md:p-8">{children}</div>
-      </main>
+      <div className="hostvia-dashboard-main flex min-h-screen min-w-0 flex-1 flex-col text-foreground">
+        <DashboardTopbar />
+        <div className="hostvia-dashboard-content">{children}</div>
+      </div>
       <AutoSync />
       <InstallPrompt />
     </div>

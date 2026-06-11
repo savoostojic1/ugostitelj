@@ -54,15 +54,15 @@ export async function POST(request: Request) {
       const msg = error.message.includes("not available")
         ? "Odabrani datumi nisu dostupni"
         : error.message.includes("not found")
-          ? "Smještaj nije pronađen"
-          : "Slanje zahtjeva nije uspjelo";
+          ? "Property not found"
+          : "Failed to submit request";
       return NextResponse.json({ error: msg }, { status: 400 });
     }
 
     return NextResponse.json({ id: data });
   } catch {
     return NextResponse.json(
-      { error: "Došlo je do greške" },
+      { error: "Something went wrong" },
       { status: 500 }
     );
   }

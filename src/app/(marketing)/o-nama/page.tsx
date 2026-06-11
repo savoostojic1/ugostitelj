@@ -6,35 +6,35 @@ import { PageHero } from "@/components/marketing/page-hero";
 import { Button } from "@/components/ui/button";
 
 export const metadata: Metadata = {
-  title: "O nama — Ugostitelj",
+  title: "About — Hostvia",
   description:
-    "Ugostitelj je platforma za domaćine kratkoročnog smještaja u Crnoj Gori i regionu — kalendar, javni sajt i direktni upiti.",
+    "Hostvia is a platform for short-term rental hosts in Montenegro and the region — calendar, booking site and direct inquiries.",
 };
 
 const values = [
   {
     icon: Target,
-    title: "Jednostavnost",
+    title: "Simplicity",
     description:
-      "Tehnologija treba da olakša posao, ne da ga komplikuje. iCal umjesto API-ja, upiti umjesto kompleksnog payment flow-a.",
+      "Technology should make work easier, not harder. iCal instead of APIs, inquiries instead of complex payment flows.",
   },
   {
     icon: Users,
-    title: "Domaćin na prvom mjestu",
+    title: "Host-first",
     description:
-      "Gradimo alate koje sami domaćini koriste svaki dan — kalendar, dolasci, poruke, direktni kontakt sa gostima.",
+      "We build tools hosts use every day — calendar, arrivals, messages, direct contact with guests.",
   },
   {
     icon: MapPin,
-    title: "Lokalni fokus",
+    title: "Local focus",
     description:
-      "Razumijemo specifičnosti rada u regionu — sezonalnost, više kanala prodaje, direktni booking preko društvenih mreža.",
+      "We understand how hospitality works in the region — seasonality, multiple sales channels, direct bookings via social media.",
   },
   {
     icon: Heart,
-    title: "Direktni odnos",
+    title: "Direct relationships",
     description:
-      "Vjerujemo da domaćin i gost treba da komuniciraju direktno. Manje posrednika, više kontrole nad poslom.",
+      "We believe hosts and guests should communicate directly. Fewer middlemen, more control over your business.",
   },
 ];
 
@@ -42,50 +42,49 @@ export default function ONamaPage() {
   return (
     <>
       <PageHero
-        eyebrow="O nama"
-        title="Alat napravljen za domaćine u regionu"
-        description="Ugostitelj je nastao iz potrebe da se Airbnb, Booking.com i direktni upiti gostiju vode sa jednog mjesta — bez komplikovanih integracija."
-        primaryCta={{ label: "Kreni besplatno", href: "/register" }}
+        eyebrow="About"
+        title="Built for hosts in the region"
+        description="Hostvia was born from the need to manage Airbnb, Booking.com and direct guest inquiries from one place — without complicated integrations."
+        primaryCta={{ label: "Start free", href: "/register" }}
       />
 
       <section className="mx-auto max-w-6xl px-4 py-16 md:px-6 md:py-20">
         <div className="grid gap-12 lg:grid-cols-2">
           <div>
             <h2 className="marketing-heading text-2xl md:text-3xl">
-              Naša priča
+              Our story
             </h2>
             <div className="mt-6 space-y-4 text-muted-foreground">
               <p>
-                Domaćini kratkoročnog smještaja provode previše vremena
-                prebacujući se između platformi, provjeravajući kalendare i
-                odgovarajući na ista pitanja gostiju. Ugostitelj to rješava
-                spajajući operativni kalendar sa javnim sajtom za direktne
-                upite.
+                Short-term rental hosts spend too much time switching between
+                platforms, checking calendars and answering the same guest
+                questions. Hostvia solves this by combining an operations
+                calendar with a public site for direct inquiries.
               </p>
               <p>
-                Počeli smo sa iCal sinhronizacijom — jednostavnim načinom da
-                sve rezervacije budu na jednom mjestu. Zatim smo dodali javni
-                sajt, cijene po datumima, galeriju i booking upite kako bi
-                domaćini mogli privući goste direktno, bez provizije.
+                We started with iCal sync — a simple way to keep all
+                reservations in one place. Then we added the booking site,
+                date-based pricing, gallery and inquiries so hosts could attract
+                guests directly, without commission.
               </p>
               <p>
-                Danas Ugostitelj koriste domaćini koji žele profesionalniji
-                rad sa smještajem — bilo da imaju jedan apartman ili više
-                jedinica.
+                Today Hostvia is used by hosts who want a more professional way
+                to run their accommodation — whether they have one apartment or
+                multiple units.
               </p>
             </div>
           </div>
           <div className="marketing-card rounded-2xl border border-border bg-card p-8">
-            <h3 className="text-lg font-semibold">Za koga gradimo</h3>
+            <h3 className="text-lg font-semibold">Who we build for</h3>
             <ul className="mt-4 space-y-3 text-sm text-muted-foreground">
-              <li>• Vlasnici apartmana i studija</li>
-              <li>• Mala apartmanska naselja i bungalovi</li>
-              <li>• Domaćini na Airbnb-u i Booking.com-u</li>
-              <li>• Ugostitelji koji žele direktne bookinge</li>
-              <li>• Operateri sa više jedinica u Crnoj Gori i regionu</li>
+              <li>• Apartment and studio owners</li>
+              <li>• Small apartment complexes and bungalows</li>
+              <li>• Hosts on Airbnb and Booking.com</li>
+              <li>• Hosts who want direct bookings</li>
+              <li>• Operators with multiple units in Montenegro and the region</li>
             </ul>
             <Button className="mt-6" variant="outline" asChild>
-              <Link href="/funkcije">Pogledaj funkcije</Link>
+              <Link href="/funkcije">View features</Link>
             </Button>
           </div>
         </div>
@@ -94,7 +93,7 @@ export default function ONamaPage() {
       <section className="border-y border-border bg-card/30 py-16 md:py-20">
         <div className="mx-auto max-w-6xl px-4 md:px-6">
           <h2 className="marketing-heading text-center text-2xl md:text-3xl">
-            Naše vrijednosti
+            Our values
           </h2>
           <div className="mt-12 grid gap-6 md:grid-cols-2">
             {values.map((value) => (

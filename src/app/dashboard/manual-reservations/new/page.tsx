@@ -12,13 +12,13 @@ export default function NewManualReservationPage() {
       <Button variant="ghost" size="sm" asChild>
         <Link href="/dashboard/manual-reservations">
           <ArrowLeft className="h-4 w-4" />
-          Ručne rezervacije
+          Manual bookings
         </Link>
       </Button>
 
       <Card>
         <CardHeader>
-          <CardTitle>Nova ručna rezervacija</CardTitle>
+          <CardTitle>New manual reservation</CardTitle>
         </CardHeader>
         <CardContent>
           <ManualReservationForm />

@@ -7,42 +7,42 @@ import { Button } from "@/components/ui/button";
 import { howItWorksSteps } from "@/lib/marketing/content";
 
 export const metadata: Metadata = {
-  title: "Kako radi — Ugostitelj",
+  title: "How it works — Hostvia",
   description:
-    "Registracija, povezivanje iCal kalendara, objava javnog sajta i primanje booking upita — korak po korak.",
+    "Sign up, connect iCal calendars, publish your booking site and receive inquiries — step by step.",
 };
 
 const setupDetails = [
   {
-    title: "Registracija i prva jedinica",
+    title: "Sign up and add your first unit",
     items: [
-      "Napravite nalog sa emailom i lozinkom",
-      "Dodajte prvu jedinicu — naziv, kapacitet, osnovne informacije",
-      "Postavite osnovnu cijenu po noći",
+      "Create an account with email and password",
+      "Add your first unit — name, capacity, basic details",
+      "Set your base nightly rate",
     ],
   },
   {
-    title: "Povezivanje kalendara",
+    title: "Connect calendars",
     items: [
-      "U Airbnb ili Booking.com pronađite iCal export link",
-      "Zalijepite link u podešavanjima jedinice u Ugostitelju",
-      "Sačekajte prvi sync — rezervacije se pojavljuju u kalendaru",
+      "Find the iCal export link in Airbnb or Booking.com",
+      "Paste the link in your unit settings in Hostvia",
+      "Wait for the first sync — reservations appear in your calendar",
     ],
   },
   {
-    title: "Javni profil i sajt",
+    title: "Public profile and site",
     items: [
-      "U dashboardu otvorite Javni sajt",
-      "Dodajte naziv biznisa, lokaciju, cover fotografiju i kontakt",
-      "Objavite sajt — dobijate link za dijeljenje",
+      "Open Booking site in your dashboard",
+      "Add business name, location, cover photo and contact details",
+      "Publish your site — you get a link to share",
     ],
   },
   {
-    title: "Primanje upita",
+    title: "Receiving inquiries",
     items: [
-      "Gost pretražuje datume na vašem javnom sajtu",
-      "Vidi cijenu, dostupnost i šalje upit",
-      "Vi pregledate upit u dashboardu i kontaktirate gosta",
+      "Guest searches dates on your public site",
+      "They see price, availability and send an inquiry",
+      "You review the inquiry in your dashboard and contact the guest",
     ],
   },
 ];
@@ -51,11 +51,11 @@ export default function KakoRadiPage() {
   return (
     <>
       <PageHero
-        eyebrow="Kako radi"
-        title="Od registracije do prvog upita"
-        description="Ugostitelj je dizajniran da bude jednostavan. Evo tačnog redoslijeda koraka koje domaćini prate pri pokretanju."
-        primaryCta={{ label: "Napravi nalog", href: "/register" }}
-        secondaryCta={{ label: "Pogledaj cijene", href: "/cijene" }}
+        eyebrow="How it works"
+        title="From sign-up to your first inquiry"
+        description="Hostvia is designed to be simple. Here is the exact sequence of steps hosts follow when getting started."
+        primaryCta={{ label: "Create account", href: "/register" }}
+        secondaryCta={{ label: "View pricing", href: "/cijene" }}
       />
 
       <section className="mx-auto max-w-6xl px-4 py-16 md:px-6 md:py-20">
@@ -82,10 +82,10 @@ export default function KakoRadiPage() {
       <section className="border-y border-border bg-card/30 py-16 md:py-20">
         <div className="mx-auto max-w-6xl px-4 md:px-6">
           <h2 className="marketing-heading text-2xl md:text-3xl">
-            Detaljan vodič
+            Detailed guide
           </h2>
           <p className="mt-3 max-w-2xl text-muted-foreground">
-            Svaki korak u praksi — šta tačno radite u dashboardu.
+            Each step in practice — what you actually do in the dashboard.
           </p>
           <div className="mt-10 grid gap-6 md:grid-cols-2">
             {setupDetails.map((section) => (
@@ -113,15 +113,15 @@ export default function KakoRadiPage() {
 
       <section className="mx-auto max-w-6xl px-4 py-16 md:px-6 md:py-20">
         <div className="marketing-card rounded-2xl border border-primary/20 bg-primary/5 p-8 md:p-10">
-          <h2 className="marketing-heading text-2xl">Savjet za brži start</h2>
+          <h2 className="marketing-heading text-2xl">Tip for a faster start</h2>
           <p className="mt-4 max-w-2xl text-muted-foreground">
-            Prvo povežite kalendare da vidite postojeće rezervacije. Zatim
-            dodajte fotografije i objavite javni sajt. Na taj način odmah
-            imate i operativni pregled i kanal za direktne upite.
+            Connect calendars first to see existing reservations. Then add
+            photos and publish your public site. That way you immediately have
+            both an operations overview and a channel for direct inquiries.
           </p>
           <Button className="mt-6" asChild>
             <Link href="/register">
-              Kreni sada
+              Get started now
               <ArrowRight className="h-4 w-4" />
             </Link>
           </Button>

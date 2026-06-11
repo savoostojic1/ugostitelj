@@ -1,8 +1,14 @@
-/** Čisto — bez server-only; dijeljeno između sync API-ja i UI-a */
+/** Shared between sync API and UI — no server-only imports */
 
 import type { CalendarPlatform } from "@/types/database";
 
-export const MANUAL_BLOCK_TITLE = "Ručno blokirano";
+export const MANUAL_BLOCK_TITLE = "Manually blocked";
+
+const LEGACY_MANUAL_BLOCK_TITLES = ["Ručno blokirano", "Blokirano"] as const;
+
+function isLegacyManualBlockTitle(title: string): boolean {
+  return (LEGACY_MANUAL_BLOCK_TITLES as readonly string[]).includes(title);
+}
 
 export type CalendarEventKind = "reservation" | "manual_block";
 
@@ -54,7 +60,6 @@ export function classifyCalendarEvent(
     return "reservation";
   }
 
-  // Booking: Reserved = gost; eksplicitne blokade = ručno
   if (/^reserved$/i.test(raw)) return "reservation";
   if (/^booked$/i.test(raw)) return "reservation";
   if (/^confirmed$/i.test(raw)) return "reservation";
@@ -71,32 +76,36 @@ export function formatImportedEventTitle(
   platform?: CalendarPlatform,
   kind?: CalendarEventKind
 ): string {
-  if (kind === "manual_block" || title === MANUAL_BLOCK_TITLE) {
+  if (
+    kind === "manual_block" ||
+    title === MANUAL_BLOCK_TITLE ||
+    isLegacyManualBlockTitle(title)
+  ) {
     return MANUAL_BLOCK_TITLE;
   }
 
   const t = title.trim();
 
   if (platform === "booking") {
-    if (!t || t === "Blokirano") return "Rezervacija";
-    if (/^reserved$/i.test(t)) return "Rezervacija";
-    if (/^reservation$/i.test(t)) return "Rezervacija";
-    if (/^booked$/i.test(t)) return "Rezervacija";
-    if (/^confirmed$/i.test(t)) return "Rezervacija";
-    if (/^closed\s*-\s*not\s*available$/i.test(t)) return "Rezervacija";
-    if (/^closed\b/i.test(t)) return "Rezervacija";
+    if (!t || isLegacyManualBlockTitle(t)) return "Reservation";
+    if (/^reserved$/i.test(t)) return "Reservation";
+    if (/^reservation$/i.test(t)) return "Reservation";
+    if (/^booked$/i.test(t)) return "Reservation";
+    if (/^confirmed$/i.test(t)) return "Reservation";
+    if (/^closed\s*-\s*not\s*available$/i.test(t)) return "Reservation";
+    if (/^closed\b/i.test(t)) return "Reservation";
     if (t.length > 28) return `${t.slice(0, 26)}…`;
     return t;
   }
 
   if (isBlockedCalendarEvent(t, platform)) return MANUAL_BLOCK_TITLE;
-  if (/^reserved$/i.test(t)) return "Rezervacija";
+  if (/^reserved$/i.test(t)) return "Reservation";
   const cleaned = t
     .replace(/^closed\s*-\s*/i, "")
     .replace(/\s*\(not\s*available\)\s*/i, "")
     .trim();
   if (!cleaned || isBlockedCalendarEvent(cleaned, platform)) {
-    return "Rezervacija";
+    return "Reservation";
   }
   if (cleaned.length > 28) return `${cleaned.slice(0, 26)}…`;
   return cleaned;
@@ -106,7 +115,9 @@ export function isManualBlockTitle(
   title: string,
   platform?: CalendarPlatform
 ): boolean {
-  if (title === MANUAL_BLOCK_TITLE || title === "Blokirano") return true;
+  if (title === MANUAL_BLOCK_TITLE || isLegacyManualBlockTitle(title)) {
+    return true;
+  }
   return (
     platform !== "booking" &&
     isBlockedCalendarEvent(title, platform)

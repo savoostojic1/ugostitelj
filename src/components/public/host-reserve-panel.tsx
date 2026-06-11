@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { format, parseISO } from "date-fns";
 import { PublicPropertyGallery } from "@/components/public/public-property-gallery";
-import { sr } from "date-fns/locale";
+import { appLocale } from "@/lib/dates/locale";
 import {
   ArrowLeft,
   CalendarRange,
@@ -74,13 +74,13 @@ export function HostReservePanel({
 
       const data = await res.json();
       if (!res.ok) {
-        throw new Error(data.error ?? "Greška");
+        throw new Error(data.error ?? "Error");
       }
 
       setSubmitted(true);
-      toast.success("Upit poslan! Domaćin će vas kontaktirati.");
+      toast.success("Request sent! The host will contact you.");
     } catch (err) {
-      toast.error(err instanceof Error ? err.message : "Slanje nije uspjelo");
+      toast.error(err instanceof Error ? err.message : "Failed to send");
     } finally {
       setSubmitting(false);
     }
@@ -92,13 +92,13 @@ export function HostReservePanel({
         <div className="mb-5 flex h-16 w-16 items-center justify-center rounded-2xl bg-[var(--public-success-soft)] text-[var(--public-success)]">
           <CheckCircle2 className="h-8 w-8" />
         </div>
-        <h3 className="public-heading text-2xl md:text-3xl">Upit je poslan</h3>
+        <h3 className="public-heading text-2xl md:text-3xl">Request sent</h3>
         <p className="mt-4 max-w-md text-[15px] leading-relaxed text-[var(--public-muted)]">
-          Hvala, {guestName}. Domaćin će potvrditi dostupnost za{" "}
+          Thank you, {guestName}. The host will confirm availability for{" "}
           <strong className="font-semibold text-[var(--public-fg)]">
             {property.name}
           </strong>{" "}
-          i javiti se na {email}.
+          and reach out at {email}.
         </p>
       </div>
     );
@@ -115,7 +115,7 @@ export function HostReservePanel({
         />
         <div className="space-y-4 p-5 md:p-6">
           <div>
-            <p className="public-label mb-2">Vaš boravak</p>
+            <p className="public-label mb-2">Your stay</p>
             <h2 className="text-xl font-bold tracking-tight">{property.name}</h2>
           </div>
           <ul className="space-y-3 text-sm">
@@ -124,9 +124,9 @@ export function HostReservePanel({
                 <CalendarRange className="h-4 w-4" />
               </span>
               <span>
-                {format(parseISO(search.checkIn), "d. MMMM", { locale: sr })} –{" "}
+                {format(parseISO(search.checkIn), "d. MMMM", { locale: appLocale })} –{" "}
                 {format(parseISO(search.checkOut), "d. MMMM yyyy", {
-                  locale: sr,
+                  locale: appLocale,
                 })}
               </span>
             </li>
@@ -136,21 +136,21 @@ export function HostReservePanel({
               </span>
               <span>
                 {search.guests}{" "}
-                {search.guests === 1 ? "gost" : "gostiju"}
+                {search.guests === 1 ? "guest" : "guests"}
               </span>
             </li>
           </ul>
           {stayPrice ? (
             <div className="rounded-xl border border-[var(--public-border)] bg-[var(--public-bg-subtle)] p-4">
-              <p className="public-label mb-2">Cijena</p>
+              <p className="public-label mb-2">Price</p>
               <p className="text-2xl font-bold tracking-tight">
                 {formatEuro(stayPrice.total)}
               </p>
               <p className="mt-1 text-sm text-[var(--public-muted)]">
-                ukupno za {nightsLabel(stayPrice.nights)}
+                total for {nightsLabel(stayPrice.nights)}
               </p>
               <p className="mt-0.5 text-sm font-medium text-[var(--public-accent)]">
-                {formatEuro(stayPrice.pricePerNight)} po noći
+                {formatEuro(stayPrice.pricePerNight)} per night
               </p>
             </div>
           ) : null}
@@ -165,20 +165,20 @@ export function HostReservePanel({
             className="public-btn public-btn-secondary mb-5 px-3 py-2 text-sm"
           >
             <ArrowLeft className="h-4 w-4" />
-            Nazad
+            Back
           </button>
           <h2 className="public-heading text-2xl md:text-3xl">
-            Vaši podaci
+            Your details
           </h2>
           <p className="mt-2 text-sm text-[var(--public-muted)]">
-            Ostavite kontakt — domaćin će vam se javiti za potvrdu
+            Leave your contact info — the host will reach out to confirm
           </p>
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-5 p-5 md:p-8">
           <div className="space-y-2">
             <label htmlFor="reserve-name" className="public-label">
-              Ime i prezime
+              Full name
             </label>
             <input
               id="reserve-name"
@@ -186,7 +186,7 @@ export function HostReservePanel({
               value={guestName}
               onChange={(e) => setGuestName(e.target.value)}
               className={inputClass}
-              placeholder="Vaše ime"
+              placeholder="Your name"
             />
           </div>
 
@@ -207,7 +207,7 @@ export function HostReservePanel({
             </div>
             <div className="space-y-2">
               <label htmlFor="reserve-phone" className="public-label">
-                Telefon
+                Phone
               </label>
               <input
                 id="reserve-phone"
@@ -223,14 +223,14 @@ export function HostReservePanel({
 
           <div className="space-y-2">
             <label htmlFor="reserve-message" className="public-label">
-              Poruka <span className="font-normal normal-case">(opciono)</span>
+              Message <span className="font-normal normal-case">(optional)</span>
             </label>
             <textarea
               id="reserve-message"
               rows={4}
               value={message}
               onChange={(e) => setMessage(e.target.value)}
-              placeholder="Dodatne napomene, pitanja o smještaju…"
+              placeholder="Additional notes, questions about the stay…"
               className={cn(inputClass, "resize-none")}
             />
           </div>
@@ -240,7 +240,7 @@ export function HostReservePanel({
             disabled={submitting}
             className="public-btn public-btn-primary w-full py-3.5"
           >
-            {submitting ? "Slanje…" : "Pošalji upit"}
+            {submitting ? "Sending…" : "Send request"}
             {!submitting && <Send className="h-4 w-4" />}
           </button>
         </form>

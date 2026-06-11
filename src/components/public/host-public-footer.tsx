@@ -49,7 +49,7 @@ export function HostPublicFooter({ host }: HostPublicFooterProps) {
           </div>
 
           <div className="space-y-4">
-            <p className="public-label">Kontakt</p>
+            <p className="public-label">Contact</p>
             <ul className="space-y-3 text-sm">
               {host.contact_phone ? (
                 <li>
@@ -114,7 +114,7 @@ export function HostPublicFooter({ host }: HostPublicFooterProps) {
               href="/"
               className="font-semibold text-[var(--public-fg)] underline-offset-4 hover:underline"
             >
-              Ugostitelj
+              Hostvia
             </Link>
           </p>
         </div>

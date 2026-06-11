@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import { format, addDays } from "date-fns";
-import { sr } from "date-fns/locale";
+import { appLocale } from "@/lib/dates/locale";
 import { ArrowRight } from "lucide-react";
 import { parseDateOnly } from "@/lib/dates/calendar-date";
 import {
@@ -38,11 +38,11 @@ export function HostSearchDateRange({
 
   const today = format(new Date(), "yyyy-MM-dd");
   const checkInLabel = checkIn
-    ? format(parseDateOnly(checkIn), "d. MMM yyyy", { locale: sr })
-    : "Dodaj datum";
+    ? format(parseDateOnly(checkIn), "d. MMM yyyy", { locale: appLocale })
+    : "Add date";
   const checkOutLabel = checkOut
-    ? format(parseDateOnly(checkOut), "d. MMM yyyy", { locale: sr })
-    : "Dodaj datum";
+    ? format(parseDateOnly(checkOut), "d. MMM yyyy", { locale: appLocale })
+    : "Add date";
 
   function updatePosition() {
     const el = containerRef.current;
@@ -146,7 +146,7 @@ export function HostSearchDateRange({
             compact ? "py-2.5" : "py-3.5"
           )}
         >
-          <span className="public-label mb-1.5">Dolazak</span>
+          <span className="public-label mb-1.5">Check-in</span>
           <span
             className={cn(
               "truncate text-[15px] font-semibold leading-tight",
@@ -174,7 +174,7 @@ export function HostSearchDateRange({
             compact ? "py-2.5" : "py-3.5"
           )}
         >
-          <span className="public-label mb-1.5">Odlazak</span>
+          <span className="public-label mb-1.5">Check-out</span>
           <span
             className={cn(
               "truncate text-[15px] font-semibold leading-tight",
@@ -195,7 +195,7 @@ export function HostSearchDateRange({
             <div
               ref={panelRef}
               role="dialog"
-              aria-label="Izbor datuma boravka"
+              aria-label="Select stay dates"
               className="public-calendar-popover fixed z-[200]"
               style={{ top: position.top, left: position.left }}
             >
