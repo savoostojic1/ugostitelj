@@ -24,7 +24,9 @@ export default function DashboardLayout({
       <div className="hostvia-dashboard-main flex min-h-screen min-w-0 flex-1 flex-col text-foreground">
         <ConditionalDashboardTopbar />
         <div className="hostvia-dashboard-content">
-          <DashboardLoadingGate>{children}</DashboardLoadingGate>
+          <DashboardLoadingGate>
+            <div className="hostvia-dashboard-page">{children}</div>
+          </DashboardLoadingGate>
         </div>
       </div>
       <AutoSync />

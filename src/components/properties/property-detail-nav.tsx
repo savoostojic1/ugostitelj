@@ -28,7 +28,7 @@ export function PropertyDetailNav({ propertyId }: { propertyId: string }) {
   ];
 
   return (
-    <nav className="-mx-1 flex gap-2 overflow-x-auto border-b border-border pb-1">
+    <nav className="hostvia-dashboard-page-inset flex gap-2 overflow-x-auto border-b border-border pb-1">
       {tabs.map((tab) => (
         <Link
           key={tab.href}

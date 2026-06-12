@@ -58,14 +58,14 @@ export default function PropertyDetailPage({
 
   return (
     <div className="hostvia-property-page space-y-8">
-      <Button variant="ghost" size="sm" asChild>
+      <Button variant="ghost" size="sm" asChild className="hostvia-dashboard-page-inset w-fit">
         <Link href="/dashboard/properties">
           <ArrowLeft className="h-4 w-4" />
           Properties
         </Link>
       </Button>
 
-      <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+      <div className="hostvia-dashboard-page-inset flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
         <PropertyNameEditor propertyId={id} name={property.name} />
         <PropertyDeleteButton propertyId={id} propertyName={property.name} />
       </div>

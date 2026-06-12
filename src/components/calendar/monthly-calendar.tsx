@@ -35,6 +35,7 @@ import { useUiStore } from "@/stores/ui-store";
 interface MonthlyCalendarProps {
   reservations: Reservation[];
   propertyId?: string;
+  embedded?: boolean;
 }
 
 const WEEKDAYS = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
@@ -80,7 +81,10 @@ function TurnoverTag({
   );
 }
 
-export function MonthlyCalendar({ reservations }: MonthlyCalendarProps) {
+export function MonthlyCalendar({
+  reservations,
+  embedded,
+}: MonthlyCalendarProps) {
   const { calendarMonth, setCalendarMonth } = useUiStore();
   const monthStart = startOfMonth(calendarMonth);
   const monthEnd = endOfMonth(calendarMonth);
@@ -105,7 +109,14 @@ export function MonthlyCalendar({ reservations }: MonthlyCalendarProps) {
   const today = new Date();
 
   return (
-    <div className="overflow-hidden rounded-2xl border border-border bg-card text-card-foreground shadow-sm">
+    <div
+      className={cn(
+        "overflow-hidden bg-card text-card-foreground",
+        embedded
+          ? "rounded-none border-0 shadow-none"
+          : "rounded-2xl border border-border shadow-sm"
+      )}
+    >
       <div className="flex flex-col gap-3 border-b px-4 py-4 sm:flex-row sm:items-center sm:justify-between">
         <h3 className="text-lg font-semibold capitalize">
           {format(calendarMonth, "MMMM yyyy", { locale: appLocale })}

@@ -43,14 +43,14 @@ export default function PropertyCalendarPage({
 
   return (
     <div className="hostvia-property-page space-y-8">
-      <Button variant="ghost" size="sm" asChild>
+      <Button variant="ghost" size="sm" asChild className="hostvia-dashboard-page-inset w-fit">
         <Link href="/dashboard/properties">
           <ArrowLeft className="h-4 w-4" />
           Properties
         </Link>
       </Button>
 
-      <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+      <div className="hostvia-dashboard-page-inset flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
         <div className="min-w-0 space-y-1">
           <h1 className="hostvia-dashboard-title truncate">{property.name}</h1>
           <p className="text-sm text-muted-foreground">
@@ -62,15 +62,15 @@ export default function PropertyCalendarPage({
 
       <PropertyDetailNav propertyId={id} />
 
-      <div>
-        <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-          <h2 className="text-lg font-semibold text-foreground">Calendar</h2>
+      <section className="hostvia-panel min-w-0 overflow-hidden">
+        <div className="flex flex-col gap-3 border-b border-white/6 px-4 py-3 sm:flex-row sm:items-center sm:justify-between">
+          <h2 className="text-sm font-semibold text-white">Calendar</h2>
           <PropertyCalendarNav propertyId={id} />
         </div>
         {reservationsLoading ? null : (
-          <MonthlyCalendar reservations={reservations} propertyId={id} />
+          <MonthlyCalendar reservations={reservations} propertyId={id} embedded />
         )}
-      </div>
+      </section>
 
       <Card>
         <CardHeader>

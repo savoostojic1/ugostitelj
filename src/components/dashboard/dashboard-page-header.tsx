@@ -19,7 +19,7 @@ export function DashboardPageHeader({
   return (
     <div
       className={cn(
-        "flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between",
+        "hostvia-dashboard-page-inset flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between",
         className
       )}
     >

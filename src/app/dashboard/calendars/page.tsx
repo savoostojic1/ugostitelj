@@ -109,7 +109,7 @@ export default function CalendarsOverviewPage() {
         </div>
       )}
 
-      <div className="hostvia-dashboard-bleed-x grid grid-cols-2 gap-1.5 sm:mx-0 sm:w-full sm:gap-4 md:grid-cols-2">
+      <div className="grid grid-cols-2 gap-1.5 sm:gap-4 md:grid-cols-2">
         {grouped.map(({ property, reservations: propertyReservations }, i) => {
           const colors = getPropertyCalendarColor(i);
           return (
