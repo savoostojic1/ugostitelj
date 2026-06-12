@@ -19,7 +19,7 @@ import { HostPropertyResultCard } from "@/components/public/host-property-result
 import { HostAllUnitsSection } from "@/components/public/host-all-units-section";
 import { HostReservePanel } from "@/components/public/host-reserve-panel";
 import { PublicSectionHeader } from "@/components/public/public-section-header";
-import { scrollBelowPublicSearch } from "@/lib/public/scroll-anchors";
+import { getPublicHostCoverUrl } from "@/lib/public/host-cover-url";
 import type {
   HostSearchParams,
   PublicHostProfile,
@@ -60,6 +60,7 @@ export function HostBookingExperience({
   const scrollBelowSearchRef = useRef(false);
 
   const hasCover = Boolean(host.cover_image_url);
+  const coverBackgroundUrl = hasCover ? getPublicHostCoverUrl(username) : null;
 
   useEffect(() => {
     if (!scrollBelowSearchRef.current || loading) return;
@@ -148,19 +149,17 @@ export function HostBookingExperience({
   return (
     <div>
       <section className="public-hero">
-        <div className="public-hero-media" aria-hidden>
-          {hasCover ? (
-            <img
-              src={host.cover_image_url!}
-              alt=""
-              className="public-hero-cover"
-              decoding="async"
-              fetchPriority="high"
-            />
-          ) : (
-            <div className="public-hero-fallback absolute inset-0" />
-          )}
-          <div className="public-hero-scrim absolute inset-0" />
+        <div
+          className="public-hero-media"
+          aria-hidden
+          style={
+            coverBackgroundUrl
+              ? { backgroundImage: `url("${coverBackgroundUrl}")` }
+              : undefined
+          }
+        >
+          {!hasCover ? <div className="public-hero-fallback" /> : null}
+          <div className="public-hero-scrim" />
         </div>
 
         <div className="public-hero-inner">

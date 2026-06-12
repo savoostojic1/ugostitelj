@@ -10,6 +10,7 @@ import {
   parseBookingSubdomain,
 } from "@/lib/public/booking-site-url";
 import { buildHostMetadata } from "@/lib/public/seo";
+import { getPublicHostCoverUrl } from "@/lib/public/host-cover-url";
 import { getSiteBaseUrl } from "@/lib/public/site-url";
 
 interface HostPageProps {
@@ -46,8 +47,13 @@ export default async function HostPublicPage({ params }: HostPageProps) {
   if (!host) notFound();
 
   return (
-    <PublicShell host={host}>
-      <HostBookingExperience host={host} username={username} />
-    </PublicShell>
+    <>
+      {host.cover_image_url ? (
+        <link rel="preload" as="image" href={getPublicHostCoverUrl(username)} />
+      ) : null}
+      <PublicShell host={host}>
+        <HostBookingExperience host={host} username={username} />
+      </PublicShell>
+    </>
   );
 }
