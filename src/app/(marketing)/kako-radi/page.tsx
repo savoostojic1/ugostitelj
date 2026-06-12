@@ -1,10 +1,8 @@
 import type { Metadata } from "next";
-import Link from "next/link";
 import { CheckCircle2 } from "lucide-react";
 import { CtaBanner } from "@/components/marketing/cta-banner";
 import { MarketingAuthButton } from "@/components/marketing/marketing-auth-button";
 import { PageHero } from "@/components/marketing/page-hero";
-import { Button } from "@/components/ui/button";
 import { howItWorksSteps } from "@/lib/marketing/content";
 
 export const metadata: Metadata = {

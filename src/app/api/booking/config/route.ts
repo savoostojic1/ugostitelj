@@ -5,7 +5,7 @@ import {
 } from "@/lib/public/booking-site-url";
 import { getSiteBaseUrl } from "@/lib/public/site-url";
 
-function useSubdomainForHost(host: string | null): boolean {
+function shouldUseSubdomainForHost(host: string | null): boolean {
   if (bookingSubdomainsEnabled()) return true;
 
   const hostname = host?.split(":")[0]?.toLowerCase() ?? "";
@@ -21,7 +21,7 @@ export async function GET(request: Request) {
 
   return NextResponse.json(
     {
-      useSubdomain: useSubdomainForHost(host),
+      useSubdomain: shouldUseSubdomainForHost(host),
       bookingDomain: BOOKING_DOMAIN,
       siteBaseUrl: getSiteBaseUrl(),
     },

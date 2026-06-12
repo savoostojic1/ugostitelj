@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { Building2, CalendarDays, Loader2 } from "lucide-react";
 import { HostUnitCard } from "@/components/public/host-unit-card";
 import { HostUnitAvailabilityCard } from "@/components/public/host-unit-availability-card";
@@ -40,7 +40,7 @@ export function HostAllUnitsSection({
   const [loaded, setLoaded] = useState(false);
   const scrollAfterLoadRef = useRef(false);
 
-  async function ensurePropertiesLoaded() {
+  const ensurePropertiesLoaded = useCallback(async () => {
     if (loaded) return;
 
     setLoading(true);
@@ -63,7 +63,7 @@ export function HostAllUnitsSection({
         scrollBelowUnitsActions();
       }
     }
-  }
+  }, [loaded, username]);
 
   function queueScrollBelowActions() {
     scrollAfterLoadRef.current = true;
@@ -73,7 +73,7 @@ export function HostAllUnitsSection({
     if (viewMode !== "none") {
       void ensurePropertiesLoaded();
     }
-  }, [viewMode]);
+  }, [ensurePropertiesLoaded, viewMode]);
 
   useEffect(() => {
     if (scrollOnOpen > 0) {

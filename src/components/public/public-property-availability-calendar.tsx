@@ -61,7 +61,7 @@ export function PublicPropertyAvailabilityCalendar({
     if (checkInDate) {
       setViewMonth(startOfMonth(checkInDate));
     }
-  }, [checkIn]);
+  }, [checkInDate]);
 
   useEffect(() => {
     let cancelled = false;
