@@ -38,3 +38,22 @@ export function setStandaloneCookie() {
   if (typeof document === "undefined") return;
   document.cookie = `${PWA_STANDALONE_COOKIE}=1; path=/; max-age=31536000; samesite=lax`;
 }
+
+/** Open an external URL in the system browser (not inside the installed PWA). */
+export function openInSystemBrowser(url: string): void {
+  if (typeof window === "undefined") return;
+
+  const absolute = new URL(url, window.location.origin).href;
+  const anchor = document.createElement("a");
+  anchor.href = absolute;
+  anchor.target = "_blank";
+  anchor.rel = "noopener noreferrer external";
+  anchor.style.display = "none";
+  document.body.appendChild(anchor);
+  anchor.click();
+  document.body.removeChild(anchor);
+
+  window.setTimeout(() => {
+    window.open(absolute, "_blank", "noopener,noreferrer");
+  }, 0);
+}

@@ -3,6 +3,8 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { ExternalLink } from "lucide-react";
+import { useIsStandalonePwa } from "@/hooks/use-is-standalone-pwa";
+import { openInSystemBrowser } from "@/lib/pwa/standalone";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -10,10 +12,11 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { PropertyGalleryUpload } from "@/components/properties/property-gallery-upload";
 import { useHostProfile } from "@/hooks/use-host-profile";
+import { getBookingSiteLabel, getBookingSiteUrl } from "@/lib/public/booking-site-url";
 import {
-  getBookingSiteLabel,
-  getBookingSitePath,
-} from "@/lib/public/booking-site-url";
+  bookingUrlOptionsFromConfig,
+  useBookingSiteConfig,
+} from "@/hooks/use-booking-site-config";
 import {
   suggestPropertySlug,
   useUpdatePropertyPublic,
@@ -32,7 +35,13 @@ function normalizeGalleryUrls(value: unknown): string[] {
 
 export function PropertyPublicSettings({ property }: PropertyPublicSettingsProps) {
   const { data: hostProfile } = useHostProfile();
+  const { data: bookingConfig } = useBookingSiteConfig();
+  const isPwa = useIsStandalonePwa();
   const updatePublic = useUpdatePropertyPublic();
+
+  const origin =
+    typeof window !== "undefined" ? window.location.origin : undefined;
+  const urlOptions = bookingUrlOptionsFromConfig(bookingConfig, origin);
 
   const [isPublic, setIsPublic] = useState(property.is_public ?? false);
   const [slug, setSlug] = useState(property.slug ?? suggestPropertySlug(property.name));
@@ -88,13 +97,16 @@ export function PropertyPublicSettings({ property }: PropertyPublicSettingsProps
     );
   }
 
-  const hostPublicPath =
+  const hostBookingBaseUrl =
     hostProfile?.username && hostProfile.is_published
-      ? `${getBookingSitePath(hostProfile.username)}${slug ? `#${slug}` : ""}`
+      ? getBookingSiteUrl(hostProfile.username, urlOptions)
       : null;
+  const hostPublicUrl = hostBookingBaseUrl
+    ? `${hostBookingBaseUrl}${slug ? `#${slug}` : ""}`
+    : null;
   const hostPublicLabel =
     hostProfile?.username && hostProfile.is_published
-      ? `${getBookingSiteLabel(hostProfile.username) ?? getBookingSitePath(hostProfile.username)}${slug ? `#${slug}` : ""}`
+      ? `${getBookingSiteLabel(hostProfile.username, urlOptions) ?? ""}${slug ? `#${slug}` : ""}`
       : null;
 
   return (
@@ -106,12 +118,23 @@ export function PropertyPublicSettings({ property }: PropertyPublicSettingsProps
             Shown on your booking site alongside your other listings
           </p>
         </div>
-        {isPublic && hostPublicPath ? (
+        {isPublic && hostPublicUrl && !isPwa ? (
           <Button variant="outline" size="sm" className="w-full shrink-0 sm:w-auto" asChild>
-            <Link href={hostPublicPath} target="_blank">
+            <Link href={hostPublicUrl} target="_blank" rel="noopener noreferrer">
               <ExternalLink className="h-4 w-4" />
               View
             </Link>
+          </Button>
+        ) : isPublic && hostPublicUrl && isPwa ? (
+          <Button
+            type="button"
+            variant="outline"
+            size="sm"
+            className="w-full shrink-0 sm:w-auto"
+            onClick={() => openInSystemBrowser(hostPublicUrl)}
+          >
+            <ExternalLink className="h-4 w-4" />
+            Open in browser
           </Button>
         ) : null}
       </CardHeader>

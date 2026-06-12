@@ -26,13 +26,30 @@ export function bookingSubdomainsEnabled(): boolean {
   return process.env.NEXT_PUBLIC_BOOKING_USE_SUBDOMAIN === "true";
 }
 
-export function usesBookingSubdomain(baseUrl?: string): boolean {
-  if (!bookingSubdomainsEnabled()) return false;
+export type BookingSiteUrlOptions = {
+  baseUrl?: string;
+  useSubdomain?: boolean;
+  bookingDomain?: string;
+};
 
-  const base = (baseUrl ?? getSiteBaseUrl()).toLowerCase();
+function resolveUseSubdomain(
+  baseUrl: string,
+  useSubdomain?: boolean
+): boolean {
+  const enabled = useSubdomain ?? bookingSubdomainsEnabled();
+  if (!enabled) return false;
+
+  const base = baseUrl.toLowerCase();
   if (base.includes("localhost")) return false;
   if (base.includes(".vercel.app")) return false;
   return true;
+}
+
+export function usesBookingSubdomain(
+  baseUrl?: string,
+  options?: Pick<BookingSiteUrlOptions, "useSubdomain">
+): boolean {
+  return resolveUseSubdomain(baseUrl ?? getSiteBaseUrl(), options?.useSubdomain);
 }
 
 export function getBookingSitePath(username: string): string {
@@ -42,15 +59,16 @@ export function getBookingSitePath(username: string): string {
 
 export function getBookingSiteUrl(
   username: string,
-  options?: { baseUrl?: string }
+  options?: BookingSiteUrlOptions
 ): string | null {
   const clean = username.trim().toLowerCase();
   if (!clean || !isValidUsername(clean)) return null;
 
   const base = options?.baseUrl ?? getSiteBaseUrl();
+  const bookingDomain = options?.bookingDomain ?? BOOKING_DOMAIN;
 
-  if (usesBookingSubdomain(base)) {
-    return `https://${clean}.${BOOKING_DOMAIN}`;
+  if (resolveUseSubdomain(base, options?.useSubdomain)) {
+    return `https://${clean}.${bookingDomain}`;
   }
 
   return `${base.replace(/\/$/, "")}${getBookingSitePath(clean)}`;
@@ -58,14 +76,16 @@ export function getBookingSiteUrl(
 
 export function getBookingSiteLabel(
   username: string,
-  options?: { baseUrl?: string }
+  options?: BookingSiteUrlOptions
 ): string | null {
   const url = getBookingSiteUrl(username, options);
   if (!url) return null;
 
-  if (usesBookingSubdomain(options?.baseUrl)) {
+  const bookingDomain = options?.bookingDomain ?? BOOKING_DOMAIN;
+
+  if (resolveUseSubdomain(options?.baseUrl ?? getSiteBaseUrl(), options?.useSubdomain)) {
     const clean = username.trim().toLowerCase();
-    return `${clean}.${BOOKING_DOMAIN}`;
+    return `${clean}.${bookingDomain}`;
   }
 
   try {

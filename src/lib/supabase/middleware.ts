@@ -70,6 +70,7 @@ export async function updateSession(request: NextRequest) {
       path.startsWith("/api/cron/") ||
       path.startsWith("/api/booking-requests") ||
       path.startsWith("/api/push/config") ||
+      path.startsWith("/api/booking/config") ||
       path.startsWith("/api/public/") ||
       path.startsWith("/host/");
 

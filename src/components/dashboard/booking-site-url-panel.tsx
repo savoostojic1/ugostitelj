@@ -3,11 +3,12 @@
 import { useMemo, useState } from "react";
 import Link from "next/link";
 import { Check, Copy, ExternalLink, Globe, Link2 } from "lucide-react";
+import { useIsStandalonePwa } from "@/hooks/use-is-standalone-pwa";
+import { openInSystemBrowser } from "@/lib/pwa/standalone";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import {
-  BOOKING_DOMAIN,
   bookingSubdomainsEnabled,
   getBookingSiteLabel,
   getBookingSitePath,
@@ -15,6 +16,10 @@ import {
   usesBookingSubdomain,
 } from "@/lib/public/booking-site-url";
 import { isValidUsername } from "@/lib/public/slug";
+import {
+  bookingUrlOptionsFromConfig,
+  useBookingSiteConfig,
+} from "@/hooks/use-booking-site-config";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
 
@@ -30,21 +35,30 @@ export function BookingSiteUrlPanel({
   isPublished,
 }: BookingSiteUrlPanelProps) {
   const [copied, setCopied] = useState(false);
+  const isPwa = useIsStandalonePwa();
+  const { data: bookingConfig } = useBookingSiteConfig();
 
   const origin =
     typeof window !== "undefined" ? window.location.origin : undefined;
 
+  const urlOptions = useMemo(
+    () => bookingUrlOptionsFromConfig(bookingConfig, origin),
+    [bookingConfig, origin]
+  );
+
   const siteUrl = useMemo(
-    () => getBookingSiteUrl(username, { baseUrl: origin }),
-    [username, origin]
+    () => getBookingSiteUrl(username, urlOptions),
+    [username, urlOptions]
   );
 
   const siteLabel = useMemo(
-    () => getBookingSiteLabel(username, { baseUrl: origin }),
-    [username, origin]
+    () => getBookingSiteLabel(username, urlOptions),
+    [username, urlOptions]
   );
 
-  const subdomainMode = usesBookingSubdomain(origin);
+  const bookingDomain = bookingConfig?.bookingDomain ?? "hostvia.me";
+  const subdomainMode = usesBookingSubdomain(origin, urlOptions);
+  const subdomainsEnabled = bookingConfig?.useSubdomain ?? bookingSubdomainsEnabled();
   const onProduction =
     Boolean(origin) &&
     !origin!.includes("localhost") &&
@@ -78,7 +92,7 @@ export function BookingSiteUrlPanel({
           <p className="text-sm font-semibold text-white">Your booking site link</p>
           <p className="text-xs text-zinc-500">
             {subdomainMode
-              ? `Guests open your page at your own ${BOOKING_DOMAIN} address`
+              ? `Guests open your page at your own ${bookingDomain} address`
               : onProduction
                 ? "Share this link with guests — it works on your main domain"
                 : "Local preview uses /host/your-name until deploy"}
@@ -126,7 +140,7 @@ export function BookingSiteUrlPanel({
                 autoCorrect="off"
               />
               <div className="flex items-center border-l border-white/10 bg-white/[0.02] px-3 text-sm text-zinc-400">
-                .{BOOKING_DOMAIN}
+                .{bookingDomain}
               </div>
             </div>
           ) : (
@@ -169,20 +183,20 @@ export function BookingSiteUrlPanel({
               Example:{" "}
               <span className="font-medium text-zinc-300">
                 {subdomainMode
-                  ? `${exampleUsername}.${BOOKING_DOMAIN}`
+                  ? `${exampleUsername}.${bookingDomain}`
                   : `${pathPrefix}${getBookingSitePath(exampleUsername)}`}
               </span>
             </p>
           )}
         </div>
 
-        {onProduction && !bookingSubdomainsEnabled() ? (
+        {onProduction && !subdomainsEnabled ? (
           <p className="rounded-lg border border-amber-500/20 bg-amber-500/5 px-3 py-2 text-xs leading-relaxed text-amber-200/90">
             Short addresses like{" "}
             <span className="font-medium text-amber-100">
-              {exampleUsername}.{BOOKING_DOMAIN}
+              {exampleUsername}.{bookingDomain}
             </span>{" "}
-            need wildcard DNS (<code className="text-[11px]">*.{BOOKING_DOMAIN}</code>
+            need wildcard DNS (<code className="text-[11px]">*.{bookingDomain}</code>
             ) on Vercel. Until that is set up, guests use the link above.
           </p>
         ) : null}
@@ -213,23 +227,33 @@ export function BookingSiteUrlPanel({
                 )}
                 Copy
               </Button>
-              {isPublished && siteUrl ? (
-                <Button
-                  size="sm"
-                  className="hostvia-btn-gradient"
-                  asChild
-                >
-                  <Link href={siteUrl} target="_blank" rel="noopener noreferrer">
+              {isPublished && siteUrl && !isPwa ? (
+                <Button size="sm" className="hostvia-btn-gradient" asChild>
+                  <Link
+                    href={siteUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
                     <ExternalLink className="h-4 w-4" />
                     Open site
                   </Link>
                 </Button>
-              ) : (
+              ) : isPublished && siteUrl && isPwa ? (
+                <Button
+                  type="button"
+                  size="sm"
+                  className="hostvia-btn-gradient"
+                  onClick={() => openInSystemBrowser(siteUrl)}
+                >
+                  <ExternalLink className="h-4 w-4" />
+                  Open in browser
+                </Button>
+              ) : !isPwa ? (
                 <Button size="sm" className="hostvia-btn-gradient" disabled>
                   <ExternalLink className="h-4 w-4" />
                   Open site
                 </Button>
-              )}
+              ) : null}
             </div>
           </div>
         ) : null}
