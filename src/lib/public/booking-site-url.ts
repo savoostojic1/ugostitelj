@@ -21,7 +21,14 @@ export function isReservedBookingSubdomain(username: string): boolean {
   return RESERVED_SUBDOMAINS.has(username.toLowerCase());
 }
 
+/** Subdomain booking URLs need wildcard DNS (*.hostvia.me) on Vercel. */
+export function bookingSubdomainsEnabled(): boolean {
+  return process.env.NEXT_PUBLIC_BOOKING_USE_SUBDOMAIN === "true";
+}
+
 export function usesBookingSubdomain(baseUrl?: string): boolean {
+  if (!bookingSubdomainsEnabled()) return false;
+
   const base = (baseUrl ?? getSiteBaseUrl()).toLowerCase();
   if (base.includes("localhost")) return false;
   if (base.includes(".vercel.app")) return false;

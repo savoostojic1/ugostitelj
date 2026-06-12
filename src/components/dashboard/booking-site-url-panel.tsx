@@ -8,7 +8,9 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import {
   BOOKING_DOMAIN,
+  bookingSubdomainsEnabled,
   getBookingSiteLabel,
+  getBookingSitePath,
   getBookingSiteUrl,
   usesBookingSubdomain,
 } from "@/lib/public/booking-site-url";
@@ -43,8 +45,15 @@ export function BookingSiteUrlPanel({
   );
 
   const subdomainMode = usesBookingSubdomain(origin);
+  const onProduction =
+    Boolean(origin) &&
+    !origin!.includes("localhost") &&
+    !origin!.includes(".vercel.app");
+  const pathPrefix =
+    origin?.replace(/^https?:\/\//, "") ?? "localhost:3000";
   const cleanUsername = username.trim().toLowerCase();
   const usernameValid = !cleanUsername || isValidUsername(cleanUsername);
+  const exampleUsername = cleanUsername || "fairy-tale";
 
   async function handleCopy() {
     if (!siteUrl) return;
@@ -70,7 +79,9 @@ export function BookingSiteUrlPanel({
           <p className="text-xs text-zinc-500">
             {subdomainMode
               ? `Guests open your page at your own ${BOOKING_DOMAIN} address`
-              : "Subdomain links work on your live domain after deploy"}
+              : onProduction
+                ? "Share this link with guests — it works on your main domain"
+                : "Local preview uses /host/your-name until deploy"}
           </p>
         </div>
         {isPublished ? (
@@ -129,9 +140,7 @@ export function BookingSiteUrlPanel({
                 )}
               >
                 <div className="flex min-w-0 flex-1 items-center border-r border-white/10 bg-white/[0.03] px-3 text-xs text-zinc-500 sm:text-sm">
-                  <span className="truncate">
-                    {origin?.replace(/^https?:\/\//, "") ?? "localhost"}/host/
-                  </span>
+                  <span className="truncate">{pathPrefix}/host/</span>
                 </div>
                 <Input
                   id="booking-site-username"
@@ -159,11 +168,24 @@ export function BookingSiteUrlPanel({
             <p className="text-xs text-zinc-500">
               Example:{" "}
               <span className="font-medium text-zinc-300">
-                fairy-tale.{BOOKING_DOMAIN}
+                {subdomainMode
+                  ? `${exampleUsername}.${BOOKING_DOMAIN}`
+                  : `${pathPrefix}${getBookingSitePath(exampleUsername)}`}
               </span>
             </p>
           )}
         </div>
+
+        {onProduction && !bookingSubdomainsEnabled() ? (
+          <p className="rounded-lg border border-amber-500/20 bg-amber-500/5 px-3 py-2 text-xs leading-relaxed text-amber-200/90">
+            Short addresses like{" "}
+            <span className="font-medium text-amber-100">
+              {exampleUsername}.{BOOKING_DOMAIN}
+            </span>{" "}
+            need wildcard DNS (<code className="text-[11px]">*.{BOOKING_DOMAIN}</code>
+            ) on Vercel. Until that is set up, guests use the link above.
+          </p>
+        ) : null}
 
         {siteLabel && usernameValid ? (
           <div className="flex flex-col gap-3 rounded-xl border border-white/8 bg-white/[0.02] p-4 sm:flex-row sm:items-center sm:justify-between">

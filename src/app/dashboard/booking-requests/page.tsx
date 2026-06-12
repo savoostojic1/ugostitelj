@@ -6,6 +6,7 @@ import { format, parseISO } from "date-fns";
 import { appLocale } from "@/lib/dates/locale";
 import { Check, Mail, Phone, X } from "lucide-react";
 import { DashboardPageHeader } from "@/components/dashboard/dashboard-page-header";
+import { PushNotificationsPrompt } from "@/components/pwa/push-notifications-prompt";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -68,6 +69,8 @@ export default function BookingRequestsPage() {
             : "Guest requests from your booking site"
         }
       />
+
+      <PushNotificationsPrompt />
 
       {!isLoading && requests.length === 0 && (
         <Card className="border-dashed">

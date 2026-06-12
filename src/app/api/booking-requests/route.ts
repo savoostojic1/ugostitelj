@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { notifyHostOfBookingRequest } from "@/lib/notifications/send-booking-request-notification";
 import { createClient } from "@/lib/supabase/server";
 
 export async function POST(request: Request) {
@@ -58,6 +59,10 @@ export async function POST(request: Request) {
           : "Failed to submit request";
       return NextResponse.json({ error: msg }, { status: 400 });
     }
+
+    void notifyHostOfBookingRequest(String(data)).catch((err) => {
+      console.error("[booking-requests] notification failed:", err);
+    });
 
     return NextResponse.json({ id: data });
   } catch {
