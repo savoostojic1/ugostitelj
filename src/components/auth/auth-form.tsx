@@ -15,6 +15,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { getBrowserClient } from "@/lib/supabase/client";
+import { isTeamAccessEmail } from "@/lib/team-access/permissions";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 
@@ -137,9 +138,18 @@ export function AuthForm({ mode }: { mode: AuthMode }) {
         toast.success("Check your email to confirm your account");
         router.push("/login");
       } else {
-        const { error } = await supabase.auth.resetPasswordForEmail(email, {
-          redirectTo: `${window.location.origin}/login`,
-        });
+        const normalizedEmail = email.trim().toLowerCase();
+        if (isTeamAccessEmail(normalizedEmail)) {
+          throw new Error(
+            "Team access accounts cannot reset password by email. Ask the property owner to use Give access → Reset password."
+          );
+        }
+
+        const redirectTo = `${window.location.origin}/auth/callback?next=${encodeURIComponent("/reset-password")}`;
+        const { error } = await supabase.auth.resetPasswordForEmail(
+          normalizedEmail,
+          { redirectTo }
+        );
         if (error) throw error;
         toast.success("Password reset link sent to your email");
       }
@@ -215,6 +225,14 @@ export function AuthForm({ mode }: { mode: AuthMode }) {
           <p className="rounded-xl border border-white/8 bg-white/[0.03] px-3.5 py-3 text-xs leading-relaxed text-zinc-400">
             Use at least 6 characters. After sign-up, confirm your email before
             signing in for the first time.
+          </p>
+        ) : null}
+
+        {mode === "forgot" ? (
+          <p className="rounded-xl border border-white/8 bg-white/[0.03] px-3.5 py-3 text-xs leading-relaxed text-zinc-400">
+            Use the email address for your main Hostvia account. Team access
+            usernames (e.g. pregled.your-host) are reset by the owner in Give
+            access.
           </p>
         ) : null}
 

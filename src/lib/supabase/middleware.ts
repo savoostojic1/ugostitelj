@@ -50,6 +50,7 @@ export async function updateSession(request: NextRequest) {
       path.startsWith("/login") ||
       path.startsWith("/register") ||
       path.startsWith("/forgot-password");
+    const isPasswordResetRoute = path.startsWith("/reset-password");
     const bookingUsername = parseBookingSubdomain(host);
 
     if (
@@ -66,6 +67,8 @@ export async function updateSession(request: NextRequest) {
     const isPublicRoute =
       isMarketingPublicPath(path) ||
       isAuthRoute ||
+      isPasswordResetRoute ||
+      path.startsWith("/auth/callback") ||
       path.startsWith("/api/calendar") ||
       path.startsWith("/api/cron/") ||
       path.startsWith("/api/booking-requests") ||
@@ -79,6 +82,8 @@ export async function updateSession(request: NextRequest) {
       request.cookies.get(PWA_STANDALONE_COOKIE)?.value === "1";
     const isPwaAllowedRoute =
       isAuthRoute ||
+      isPasswordResetRoute ||
+      path.startsWith("/auth/callback") ||
       path.startsWith("/dashboard") ||
       path.startsWith("/host/") ||
       Boolean(bookingUsername && (path === "/" || path === ""));

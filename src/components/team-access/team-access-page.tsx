@@ -1,7 +1,14 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { AlertTriangle, Loader2, Shield, Trash2, UserPlus } from "lucide-react";
+import {
+  AlertTriangle,
+  KeyRound,
+  Loader2,
+  Shield,
+  Trash2,
+  UserPlus,
+} from "lucide-react";
 import { useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { DashboardPageHeader } from "@/components/dashboard/dashboard-page-header";
@@ -53,6 +60,159 @@ function PermissionChecklist({
           {TEAM_PERMISSION_LABELS[permission]}
         </label>
       ))}
+    </div>
+  );
+}
+
+function TeamAccessUserRow({
+  user,
+  canCreateUsers,
+  deletingId,
+  onDelete,
+}: {
+  user: {
+    id: string;
+    username: string;
+    display_name: string | null;
+    password_plain: string | null;
+    permissions: TeamPermission[];
+  };
+  canCreateUsers: boolean;
+  deletingId: string | null;
+  onDelete: (id: string, username: string) => void;
+}) {
+  const queryClient = useQueryClient();
+  const [resetOpen, setResetOpen] = useState(false);
+  const [newPassword, setNewPassword] = useState(user.password_plain ?? "");
+  const [savingPassword, setSavingPassword] = useState(false);
+
+  async function handleResetPassword(e: React.FormEvent) {
+    e.preventDefault();
+
+    if (newPassword.length < 6) {
+      toast.error("Password must be at least 6 characters.");
+      return;
+    }
+
+    setSavingPassword(true);
+    try {
+      const res = await fetch(`/api/team-access/${user.id}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ password: newPassword }),
+      });
+      const json = (await res.json()) as { error?: string };
+      if (!res.ok) throw new Error(json.error ?? "Could not reset password");
+
+      toast.success(`Password updated for ${user.username}`);
+      setResetOpen(false);
+      await queryClient.invalidateQueries({ queryKey: TEAM_LIST_KEY });
+    } catch (err) {
+      toast.error(
+        err instanceof Error ? err.message : "Could not reset password"
+      );
+    } finally {
+      setSavingPassword(false);
+    }
+  }
+
+  return (
+    <div className="rounded-xl border border-white/8 bg-white/[0.03] p-4">
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+        <div className="min-w-0 space-y-2">
+          <div className="flex items-center gap-2">
+            <Shield className="h-4 w-4 shrink-0 text-violet-400" />
+            <p className="font-medium text-white">{user.username}</p>
+          </div>
+          {user.display_name ? (
+            <p className="text-sm text-zinc-400">{user.display_name}</p>
+          ) : null}
+          <p className="font-mono text-sm text-zinc-300">
+            Password:{" "}
+            <span className="text-white">{user.password_plain ?? "—"}</span>
+          </p>
+          <p className="text-xs text-zinc-500">
+            Access:{" "}
+            {user.permissions.map((p) => TEAM_PERMISSION_LABELS[p]).join(", ")}
+          </p>
+        </div>
+        <div className="flex shrink-0 flex-wrap gap-2">
+          <Button
+            type="button"
+            variant="ghost"
+            size="sm"
+            className="text-zinc-300 hover:bg-white/5 hover:text-white"
+            disabled={!canCreateUsers || deletingId === user.id}
+            onClick={() => {
+              setResetOpen((open) => !open);
+              setNewPassword(user.password_plain ?? "");
+            }}
+          >
+            <KeyRound className="h-4 w-4" />
+            Reset password
+          </Button>
+          <Button
+            type="button"
+            variant="ghost"
+            size="sm"
+            className="text-red-300 hover:bg-red-500/10 hover:text-red-200"
+            disabled={deletingId === user.id}
+            onClick={() => onDelete(user.id, user.username)}
+          >
+            {deletingId === user.id ? (
+              <Loader2 className="h-4 w-4 animate-spin" />
+            ) : (
+              <Trash2 className="h-4 w-4" />
+            )}
+            Remove
+          </Button>
+        </div>
+      </div>
+
+      {resetOpen ? (
+        <form
+          onSubmit={handleResetPassword}
+          className="mt-4 flex flex-col gap-3 border-t border-white/8 pt-4 sm:flex-row sm:items-end"
+        >
+          <div className="min-w-0 flex-1 space-y-2">
+            <Label htmlFor={`reset-password-${user.id}`}>New password</Label>
+            <Input
+              id={`reset-password-${user.id}`}
+              type="text"
+              value={newPassword}
+              onChange={(e) => setNewPassword(e.target.value)}
+              minLength={6}
+              autoComplete="off"
+              spellCheck={false}
+              className="hostvia-input font-mono"
+              required
+            />
+          </div>
+          <div className="flex gap-2">
+            <Button
+              type="button"
+              variant="ghost"
+              size="sm"
+              onClick={() => setResetOpen(false)}
+            >
+              Cancel
+            </Button>
+            <Button
+              type="submit"
+              size="sm"
+              disabled={savingPassword || !canCreateUsers}
+              className="hostvia-btn-gradient gap-2"
+            >
+              {savingPassword ? (
+                <Loader2 className="h-4 w-4 animate-spin" />
+              ) : (
+                <KeyRound className="h-4 w-4" />
+              )}
+              Save password
+            </Button>
+          </div>
+        </form>
+      ) : null}
     </div>
   );
 }
@@ -263,47 +423,13 @@ export function TeamAccessPage() {
         ) : (
           <div className="space-y-3">
             {users.map((user) => (
-              <div
+              <TeamAccessUserRow
                 key={user.id}
-                className="flex flex-col gap-3 rounded-xl border border-white/8 bg-white/[0.03] p-4 sm:flex-row sm:items-start sm:justify-between"
-              >
-                <div className="min-w-0 space-y-2">
-                  <div className="flex items-center gap-2">
-                    <Shield className="h-4 w-4 shrink-0 text-violet-400" />
-                    <p className="font-medium text-white">{user.username}</p>
-                  </div>
-                  {user.display_name ? (
-                    <p className="text-sm text-zinc-400">{user.display_name}</p>
-                  ) : null}
-                  <p className="font-mono text-sm text-zinc-300">
-                    Password:{" "}
-                    <span className="text-white">
-                      {user.password_plain ?? "—"}
-                    </span>
-                  </p>
-                  <p className="text-xs text-zinc-500">
-                    Access:{" "}
-                    {user.permissions
-                      .map((p) => TEAM_PERMISSION_LABELS[p])
-                      .join(", ")}
-                  </p>
-                </div>
-                <Button
-                  type="button"
-                  variant="ghost"
-                  size="sm"
-                  className="shrink-0 text-red-300 hover:bg-red-500/10 hover:text-red-200"
-                  disabled={deletingId === user.id}
-                  onClick={() => handleDelete(user.id, user.username)}
-                >
-                  {deletingId === user.id ? (
-                    <Loader2 className="h-4 w-4 animate-spin" />
-                  ) : (
-                    <Trash2 className="h-4 w-4" />
-                  )}
-                  Remove
-                </Button>
-              </div>
+                user={user}
+                canCreateUsers={canCreateUsers}
+                deletingId={deletingId}
+                onDelete={handleDelete}
+              />
             ))}
           </div>
         )}

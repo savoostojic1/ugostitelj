@@ -158,3 +158,9 @@ export function buildTeamUsername(
 export function teamAccessLoginEmail(username: string): string {
   return `${username.trim().toLowerCase()}@access.hostvia.me`;
 }
+
+const TEAM_ACCESS_EMAIL_DOMAIN = "@access.hostvia.me";
+
+export function isTeamAccessEmail(email: string): boolean {
+  return email.trim().toLowerCase().endsWith(TEAM_ACCESS_EMAIL_DOMAIN);
+}

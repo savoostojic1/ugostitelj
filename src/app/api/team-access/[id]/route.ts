@@ -1,6 +1,10 @@
 import { NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
-import { createServiceClient } from "@/lib/supabase/service";
+import { createServiceClient, hasServiceRoleKey } from "@/lib/supabase/service";
+
+const SERVICE_ROLE_SETUP_MESSAGE =
+  "Add SUPABASE_SERVICE_ROLE_KEY to .env.local (local) and Vercel env (production). " +
+  "Supabase → Project Settings → API → service_role secret. Restart the dev server after saving.";
 import { isTeamPermission } from "@/lib/team-access/permissions";
 
 type PatchBody = {
@@ -59,22 +63,21 @@ export async function PATCH(
   }
 
   if (body.password && body.password.length >= 6) {
-    try {
-      const admin = createServiceClient();
-      const { error: pwError } = await admin.auth.admin.updateUserById(
-        existing.auth_user_id,
-        { password: body.password }
-      );
-      if (pwError) {
-        return NextResponse.json({ error: pwError.message }, { status: 500 });
-      }
-      updates.password_plain = body.password;
-    } catch {
+    if (!hasServiceRoleKey()) {
       return NextResponse.json(
-        { error: "Server is not configured for password updates." },
-        { status: 500 }
+        { error: SERVICE_ROLE_SETUP_MESSAGE },
+        { status: 503 }
       );
     }
+    const admin = createServiceClient();
+    const { error: pwError } = await admin.auth.admin.updateUserById(
+      existing.auth_user_id,
+      { password: body.password }
+    );
+    if (pwError) {
+      return NextResponse.json({ error: pwError.message }, { status: 500 });
+    }
+    updates.password_plain = body.password;
   } else if (body.password) {
     return NextResponse.json(
       { error: "Password must be at least 6 characters." },
