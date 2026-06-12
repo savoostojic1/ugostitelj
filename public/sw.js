@@ -1,5 +1,5 @@
 /// Hostvia PWA service worker — install + push notifications
-const CACHE = "hostvia-v2";
+const CACHE = "hostvia-v3";
 
 self.addEventListener("install", (event) => {
   event.waitUntil(self.skipWaiting());
@@ -61,8 +61,12 @@ self.addEventListener("notificationclick", (event) => {
       for (const client of allClients) {
         if ("focus" in client) {
           await client.focus();
-          if ("navigate" in client) {
-            await client.navigate(targetUrl);
+          if (client.url !== targetUrl && "navigate" in client) {
+            try {
+              await client.navigate(targetUrl);
+            } catch {
+              await self.clients.openWindow(targetUrl);
+            }
           }
           return;
         }

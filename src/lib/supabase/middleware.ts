@@ -42,6 +42,10 @@ export async function updateSession(request: NextRequest) {
 
     const host = request.headers.get("host") ?? "";
     const path = request.nextUrl.pathname;
+
+    if (path === "/sw.js" || path === "/manifest.webmanifest") {
+      return NextResponse.next({ request });
+    }
     const isAuthRoute =
       path.startsWith("/login") ||
       path.startsWith("/register") ||
