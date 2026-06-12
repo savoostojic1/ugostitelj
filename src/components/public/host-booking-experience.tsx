@@ -20,6 +20,7 @@ import { HostAllUnitsSection } from "@/components/public/host-all-units-section"
 import { HostReservePanel } from "@/components/public/host-reserve-panel";
 import { PublicSectionHeader } from "@/components/public/public-section-header";
 import { getPublicHostCoverUrl } from "@/lib/public/host-cover-url";
+import { scrollBelowPublicSearch } from "@/lib/public/scroll-anchors";
 import type {
   HostSearchParams,
   PublicHostProfile,
