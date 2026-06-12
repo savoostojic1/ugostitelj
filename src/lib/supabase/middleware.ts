@@ -2,6 +2,7 @@ import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
 import { isMarketingPublicPath } from "@/lib/marketing/content";
 import { parseBookingSubdomain } from "@/lib/public/booking-site-url";
+import { PASSWORD_RECOVERY_COOKIE } from "@/lib/auth/password-recovery";
 import {
   PWA_STANDALONE_COOKIE,
   isPwaBlockedPath,
@@ -95,6 +96,20 @@ export async function updateSession(request: NextRequest) {
     ) {
       const redirectUrl = request.nextUrl.clone();
       redirectUrl.pathname = user ? "/dashboard" : "/login";
+      return NextResponse.redirect(redirectUrl);
+    }
+
+    const recoveryPending =
+      request.cookies.get(PASSWORD_RECOVERY_COOKIE)?.value === "1";
+
+    if (
+      user &&
+      recoveryPending &&
+      path.startsWith("/dashboard") &&
+      !isPasswordResetRoute
+    ) {
+      const redirectUrl = request.nextUrl.clone();
+      redirectUrl.pathname = "/reset-password";
       return NextResponse.redirect(redirectUrl);
     }
 

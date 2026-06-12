@@ -15,6 +15,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { getBrowserClient } from "@/lib/supabase/client";
+import { getPasswordRecoveryRedirectUrl } from "@/lib/auth/password-recovery";
 import { isTeamAccessEmail } from "@/lib/team-access/permissions";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
@@ -145,7 +146,7 @@ export function AuthForm({ mode }: { mode: AuthMode }) {
           );
         }
 
-        const redirectTo = `${window.location.origin}/auth/callback?next=${encodeURIComponent("/reset-password")}`;
+        const redirectTo = getPasswordRecoveryRedirectUrl(window.location.origin);
         const { error } = await supabase.auth.resetPasswordForEmail(
           normalizedEmail,
           { redirectTo }
