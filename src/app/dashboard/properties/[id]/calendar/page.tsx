@@ -27,7 +27,7 @@ export default function PropertyCalendarPage({
     useReservations(id);
 
   if (isLoading) {
-    return <p className="text-muted-foreground">Loading…</p>;
+    return null;
   }
 
   if (!property) {
@@ -67,9 +67,7 @@ export default function PropertyCalendarPage({
           <h2 className="text-lg font-semibold text-foreground">Calendar</h2>
           <PropertyCalendarNav propertyId={id} />
         </div>
-        {reservationsLoading ? (
-          <p className="text-sm text-muted-foreground">Loading…</p>
-        ) : (
+        {reservationsLoading ? null : (
           <MonthlyCalendar reservations={reservations} propertyId={id} />
         )}
       </div>
@@ -79,9 +77,7 @@ export default function PropertyCalendarPage({
           <CardTitle className="text-base">Reservations</CardTitle>
         </CardHeader>
         <CardContent className="divide-y divide-border">
-          {reservationsLoading ? (
-            <p className="py-4 text-sm text-muted-foreground">Loading…</p>
-          ) : reservations.length === 0 ? (
+          {reservationsLoading ? null : reservations.length === 0 ? (
             <p className="py-4 text-sm text-muted-foreground">
               No reservations. Connect calendars in settings and run sync.
             </p>

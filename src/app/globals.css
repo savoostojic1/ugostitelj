@@ -245,6 +245,97 @@
     );
 }
 
+.auth-page {
+  min-height: 100vh;
+  min-height: 100dvh;
+  color: #fafafa;
+}
+
+.auth-page .auth-input {
+  height: 2.75rem;
+  border-radius: 0.75rem;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: rgba(255, 255, 255, 0.04);
+  padding-inline: 2.75rem 0.875rem;
+  color: #fafafa;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.04);
+}
+
+.auth-page .auth-input::placeholder {
+  color: #71717a;
+}
+
+.auth-page .auth-input:focus-visible {
+  border-color: rgba(167, 139, 250, 0.55);
+  outline: none;
+  box-shadow:
+    0 0 0 3px rgba(139, 92, 246, 0.18),
+    inset 0 1px 0 rgba(255, 255, 255, 0.04);
+}
+
+.auth-page .auth-label {
+  font-size: 0.8125rem;
+  font-weight: 500;
+  color: #d4d4d8;
+}
+
+.auth-page .auth-field-icon {
+  pointer-events: none;
+  position: absolute;
+  left: 0.875rem;
+  top: 50%;
+  height: 1rem;
+  width: 1rem;
+  transform: translateY(-50%);
+  color: #71717a;
+}
+
+.auth-page .auth-form-card {
+  position: relative;
+  width: 100%;
+  max-width: 26rem;
+  border-radius: 1.5rem;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: linear-gradient(
+    165deg,
+    rgba(255, 255, 255, 0.06) 0%,
+    rgba(255, 255, 255, 0.02) 100%
+  );
+  padding: 2rem;
+  box-shadow:
+    0 24px 64px rgba(0, 0, 0, 0.45),
+    inset 0 1px 0 rgba(255, 255, 255, 0.06);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+}
+
+@media (min-width: 1024px) {
+  .auth-page .auth-form-card {
+    padding: 2.25rem;
+  }
+}
+
+.auth-page .auth-layout {
+  display: flex;
+  min-height: 100vh;
+  min-height: 100dvh;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem 1rem;
+}
+
+@media (min-width: 1024px) {
+  .auth-page .auth-layout {
+    padding: 2.5rem 1.5rem;
+  }
+}
+
+.auth-page .auth-form-wrap {
+  width: 100%;
+  max-width: 26rem;
+  flex-shrink: 0;
+}
+
 .hostvia-dashboard-bg {
   background-color: #050508;
   color: var(--foreground);
@@ -298,6 +389,19 @@
   padding: 0.75rem 1.5rem;
   backdrop-filter: blur(16px);
   -webkit-backdrop-filter: blur(16px);
+}
+
+.hostvia-dashboard-loader-ring {
+  border: 2px solid transparent;
+  border-top-color: #a78bfa;
+  border-right-color: #22d3ee;
+  animation: hostvia-dashboard-spin 0.85s linear infinite;
+}
+
+@keyframes hostvia-dashboard-spin {
+  to {
+    transform: rotate(360deg);
+  }
 }
 
 .hostvia-dashboard-content {
@@ -480,10 +584,112 @@
   background: rgba(139, 92, 246, 0.05);
 }
 
+.marketing-site .marketing-container {
+  margin-inline: auto;
+  width: 100%;
+  max-width: 80rem;
+  padding-inline: 1rem;
+}
+
+@media (min-width: 640px) {
+  .marketing-site .marketing-container {
+    padding-inline: 1.5rem;
+  }
+}
+
+@media (min-width: 1024px) {
+  .marketing-site .marketing-container {
+    padding-inline: 2rem;
+  }
+}
+
+.marketing-site .marketing-section {
+  padding-block: 3.5rem;
+}
+
+@media (min-width: 768px) {
+  .marketing-site .marketing-section {
+    padding-block: 5rem;
+  }
+}
+
+@media (min-width: 1024px) {
+  .marketing-site .marketing-section {
+    padding-block: 6rem;
+  }
+}
+
+.marketing-site .marketing-hero {
+  position: relative;
+  overflow: hidden;
+  isolation: isolate;
+  padding-block: 3.5rem 3rem;
+}
+
+@media (min-width: 640px) {
+  .marketing-site .marketing-hero {
+    padding-block: 4.5rem 4rem;
+  }
+}
+
+@media (min-width: 1024px) {
+  .marketing-site .marketing-hero {
+    padding-block: 5.5rem 5rem;
+  }
+}
+
+.marketing-site .marketing-cta-row {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+@media (min-width: 640px) {
+  .marketing-site .marketing-cta-row {
+    flex-flow: row wrap;
+    gap: 1rem;
+  }
+}
+
+.marketing-site .marketing-cta-row > a,
+.marketing-site .marketing-cta-row > div {
+  width: 100%;
+  justify-content: center;
+}
+
+@media (min-width: 640px) {
+  .marketing-site .marketing-cta-row > a,
+  .marketing-site .marketing-cta-row > div {
+    width: auto;
+  }
+}
+
+.marketing-site .marketing-trust-row {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 0.75rem;
+}
+
+@media (min-width: 640px) {
+  .marketing-site .marketing-trust-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1.25rem 1.5rem;
+  }
+}
+
 .marketing-site .marketing-heading {
   letter-spacing: -0.04em;
-  line-height: 1.05;
+  line-height: 1.08;
   font-weight: 700;
+}
+
+@media (max-width: 639px) {
+  .marketing-site .marketing-heading.text-4xl,
+  .marketing-site .marketing-heading.text-3xl {
+    font-size: clamp(1.75rem, 7vw, 2.25rem);
+    line-height: 1.12;
+  }
 }
 
 .marketing-site .marketing-eyebrow {

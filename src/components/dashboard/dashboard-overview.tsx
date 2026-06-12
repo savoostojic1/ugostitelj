@@ -96,9 +96,7 @@ export function DashboardOverview() {
         }
       />
 
-      {isLoading ? (
-        <p className="text-sm text-zinc-500">Loading…</p>
-      ) : (
+      {!isLoading ? (
         <>
           <div className="grid gap-4 lg:grid-cols-[1.4fr_1fr]">
             <div className="hostvia-hero-metric">
@@ -270,7 +268,7 @@ export function DashboardOverview() {
             </DashboardPanel>
           )}
         </>
-      )}
+      ) : null}
     </div>
   );
 }

@@ -179,7 +179,7 @@ export function DateEventsList({ embedded = false }: { embedded?: boolean }) {
   const isLoading = loadingProperties || loadingReservations;
 
   if (isLoading) {
-    return <p className="text-sm text-muted-foreground">Loading…</p>;
+    return null;
   }
 
   if (properties.length === 0) {

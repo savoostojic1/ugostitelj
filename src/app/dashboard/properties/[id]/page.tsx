@@ -26,7 +26,7 @@ export default function PropertyDetailPage({
   const { data: reservations = [] } = useReservations(id);
 
   if (isLoading) {
-    return <p className="text-muted-foreground">Loading…</p>;
+    return null;
   }
 
   if (!property) {
@@ -95,11 +95,9 @@ export default function PropertyDetailPage({
         </CardContent>
       </Card>
 
-      {feedsLoading && reservations.length === 0 ? (
-        <p className="text-sm text-muted-foreground">Loading calendars…</p>
-      ) : (
-        calendarIntegrations
-      )}
+      {feedsLoading && reservations.length === 0
+        ? null
+        : calendarIntegrations}
 
       <PropertyPricingSettings property={property} />
 

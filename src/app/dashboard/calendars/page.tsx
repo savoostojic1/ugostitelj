@@ -95,8 +95,6 @@ export default function CalendarsOverviewPage() {
         }
       />
 
-      {isLoading && <p className="text-sm text-zinc-500">Loading…</p>}
-
       {!isLoading && properties.length === 0 && (
         <div className="hostvia-panel py-16 text-center">
           <p className="text-zinc-400">

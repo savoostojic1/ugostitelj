@@ -18,6 +18,23 @@ export const marketingNav = [
   { href: "/faq", label: "FAQ" },
 ] as const;
 
+/** Marketing pages that must stay public when logged out. */
+export const marketingPublicPaths = [
+  "/",
+  ...marketingNav.map((item) => item.href),
+  "/o-nama",
+  "/kontakt",
+  "/privatnost",
+  "/uslovi",
+] as const;
+
+export function isMarketingPublicPath(path: string): boolean {
+  return marketingPublicPaths.some(
+    (publicPath) =>
+      path === publicPath || path.startsWith(`${publicPath}/`)
+  );
+}
+
 export const marketingFooter = {
   product: [
     { href: "/funkcije", label: "Features" },

@@ -69,10 +69,6 @@ export default function BookingRequestsPage() {
         }
       />
 
-      {isLoading && (
-        <p className="text-sm text-muted-foreground">Loading…</p>
-      )}
-
       {!isLoading && requests.length === 0 && (
         <Card className="border-dashed">
           <CardContent className="py-16 text-center text-muted-foreground">

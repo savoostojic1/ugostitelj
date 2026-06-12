@@ -27,8 +27,6 @@ export default function PropertiesPage() {
         }
       />
 
-      {isLoading && <p className="text-sm text-zinc-500">Loading…</p>}
-
       {!isLoading && properties.length === 0 && (
         <div className="hostvia-panel flex flex-col items-center py-20 text-center">
           <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-violet-500/15">

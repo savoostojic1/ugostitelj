@@ -1,7 +1,8 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { ArrowRight, CheckCircle2 } from "lucide-react";
+import { CheckCircle2 } from "lucide-react";
 import { CtaBanner } from "@/components/marketing/cta-banner";
+import { MarketingAuthButton } from "@/components/marketing/marketing-auth-button";
 import { PageHero } from "@/components/marketing/page-hero";
 import { Button } from "@/components/ui/button";
 import { howItWorksSteps } from "@/lib/marketing/content";
@@ -119,12 +120,11 @@ export default function KakoRadiPage() {
             photos and publish your public site. That way you immediately have
             both an operations overview and a channel for direct inquiries.
           </p>
-          <Button className="mt-6" asChild>
-            <Link href="/register">
-              Get started now
-              <ArrowRight className="h-4 w-4" />
-            </Link>
-          </Button>
+          <MarketingAuthButton
+            className="mt-6"
+            loggedOutLabel="Get started now"
+            showArrow
+          />
         </div>
       </section>
 

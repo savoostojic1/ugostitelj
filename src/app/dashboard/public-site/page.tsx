@@ -1,8 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import Link from "next/link";
-import { ExternalLink } from "lucide-react";
+import { BookingSiteUrlPanel } from "@/components/dashboard/booking-site-url-panel";
 import { DashboardPageHeader } from "@/components/dashboard/dashboard-page-header";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -137,10 +136,8 @@ export default function PublicSiteSettingsPage() {
   }
 
   if (isLoading) {
-    return <p className="text-sm text-muted-foreground">Loading…</p>;
+    return null;
   }
-
-  const publicUrl = username ? `/host/${username}` : null;
 
   return (
     <div className="space-y-8">
@@ -148,16 +145,12 @@ export default function PublicSiteSettingsPage() {
         eyebrow="Website"
         title="Booking site"
         description="Your public page for guests — booking inquiries come directly to you"
-        actions={
-          isPublished && publicUrl ? (
-            <Button variant="outline" asChild>
-              <Link href={publicUrl} target="_blank">
-                <ExternalLink className="h-4 w-4" />
-                Open booking site
-              </Link>
-            </Button>
-          ) : null
-        }
+      />
+
+      <BookingSiteUrlPanel
+        username={username}
+        onUsernameChange={setUsername}
+        isPublished={isPublished}
       />
 
       <Card>
@@ -175,27 +168,13 @@ export default function PublicSiteSettingsPage() {
             <span className="text-sm font-medium">Publish booking site</span>
           </label>
 
-          <div className="grid gap-4 sm:grid-cols-2">
-            <div className="space-y-2">
-              <Label htmlFor="username">Username (URL)</Label>
-              <Input
-                id="username"
-                value={username}
-                onChange={(e) => setUsername(e.target.value.toLowerCase())}
-                placeholder="my-bungalows"
-              />
-              {publicUrl ? (
-                <p className="text-xs text-muted-foreground">/host/{username}</p>
-              ) : null}
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="businessName">Business name</Label>
-              <Input
-                id="businessName"
-                value={businessName}
-                onChange={(e) => setBusinessName(e.target.value)}
-              />
-            </div>
+          <div className="space-y-2">
+            <Label htmlFor="businessName">Business name</Label>
+            <Input
+              id="businessName"
+              value={businessName}
+              onChange={(e) => setBusinessName(e.target.value)}
+            />
           </div>
 
           <div className="space-y-2">

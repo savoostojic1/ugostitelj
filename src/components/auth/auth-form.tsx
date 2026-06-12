@@ -3,28 +3,114 @@
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
-import { Button } from "@/components/ui/button";
+import {
+  ArrowRight,
+  Eye,
+  EyeOff,
+  Loader2,
+  Lock,
+  Mail,
+  User,
+} from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { useSupabase } from "@/hooks/use-supabase";
+import { getBrowserClient } from "@/lib/supabase/client";
 import { toast } from "sonner";
+import { cn } from "@/lib/utils";
 
 type AuthMode = "login" | "register" | "forgot";
+
+const formCopy: Record<
+  AuthMode,
+  { title: string; subtitle: string; submit: string; loading: string }
+> = {
+  login: {
+    title: "Sign in",
+    subtitle: "Access your dashboard, calendars and booking site.",
+    submit: "Sign in",
+    loading: "Signing in…",
+  },
+  register: {
+    title: "Create account",
+    subtitle: "Start free — set up your properties and publish your site.",
+    submit: "Create account",
+    loading: "Creating account…",
+  },
+  forgot: {
+    title: "Reset password",
+    subtitle: "We will email you a link to choose a new password.",
+    submit: "Send reset link",
+    loading: "Sending…",
+  },
+};
+
+function AuthField({
+  id,
+  label,
+  icon: Icon,
+  type = "text",
+  value,
+  onChange,
+  required,
+  minLength,
+  autoComplete,
+  trailing,
+}: {
+  id: string;
+  label: string;
+  icon: typeof Mail;
+  type?: string;
+  value: string;
+  onChange: (value: string) => void;
+  required?: boolean;
+  minLength?: number;
+  autoComplete?: string;
+  trailing?: React.ReactNode;
+}) {
+  return (
+    <div className="space-y-2">
+      <Label htmlFor={id} className="auth-label">
+        {label}
+      </Label>
+      <div className="relative">
+        <Icon className="auth-field-icon" aria-hidden />
+        <Input
+          id={id}
+          type={type}
+          value={value}
+          onChange={(e) => onChange(e.target.value)}
+          required={required}
+          minLength={minLength}
+          autoComplete={autoComplete}
+          className={cn("auth-input", trailing && "pr-11")}
+        />
+        {trailing}
+      </div>
+    </div>
+  );
+}
 
 export function AuthForm({ mode }: { mode: AuthMode }) {
   const router = useRouter();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [fullName, setFullName] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
-  const supabase = useSupabase();
+  const copy = formCopy[mode];
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     setLoading(true);
+
     try {
+      const supabase = getBrowserClient();
+
       if (mode === "login") {
-        const { error } = await supabase.auth.signInWithPassword({ email, password });
+        const { error } = await supabase.auth.signInWithPassword({
+          email,
+          password,
+        });
         if (error) throw error;
         router.push("/dashboard");
         router.refresh();
@@ -51,88 +137,140 @@ export function AuthForm({ mode }: { mode: AuthMode }) {
     }
   }
 
-  const titles = {
-    login: "Welcome back",
-    register: "Create your account",
-    forgot: "Reset your password",
-  };
-
   return (
-    <div className="mx-auto w-full max-w-sm space-y-8">
-      <div className="space-y-2 text-center">
-        <Link href="/" className="text-xl font-semibold tracking-tight">
-          Hostvia
-        </Link>
-        <h1 className="text-2xl font-semibold tracking-tight">{titles[mode]}</h1>
+    <div className="space-y-8">
+      <div className="space-y-2">
+        <h1 className="text-2xl font-bold tracking-tight text-white">
+          {copy.title}
+        </h1>
+        <p className="text-sm leading-relaxed text-zinc-400">{copy.subtitle}</p>
       </div>
-      <form onSubmit={handleSubmit} className="space-y-4">
-        {mode === "register" && (
-          <div className="space-y-2">
-            <Label htmlFor="name">Full name</Label>
-            <Input
-              id="name"
-              value={fullName}
-              onChange={(e) => setFullName(e.target.value)}
-              required
-            />
-          </div>
-        )}
-        <div className="space-y-2">
-          <Label htmlFor="email">Email</Label>
-          <Input
-            id="email"
-            type="email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
+
+      <form onSubmit={handleSubmit} className="space-y-5">
+        {mode === "register" ? (
+          <AuthField
+            id="name"
+            label="Full name"
+            icon={User}
+            value={fullName}
+            onChange={setFullName}
             required
+            autoComplete="name"
           />
-        </div>
-        {mode !== "forgot" && (
-          <div className="space-y-2">
-            <Label htmlFor="password">Password</Label>
-            <Input
-              id="password"
-              type="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              required
-              minLength={6}
-            />
-          </div>
-        )}
-        <Button type="submit" className="w-full" disabled={loading}>
-          {loading
-            ? "Please wait…"
-            : mode === "login"
-              ? "Sign in"
-              : mode === "register"
-                ? "Create account"
-                : "Send reset link"}
-        </Button>
+        ) : null}
+
+        <AuthField
+          id="email"
+          label="Email"
+          icon={Mail}
+          type="email"
+          value={email}
+          onChange={setEmail}
+          required
+          autoComplete="email"
+        />
+
+        {mode !== "forgot" ? (
+          <AuthField
+            id="password"
+            label="Password"
+            icon={Lock}
+            type={showPassword ? "text" : "password"}
+            value={password}
+            onChange={setPassword}
+            required
+            minLength={6}
+            autoComplete={mode === "login" ? "current-password" : "new-password"}
+            trailing={
+              <button
+                type="button"
+                onClick={() => setShowPassword((value) => !value)}
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-zinc-500 transition hover:text-zinc-300"
+                aria-label={showPassword ? "Hide password" : "Show password"}
+              >
+                {showPassword ? (
+                  <EyeOff className="h-4 w-4" />
+                ) : (
+                  <Eye className="h-4 w-4" />
+                )}
+              </button>
+            }
+          />
+        ) : null}
+
+        {mode === "register" ? (
+          <p className="rounded-xl border border-white/8 bg-white/[0.03] px-3.5 py-3 text-xs leading-relaxed text-zinc-400">
+            Use at least 6 characters. After sign-up, confirm your email before
+            signing in for the first time.
+          </p>
+        ) : null}
+
+        <button
+          type="submit"
+          disabled={loading}
+          className="hostvia-btn-gradient flex h-11 w-full items-center justify-center gap-2 rounded-xl text-sm font-semibold disabled:cursor-not-allowed disabled:opacity-60"
+        >
+          {loading ? (
+            <>
+              <Loader2 className="h-4 w-4 animate-spin" />
+              {copy.loading}
+            </>
+          ) : (
+            <>
+              {copy.submit}
+              <ArrowRight className="h-4 w-4" />
+            </>
+          )}
+        </button>
       </form>
-      <p className="text-center text-sm text-muted-foreground">
-        {mode === "login" && (
+
+      <div className="space-y-3 border-t border-white/8 pt-5 text-center text-sm">
+        {mode === "login" ? (
           <>
-            <Link href="/forgot-password" className="text-primary hover:underline">
-              Forgot password?
-            </Link>
-            <span className="mx-2">·</span>
-            <Link href="/register" className="text-primary hover:underline">
-              Create account
-            </Link>
+            <p>
+              <Link
+                href="/forgot-password"
+                className="font-medium text-violet-300 transition hover:text-violet-200"
+              >
+                Forgot password?
+              </Link>
+            </p>
+            <p className="text-zinc-500">
+              Don&apos;t have an account?{" "}
+              <Link
+                href="/register"
+                className="font-medium text-white transition hover:text-violet-200"
+              >
+                Create one free
+              </Link>
+            </p>
           </>
-        )}
-        {mode === "register" && (
-          <Link href="/login" className="text-primary hover:underline">
-            Already have an account? Sign in
-          </Link>
-        )}
-        {mode === "forgot" && (
-          <Link href="/login" className="text-primary hover:underline">
-            Back to sign in
-          </Link>
-        )}
-      </p>
+        ) : null}
+
+        {mode === "register" ? (
+          <p className="text-zinc-500">
+            Already have an account?{" "}
+            <Link
+              href="/login"
+              className="font-medium text-white transition hover:text-violet-200"
+            >
+              Sign in
+            </Link>
+          </p>
+        ) : null}
+
+        {mode === "forgot" ? (
+          <p className="text-zinc-500">
+            Remembered your password?{" "}
+            <Link
+              href="/login"
+              className="font-medium text-white transition hover:text-violet-200"
+            >
+              Back to sign in
+            </Link>
+          </p>
+        ) : null}
+      </div>
     </div>
   );
 }

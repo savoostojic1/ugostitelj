@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { getBookingSiteUrl } from "@/lib/public/booking-site-url";
 
 export function buildHostMetadata(
   businessName: string,
@@ -11,7 +12,7 @@ export function buildHostMetadata(
   const desc =
     description?.slice(0, 160) ??
     `Browse accommodation at ${businessName} and send a booking inquiry.`;
-  const url = `${baseUrl}/host/${username}`;
+  const url = getBookingSiteUrl(username, { baseUrl }) ?? `${baseUrl}/host/${username}`;
 
   return {
     title,

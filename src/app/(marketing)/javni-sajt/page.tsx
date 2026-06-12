@@ -1,7 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import {
-  ArrowRight,
   CalendarDays,
   Image,
   MapPin,
@@ -10,6 +9,7 @@ import {
 } from "lucide-react";
 import { CtaBanner } from "@/components/marketing/cta-banner";
 import { FeatureGrid } from "@/components/marketing/feature-grid";
+import { MarketingAuthButton } from "@/components/marketing/marketing-auth-button";
 import { PageHero } from "@/components/marketing/page-hero";
 import { Button } from "@/components/ui/button";
 import { publicSiteFeatures } from "@/lib/marketing/content";
@@ -141,12 +141,12 @@ export default function JavniSajtPage() {
               middleman taking a cut of direct bookings.
             </p>
             <div className="mt-6 flex flex-wrap gap-4">
-              <Button asChild>
-                <Link href="/register">
-                  Publish your site
-                  <ArrowRight className="h-4 w-4" />
-                </Link>
-              </Button>
+              <MarketingAuthButton
+                loggedOutLabel="Publish your site"
+                loggedInLabel="Open booking site settings"
+                loggedInHref="/dashboard/public-site"
+                showArrow
+              />
               <Button variant="outline" asChild>
                 <Link href="/faq">FAQ</Link>
               </Button>

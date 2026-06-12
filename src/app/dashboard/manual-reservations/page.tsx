@@ -43,10 +43,6 @@ export default function ManualReservationsPage() {
         }
       />
 
-      {isLoading && (
-        <p className="text-sm text-muted-foreground">Loading…</p>
-      )}
-
       {!isLoading && reservations.length === 0 && (
         <Card className="border-dashed">
           <CardContent className="flex flex-col items-center py-16 text-center">

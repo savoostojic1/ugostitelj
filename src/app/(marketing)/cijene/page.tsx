@@ -1,9 +1,8 @@
 import type { Metadata } from "next";
-import Link from "next/link";
 import { Check } from "lucide-react";
 import { CtaBanner } from "@/components/marketing/cta-banner";
+import { MarketingAuthButton } from "@/components/marketing/marketing-auth-button";
 import { PageHero } from "@/components/marketing/page-hero";
-import { Button } from "@/components/ui/button";
 import { pricingPlans } from "@/lib/marketing/content";
 import { cn } from "@/lib/utils";
 
@@ -60,13 +59,12 @@ export default function CijenePage() {
                   </li>
                 ))}
               </ul>
-              <Button
+              <MarketingAuthButton
                 className="mt-8 w-full"
                 variant={plan.highlighted ? "default" : "outline"}
-                asChild
-              >
-                <Link href={plan.href}>{plan.cta}</Link>
-              </Button>
+                loggedOutHref={plan.href}
+                loggedOutLabel={plan.cta}
+              />
             </div>
           ))}
         </div>

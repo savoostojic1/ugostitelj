@@ -14,14 +14,7 @@ function isIos() {
   return /iphone|ipad|ipod/i.test(navigator.userAgent);
 }
 
-function isStandalone() {
-  if (typeof window === "undefined") return false;
-  return (
-    window.matchMedia("(display-mode: standalone)").matches ||
-    ("standalone" in navigator &&
-      (navigator as Navigator & { standalone?: boolean }).standalone === true)
-  );
-}
+import { isStandaloneDisplayMode } from "@/lib/pwa/standalone";
 
 export function InstallPrompt() {
   const [installEvent, setInstallEvent] =
@@ -30,7 +23,7 @@ export function InstallPrompt() {
   const [iosHint, setIosHint] = useState(false);
 
   useEffect(() => {
-    if (isStandalone()) return;
+    if (isStandaloneDisplayMode()) return;
 
     const dismissed = localStorage.getItem("hostvia-pwa-dismissed");
     if (dismissed === "1") return;
@@ -65,7 +58,7 @@ export function InstallPrompt() {
     localStorage.setItem("hostvia-pwa-dismissed", "1");
   }
 
-  if (!visible || isStandalone()) return null;
+  if (!visible || isStandaloneDisplayMode()) return null;
 
   return (
     <div className="fixed bottom-[max(1rem,env(safe-area-inset-bottom,0px))] left-4 right-4 z-50 mx-auto max-w-lg rounded-2xl border border-border bg-card p-4 shadow-lg sm:left-auto sm:right-6">

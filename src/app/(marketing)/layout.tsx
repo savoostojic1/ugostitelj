@@ -15,10 +15,10 @@ export default function MarketingLayout({
 }) {
   return (
     <div
-      className={`dark marketing-site hostvia-mesh-bg min-h-screen text-zinc-100 ${marketingSans.variable}`}
+      className={`dark marketing-site hostvia-mesh-bg min-h-screen overflow-x-clip text-zinc-100 ${marketingSans.variable}`}
     >
       <MarketingHeader />
-      <main className="pt-16">{children}</main>
+      <main className="pt-[calc(4rem+env(safe-area-inset-top,0px))]">{children}</main>
       <MarketingFooter />
     </div>
   );

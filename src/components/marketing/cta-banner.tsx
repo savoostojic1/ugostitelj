@@ -1,5 +1,4 @@
-import Link from "next/link";
-import { ArrowRight } from "lucide-react";
+import { MarketingPrimaryCta } from "@/components/marketing/marketing-primary-cta";
 
 export function CtaBanner() {
   return (
@@ -14,13 +13,11 @@ export function CtaBanner() {
             Start free. Connect your calendars. Publish your site. Receive direct
             bookings without platform fees.
           </p>
-          <Link
-            href="/register"
-            className="mt-8 inline-flex h-12 items-center gap-2 rounded-xl bg-white px-8 text-sm font-bold text-violet-700 transition hover:bg-white/90"
-          >
-            Start free today
-            <ArrowRight className="h-4 w-4" />
-          </Link>
+          <MarketingPrimaryCta
+            className="mt-8"
+            tone="light"
+            loggedOutLabel="Start free today"
+          />
         </div>
       </div>
     </section>

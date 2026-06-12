@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
-import Link from "next/link";
 import { Mail, MessageCircle } from "lucide-react";
+import { MarketingAccountPrompt } from "@/components/marketing/marketing-account-prompt";
 import { PageHero } from "@/components/marketing/page-hero";
 import { Button } from "@/components/ui/button";
 import { marketingFooter } from "@/lib/marketing/content";
@@ -69,16 +69,7 @@ export default function KontaktPage() {
           </div>
         </div>
 
-        <div className="mt-12 rounded-2xl border border-primary/20 bg-primary/5 p-8 text-center">
-          <p className="font-semibold">Already have an account?</p>
-          <p className="mt-2 text-sm text-muted-foreground">
-            For technical questions, include your account email and unit name in
-            your message — we can help faster.
-          </p>
-          <Button className="mt-4" variant="outline" asChild>
-            <Link href="/login">Log in to dashboard</Link>
-          </Button>
-        </div>
+        <MarketingAccountPrompt />
       </section>
     </>
   );

@@ -7,7 +7,7 @@ export default function manifest(): MetadataRoute.Manifest {
     short_name: "Hostvia",
     description:
       "Booking website and reservation dashboard for property owners.",
-    start_url: "/dashboard",
+    start_url: "/login?source=pwa",
     scope: "/",
     display: "standalone",
     orientation: "portrait",

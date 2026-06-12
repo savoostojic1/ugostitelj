@@ -11,6 +11,10 @@ import { Textarea } from "@/components/ui/textarea";
 import { PropertyGalleryUpload } from "@/components/properties/property-gallery-upload";
 import { useHostProfile } from "@/hooks/use-host-profile";
 import {
+  getBookingSiteLabel,
+  getBookingSitePath,
+} from "@/lib/public/booking-site-url";
+import {
   suggestPropertySlug,
   useUpdatePropertyPublic,
 } from "@/hooks/use-property-public";
@@ -84,9 +88,13 @@ export function PropertyPublicSettings({ property }: PropertyPublicSettingsProps
     );
   }
 
-  const hostPublicUrl =
+  const hostPublicPath =
     hostProfile?.username && hostProfile.is_published
-      ? `/host/${hostProfile.username}${slug ? `#${slug}` : ""}`
+      ? `${getBookingSitePath(hostProfile.username)}${slug ? `#${slug}` : ""}`
+      : null;
+  const hostPublicLabel =
+    hostProfile?.username && hostProfile.is_published
+      ? `${getBookingSiteLabel(hostProfile.username) ?? getBookingSitePath(hostProfile.username)}${slug ? `#${slug}` : ""}`
       : null;
 
   return (
@@ -98,9 +106,9 @@ export function PropertyPublicSettings({ property }: PropertyPublicSettingsProps
             Shown on your booking site alongside your other listings
           </p>
         </div>
-        {isPublic && hostPublicUrl ? (
+        {isPublic && hostPublicPath ? (
           <Button variant="outline" size="sm" asChild>
-            <Link href={hostPublicUrl} target="_blank">
+            <Link href={hostPublicPath} target="_blank">
               <ExternalLink className="h-4 w-4" />
               View
             </Link>
@@ -133,9 +141,9 @@ export function PropertyPublicSettings({ property }: PropertyPublicSettingsProps
               onChange={(e) => setSlug(e.target.value.toLowerCase())}
               placeholder="sea-view-villa"
             />
-            {hostProfile?.username && slug ? (
+            {hostPublicLabel && slug ? (
               <p className="text-xs text-muted-foreground">
-                /host/{hostProfile.username}#{slug}
+                {hostPublicLabel}
               </p>
             ) : null}
           </div>

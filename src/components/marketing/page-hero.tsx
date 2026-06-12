@@ -1,5 +1,4 @@
-import Link from "next/link";
-import { ArrowRight } from "lucide-react";
+import { PageHeroActions } from "@/components/marketing/page-hero-actions";
 import { cn } from "@/lib/utils";
 
 interface PageHeroProps {
@@ -49,32 +48,11 @@ export function PageHero({
         >
           {description}
         </p>
-        {(primaryCta || secondaryCta) && (
-          <div
-            className={cn(
-              "mt-10 flex flex-wrap gap-4",
-              centered && "justify-center"
-            )}
-          >
-            {primaryCta ? (
-              <Link
-                href={primaryCta.href}
-                className="hostvia-btn-gradient inline-flex h-11 items-center gap-2 rounded-xl px-6 text-sm font-semibold"
-              >
-                {primaryCta.label}
-                <ArrowRight className="h-4 w-4" />
-              </Link>
-            ) : null}
-            {secondaryCta ? (
-              <Link
-                href={secondaryCta.href}
-                className="inline-flex h-11 items-center rounded-xl border border-white/10 bg-white/5 px-6 text-sm font-semibold text-white transition hover:bg-white/10"
-              >
-                {secondaryCta.label}
-              </Link>
-            ) : null}
-          </div>
-        )}
+        <PageHeroActions
+          primaryCta={primaryCta}
+          secondaryCta={secondaryCta}
+          centered={centered}
+        />
       </div>
     </section>
   );

@@ -5,8 +5,8 @@ import { marketingFooter } from "@/lib/marketing/content";
 export function MarketingFooter() {
   return (
     <footer className="border-t border-white/5 bg-[#040408]">
-      <div className="mx-auto max-w-7xl px-4 py-16 md:px-8">
-        <div className="grid gap-10 md:grid-cols-2 lg:grid-cols-4">
+      <div className="marketing-container py-12 sm:py-16">
+        <div className="grid gap-8 sm:grid-cols-2 sm:gap-10 lg:grid-cols-4">
           <div>
             <Link href="/" className="flex items-center gap-2.5 font-semibold text-white">
               <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-gradient-to-br from-violet-500 to-cyan-500">
@@ -45,7 +45,7 @@ export function MarketingFooter() {
           ))}
         </div>
 
-        <div className="mt-14 flex flex-col items-center justify-between gap-4 border-t border-white/5 pt-8 text-sm text-zinc-600 md:flex-row">
+        <div className="mt-10 flex flex-col items-center justify-between gap-3 border-t border-white/5 pt-8 text-center text-sm text-zinc-600 sm:mt-14 sm:flex-row sm:text-left">
           <p>© {new Date().getFullYear()} Hostvia. All rights reserved.</p>
           <a
             href={`mailto:${marketingFooter.contact.email}`}

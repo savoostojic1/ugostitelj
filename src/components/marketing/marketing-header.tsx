@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useState } from "react";
 import { Menu, Sparkles, X } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import { MarketingAuthActions } from "@/components/marketing/marketing-auth-actions";
 import { marketingNav } from "@/lib/marketing/content";
 import { cn } from "@/lib/utils";
 
@@ -11,8 +11,8 @@ export function MarketingHeader() {
   const [open, setOpen] = useState(false);
 
   return (
-    <header className="fixed inset-x-0 top-0 z-50 border-b border-white/5 bg-[#06060a]/80 backdrop-blur-xl">
-      <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 md:px-8">
+    <header className="fixed inset-x-0 top-0 z-50 border-b border-white/5 bg-[#06060a]/80 pt-[env(safe-area-inset-top,0px)] backdrop-blur-xl">
+      <div className="mx-auto flex h-16 max-w-7xl items-center justify-between gap-3 px-4 sm:px-6 lg:px-8">
         <Link
           href="/"
           className="flex items-center gap-2.5 font-semibold tracking-tight text-white"
@@ -21,7 +21,7 @@ export function MarketingHeader() {
           <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-gradient-to-br from-violet-500 to-cyan-500 shadow-lg shadow-violet-500/25">
             <Sparkles className="h-4 w-4 text-white" />
           </div>
-          <span>
+          <span className="truncate">
             hostvia<span className="text-violet-400">.me</span>
           </span>
         </Link>
@@ -38,20 +38,8 @@ export function MarketingHeader() {
           ))}
         </nav>
 
-        <div className="hidden items-center gap-3 lg:flex">
-          <Button
-            variant="ghost"
-            className="text-zinc-400 hover:bg-white/5 hover:text-white"
-            asChild
-          >
-            <Link href="/login">Sign in</Link>
-          </Button>
-          <Link
-            href="/register"
-            className="hostvia-btn-gradient inline-flex h-9 items-center justify-center rounded-lg px-5 text-sm font-semibold"
-          >
-            Start free
-          </Link>
+        <div className="hidden shrink-0 lg:flex">
+          <MarketingAuthActions />
         </div>
 
         <button
@@ -71,7 +59,7 @@ export function MarketingHeader() {
           open ? "block" : "hidden"
         )}
       >
-        <nav className="mx-auto flex max-w-7xl flex-col gap-1 px-4 py-4">
+        <nav className="mx-auto flex max-h-[calc(100dvh-4rem-env(safe-area-inset-top,0px))] max-w-7xl flex-col gap-1 overflow-y-auto px-4 py-4 sm:px-6">
           {marketingNav.map((item) => (
             <Link
               key={item.href}
@@ -82,19 +70,11 @@ export function MarketingHeader() {
               {item.label}
             </Link>
           ))}
-          <div className="mt-3 flex flex-col gap-2 border-t border-white/5 pt-4">
-            <Button variant="outline" className="border-white/10" asChild>
-              <Link href="/login" onClick={() => setOpen(false)}>
-                Sign in
-              </Link>
-            </Button>
-            <Link
-              href="/register"
-              className="hostvia-btn-gradient flex h-10 items-center justify-center rounded-lg text-sm font-semibold"
-              onClick={() => setOpen(false)}
-            >
-              Start free
-            </Link>
+          <div className="mt-3 border-t border-white/5 pt-4">
+            <MarketingAuthActions
+              variant="menu"
+              onNavigate={() => setOpen(false)}
+            />
           </div>
         </nav>
       </div>

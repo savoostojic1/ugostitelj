@@ -4,6 +4,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { ThemeProvider } from "next-themes";
 import { useState } from "react";
 import { Toaster } from "sonner";
+import { PwaAppGuard } from "@/components/pwa/pwa-app-guard";
 
 export function Providers({ children }: { children: React.ReactNode }) {
   const [queryClient] = useState(
@@ -21,7 +22,7 @@ export function Providers({ children }: { children: React.ReactNode }) {
   return (
     <QueryClientProvider client={queryClient}>
       <ThemeProvider attribute="class" defaultTheme="dark" enableSystem>
-        {children}
+        <PwaAppGuard>{children}</PwaAppGuard>
         <Toaster richColors position="top-right" />
       </ThemeProvider>
     </QueryClientProvider>
