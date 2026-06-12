@@ -17,7 +17,14 @@ export function PwaAppGuard({ children }: { children: React.ReactNode }) {
 
   useEffect(() => {
     if (!isStandaloneDisplayMode()) return;
+    document.documentElement.dataset.standalone = "true";
     setStandaloneCookie();
+
+    const viewportMeta = document.querySelector('meta[name="viewport"]');
+    viewportMeta?.setAttribute(
+      "content",
+      "width=device-width, initial-scale=1, viewport-fit=cover"
+    );
   }, []);
 
   useEffect(() => {

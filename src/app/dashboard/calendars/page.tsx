@@ -109,13 +109,13 @@ export default function CalendarsOverviewPage() {
         </div>
       )}
 
-      <div className="grid grid-cols-2 gap-1.5 sm:gap-4 md:grid-cols-2">
+      <div className="grid w-full grid-cols-2 gap-1.5 sm:gap-4">
         {grouped.map(({ property, reservations: propertyReservations }, i) => {
           const colors = getPropertyCalendarColor(i);
           return (
             <div
               key={property.id}
-              className="hostvia-panel min-w-0 overflow-hidden rounded-lg sm:rounded-xl"
+              className="hostvia-panel w-full min-w-0 overflow-hidden"
             >
               <div className="flex items-center gap-1.5 border-b border-white/6 px-2 py-2 sm:gap-2 sm:px-4 sm:py-3">
                 <span

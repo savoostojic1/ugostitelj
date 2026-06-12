@@ -57,7 +57,7 @@ export default function PropertyDetailPage({
   );
 
   return (
-    <div className="hostvia-property-page space-y-8">
+    <div className="hostvia-property-page hostvia-pwa-property-page space-y-8">
       <Button variant="ghost" size="sm" asChild className="hostvia-dashboard-page-inset w-fit">
         <Link href="/dashboard/properties">
           <ArrowLeft className="h-4 w-4" />

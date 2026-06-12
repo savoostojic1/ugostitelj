@@ -111,7 +111,7 @@ export function MonthlyCalendar({
   return (
     <div
       className={cn(
-        "overflow-hidden bg-card text-card-foreground",
+        "w-full min-w-0 overflow-hidden bg-card text-card-foreground",
         embedded
           ? "rounded-none border-0 shadow-none"
           : "rounded-2xl border border-border shadow-sm"

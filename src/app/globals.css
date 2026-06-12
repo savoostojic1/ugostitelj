@@ -430,29 +430,28 @@
 }
 
 .hostvia-dashboard-page-inset {
-  padding-inline: 1rem;
+  padding-inline: 0;
 }
 
 @media (max-width: 767px) {
   .hostvia-dashboard-content {
-    padding-inline: 0;
+    box-sizing: border-box;
+    width: 100%;
+    max-width: 100%;
+    margin-inline: 0;
     padding-top: 1rem;
     padding-bottom: 2.5rem;
-    padding-left: env(safe-area-inset-left, 0px);
-    padding-right: env(safe-area-inset-right, 0px);
+    padding-left: max(10px, env(safe-area-inset-left, 0px));
+    padding-right: max(10px, env(safe-area-inset-right, 0px));
   }
 
   .hostvia-dashboard-topbar {
-    padding-inline: 1rem;
+    padding-left: max(10px, env(safe-area-inset-left, 0px));
+    padding-right: max(10px, env(safe-area-inset-right, 0px));
   }
 
   .hostvia-dashboard-page {
     overflow-x: clip;
-  }
-
-  .hostvia-dashboard-page-inset {
-    padding-left: max(1rem, env(safe-area-inset-left, 0px));
-    padding-right: max(1rem, env(safe-area-inset-right, 0px));
   }
 
   .hostvia-dashboard-page :is(
@@ -465,20 +464,123 @@
     .space-y-3 > .rounded-xl,
     .grid > .hostvia-stat-card
   ) {
+    box-sizing: border-box;
     min-width: 0;
-    border-radius: 0;
-    border-left-width: 0;
-    border-right-width: 0;
-    max-width: 100%;
-  }
-
-  .hostvia-dashboard-bleed-x {
-    margin-inline: 0;
     width: 100%;
+    max-width: 100%;
   }
 
   .hostvia-dashboard-title {
     font-size: 1.5rem;
+  }
+}
+
+/* iOS PWA can report a desktop-width viewport — force phone layout in standalone */
+@media (max-width: 1023px) {
+  html[data-standalone="true"] .hostvia-dashboard-bg {
+    flex-direction: column;
+  }
+
+  html[data-standalone="true"] aside.hostvia-sidebar.hidden.w-64 {
+    display: none !important;
+  }
+
+  html[data-standalone="true"] .hostvia-sidebar.sticky.top-0.z-30.pt-safe {
+    display: block !important;
+  }
+
+  html[data-standalone="true"] .hostvia-dashboard-main::before {
+    left: 0;
+  }
+
+  html[data-standalone="true"] .hostvia-dashboard-content {
+    box-sizing: border-box;
+    width: 100%;
+    max-width: 100%;
+    margin-inline: 0;
+    padding-top: 1rem;
+    padding-bottom: 2.5rem;
+    padding-left: max(10px, env(safe-area-inset-left, 0px));
+    padding-right: max(10px, env(safe-area-inset-right, 0px));
+  }
+
+  html[data-standalone="true"] .hostvia-dashboard-page {
+    overflow-x: clip;
+  }
+
+  html[data-standalone="true"] .hostvia-dashboard-page :is(
+    .hostvia-panel,
+    .hostvia-stat-card,
+    .hostvia-glow-card,
+    .hostvia-hero-metric,
+    .space-y-8 > .rounded-xl,
+    .space-y-6 > .hostvia-glow-card,
+    .space-y-3 > .rounded-xl,
+    .grid > .hostvia-stat-card
+  ) {
+    box-sizing: border-box;
+    min-width: 0;
+    width: 100%;
+    max-width: 100%;
+  }
+
+  html[data-standalone="true"] .hostvia-dashboard-title {
+    font-size: 1.5rem;
+  }
+
+  html[data-standalone="true"] .hostvia-pwa-property-page .sm\:flex-row {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  html[data-standalone="true"] .hostvia-pwa-property-page .sm\:items-center {
+    align-items: stretch;
+  }
+
+  html[data-standalone="true"] .hostvia-pwa-property-page .sm\:items-end {
+    align-items: stretch;
+  }
+
+  html[data-standalone="true"] .hostvia-pwa-property-page .sm\:items-start {
+    align-items: stretch;
+  }
+
+  html[data-standalone="true"] .hostvia-pwa-property-page .sm\:justify-between {
+    justify-content: flex-start;
+  }
+
+  html[data-standalone="true"] .hostvia-pwa-property-page .sm\:w-auto {
+    width: 100%;
+  }
+
+  html[data-standalone="true"] .hostvia-pwa-property-page .sm\:flex-none {
+    flex: none;
+    width: 100%;
+  }
+
+  html[data-standalone="true"] .hostvia-pwa-property-page .sm\:max-w-md {
+    max-width: none;
+  }
+
+  html[data-standalone="true"] .hostvia-pwa-property-page .sm\:grid-cols-2 {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  html[data-standalone="true"] .hostvia-pwa-property-page .sm\:grid-cols-3 {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  html[data-standalone="true"] .hostvia-pwa-property-page .sm\:p-6 {
+    padding: 1rem;
+  }
+
+  html[data-standalone="true"] .hostvia-pwa-property-page .sm\:pt-0 {
+    padding-top: 0;
+  }
+
+  html[data-standalone="true"] .hostvia-pwa-property-page .sm\:text-lg {
+    font-size: 1rem;
+    line-height: 1.5rem;
   }
 }
 
