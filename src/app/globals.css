@@ -1102,8 +1102,10 @@ html.dark:has(.public-site) body {
 
 .public-site .public-hero {
   position: relative;
+  z-index: 0;
   overflow: hidden;
   min-height: clamp(26rem, 72vh, 38rem);
+  contain: paint;
 }
 
 .public-site .public-hero-media {
@@ -1119,16 +1121,18 @@ html.dark:has(.public-site) body {
 .public-site .public-hero-scrim {
   position: absolute;
   inset: 0;
+  /* Keep glass above the floating search bar */
+  bottom: calc(var(--public-hero-search-half) + 0.75rem);
   z-index: 1;
   pointer-events: none;
   background: linear-gradient(
     180deg,
-    rgba(0, 0, 0, 0.38) 0%,
-    rgba(0, 0, 0, 0.32) 50%,
-    rgba(0, 0, 0, 0.48) 100%
+    rgba(0, 0, 0, 0.22) 0%,
+    rgba(0, 0, 0, 0.16) 50%,
+    rgba(0, 0, 0, 0.28) 100%
   );
-  -webkit-backdrop-filter: blur(10px) saturate(1.06);
-  backdrop-filter: blur(10px) saturate(1.06);
+  -webkit-backdrop-filter: blur(8px) saturate(1.08);
+  backdrop-filter: blur(8px) saturate(1.08);
 }
 
 /* Fallback when backdrop-filter is unavailable */
@@ -1138,15 +1142,15 @@ html.dark:has(.public-site) body {
   .public-site .public-hero-scrim {
     background: linear-gradient(
       180deg,
-      rgba(0, 0, 0, 0.5) 0%,
-      rgba(0, 0, 0, 0.44) 50%,
-      rgba(0, 0, 0, 0.58) 100%
+      rgba(0, 0, 0, 0.3) 0%,
+      rgba(0, 0, 0, 0.24) 50%,
+      rgba(0, 0, 0, 0.36) 100%
     );
   }
 
   .public-site .public-hero-media {
-    filter: blur(3px) saturate(1.04);
-    transform: scale(1.03);
+    filter: blur(2px) saturate(1.04);
+    transform: scale(1.02);
   }
 }
 
@@ -1207,11 +1211,12 @@ html.dark:has(.public-site) body {
   position: absolute;
   top: var(--public-hero-sheet-overlap);
   left: 50%;
-  z-index: 30;
+  z-index: 40;
   width: 100%;
   max-width: 64rem;
   padding-inline: 1.25rem;
   transform: translate(-50%, -50%);
+  isolation: isolate;
 }
 
 @media (min-width: 768px) {
@@ -1221,6 +1226,9 @@ html.dark:has(.public-site) body {
 }
 
 .public-site .public-hero-search .public-search-shell {
+  background: #ffffff;
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
   box-shadow:
     0 4px 16px rgba(15, 118, 110, 0.07),
     0 1px 4px rgba(9, 9, 11, 0.04),
@@ -1229,7 +1237,7 @@ html.dark:has(.public-site) body {
 
 .public-site .public-section--sheet {
   position: relative;
-  z-index: 1;
+  z-index: 2;
   margin-top: calc(-1 * var(--public-hero-sheet-overlap));
   padding-top: calc(
     var(--public-hero-search-clearance) + var(--public-hero-sheet-overlap)
