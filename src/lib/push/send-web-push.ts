@@ -38,7 +38,15 @@ export async function sendWebPushToUser(
   userId: string,
   payload: PushPayload
 ): Promise<void> {
-  if (!hasServiceRoleKey() || !ensureVapidConfigured()) return;
+  if (!hasServiceRoleKey()) {
+    console.warn("[web-push] Skipped — SUPABASE_SERVICE_ROLE_KEY not set");
+    return;
+  }
+
+  if (!ensureVapidConfigured()) {
+    console.warn("[web-push] Skipped — VAPID keys not configured");
+    return;
+  }
 
   const supabase = createServiceClient();
   const { data, error } = await supabase
@@ -52,7 +60,10 @@ export async function sendWebPushToUser(
   }
 
   const subscriptions = (data ?? []) as PushSubscriptionRow[];
-  if (subscriptions.length === 0) return;
+  if (subscriptions.length === 0) {
+    console.warn("[web-push] No subscriptions for user", userId);
+    return;
+  }
 
   const message = JSON.stringify({
     title: payload.title,
@@ -62,6 +73,7 @@ export async function sendWebPushToUser(
   });
 
   const expiredIds: string[] = [];
+  let sent = 0;
 
   await Promise.allSettled(
     subscriptions.map(async (sub) => {
@@ -76,6 +88,7 @@ export async function sendWebPushToUser(
           },
           message
         );
+        sent += 1;
       } catch (err) {
         const statusCode =
           err && typeof err === "object" && "statusCode" in err
@@ -95,4 +108,8 @@ export async function sendWebPushToUser(
   if (expiredIds.length > 0) {
     await supabase.from("push_subscriptions").delete().in("id", expiredIds);
   }
+
+  console.info(
+    `[web-push] Sent ${sent}/${subscriptions.length} for user ${userId}`
+  );
 }

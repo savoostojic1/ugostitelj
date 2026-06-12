@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { sendWebPushToUser } from "@/lib/push/send-web-push";
 import { createClient } from "@/lib/supabase/server";
 
 type PushSubscriptionBody = {
@@ -42,6 +43,15 @@ export async function POST(request: Request) {
   if (error) {
     console.error("[push/subscribe]", error.message);
     return NextResponse.json({ error: "Could not save subscription" }, { status: 500 });
+  }
+
+  try {
+    await sendWebPushToUser(user.id, {
+      title: "Notifications enabled",
+      body: "You will get an alert when a guest sends a booking inquiry.",
+    });
+  } catch (err) {
+    console.error("[push/subscribe] test push failed:", err);
   }
 
   return NextResponse.json({ ok: true });

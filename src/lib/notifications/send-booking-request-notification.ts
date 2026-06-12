@@ -13,8 +13,7 @@ type BookingRequestRow = {
   guest_count: number;
   message: string | null;
   host_id: string;
-  property: { name: string; slug: string } | null;
-  host: { business_name: string; contact_email: string | null; username: string } | null;
+  properties: { name: string; slug: string } | null;
 };
 
 function formatDate(value: string): string {
@@ -119,8 +118,7 @@ export async function notifyHostOfBookingRequest(
       guest_count,
       message,
       host_id,
-      property:properties ( name, slug ),
-      host:host_profiles ( business_name, contact_email, username )
+      properties ( name, slug )
     `
     )
     .eq("id", requestId)
@@ -132,12 +130,8 @@ export async function notifyHostOfBookingRequest(
   }
 
   const row = data as unknown as BookingRequestRow;
-  const propertyName = row.property?.name ?? "your property";
-  const businessName = row.host?.business_name ?? "your booking site";
-  const hostEmail = await resolveHostEmail(
-    row.host_id,
-    row.host?.contact_email ?? null
-  );
+  const propertyName = row.properties?.name ?? "your property";
+  const hostEmail = await resolveHostEmail(row.host_id, null);
 
   const dashboardUrl = `${getSiteBaseUrl()}/dashboard/booking-requests`;
   const dates = `${formatDate(row.check_in)} → ${formatDate(row.check_out)}`;
@@ -177,7 +171,7 @@ export async function notifyHostOfBookingRequest(
           View in dashboard
         </a>
       </p>
-      <p style="margin:16px 0 0;font-size:12px;color:#71717a">${businessName} · Hostvia</p>
+      <p style="margin:16px 0 0;font-size:12px;color:#71717a">Hostvia</p>
     </div>
   `.trim();
 
