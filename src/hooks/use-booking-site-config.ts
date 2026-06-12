@@ -19,7 +19,8 @@ export function useBookingSiteConfig() {
   return useQuery({
     queryKey: ["booking-site-config"],
     queryFn: fetchBookingSiteConfig,
-    staleTime: 60 * 1000,
+    staleTime: 0,
+    refetchOnMount: "always",
   });
 }
 
