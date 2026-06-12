@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { CompactPropertyCalendar } from "@/components/calendar/compact-property-calendar";
 import { DashboardPageHeader } from "@/components/dashboard/dashboard-page-header";
 import { useProperties, useReservations } from "@/hooks/use-properties";
+import { useDashboardContext } from "@/hooks/use-team-access";
 import { useUiStore } from "@/stores/ui-store";
 import { getPropertyCalendarColor } from "@/lib/properties/property-colors";
 import type { Reservation } from "@/types/database";
@@ -36,6 +37,8 @@ export default function CalendarsOverviewPage() {
   const { data: reservations = [], isLoading: reservationsLoading } =
     useReservations();
   const { calendarMonth, setCalendarMonth } = useUiStore();
+  const { data: context } = useDashboardContext();
+  const isOwner = context?.isOwner ?? true;
 
   const isLoading = propertiesLoading || reservationsLoading;
   const grouped = groupByProperty(properties, reservations);
@@ -98,14 +101,18 @@ export default function CalendarsOverviewPage() {
       {!isLoading && properties.length === 0 && (
         <div className="hostvia-panel py-16 text-center">
           <p className="text-zinc-400">
-            No properties yet. Add your first property to see calendars.
+            {isOwner
+              ? "No properties yet. Add your first property to see calendars."
+              : "No properties to show yet."}
           </p>
-          <Link
-            href="/dashboard/properties/new"
-            className="hostvia-btn-gradient mt-4 inline-flex h-10 items-center rounded-lg px-5 text-sm font-semibold"
-          >
-            Add property
-          </Link>
+          {isOwner ? (
+            <Link
+              href="/dashboard/properties/new"
+              className="hostvia-btn-gradient mt-4 inline-flex h-10 items-center rounded-lg px-5 text-sm font-semibold"
+            >
+              Add property
+            </Link>
+          ) : null}
         </div>
       )}
 

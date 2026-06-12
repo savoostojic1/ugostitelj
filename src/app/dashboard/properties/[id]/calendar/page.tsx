@@ -10,6 +10,8 @@ import { PropertyDeleteButton } from "@/components/properties/property-delete-bu
 import { PropertyCalendarNav } from "@/components/properties/property-calendar-nav";
 import { PropertyDetailNav } from "@/components/properties/property-detail-nav";
 import { useProperty, useReservations } from "@/hooks/use-properties";
+import { useDashboardContext } from "@/hooks/use-team-access";
+import { canAccessPropertySettings } from "@/lib/team-access/permissions";
 import { PLATFORM_LABELS, PLATFORM_COLORS } from "@/lib/constants";
 import { formatReservationLabel } from "@/lib/reservations/display";
 import { formatStayPeriodLabel } from "@/lib/dates/calendar-date";
@@ -25,8 +27,16 @@ export default function PropertyCalendarPage({
   const { data: property, isLoading } = useProperty(id);
   const { data: reservations = [], isLoading: reservationsLoading } =
     useReservations(id);
+  const { data: context, isLoading: contextLoading } = useDashboardContext();
+  const showSettings = context
+    ? canAccessPropertySettings(context.permissions, context.isOwner)
+    : false;
+  const backHref = showSettings
+    ? "/dashboard/properties"
+    : "/dashboard/calendars";
+  const backLabel = showSettings ? "Properties" : "Calendars";
 
-  if (isLoading) {
+  if (isLoading || contextLoading) {
     return null;
   }
 
@@ -35,7 +45,7 @@ export default function PropertyCalendarPage({
       <div className="space-y-4">
         <p className="text-foreground">Property not found</p>
         <Button asChild variant="outline">
-          <Link href="/dashboard/properties">Back to list</Link>
+          <Link href={backHref}>Back to list</Link>
         </Button>
       </div>
     );
@@ -44,9 +54,9 @@ export default function PropertyCalendarPage({
   return (
     <div className="hostvia-property-page hostvia-pwa-property-page space-y-8">
       <Button variant="ghost" size="sm" asChild className="hostvia-dashboard-page-inset w-fit">
-        <Link href="/dashboard/properties">
+        <Link href={backHref}>
           <ArrowLeft className="h-4 w-4" />
-          Properties
+          {backLabel}
         </Link>
       </Button>
 
@@ -57,7 +67,9 @@ export default function PropertyCalendarPage({
             Calendar & reservations
           </p>
         </div>
-        <PropertyDeleteButton propertyId={id} propertyName={property.name} />
+        {showSettings ? (
+          <PropertyDeleteButton propertyId={id} propertyName={property.name} />
+        ) : null}
       </div>
 
       <PropertyDetailNav propertyId={id} />

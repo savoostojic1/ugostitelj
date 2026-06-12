@@ -4,20 +4,30 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { CalendarDays, Settings2 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { useDashboardContext } from "@/hooks/use-team-access";
+import { canAccessPropertySettings } from "@/lib/team-access/permissions";
 
 export function PropertyDetailNav({ propertyId }: { propertyId: string }) {
   const pathname = usePathname();
+  const { data: context } = useDashboardContext();
+  const showSettings = context
+    ? canAccessPropertySettings(context.permissions, context.isOwner)
+    : false;
   const base = `/dashboard/properties/${propertyId}`;
   const calendarHref = `${base}/calendar`;
 
   const tabs = [
-    {
-      href: base,
-      label: "Settings",
-      shortLabel: "Settings",
-      icon: Settings2,
-      active: pathname === base,
-    },
+    ...(showSettings
+      ? [
+          {
+            href: base,
+            label: "Settings",
+            shortLabel: "Settings",
+            icon: Settings2,
+            active: pathname === base,
+          },
+        ]
+      : []),
     {
       href: calendarHref,
       label: "Calendar & reservations",

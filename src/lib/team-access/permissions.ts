@@ -55,11 +55,23 @@ export function normalizeTeamPermissions(
   return permissions.filter(isTeamPermission);
 }
 
+const PROPERTY_CALENDAR_PATH =
+  /^\/dashboard\/properties\/[^/]+\/calendar(?:\/|$)/;
+const PROPERTY_DETAIL_PATH = /^\/dashboard\/properties\/[^/]+(?:\/|$)/;
+
 export function permissionForDashboardPath(pathname: string): TeamPermission | null {
   if (pathname === "/dashboard/team-access") return null;
 
   if (pathname === "/dashboard" || pathname === "/dashboard/install-app") {
     return "dashboard";
+  }
+
+  if (PROPERTY_CALENDAR_PATH.test(pathname)) {
+    return "calendars";
+  }
+
+  if (PROPERTY_DETAIL_PATH.test(pathname)) {
+    return "properties";
   }
 
   const sortedRoutes = [...ROUTE_PERMISSION_MAP.entries()].sort(
@@ -84,9 +96,28 @@ export function canAccessDashboardPath(
   pathname: string,
   permissions: TeamPermission[]
 ): boolean {
+  if (pathname === "/dashboard/team-access") return false;
+
+  if (PROPERTY_CALENDAR_PATH.test(pathname)) {
+    return (
+      permissions.includes("calendars") || permissions.includes("properties")
+    );
+  }
+
+  if (PROPERTY_DETAIL_PATH.test(pathname)) {
+    return permissions.includes("properties");
+  }
+
   const required = permissionForDashboardPath(pathname);
   if (!required) return true;
   return permissions.includes(required);
+}
+
+export function canAccessPropertySettings(
+  permissions: TeamPermission[],
+  isOwner: boolean
+): boolean {
+  return isOwner || permissions.includes("properties");
 }
 
 export function defaultTeamLandingPath(
