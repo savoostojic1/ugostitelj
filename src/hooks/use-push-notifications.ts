@@ -1,12 +1,13 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
+import { ensureServiceWorkerRegistration } from "@/lib/push/service-worker-registration";
 import { urlBase64ToUint8Array } from "@/lib/push/url-base64";
 
 type PushSupportState =
-  | "loading"
   | "unsupported"
   | "no-vapid"
+  | "no-service-worker"
   | "ready"
   | "denied"
   | "subscribed";
@@ -22,7 +23,10 @@ function pushSupported(): boolean {
 
 async function loadVapidPublicKey(): Promise<string | null> {
   try {
-    const res = await fetch("/api/push/config");
+    const res = await fetch("/api/push/config", {
+      credentials: "same-origin",
+      cache: "no-store",
+    });
     if (!res.ok) return null;
     const data = (await res.json()) as {
       publicKey?: string | null;
@@ -35,36 +39,44 @@ async function loadVapidPublicKey(): Promise<string | null> {
 }
 
 export function usePushNotifications() {
-  const [state, setState] = useState<PushSupportState>("loading");
+  const [state, setState] = useState<PushSupportState>("ready");
+  const [loading, setLoading] = useState(true);
   const [vapidPublicKey, setVapidPublicKey] = useState<string | null>(null);
 
   const refresh = useCallback(async () => {
-    setState("loading");
-
-    if (!pushSupported()) {
-      setState("unsupported");
-      return;
-    }
-
-    const publicKey = await loadVapidPublicKey();
-    setVapidPublicKey(publicKey);
-
-    if (!publicKey) {
-      setState("no-vapid");
-      return;
-    }
-
-    if (Notification.permission === "denied") {
-      setState("denied");
-      return;
-    }
+    setLoading(true);
 
     try {
-      const registration = await navigator.serviceWorker.ready;
+      if (!pushSupported()) {
+        setState("unsupported");
+        return;
+      }
+
+      const publicKey = await loadVapidPublicKey();
+      setVapidPublicKey(publicKey);
+
+      if (!publicKey) {
+        setState("no-vapid");
+        return;
+      }
+
+      if (Notification.permission === "denied") {
+        setState("denied");
+        return;
+      }
+
+      const registration = await ensureServiceWorkerRegistration();
+      if (!registration?.pushManager) {
+        setState("no-service-worker");
+        return;
+      }
+
       const existing = await registration.pushManager.getSubscription();
       setState(existing ? "subscribed" : "ready");
     } catch {
       setState("ready");
+    } finally {
+      setLoading(false);
     }
   }, []);
 
@@ -88,7 +100,11 @@ export function usePushNotifications() {
       throw new Error("Notification permission denied");
     }
 
-    const registration = await navigator.serviceWorker.ready;
+    const registration = await ensureServiceWorkerRegistration();
+    if (!registration?.pushManager) {
+      throw new Error("Could not start the app worker. Close and reopen the app.");
+    }
+
     let subscription = await registration.pushManager.getSubscription();
 
     if (!subscription) {
@@ -106,6 +122,7 @@ export function usePushNotifications() {
     const res = await fetch("/api/push/subscribe", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
+      credentials: "same-origin",
       body: JSON.stringify({
         endpoint: json.endpoint,
         keys: {
@@ -129,8 +146,8 @@ export function usePushNotifications() {
   }, [vapidPublicKey]);
 
   const unsubscribe = useCallback(async () => {
-    const registration = await navigator.serviceWorker.ready;
-    const subscription = await registration.pushManager.getSubscription();
+    const registration = await ensureServiceWorkerRegistration();
+    const subscription = await registration?.pushManager?.getSubscription();
 
     if (subscription) {
       const endpoint = subscription.endpoint;
@@ -138,6 +155,7 @@ export function usePushNotifications() {
       await fetch("/api/push/unsubscribe", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
+        credentials: "same-origin",
         body: JSON.stringify({ endpoint }),
       });
     }
@@ -147,11 +165,11 @@ export function usePushNotifications() {
 
   return {
     state,
-    loading: state === "loading",
+    loading,
     subscribe,
     unsubscribe,
     refresh,
     isSubscribed: state === "subscribed",
-    canSubscribe: state === "ready",
+    canSubscribe: state === "ready" || state === "no-service-worker",
   };
 }

@@ -9,8 +9,15 @@ import { cn } from "@/lib/utils";
 import { toast } from "sonner";
 
 export function PushNotificationsPrompt({ className }: { className?: string }) {
-  const { state, loading, subscribe, unsubscribe, isSubscribed, canSubscribe } =
-    usePushNotifications();
+  const {
+    state,
+    loading,
+    subscribe,
+    unsubscribe,
+    refresh,
+    isSubscribed,
+    canSubscribe,
+  } = usePushNotifications();
   const [busy, setBusy] = useState(false);
   const installed = isStandaloneDisplayMode();
 
@@ -86,6 +93,13 @@ export function PushNotificationsPrompt({ className }: { className?: string }) {
           </p>
         ) : null}
 
+        {state === "no-service-worker" ? (
+          <p className="rounded-lg border border-amber-500/20 bg-amber-500/5 px-3 py-2 text-xs leading-relaxed text-amber-200/90">
+            App worker did not start. Fully close Hostvia (swipe it away), open
+            again from your home screen, then tap Enable.
+          </p>
+        ) : null}
+
         {!installed && state !== "unsupported" && state !== "no-vapid" ? (
           <div className="flex items-start gap-3 rounded-xl border border-white/8 bg-white/[0.02] p-3 text-xs leading-relaxed text-zinc-400">
             <Smartphone className="mt-0.5 h-4 w-4 shrink-0 text-violet-300" />
@@ -147,6 +161,18 @@ export function PushNotificationsPrompt({ className }: { className?: string }) {
               Enable notifications
             </Button>
           )}
+          {!loading ? (
+            <Button
+              type="button"
+              size="sm"
+              variant="ghost"
+              className="text-zinc-400"
+              disabled={busy}
+              onClick={() => void refresh()}
+            >
+              Retry
+            </Button>
+          ) : null}
         </div>
       </div>
     </section>
