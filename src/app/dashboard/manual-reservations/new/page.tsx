@@ -8,8 +8,8 @@ import { ManualReservationForm } from "@/components/manual-reservations/manual-r
 
 export default function NewManualReservationPage() {
   return (
-    <div className="mx-auto max-w-xl space-y-6">
-      <Button variant="ghost" size="sm" asChild>
+    <div className="space-y-8">
+      <Button variant="ghost" size="sm" asChild className="hostvia-dashboard-page-inset w-fit">
         <Link href="/dashboard/manual-reservations">
           <ArrowLeft className="h-4 w-4" />
           Manual bookings

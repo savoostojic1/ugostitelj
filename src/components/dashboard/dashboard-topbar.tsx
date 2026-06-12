@@ -40,8 +40,11 @@ export function DashboardTopbar() {
           className="hostvia-dashboard-btn h-8 gap-2 border-white/10 bg-white/[0.03] text-zinc-300 hover:bg-white/[0.06] hover:text-white"
         >
           <RefreshCw
-            className={`h-3.5 w-3.5 ${syncAll.isPending ? "animate-spin" : ""}`}
+            className={`h-3.5 w-3.5 shrink-0 ${syncAll.isPending ? "animate-spin" : ""}`}
           />
+          <span className="sm:hidden">
+            {syncAll.isPending ? "Syncing…" : "Reload data"}
+          </span>
           <span className="hidden sm:inline">
             {syncAll.isPending ? "Syncing…" : "Sync"}
           </span>

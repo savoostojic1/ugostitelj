@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useState } from "react";
 import {
   addMonths,
   eachDayOfInterval,
@@ -67,24 +67,12 @@ export function ReservationDatePicker({
     weeks.push(allDays.slice(i, i + 7));
   }
 
-  const upcomingOccupied = useMemo(() => {
-    const todayKey = format(today, "yyyy-MM-dd");
-    return [...reservations]
-      .filter(
-        (r) =>
-          r.check_out > todayKey &&
-          (!excludeReservationId || r.id !== excludeReservationId)
-      )
-      .sort((a, b) => a.check_in.localeCompare(b.check_in))
-      .slice(0, 8);
-  }, [reservations, today, excludeReservationId]);
-
   const selectionLabel =
     checkIn && checkOut
       ? formatStayPeriodLabel(checkIn, checkOut)
       : checkIn
         ? `${format(parseDateOnly(checkIn), "d MMM yyyy", { locale: appLocale })} · select check-out`
-        : "Click check-in day, then check-out day";
+        : "Click check-in, then check-out · click again to unselect";
 
   function handleDayClick(day: Date) {
     if (!excludeReservationId && day < today) {
@@ -93,6 +81,16 @@ export function ReservationDatePicker({
     }
 
     const dateKey = format(day, "yyyy-MM-dd");
+
+    if (checkOut && dateKey === checkOut) {
+      onChange(checkIn, "");
+      return;
+    }
+
+    if (checkIn && dateKey === checkIn) {
+      onChange("", "");
+      return;
+    }
 
     if (!checkIn || (checkIn && checkOut)) {
       if (!canCheckInOnDay(reservations, day, excludeReservationId)) {
@@ -140,12 +138,23 @@ export function ReservationDatePicker({
   return (
     <div className="space-y-3">
       <div className="space-y-1">
-        <Label>Stay dates</Label>
+        <div className="flex flex-wrap items-center justify-between gap-2">
+          <Label>Stay dates</Label>
+          {checkIn ? (
+            <button
+              type="button"
+              onClick={() => onChange("", "")}
+              className="text-xs font-medium text-violet-300 transition hover:text-violet-200"
+            >
+              Clear dates
+            </button>
+          ) : null}
+        </div>
         <p className="text-sm text-muted-foreground">{selectionLabel}</p>
       </div>
 
-      <div className="overflow-hidden rounded-xl border border-border bg-card text-card-foreground">
-        <div className="flex items-center justify-between border-b px-3 py-2">
+      <div className="mx-auto w-full max-w-[21rem] overflow-hidden rounded-lg border border-border bg-card text-card-foreground sm:mx-0">
+        <div className="flex items-center justify-between border-b px-2.5 py-2">
           <Button
             type="button"
             variant="ghost"
@@ -173,9 +182,9 @@ export function ReservationDatePicker({
           {WEEKDAYS.map((d) => (
             <div
               key={d}
-              className="py-2 text-center text-[11px] font-medium text-muted-foreground"
+              className="py-1.5 text-center text-[11px] font-medium text-muted-foreground"
             >
-              {d}
+              {d.slice(0, 2)}
             </div>
           ))}
         </div>
@@ -212,7 +221,7 @@ export function ReservationDatePicker({
                     title={tooltip ?? undefined}
                     onClick={() => handleDayClick(day)}
                     className={cn(
-                      "relative flex aspect-square flex-col items-center justify-center rounded-lg border text-sm tabular-nums transition-colors",
+                      "relative flex h-9 flex-col items-center justify-center rounded-md border text-sm tabular-nums transition-colors",
                       !inMonth && "opacity-40",
                       isPast &&
                         "cursor-not-allowed border-transparent bg-muted/20 text-muted-foreground/50",
@@ -221,7 +230,7 @@ export function ReservationDatePicker({
                         !isSelectedStart &&
                         !isSelectedEnd &&
                         availability === "free" &&
-                        "border-border hover:border-primary/50 hover:bg-primary/5",
+                        "border-emerald-500/30 bg-emerald-500/15 text-emerald-700 hover:border-emerald-500/50 hover:bg-emerald-500/25 dark:text-emerald-300",
                       !isPast &&
                         availability === "occupied" &&
                         !inRange &&
@@ -235,7 +244,7 @@ export function ReservationDatePicker({
                         !isSelectedEnd &&
                         "border-amber-500/30 bg-amber-500/15 text-amber-800 dark:text-amber-200",
                       inRange &&
-                        "border-primary/30 bg-primary/15 text-primary",
+                        "border-violet-500/40 bg-violet-500/20 text-violet-200",
                       isSelectedStart &&
                         "border-[var(--calendar-check-in-ring)] bg-[var(--calendar-check-in-soft)] font-semibold text-[var(--calendar-check-in)]",
                       isSelectedEnd &&
@@ -244,7 +253,8 @@ export function ReservationDatePicker({
                         !isSelectedStart &&
                         !isSelectedEnd &&
                         !inRange &&
-                        "ring-1 ring-inset ring-primary/30"
+                        availability === "free" &&
+                        "ring-1 ring-inset ring-emerald-500/40"
                     )}
                   >
                     {format(day, "d")}
@@ -265,50 +275,25 @@ export function ReservationDatePicker({
           ))}
         </div>
 
-        <div className="flex flex-wrap gap-x-4 gap-y-1 border-t px-3 py-2 text-[11px] text-muted-foreground">
-          <span className="flex items-center gap-1.5">
+        <div className="flex flex-wrap gap-x-3 gap-y-1 border-t px-2.5 py-2 text-[11px] text-muted-foreground">
+          <span className="flex items-center gap-1">
+            <span className="h-3 w-3 rounded border border-emerald-500/30 bg-emerald-500/15" />
+            Available
+          </span>
+          <span className="flex items-center gap-1">
             <span className="h-3 w-3 rounded border border-red-500/25 bg-red-500/10" />
             Occupied
           </span>
-          <span className="flex items-center gap-1.5">
+          <span className="flex items-center gap-1">
             <span className="h-3 w-3 rounded border border-amber-500/30 bg-amber-500/15" />
             Blocked
           </span>
-          <span className="flex items-center gap-1.5">
-            <span className="h-3 w-3 rounded border border-primary/30 bg-primary/15" />
-            Your selection
+          <span className="flex items-center gap-1">
+            <span className="h-3 w-3 rounded border border-violet-500/40 bg-violet-500/20" />
+            Selected
           </span>
         </div>
       </div>
-
-      {upcomingOccupied.length > 0 && (
-        <div className="rounded-lg border border-border/80 bg-muted/20 p-3">
-          <p className="mb-2 text-xs font-medium text-muted-foreground">
-            Occupied periods for this property
-          </p>
-          <ul className="space-y-1.5">
-            {upcomingOccupied.map((r) => (
-              <li
-                key={r.id}
-                className="flex flex-wrap items-center justify-between gap-2 text-sm"
-              >
-                <span className="font-medium">
-                  {formatStayPeriodLabel(r.check_in, r.check_out)}
-                </span>
-                <span className="text-xs text-muted-foreground">
-                  {getDayAvailabilityKind(
-                    reservations,
-                    parseDateOnly(r.check_in),
-                    excludeReservationId
-                  ) === "blocked"
-                    ? "Blocked"
-                    : r.title}
-                </span>
-              </li>
-            ))}
-          </ul>
-        </div>
-      )}
     </div>
   );
 }

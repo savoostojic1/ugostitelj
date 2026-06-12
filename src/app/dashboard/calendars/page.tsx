@@ -116,36 +116,36 @@ export default function CalendarsOverviewPage() {
         </div>
       )}
 
-      <div className="grid w-full grid-cols-2 gap-1.5 sm:gap-4">
+      <div className="grid w-full grid-cols-2 gap-3 sm:gap-4 md:grid-cols-3">
         {grouped.map(({ property, reservations: propertyReservations }, i) => {
           const colors = getPropertyCalendarColor(i);
+          const count = propertyReservations.length;
           return (
             <div
               key={property.id}
-              className="hostvia-panel w-full min-w-0 overflow-hidden"
+              className="hostvia-panel group flex w-full min-w-0 flex-col overflow-hidden transition hover:border-violet-500/20"
             >
-              <div className="flex items-center gap-1.5 border-b border-white/6 px-2 py-2 sm:gap-2 sm:px-4 sm:py-3">
-                <span
-                  className="h-2.5 w-2.5 rounded-full"
+              <div className="flex items-center gap-2.5 border-b border-white/6 px-3 py-2.5">
+                <div
+                  className="h-8 w-1 shrink-0 rounded-full"
                   style={{ background: colors.solid }}
                 />
                 <Link
                   href={`/dashboard/properties/${property.id}/calendar`}
-                  className="truncate text-xs font-semibold text-white hover:text-violet-200 sm:text-sm"
+                  className="min-w-0 flex-1 truncate text-sm font-semibold text-white transition group-hover:text-violet-200"
                 >
                   {property.name}
                 </Link>
+                <span className="shrink-0 rounded-full bg-white/[0.06] px-2 py-0.5 text-[11px] tabular-nums text-zinc-400">
+                  {count}
+                </span>
               </div>
-              <div className="p-1.5 sm:p-3">
+              <div className="flex flex-1 flex-col p-2 sm:p-2.5">
                 <CompactPropertyCalendar
                   reservations={propertyReservations}
                   month={calendarMonth}
                   compact
                 />
-                <p className="mt-2 text-[10px] text-zinc-500 sm:mt-3 sm:text-xs">
-                  {propertyReservations.length} reservation
-                  {propertyReservations.length !== 1 ? "s" : ""}
-                </p>
               </div>
             </div>
           );

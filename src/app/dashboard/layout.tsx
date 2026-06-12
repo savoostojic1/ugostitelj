@@ -24,12 +24,14 @@ export default function DashboardLayout({
       <AppSidebar />
       <div className="hostvia-dashboard-main flex min-h-screen min-w-0 flex-1 flex-col text-foreground">
         <ConditionalDashboardTopbar />
-        <div className="hostvia-dashboard-content">
-          <DashboardLoadingGate>
-            <TeamAccessGuard>
-              <div className="hostvia-dashboard-page">{children}</div>
-            </TeamAccessGuard>
-          </DashboardLoadingGate>
+        <div className="hostvia-dashboard-shell">
+          <div className="hostvia-dashboard-content">
+            <DashboardLoadingGate>
+              <TeamAccessGuard>
+                <div className="hostvia-dashboard-page">{children}</div>
+              </TeamAccessGuard>
+            </DashboardLoadingGate>
+          </div>
         </div>
       </div>
       <AutoSync />

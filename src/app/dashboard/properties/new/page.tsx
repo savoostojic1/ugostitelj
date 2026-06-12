@@ -54,11 +54,11 @@ export default function NewPropertyPage() {
   }
 
   return (
-    <div className="mx-auto max-w-xl space-y-6">
-      <Button variant="ghost" size="sm" asChild>
+    <div className="space-y-8">
+      <Button variant="ghost" size="sm" asChild className="hostvia-dashboard-page-inset w-fit">
         <Link href="/dashboard/properties">
           <ArrowLeft className="h-4 w-4" />
-          Back
+          Properties
         </Link>
       </Button>
       <Card>

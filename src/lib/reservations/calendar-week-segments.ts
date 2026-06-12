@@ -1,4 +1,4 @@
-import { addDays } from "date-fns";
+import { addDays, isSameMonth } from "date-fns";
 import {
   isSameCalendarDay,
   isStayNight,
@@ -81,4 +81,34 @@ export function getCalendarWeekSegments(
         parseDateOnly(b.reservation.check_in).getTime()
     )
   );
+}
+
+/** Skraćuje trake rezervacija samo na kolone koje pripadaju prikazanom mjesecu. */
+export function clipWeekSegmentsToMonth(
+  segments: CalendarWeekSegment[],
+  weekDays: Date[],
+  month: Date
+): CalendarWeekSegment[] {
+  return segments.flatMap((seg) => {
+    let startCol = seg.startCol;
+    let stayEndCol = seg.stayEndCol;
+
+    while (
+      startCol <= stayEndCol &&
+      weekDays[startCol] &&
+      !isSameMonth(weekDays[startCol], month)
+    ) {
+      startCol++;
+    }
+    while (
+      stayEndCol >= startCol &&
+      weekDays[stayEndCol] &&
+      !isSameMonth(weekDays[stayEndCol], month)
+    ) {
+      stayEndCol--;
+    }
+
+    if (startCol > stayEndCol) return [];
+    return [{ ...seg, startCol, stayEndCol }];
+  });
 }
