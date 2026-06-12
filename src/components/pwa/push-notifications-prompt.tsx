@@ -1,14 +1,23 @@
 "use client";
 
 import { useState } from "react";
-import { Bell, BellOff, Loader2, Smartphone } from "lucide-react";
+import { Bell, BellOff, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { usePushNotifications } from "@/hooks/use-push-notifications";
 import { isStandaloneDisplayMode } from "@/lib/pwa/standalone";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
 
-export function PushNotificationsPrompt({ className }: { className?: string }) {
+interface PushNotificationsPromptProps {
+  className?: string;
+  /** Hide on dashboard once notifications are enabled */
+  hideWhenSubscribed?: boolean;
+}
+
+export function PushNotificationsPrompt({
+  className,
+  hideWhenSubscribed = false,
+}: PushNotificationsPromptProps) {
   const {
     state,
     loading,
@@ -20,6 +29,14 @@ export function PushNotificationsPrompt({ className }: { className?: string }) {
   } = usePushNotifications();
   const [busy, setBusy] = useState(false);
   const installed = isStandaloneDisplayMode();
+
+  if (!installed) {
+    return null;
+  }
+
+  if (hideWhenSubscribed && !loading && isSubscribed) {
+    return null;
+  }
 
   async function handleEnable() {
     setBusy(true);
@@ -64,9 +81,7 @@ export function PushNotificationsPrompt({ className }: { className?: string }) {
               ? "Checking notification support…"
               : isSubscribed
                 ? "You will get an alert when a guest sends a booking inquiry"
-                : installed
-                  ? "Get a push alert on this device for new booking inquiries"
-                  : "Install the app on your home screen, then enable alerts here"}
+                : "Get a push alert on this device for new booking inquiries"}
           </p>
         </div>
         {isSubscribed ? (
@@ -88,27 +103,15 @@ export function PushNotificationsPrompt({ className }: { className?: string }) {
 
         {state === "unsupported" ? (
           <p className="rounded-lg border border-white/8 bg-white/[0.02] px-3 py-2 text-xs leading-relaxed text-zinc-400">
-            This browser does not support push notifications. Use an installed
-            Hostvia app on your phone (iPhone 16.4+ or Android).
+            This device does not support push notifications (iPhone 16.4+ required).
           </p>
         ) : null}
 
         {state === "no-service-worker" ? (
           <p className="rounded-lg border border-amber-500/20 bg-amber-500/5 px-3 py-2 text-xs leading-relaxed text-amber-200/90">
-            App worker did not start. Fully close Hostvia (swipe it away), open
-            again from your home screen, then tap Enable.
+            App worker did not start. Fully close Hostvia, open again from your
+            home screen, then tap Enable.
           </p>
-        ) : null}
-
-        {!installed && state !== "unsupported" && state !== "no-vapid" ? (
-          <div className="flex items-start gap-3 rounded-xl border border-white/8 bg-white/[0.02] p-3 text-xs leading-relaxed text-zinc-400">
-            <Smartphone className="mt-0.5 h-4 w-4 shrink-0 text-violet-300" />
-            <p>
-              Open Hostvia from your home screen (not Safari/Chrome tabs). On
-              iPhone: Share → Add to Home Screen. Then return here and tap
-              Enable.
-            </p>
-          </div>
         ) : null}
 
         {state === "denied" ? (
@@ -150,7 +153,6 @@ export function PushNotificationsPrompt({ className }: { className?: string }) {
               disabled={
                 busy ||
                 !canSubscribe ||
-                !installed ||
                 state === "denied" ||
                 state === "no-vapid" ||
                 state === "unsupported"

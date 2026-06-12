@@ -70,8 +70,6 @@ export default function BookingRequestsPage() {
         }
       />
 
-      <PushNotificationsPrompt />
-
       {!isLoading && requests.length === 0 && (
         <Card className="border-dashed">
           <CardContent className="py-16 text-center text-muted-foreground">
@@ -164,6 +162,8 @@ export default function BookingRequestsPage() {
           </Card>
         ))}
       </div>
+
+      <PushNotificationsPrompt />
     </div>
   );
 }

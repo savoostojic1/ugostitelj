@@ -24,19 +24,25 @@ import {
 import { formatReservationLabel } from "@/lib/reservations/display";
 import type { Reservation } from "@/types/database";
 
-const BAR_HEIGHT = 6;
-const BAR_GAP = 3;
-const DAY_HEADER = 20;
+const BAR_HEIGHT_DEFAULT = 6;
+const BAR_GAP_DEFAULT = 3;
+const DAY_HEADER_DEFAULT = 20;
 
 interface CompactPropertyCalendarProps {
   reservations: Reservation[];
   month: Date;
+  compact?: boolean;
 }
 
 export function CompactPropertyCalendar({
   reservations,
   month,
+  compact = false,
 }: CompactPropertyCalendarProps) {
+  const barHeight = compact ? 4 : BAR_HEIGHT_DEFAULT;
+  const barGap = compact ? 2 : BAR_GAP_DEFAULT;
+  const dayHeader = compact ? 16 : DAY_HEADER_DEFAULT;
+
   const monthStart = startOfMonth(month);
   const monthEnd = endOfMonth(month);
   const gridStart = startOfWeek(monthStart, { weekStartsOn: 1 });
@@ -69,7 +75,7 @@ export function CompactPropertyCalendar({
             segments.length > 0
               ? Math.max(...segments.map((s) => s.lane)) + 1
               : 0;
-          const rowHeight = DAY_HEADER + maxLane * (BAR_HEIGHT + BAR_GAP) + 6;
+          const rowHeight = dayHeader + maxLane * (barHeight + barGap) + 6;
 
           return (
             <div key={wi} className="relative">
@@ -96,7 +102,8 @@ export function CompactPropertyCalendar({
                     >
                       <span
                         className={cn(
-                          "block px-0.5 pt-1 text-[11px] font-medium leading-none tabular-nums text-muted-foreground",
+                          "block px-0.5 pt-1 font-medium leading-none tabular-nums text-muted-foreground",
+                          compact ? "text-[9px]" : "text-[11px]",
                           inMonth && "text-foreground",
                           isToday && inMonth && "font-bold text-primary"
                         )}
@@ -112,7 +119,7 @@ export function CompactPropertyCalendar({
                 <div
                   className="pointer-events-none absolute inset-x-0 px-0.5"
                   style={{
-                    top: DAY_HEADER,
+                    top: dayHeader,
                     bottom: 3,
                   }}
                 >
@@ -131,8 +138,8 @@ export function CompactPropertyCalendar({
                         key={`${seg.reservation.id}-${wi}-${seg.lane}`}
                         className="absolute inset-x-0 grid grid-cols-7"
                         style={{
-                          top: seg.lane * (BAR_HEIGHT + BAR_GAP),
-                          height: BAR_HEIGHT,
+                          top: seg.lane * (barHeight + barGap),
+                          height: barHeight,
                         }}
                       >
                         <div

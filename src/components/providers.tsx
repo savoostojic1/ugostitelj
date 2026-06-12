@@ -27,7 +27,13 @@ export function Providers({ children }: { children: React.ReactNode }) {
           <PushNavigationHandler />
           {children}
         </PwaAppGuard>
-        <Toaster richColors position="top-right" />
+        <Toaster
+          richColors
+          position="top-right"
+          className="hostvia-toaster"
+          offset="calc(env(safe-area-inset-top, 0px) + 3.25rem)"
+          mobileOffset="calc(env(safe-area-inset-top, 0px) + 3.5rem)"
+        />
       </ThemeProvider>
     </QueryClientProvider>
   );

@@ -376,6 +376,16 @@
   }
 }
 
+.hostvia-toaster[data-sonner-toaster] {
+  --offset-top: calc(env(safe-area-inset-top, 0px) + 3.25rem);
+}
+
+@media (max-width: 640px) {
+  .hostvia-toaster[data-sonner-toaster] {
+    --offset-top: calc(env(safe-area-inset-top, 0px) + 3.5rem);
+  }
+}
+
 .hostvia-dashboard-topbar {
   position: sticky;
   top: 0;

@@ -109,29 +109,30 @@ export default function CalendarsOverviewPage() {
         </div>
       )}
 
-      <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+      <div className="grid grid-cols-2 gap-2 sm:gap-4 md:grid-cols-2">
         {grouped.map(({ property, reservations: propertyReservations }, i) => {
           const colors = getPropertyCalendarColor(i);
           return (
             <div key={property.id} className="hostvia-panel overflow-hidden">
-              <div className="flex items-center gap-2 border-b border-white/6 px-4 py-3">
+              <div className="flex items-center gap-1.5 border-b border-white/6 px-2 py-2 sm:gap-2 sm:px-4 sm:py-3">
                 <span
                   className="h-2.5 w-2.5 rounded-full"
                   style={{ background: colors.solid }}
                 />
                 <Link
                   href={`/dashboard/properties/${property.id}/calendar`}
-                  className="truncate text-sm font-semibold text-white hover:text-violet-200"
+                  className="truncate text-xs font-semibold text-white hover:text-violet-200 sm:text-sm"
                 >
                   {property.name}
                 </Link>
               </div>
-              <div className="p-3">
+              <div className="p-1.5 sm:p-3">
                 <CompactPropertyCalendar
                   reservations={propertyReservations}
                   month={calendarMonth}
+                  compact
                 />
-                <p className="mt-3 text-xs text-zinc-500">
+                <p className="mt-2 text-[10px] text-zinc-500 sm:mt-3 sm:text-xs">
                   {propertyReservations.length} reservation
                   {propertyReservations.length !== 1 ? "s" : ""}
                 </p>

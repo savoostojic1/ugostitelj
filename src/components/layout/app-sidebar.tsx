@@ -51,7 +51,7 @@ const navGroups = [
       { href: "/dashboard/public-site", label: "Booking site", icon: Globe },
       {
         href: "/dashboard/booking-requests",
-        label: "Inquiries & alerts",
+        label: "Inquiries",
         icon: Inbox,
       },
       { href: "/dashboard/porouka", label: "Messages", icon: MessageSquare },

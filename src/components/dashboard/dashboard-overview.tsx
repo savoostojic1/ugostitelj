@@ -15,6 +15,7 @@ import {
   TrendingUp,
 } from "lucide-react";
 import { DashboardPageHeader } from "@/components/dashboard/dashboard-page-header";
+import { PushNotificationsPrompt } from "@/components/pwa/push-notifications-prompt";
 import { DashboardPanel } from "@/components/dashboard/dashboard-panel";
 import { DashboardStatCard } from "@/components/dashboard/dashboard-stat-card";
 import { Button } from "@/components/ui/button";
@@ -269,6 +270,8 @@ export function DashboardOverview() {
           )}
         </>
       ) : null}
+
+      <PushNotificationsPrompt hideWhenSubscribed />
     </div>
   );
 }
