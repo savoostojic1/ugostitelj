@@ -344,6 +344,7 @@
 .hostvia-dashboard-main {
   position: relative;
   isolation: isolate;
+  min-width: 0;
 }
 
 .hostvia-dashboard-main::before {
@@ -418,14 +419,28 @@
   position: relative;
   z-index: 1;
   margin-inline: auto;
+  min-width: 0;
   max-width: 80rem;
   padding: 1.5rem 1.5rem 2.5rem;
+}
+
+@media (max-width: 767px) {
+  .hostvia-dashboard-bleed-x {
+    margin-inline: -1.5rem;
+    width: calc(100% + 3rem);
+  }
 }
 
 @media (min-width: 768px) {
   .hostvia-dashboard-content {
     padding: 2rem 2rem 3rem;
   }
+}
+
+.hostvia-property-page {
+  min-width: 0;
+  max-width: 100%;
+  overflow-x: clip;
 }
 
 .hostvia-dashboard-eyebrow {

@@ -57,7 +57,7 @@ export default function PropertyDetailPage({
   );
 
   return (
-    <div className="space-y-8">
+    <div className="hostvia-property-page space-y-8">
       <Button variant="ghost" size="sm" asChild>
         <Link href="/dashboard/properties">
           <ArrowLeft className="h-4 w-4" />
@@ -76,8 +76,8 @@ export default function PropertyDetailPage({
         <PropertyOverviewStats reservations={reservations} />
       )}
 
-      <Card className="hostvia-glow-card border-0 bg-transparent">
-        <CardContent className="flex flex-col gap-4 p-5 sm:flex-row sm:items-center sm:justify-between">
+      <Card className="hostvia-glow-card overflow-hidden border-0 bg-transparent">
+        <CardContent className="flex flex-col gap-4 p-4 sm:flex-row sm:items-center sm:justify-between sm:p-5">
           <div>
             <p className="font-medium">Calendar & reservations</p>
             <p className="mt-1 text-sm text-muted-foreground">

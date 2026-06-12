@@ -42,7 +42,7 @@ export default function PropertyCalendarPage({
   }
 
   return (
-    <div className="space-y-8">
+    <div className="hostvia-property-page space-y-8">
       <Button variant="ghost" size="sm" asChild>
         <Link href="/dashboard/properties">
           <ArrowLeft className="h-4 w-4" />
@@ -51,8 +51,8 @@ export default function PropertyCalendarPage({
       </Button>
 
       <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
-        <div className="space-y-1">
-          <h1 className="hostvia-dashboard-title">{property.name}</h1>
+        <div className="min-w-0 space-y-1">
+          <h1 className="hostvia-dashboard-title truncate">{property.name}</h1>
           <p className="text-sm text-muted-foreground">
             Calendar & reservations
           </p>
@@ -63,7 +63,7 @@ export default function PropertyCalendarPage({
       <PropertyDetailNav propertyId={id} />
 
       <div>
-        <div className="mb-4 flex items-center justify-between gap-3">
+        <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
           <h2 className="text-lg font-semibold text-foreground">Calendar</h2>
           <PropertyCalendarNav propertyId={id} />
         </div>

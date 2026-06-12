@@ -35,8 +35,8 @@ export function PropertyExportCalendar({
   }
 
   return (
-    <Card>
-      <CardHeader>
+    <Card className="overflow-hidden">
+      <CardHeader className="p-4 sm:p-6">
         <CardTitle className="text-base">Export link (Airbnb & Booking)</CardTitle>
         <p className="text-sm text-muted-foreground">
           Copy the <strong>link below</strong> and paste it into Airbnb and Booking as an{" "}
@@ -45,12 +45,12 @@ export function PropertyExportCalendar({
           Airbnb/Booking sync.
         </p>
       </CardHeader>
-      <CardContent className="space-y-4">
-        <div className="flex gap-2">
+      <CardContent className="space-y-4 p-4 pt-0 sm:p-6 sm:pt-0">
+        <div className="flex min-w-0 flex-col gap-2 sm:flex-row">
           <Input
             readOnly
             value={exportUrl}
-            className="font-mono text-xs"
+            className="min-w-0 font-mono text-xs"
             aria-label={`Export link for ${propertyName}`}
           />
           <Button

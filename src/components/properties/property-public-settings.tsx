@@ -98,16 +98,16 @@ export function PropertyPublicSettings({ property }: PropertyPublicSettingsProps
       : null;
 
   return (
-    <Card>
-      <CardHeader className="flex flex-row items-center justify-between gap-4">
-        <div>
+    <Card className="overflow-hidden">
+      <CardHeader className="flex flex-col gap-3 p-4 sm:flex-row sm:items-center sm:justify-between sm:p-6">
+        <div className="min-w-0">
           <CardTitle>Public page</CardTitle>
           <p className="mt-1 text-sm text-muted-foreground">
             Shown on your booking site alongside your other listings
           </p>
         </div>
         {isPublic && hostPublicPath ? (
-          <Button variant="outline" size="sm" asChild>
+          <Button variant="outline" size="sm" className="w-full shrink-0 sm:w-auto" asChild>
             <Link href={hostPublicPath} target="_blank">
               <ExternalLink className="h-4 w-4" />
               View
@@ -115,7 +115,7 @@ export function PropertyPublicSettings({ property }: PropertyPublicSettingsProps
           </Button>
         ) : null}
       </CardHeader>
-      <CardContent className="space-y-4">
+      <CardContent className="space-y-4 p-4 pt-0 sm:p-6 sm:pt-0">
         <label className="flex items-center gap-3">
           <input
             type="checkbox"

@@ -55,7 +55,7 @@ export function PropertyNameEditor({
         <Input
           value={value}
           onChange={(e) => setValue(e.target.value)}
-          className="max-w-md text-lg font-semibold"
+          className="w-full text-base font-semibold sm:max-w-md sm:text-lg"
           autoFocus
           disabled={update.isPending}
         />
@@ -81,8 +81,8 @@ export function PropertyNameEditor({
   }
 
   return (
-    <div className="flex items-center gap-2">
-      <h1 className="hostvia-dashboard-title">{name}</h1>
+    <div className="flex min-w-0 items-center gap-2">
+      <h1 className="hostvia-dashboard-title min-w-0 truncate">{name}</h1>
       <Button
         variant="ghost"
         size="icon"

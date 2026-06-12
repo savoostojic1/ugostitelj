@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Pencil, Plus, Trash2 } from "lucide-react";
+import { Copy, Pencil, Plus, Trash2 } from "lucide-react";
 import { DashboardPageHeader } from "@/components/dashboard/dashboard-page-header";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -29,6 +29,10 @@ type MessageFormState = {
 };
 
 const emptyForm: MessageFormState = { name: "", body: "" };
+
+async function copyMessageText(text: string) {
+  await navigator.clipboard.writeText(text);
+}
 
 export default function PoroukaPage() {
   const { data: messages = [], isLoading } = useSavedMessages();
@@ -94,16 +98,25 @@ export default function PoroukaPage() {
     });
   }
 
+  async function handleCopy(message: SavedMessage) {
+    try {
+      await copyMessageText(message.body);
+      toast.success(`"${message.name}" copied`);
+    } catch {
+      toast.error("Copy failed");
+    }
+  }
+
   const isSaving = createMessage.isPending || updateMessage.isPending;
 
   return (
-    <div className="space-y-8">
+    <div className="hostvia-property-page space-y-8">
       <DashboardPageHeader
         eyebrow="Tools"
         title="Messages"
         description="Save messages for quick copy from the dashboard"
         actions={
-          <Button onClick={openCreate}>
+          <Button onClick={openCreate} className="w-full sm:w-auto">
             <Plus className="h-4 w-4" />
             New message
           </Button>
@@ -111,44 +124,57 @@ export default function PoroukaPage() {
       />
 
       {!isLoading && messages.length === 0 && (
-        <Card className="border-dashed">
-          <CardContent className="flex flex-col items-center py-16 text-center">
-            <p className="mb-4 text-muted-foreground">
-              No saved messages yet.
-            </p>
-            <Button onClick={openCreate}>Add first message</Button>
+        <Card className="overflow-hidden border-dashed">
+          <CardContent className="flex flex-col items-center px-4 py-12 text-center sm:py-16">
+            <p className="mb-4 text-muted-foreground">No saved messages yet.</p>
+            <Button onClick={openCreate} className="w-full sm:w-auto">
+              Add first message
+            </Button>
           </CardContent>
         </Card>
       )}
 
       <div className="space-y-3">
         {messages.map((message) => (
-          <Card key={message.id}>
-            <CardContent className="flex flex-col gap-3 p-4 sm:flex-row sm:items-start sm:justify-between">
-              <div className="min-w-0 space-y-2">
-                <p className="font-semibold">{message.name}</p>
-                <pre className="whitespace-pre-wrap break-words rounded-lg bg-muted/50 p-3 text-sm text-muted-foreground">
-                  {message.body}
-                </pre>
+          <Card key={message.id} className="overflow-hidden">
+            <CardContent className="space-y-3 p-4">
+              <div className="flex items-start justify-between gap-3">
+                <p className="min-w-0 flex-1 break-words font-semibold">
+                  {message.name}
+                </p>
+                <div className="flex shrink-0 gap-1">
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="h-8 w-8"
+                    onClick={() => handleCopy(message)}
+                    aria-label={`Copy ${message.name}`}
+                  >
+                    <Copy className="h-4 w-4" />
+                  </Button>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="h-8 w-8"
+                    onClick={() => openEdit(message)}
+                    aria-label={`Edit ${message.name}`}
+                  >
+                    <Pencil className="h-4 w-4" />
+                  </Button>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="h-8 w-8"
+                    onClick={() => handleDelete(message)}
+                    disabled={deleteMessage.isPending}
+                    aria-label={`Delete ${message.name}`}
+                  >
+                    <Trash2 className="h-4 w-4 text-destructive" />
+                  </Button>
+                </div>
               </div>
-              <div className="flex shrink-0 gap-1 self-end sm:self-start">
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  onClick={() => openEdit(message)}
-                  aria-label={`Edit ${message.name}`}
-                >
-                  <Pencil className="h-4 w-4" />
-                </Button>
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  onClick={() => handleDelete(message)}
-                  disabled={deleteMessage.isPending}
-                  aria-label={`Delete ${message.name}`}
-                >
-                  <Trash2 className="h-4 w-4 text-destructive" />
-                </Button>
+              <div className="max-w-full overflow-x-auto rounded-lg bg-muted/50 p-3 text-sm leading-relaxed text-muted-foreground [overflow-wrap:anywhere] whitespace-pre-wrap break-words">
+                {message.body}
               </div>
             </CardContent>
           </Card>
@@ -156,7 +182,7 @@ export default function PoroukaPage() {
       </div>
 
       <Dialog open={dialogOpen} onOpenChange={(open) => !open && closeDialog()}>
-        <DialogContent className="sm:max-w-lg">
+        <DialogContent className="max-h-[min(90dvh,100%)] w-[calc(100%-1.5rem)] max-w-lg overflow-y-auto p-4 sm:p-6">
           <DialogHeader>
             <DialogTitle>
               {editing ? "Edit message" : "New message"}
@@ -184,14 +210,23 @@ export default function PoroukaPage() {
                 }
                 placeholder="Enter text you want to copy with one click…"
                 rows={8}
+                className="min-h-[10rem] resize-y"
               />
             </div>
           </div>
-          <div className="flex justify-end gap-2 pt-2">
-            <Button variant="outline" onClick={closeDialog}>
+          <div className="flex flex-col-reverse gap-2 pt-2 sm:flex-row sm:justify-end">
+            <Button
+              variant="outline"
+              onClick={closeDialog}
+              className="w-full sm:w-auto"
+            >
               Cancel
             </Button>
-            <Button onClick={handleSubmit} disabled={isSaving}>
+            <Button
+              onClick={handleSubmit}
+              disabled={isSaving}
+              className="w-full sm:w-auto"
+            >
               {isSaving ? "Saving…" : editing ? "Save" : "Create"}
             </Button>
           </div>

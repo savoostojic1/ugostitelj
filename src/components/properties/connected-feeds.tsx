@@ -79,21 +79,28 @@ export function ConnectedFeeds({ propertyId }: { propertyId: string }) {
 
   return (
     <>
-      <Card>
-        <CardHeader className="flex flex-row items-center justify-between space-y-0">
-          <div>
+      <Card className="overflow-hidden">
+        <CardHeader className="flex flex-col gap-3 space-y-0 p-4 sm:flex-row sm:items-center sm:justify-between sm:p-6">
+          <div className="min-w-0">
             <CardTitle>Connected Calendars</CardTitle>
             <p className="text-sm text-muted-foreground mt-1">
               Airbnb, Booking.com, or custom iCal URLs
             </p>
           </div>
-          <div className="flex gap-2">
-            <Button variant="outline" size="sm" onClick={syncAll} disabled={!feeds.length}>
+          <div className="flex w-full flex-wrap gap-2 sm:w-auto sm:justify-end">
+            <Button
+              variant="outline"
+              size="sm"
+              className="flex-1 sm:flex-none"
+              onClick={syncAll}
+              disabled={!feeds.length}
+            >
               <RefreshCw className="h-4 w-4" />
               Sync All
             </Button>
             <Button
               size="sm"
+              className="flex-1 sm:flex-none"
               onClick={() => {
                 setEditing(null);
                 setDialogOpen(true);
@@ -103,7 +110,7 @@ export function ConnectedFeeds({ propertyId }: { propertyId: string }) {
             </Button>
           </div>
         </CardHeader>
-        <CardContent className="space-y-3">
+        <CardContent className="space-y-3 p-4 pt-0 sm:p-6 sm:pt-0">
           {isLoading && (
             <p className="text-sm text-muted-foreground">Loading feeds…</p>
           )}

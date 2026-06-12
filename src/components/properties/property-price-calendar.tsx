@@ -26,6 +26,7 @@ import type { PropertyPriceRule } from "@/types/database";
 import { cn } from "@/lib/utils";
 
 const WEEKDAYS = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
+const WEEKDAYS_SHORT = ["M", "T", "W", "T", "F", "S", "S"];
 
 function nightHasCustomRule(
   night: string,
@@ -171,21 +172,22 @@ export function PropertyPriceCalendar({
           </Button>
         </div>
 
-        <div className="p-3">
-          <div className="mb-1 grid grid-cols-7 gap-1">
-            {WEEKDAYS.map((day) => (
+        <div className="p-2 sm:p-3">
+          <div className="mb-1 grid grid-cols-7 gap-0.5 sm:gap-1">
+            {WEEKDAYS.map((day, index) => (
               <div
                 key={day}
-                className="py-1 text-center text-[10px] font-semibold uppercase tracking-wide text-muted-foreground"
+                className="py-1 text-center text-[9px] font-semibold uppercase tracking-wide text-muted-foreground sm:text-[10px]"
               >
-                {day}
+                <span className="sm:hidden">{WEEKDAYS_SHORT[index]}</span>
+                <span className="hidden sm:inline">{day}</span>
               </div>
             ))}
           </div>
 
-          <div className="space-y-1">
+          <div className="space-y-0.5 sm:space-y-1">
             {weeks.map((week, wi) => (
-              <div key={wi} className="grid grid-cols-7 gap-1">
+              <div key={wi} className="grid grid-cols-7 gap-0.5 sm:gap-1">
                 {week.map((day) => {
                   const inMonth = day.getMonth() === viewMonth.getMonth();
                   const nightKey = format(day, "yyyy-MM-dd");
@@ -213,7 +215,7 @@ export function PropertyPriceCalendar({
                       disabled={!inMonth}
                       onClick={() => inMonth && handleDayClick(day)}
                       className={cn(
-                        "flex min-h-[3.25rem] flex-col items-center justify-center rounded-lg border px-0.5 py-1 text-center transition",
+                        "flex min-h-[2.65rem] flex-col items-center justify-center rounded-md border px-0 py-0.5 text-center transition sm:min-h-[3.25rem] sm:rounded-lg sm:px-0.5 sm:py-1",
                         !inMonth && "pointer-events-none border-transparent opacity-0",
                         inMonth &&
                           !selected &&
@@ -231,7 +233,7 @@ export function PropertyPriceCalendar({
                     >
                       <span
                         className={cn(
-                          "text-sm font-semibold leading-none",
+                          "text-xs font-semibold leading-none sm:text-sm",
                           selected && "text-primary"
                         )}
                       >
@@ -260,7 +262,7 @@ export function PropertyPriceCalendar({
         </div>
       </div>
 
-      <div className="rounded-xl border border-border bg-muted/30 p-4">
+      <div className="rounded-xl border border-border bg-muted/30 p-3 sm:p-4">
         <p className="text-sm font-medium">New price</p>
         <p className="mt-1 text-xs text-muted-foreground">{selectionLabel}</p>
 

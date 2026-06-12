@@ -83,15 +83,15 @@ export function PropertyPricingSettings({ property }: PropertyPricingSettingsPro
   }
 
   return (
-    <Card>
-      <CardHeader>
+    <Card className="overflow-hidden">
+      <CardHeader className="p-4 sm:p-6">
         <CardTitle>Nightly prices</CardTitle>
         <p className="text-sm text-muted-foreground">
           The calendar shows the current price for each day. Click a day, enter
           a price and apply — or click a second day to set a full period.
         </p>
       </CardHeader>
-      <CardContent className="space-y-6">
+      <CardContent className="space-y-6 p-4 pt-0 sm:p-6 sm:pt-0">
         <div className="flex flex-col gap-3 sm:flex-row sm:items-end">
           <div className="flex-1 space-y-2">
             <Label htmlFor={`default-price-${property.id}`}>
@@ -132,9 +132,9 @@ export function PropertyPricingSettings({ property }: PropertyPricingSettingsPro
               {rules.map((rule) => (
                 <div
                   key={rule.id}
-                  className="flex items-center justify-between gap-3 px-4 py-3"
+                  className="flex items-start justify-between gap-3 px-3 py-3 sm:items-center sm:px-4"
                 >
-                  <div>
+                  <div className="min-w-0">
                     <p className="text-sm font-medium">
                       {formatPeriod(rule.start_date, rule.end_date)}
                     </p>
