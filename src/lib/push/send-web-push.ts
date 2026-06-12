@@ -1,5 +1,4 @@
 import webpush from "web-push";
-import { getSiteBaseUrl } from "@/lib/public/site-url";
 import { createServiceClient, hasServiceRoleKey } from "@/lib/supabase/service";
 import { getVapidPublicKey, hasWebPushConfigured } from "@/lib/push/vapid";
 
@@ -68,7 +67,7 @@ export async function sendWebPushToUser(
   const message = JSON.stringify({
     title: payload.title,
     body: payload.body,
-    url: payload.url ?? `${getSiteBaseUrl()}/dashboard/booking-requests`,
+    url: payload.url ?? "/dashboard/booking-requests",
     icon: "/icon",
   });
 

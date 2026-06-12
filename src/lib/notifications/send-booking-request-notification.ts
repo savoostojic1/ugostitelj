@@ -182,7 +182,7 @@ export async function notifyHostOfBookingRequest(
     sendWebPushToUser(row.host_id, {
       title: pushTitle,
       body: pushBody,
-      url: dashboardUrl,
+      url: "/dashboard/booking-requests",
     }),
   ];
 

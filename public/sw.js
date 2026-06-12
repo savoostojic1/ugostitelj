@@ -1,5 +1,30 @@
 /// Hostvia PWA service worker — install + push notifications
-const CACHE = "hostvia-v3";
+const CACHE = "hostvia-v4";
+const DEFAULT_PATH = "/dashboard/booking-requests";
+
+function toAppPath(url) {
+  if (!url || typeof url !== "string") return DEFAULT_PATH;
+
+  try {
+    if (url.startsWith("/")) {
+      return url;
+    }
+
+    const parsed = new URL(url);
+    return parsed.pathname + parsed.search + parsed.hash;
+  } catch {
+    return DEFAULT_PATH;
+  }
+}
+
+function clientPath(clientUrl) {
+  try {
+    const parsed = new URL(clientUrl);
+    return parsed.pathname + parsed.search + parsed.hash;
+  } catch {
+    return "";
+  }
+}
 
 self.addEventListener("install", (event) => {
   event.waitUntil(self.skipWaiting());
@@ -21,7 +46,7 @@ self.addEventListener("push", (event) => {
   let payload = {
     title: "New booking inquiry",
     body: "A guest sent a request on your booking site",
-    url: "/dashboard/booking-requests",
+    url: DEFAULT_PATH,
     icon: "/icon",
   };
 
@@ -33,12 +58,14 @@ self.addEventListener("push", (event) => {
     // keep defaults
   }
 
+  const path = toAppPath(payload.url);
+
   event.waitUntil(
     self.registration.showNotification(payload.title, {
       body: payload.body,
       icon: payload.icon,
       badge: "/icon",
-      data: { url: payload.url },
+      data: { path },
       tag: "hostvia-booking-inquiry",
       renotify: true,
     })
@@ -48,8 +75,8 @@ self.addEventListener("push", (event) => {
 self.addEventListener("notificationclick", (event) => {
   event.notification.close();
 
-  const targetUrl =
-    event.notification.data?.url ?? "/dashboard/booking-requests";
+  const path = toAppPath(event.notification.data?.path ?? event.notification.data?.url);
+  const targetUrl = new URL(path, self.location.origin).href;
 
   event.waitUntil(
     (async () => {
@@ -59,17 +86,13 @@ self.addEventListener("notificationclick", (event) => {
       });
 
       for (const client of allClients) {
-        if ("focus" in client) {
-          await client.focus();
-          if (client.url !== targetUrl && "navigate" in client) {
-            try {
-              await client.navigate(targetUrl);
-            } catch {
-              await self.clients.openWindow(targetUrl);
-            }
-          }
-          return;
+        if (!client.url.startsWith(self.location.origin)) continue;
+
+        await client.focus();
+        if (clientPath(client.url) !== path) {
+          client.postMessage({ type: "HOSTVIA_NAVIGATE", path });
         }
+        return;
       }
 
       await self.clients.openWindow(targetUrl);

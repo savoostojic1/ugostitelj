@@ -49,6 +49,7 @@ export async function POST(request: Request) {
     await sendWebPushToUser(user.id, {
       title: "Notifications enabled",
       body: "You will get an alert when a guest sends a booking inquiry.",
+      url: "/dashboard/booking-requests",
     });
   } catch (err) {
     console.error("[push/subscribe] test push failed:", err);
