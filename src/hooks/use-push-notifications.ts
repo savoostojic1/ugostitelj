@@ -2,9 +2,9 @@
 
 import { useCallback, useEffect, useState } from "react";
 import { urlBase64ToUint8Array } from "@/lib/push/url-base64";
-import { getVapidPublicKey } from "@/lib/push/vapid";
 
 type PushSupportState =
+  | "loading"
   | "unsupported"
   | "no-vapid"
   | "ready"
@@ -20,26 +20,42 @@ function pushSupported(): boolean {
   );
 }
 
+async function loadVapidPublicKey(): Promise<string | null> {
+  try {
+    const res = await fetch("/api/push/config");
+    if (!res.ok) return null;
+    const data = (await res.json()) as {
+      publicKey?: string | null;
+      configured?: boolean;
+    };
+    return data.publicKey?.trim() || null;
+  } catch {
+    return null;
+  }
+}
+
 export function usePushNotifications() {
-  const [state, setState] = useState<PushSupportState>("unsupported");
-  const [loading, setLoading] = useState(true);
+  const [state, setState] = useState<PushSupportState>("loading");
+  const [vapidPublicKey, setVapidPublicKey] = useState<string | null>(null);
 
   const refresh = useCallback(async () => {
+    setState("loading");
+
     if (!pushSupported()) {
       setState("unsupported");
-      setLoading(false);
       return;
     }
 
-    if (!getVapidPublicKey()) {
+    const publicKey = await loadVapidPublicKey();
+    setVapidPublicKey(publicKey);
+
+    if (!publicKey) {
       setState("no-vapid");
-      setLoading(false);
       return;
     }
 
     if (Notification.permission === "denied") {
       setState("denied");
-      setLoading(false);
       return;
     }
 
@@ -49,8 +65,6 @@ export function usePushNotifications() {
       setState(existing ? "subscribed" : "ready");
     } catch {
       setState("ready");
-    } finally {
-      setLoading(false);
     }
   }, []);
 
@@ -59,9 +73,13 @@ export function usePushNotifications() {
   }, [refresh]);
 
   const subscribe = useCallback(async () => {
-    const vapidKey = getVapidPublicKey();
-    if (!vapidKey || !pushSupported()) {
-      throw new Error("Push notifications are not available");
+    const publicKey = vapidPublicKey ?? (await loadVapidPublicKey());
+    if (!publicKey) {
+      throw new Error("Push is not configured on the server yet");
+    }
+
+    if (!pushSupported()) {
+      throw new Error("Push notifications are not available on this device");
     }
 
     const permission = await Notification.requestPermission();
@@ -76,7 +94,7 @@ export function usePushNotifications() {
     if (!subscription) {
       subscription = await registration.pushManager.subscribe({
         userVisibleOnly: true,
-        applicationServerKey: urlBase64ToUint8Array(vapidKey) as BufferSource,
+        applicationServerKey: urlBase64ToUint8Array(publicKey) as BufferSource,
       });
     }
 
@@ -100,12 +118,15 @@ export function usePushNotifications() {
     if (!res.ok) {
       const data = await res.json().catch(() => ({}));
       throw new Error(
-        typeof data.error === "string" ? data.error : "Could not enable notifications"
+        typeof data.error === "string"
+          ? data.error
+          : "Could not enable notifications"
       );
     }
 
+    setVapidPublicKey(publicKey);
     setState("subscribed");
-  }, []);
+  }, [vapidPublicKey]);
 
   const unsubscribe = useCallback(async () => {
     const registration = await navigator.serviceWorker.ready;
@@ -126,7 +147,7 @@ export function usePushNotifications() {
 
   return {
     state,
-    loading,
+    loading: state === "loading",
     subscribe,
     unsubscribe,
     refresh,

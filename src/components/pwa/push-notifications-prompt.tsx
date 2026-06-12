@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Bell, BellOff, Smartphone } from "lucide-react";
+import { Bell, BellOff, Loader2, Smartphone } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { usePushNotifications } from "@/hooks/use-push-notifications";
 import { isStandaloneDisplayMode } from "@/lib/pwa/standalone";
@@ -13,10 +13,6 @@ export function PushNotificationsPrompt({ className }: { className?: string }) {
     usePushNotifications();
   const [busy, setBusy] = useState(false);
   const installed = isStandaloneDisplayMode();
-
-  if (loading || state === "unsupported" || state === "no-vapid") {
-    return null;
-  }
 
   async function handleEnable() {
     setBusy(true);
@@ -57,11 +53,13 @@ export function PushNotificationsPrompt({ className }: { className?: string }) {
         <div className="min-w-0 flex-1">
           <p className="text-sm font-semibold text-white">Phone notifications</p>
           <p className="text-xs text-zinc-500">
-            {isSubscribed
-              ? "You will get an alert when a guest sends a booking inquiry"
-              : installed
-                ? "Get a push alert on this device for new booking inquiries"
-                : "Install the app on your home screen, then enable alerts here"}
+            {loading
+              ? "Checking notification support…"
+              : isSubscribed
+                ? "You will get an alert when a guest sends a booking inquiry"
+                : installed
+                  ? "Get a push alert on this device for new booking inquiries"
+                  : "Install the app on your home screen, then enable alerts here"}
           </p>
         </div>
         {isSubscribed ? (
@@ -72,7 +70,23 @@ export function PushNotificationsPrompt({ className }: { className?: string }) {
       </div>
 
       <div className="hostvia-panel-body space-y-3">
-        {!installed ? (
+        {state === "no-vapid" ? (
+          <p className="rounded-lg border border-amber-500/20 bg-amber-500/5 px-3 py-2 text-xs leading-relaxed text-amber-200/90">
+            Server push keys are missing. In Vercel add{" "}
+            <code className="text-[11px]">VAPID_PUBLIC_KEY</code>,{" "}
+            <code className="text-[11px]">VAPID_PRIVATE_KEY</code> and{" "}
+            <code className="text-[11px]">VAPID_SUBJECT</code>, then redeploy.
+          </p>
+        ) : null}
+
+        {state === "unsupported" ? (
+          <p className="rounded-lg border border-white/8 bg-white/[0.02] px-3 py-2 text-xs leading-relaxed text-zinc-400">
+            This browser does not support push notifications. Use an installed
+            Hostvia app on your phone (iPhone 16.4+ or Android).
+          </p>
+        ) : null}
+
+        {!installed && state !== "unsupported" && state !== "no-vapid" ? (
           <div className="flex items-start gap-3 rounded-xl border border-white/8 bg-white/[0.02] p-3 text-xs leading-relaxed text-zinc-400">
             <Smartphone className="mt-0.5 h-4 w-4 shrink-0 text-violet-300" />
             <p>
@@ -91,7 +105,18 @@ export function PushNotificationsPrompt({ className }: { className?: string }) {
         ) : null}
 
         <div className="flex flex-wrap gap-2">
-          {isSubscribed ? (
+          {loading ? (
+            <Button
+              type="button"
+              size="sm"
+              variant="outline"
+              className="hostvia-dashboard-btn border-white/10 bg-white/[0.03]"
+              disabled
+            >
+              <Loader2 className="h-4 w-4 animate-spin" />
+              Loading…
+            </Button>
+          ) : isSubscribed ? (
             <Button
               type="button"
               size="sm"
@@ -108,7 +133,14 @@ export function PushNotificationsPrompt({ className }: { className?: string }) {
               type="button"
               size="sm"
               className="hostvia-btn-gradient"
-              disabled={busy || !canSubscribe || !installed || state === "denied"}
+              disabled={
+                busy ||
+                !canSubscribe ||
+                !installed ||
+                state === "denied" ||
+                state === "no-vapid" ||
+                state === "unsupported"
+              }
               onClick={handleEnable}
             >
               <Bell className="h-4 w-4" />

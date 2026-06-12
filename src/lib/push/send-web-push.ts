@@ -1,7 +1,7 @@
 import webpush from "web-push";
 import { getSiteBaseUrl } from "@/lib/public/site-url";
 import { createServiceClient, hasServiceRoleKey } from "@/lib/supabase/service";
-import { hasWebPushConfigured } from "@/lib/push/vapid";
+import { getVapidPublicKey, hasWebPushConfigured } from "@/lib/push/vapid";
 
 type PushPayload = {
   title: string;
@@ -22,9 +22,12 @@ function ensureVapidConfigured(): boolean {
   if (vapidConfigured) return true;
   if (!hasWebPushConfigured()) return false;
 
+  const publicKey = getVapidPublicKey();
+  if (!publicKey) return false;
+
   webpush.setVapidDetails(
     process.env.VAPID_SUBJECT?.trim() ?? "mailto:hello@hostvia.me",
-    process.env.VAPID_PUBLIC_KEY!.trim(),
+    publicKey,
     process.env.VAPID_PRIVATE_KEY!.trim()
   );
   vapidConfigured = true;
