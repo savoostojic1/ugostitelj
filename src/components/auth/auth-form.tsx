@@ -107,11 +107,24 @@ export function AuthForm({ mode }: { mode: AuthMode }) {
       const supabase = getBrowserClient();
 
       if (mode === "login") {
-        const { error } = await supabase.auth.signInWithPassword({
-          email,
-          password,
-        });
-        if (error) throw error;
+        const identifier = email.trim();
+        if (!identifier.includes("@")) {
+          const res = await fetch("/api/auth/team-login", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ username: identifier, password }),
+          });
+          const json = (await res.json()) as { error?: string };
+          if (!res.ok) {
+            throw new Error(json.error ?? "Invalid credentials");
+          }
+        } else {
+          const { error } = await supabase.auth.signInWithPassword({
+            email: identifier,
+            password,
+          });
+          if (error) throw error;
+        }
         router.push("/dashboard");
         router.refresh();
       } else if (mode === "register") {
@@ -161,13 +174,13 @@ export function AuthForm({ mode }: { mode: AuthMode }) {
 
         <AuthField
           id="email"
-          label="Email"
-          icon={Mail}
-          type="email"
+          label={mode === "login" ? "Email or username" : "Email"}
+          icon={mode === "login" ? User : Mail}
+          type={mode === "login" ? "text" : "email"}
           value={email}
           onChange={setEmail}
           required
-          autoComplete="email"
+          autoComplete={mode === "login" ? "username" : "email"}
         />
 
         {mode !== "forgot" ? (

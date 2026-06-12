@@ -3,6 +3,7 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { createClient } from "@/lib/supabase/client";
 import { requireUser } from "@/lib/supabase/require-user";
+import { requireDashboardContext } from "@/lib/team-access/dashboard-context";
 import type { BookingRequest } from "@/types/database";
 
 const QUERY_KEY = ["booking-requests"] as const;
@@ -22,12 +23,12 @@ export function useBookingRequests() {
     queryKey: QUERY_KEY,
     queryFn: async () => {
       const supabase = createClient();
-      const user = await requireUser(supabase);
+      const { hostId } = await requireDashboardContext(supabase);
 
       const { data, error } = await supabase
         .from("booking_requests")
         .select("*, properties(name, slug)")
-        .eq("host_id", user.id)
+        .eq("host_id", hostId)
         .eq("status", "pending")
         .order("created_at", { ascending: false });
 

@@ -2,7 +2,7 @@
 
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { createClient } from "@/lib/supabase/client";
-import { requireUser } from "@/lib/supabase/require-user";
+import { getDashboardContext } from "@/lib/team-access/dashboard-context";
 import { isValidUsername, suggestUsernameFromEmail } from "@/lib/public/slug";
 import type { HostProfile } from "@/types/database";
 
@@ -27,12 +27,15 @@ export function useHostProfile() {
     queryKey: QUERY_KEY,
     queryFn: async () => {
       const supabase = createClient();
-      const user = await requireUser(supabase);
+      const context = await getDashboardContext(supabase);
+      if (!context) throw new Error("Unauthorized");
+
+      const profileId = context.hostId;
 
       const { data, error } = await supabase
         .from("host_profiles")
         .select("*")
-        .eq("id", user.id)
+        .eq("id", profileId)
         .maybeSingle();
 
       if (error) throw error;
@@ -44,11 +47,16 @@ export function useHostProfile() {
         };
       }
 
+      if (!context.isOwner) {
+        return null;
+      }
+
+      const user = context.user;
       const username = suggestUsernameFromEmail(user.email ?? "host");
       const { data: created, error: insertError } = await supabase
         .from("host_profiles")
         .insert({
-          id: user.id,
+          id: profileId,
           username,
           business_name: user.user_metadata?.full_name ?? username,
           is_published: false,
@@ -71,7 +79,8 @@ export function useUpdateHostProfile() {
   return useMutation({
     mutationFn: async (input: HostProfileUpdate) => {
       const supabase = createClient();
-      const user = await requireUser(supabase);
+      const context = await getDashboardContext(supabase);
+      if (!context?.isOwner) throw new Error("Forbidden");
 
       const username = input.username.trim().toLowerCase();
       if (!isValidUsername(username)) {
@@ -100,7 +109,7 @@ export function useUpdateHostProfile() {
       const { data, error } = await supabase
         .from("host_profiles")
         .update(payload)
-        .eq("id", user.id)
+        .eq("id", context.hostId)
         .select("*")
         .single();
 

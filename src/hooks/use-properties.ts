@@ -2,7 +2,7 @@
 
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { createClient } from "@/lib/supabase/client";
-import { requireUser } from "@/lib/supabase/require-user";
+import { requireDashboardContext } from "@/lib/team-access/dashboard-context";
 import { postSyncAll } from "@/lib/sync/sync-all";
 import type { CalendarFeed, Property, PropertyInsert, Reservation } from "@/types/database";
 
@@ -11,11 +11,11 @@ export function useProperties() {
     queryKey: ["properties"],
     queryFn: async () => {
       const supabase = createClient();
-      const user = await requireUser(supabase);
+      const { hostId } = await requireDashboardContext(supabase);
       const { data, error } = await supabase
         .from("properties")
         .select("*")
-        .eq("user_id", user.id)
+        .eq("user_id", hostId)
         .order("created_at", { ascending: false });
       if (error) throw error;
       return data as Property[];
@@ -28,12 +28,12 @@ export function useProperty(id: string) {
     queryKey: ["properties", id],
     queryFn: async () => {
       const supabase = createClient();
-      const user = await requireUser(supabase);
+      const { hostId } = await requireDashboardContext(supabase);
       const { data, error } = await supabase
         .from("properties")
         .select("*")
         .eq("id", id)
-        .eq("user_id", user.id)
+        .eq("user_id", hostId)
         .single();
       if (error) throw error;
       return data as Property;
@@ -47,12 +47,12 @@ export function usePropertyFeeds(propertyId: string) {
     queryKey: ["calendar_feeds", propertyId],
     queryFn: async () => {
       const supabase = createClient();
-      const user = await requireUser(supabase);
+      const { hostId } = await requireDashboardContext(supabase);
       const { data: property, error: propError } = await supabase
         .from("properties")
         .select("id")
         .eq("id", propertyId)
-        .eq("user_id", user.id)
+        .eq("user_id", hostId)
         .single();
       if (propError || !property) throw new Error("Property not found");
 
@@ -77,12 +77,12 @@ export function useReservations(
     enabled: options?.enabled ?? true,
     queryFn: async () => {
       const supabase = createClient();
-      const user = await requireUser(supabase);
+      const { hostId } = await requireDashboardContext(supabase);
 
       let propertyQuery = supabase
         .from("properties")
         .select("id, name")
-        .eq("user_id", user.id);
+        .eq("user_id", hostId);
 
       if (propertyId) {
         propertyQuery = propertyQuery.eq("id", propertyId);
@@ -135,12 +135,13 @@ export function useUpdateProperty() {
   return useMutation({
     mutationFn: async ({ id, name }: { id: string; name: string }) => {
       const supabase = createClient();
-      const user = await requireUser(supabase);
+      const { hostId, isOwner } = await requireDashboardContext(supabase);
+      if (!isOwner) throw new Error("Forbidden");
       const { data, error } = await supabase
         .from("properties")
         .update({ name: name.trim() })
         .eq("id", id)
-        .eq("user_id", user.id)
+        .eq("user_id", hostId)
         .select()
         .single();
       if (error) throw error;
@@ -158,12 +159,13 @@ export function useDeleteProperty() {
   return useMutation({
     mutationFn: async (id: string) => {
       const supabase = createClient();
-      const user = await requireUser(supabase);
+      const { hostId, isOwner } = await requireDashboardContext(supabase);
+      if (!isOwner) throw new Error("Forbidden");
       const { error } = await supabase
         .from("properties")
         .delete()
         .eq("id", id)
-        .eq("user_id", user.id);
+        .eq("user_id", hostId);
       if (error) throw error;
     },
     onSuccess: (_, id) => {

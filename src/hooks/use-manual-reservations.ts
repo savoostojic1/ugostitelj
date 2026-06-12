@@ -3,6 +3,7 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { createClient } from "@/lib/supabase/client";
 import { requireUser } from "@/lib/supabase/require-user";
+import { requireDashboardContext } from "@/lib/team-access/dashboard-context";
 import type {
   ManualReservationInsert,
   ManualReservationUpdate,
@@ -19,12 +20,12 @@ export function useManualReservations() {
     queryKey: ["reservations", "manual"],
     queryFn: async () => {
       const supabase = createClient();
-      const user = await requireUser(supabase);
+      const { hostId } = await requireDashboardContext(supabase);
 
       const { data: properties, error: propError } = await supabase
         .from("properties")
         .select("id, name")
-        .eq("user_id", user.id);
+        .eq("user_id", hostId);
 
       if (propError) throw propError;
       if (!properties?.length) return [] as ManualReservation[];

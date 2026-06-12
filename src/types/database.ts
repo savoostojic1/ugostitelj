@@ -40,6 +40,19 @@ export interface Property {
   updated_at: string;
 }
 
+export interface TeamAccessUser {
+  id: string;
+  host_id: string;
+  auth_user_id: string;
+  username: string;
+  login_email: string;
+  display_name: string | null;
+  password_plain: string | null;
+  permissions: string[];
+  created_at: string;
+  updated_at: string;
+}
+
 export interface HostProfile {
   id: string;
   username: string;

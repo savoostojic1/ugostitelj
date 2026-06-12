@@ -4,6 +4,7 @@ import { DashboardLoadingGate } from "@/components/dashboard/dashboard-loading-g
 import { ConditionalDashboardTopbar } from "@/components/dashboard/conditional-dashboard-topbar";
 import { InstallPrompt } from "@/components/pwa/install-prompt";
 import { AutoSync } from "@/components/sync/auto-sync";
+import { TeamAccessGuard } from "@/components/team-access/team-access-guard";
 
 const dashboardSans = Plus_Jakarta_Sans({
   variable: "--font-marketing-sans",
@@ -25,7 +26,9 @@ export default function DashboardLayout({
         <ConditionalDashboardTopbar />
         <div className="hostvia-dashboard-content">
           <DashboardLoadingGate>
-            <div className="hostvia-dashboard-page">{children}</div>
+            <TeamAccessGuard>
+              <div className="hostvia-dashboard-page">{children}</div>
+            </TeamAccessGuard>
           </DashboardLoadingGate>
         </div>
       </div>

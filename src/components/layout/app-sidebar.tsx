@@ -14,6 +14,7 @@ import {
   Menu,
   MessageSquare,
   Plus,
+  Shield,
   Sparkles,
   SprayCan,
   X,
@@ -24,38 +25,99 @@ import { useUiStore } from "@/stores/ui-store";
 import { useSupabase } from "@/hooks/use-supabase";
 import { useRouter } from "next/navigation";
 import { InstallAppSidebarButton } from "@/components/pwa/install-app-sidebar-button";
+import { useDashboardContext } from "@/hooks/use-team-access";
+import {
+  TEAM_PERMISSION_ROUTES,
+  type TeamPermission,
+} from "@/lib/team-access/permissions";
 
-const navGroups = [
+type NavItem = {
+  href: string;
+  label: string;
+  icon: typeof LayoutDashboard;
+  permission?: TeamPermission;
+  ownerOnly?: boolean;
+};
+
+const navGroups: { label: string; items: NavItem[] }[] = [
   {
     label: "Overview",
     items: [
-      { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
-      { href: "/dashboard/cleanings", label: "Cleanings", icon: SprayCan },
-      { href: "/dashboard/calendars", label: "Calendars", icon: LayoutGrid },
-      { href: "/dashboard/arrivals", label: "Arrivals", icon: CalendarDays },
+      {
+        href: TEAM_PERMISSION_ROUTES.dashboard,
+        label: "Dashboard",
+        icon: LayoutDashboard,
+        permission: "dashboard",
+      },
+      {
+        href: TEAM_PERMISSION_ROUTES.cleanings,
+        label: "Cleanings",
+        icon: SprayCan,
+        permission: "cleanings",
+      },
+      {
+        href: TEAM_PERMISSION_ROUTES.calendars,
+        label: "Calendars",
+        icon: LayoutGrid,
+        permission: "calendars",
+      },
+      {
+        href: TEAM_PERMISSION_ROUTES.arrivals,
+        label: "Arrivals",
+        icon: CalendarDays,
+        permission: "arrivals",
+      },
     ],
   },
   {
     label: "Properties",
     items: [
-      { href: "/dashboard/properties", label: "All properties", icon: Home },
       {
-        href: "/dashboard/manual-reservations",
+        href: TEAM_PERMISSION_ROUTES.properties,
+        label: "All properties",
+        icon: Home,
+        permission: "properties",
+      },
+      {
+        href: TEAM_PERMISSION_ROUTES.manual_reservations,
         label: "Manual bookings",
         icon: ClipboardPen,
+        permission: "manual_reservations",
       },
     ],
   },
   {
     label: "Direct bookings",
     items: [
-      { href: "/dashboard/public-site", label: "Booking site", icon: Globe },
       {
-        href: "/dashboard/booking-requests",
+        href: TEAM_PERMISSION_ROUTES.public_site,
+        label: "Booking site",
+        icon: Globe,
+        permission: "public_site",
+      },
+      {
+        href: TEAM_PERMISSION_ROUTES.booking_requests,
         label: "Inquiries",
         icon: Inbox,
+        permission: "booking_requests",
       },
-      { href: "/dashboard/porouka", label: "Messages", icon: MessageSquare },
+      {
+        href: TEAM_PERMISSION_ROUTES.messages,
+        label: "Messages",
+        icon: MessageSquare,
+        permission: "messages",
+      },
+    ],
+  },
+  {
+    label: "Team",
+    items: [
+      {
+        href: "/dashboard/team-access",
+        label: "Give access",
+        icon: Shield,
+        ownerOnly: true,
+      },
     ],
   },
 ];
@@ -64,6 +126,9 @@ function SidebarContent({ onNavigate }: { onNavigate?: () => void }) {
   const pathname = usePathname();
   const router = useRouter();
   const supabase = useSupabase();
+  const { data: context } = useDashboardContext();
+  const isOwner = context?.isOwner ?? true;
+  const permissions = context?.permissions ?? [];
 
   async function signOut() {
     await supabase.auth.signOut();
@@ -92,11 +157,22 @@ function SidebarContent({ onNavigate }: { onNavigate?: () => void }) {
       </div>
 
       <nav className="flex-1 overflow-y-auto px-2 py-2">
-        {navGroups.map((group) => (
+        {navGroups.map((group) => {
+          const items = group.items.filter((item) => {
+            if (item.ownerOnly) return isOwner;
+            if (isOwner) return true;
+            return (
+              item.permission !== undefined &&
+              permissions.includes(item.permission)
+            );
+          });
+          if (!items.length) return null;
+
+          return (
           <div key={group.label} className="hostvia-sidebar-nav-group">
             <p className="hostvia-sidebar-nav-label">{group.label}</p>
             <div className="space-y-0.5">
-              {group.items.map((item) => {
+              {items.map((item) => {
                 const active =
                   pathname === item.href ||
                   (item.href !== "/dashboard" &&
@@ -118,18 +194,21 @@ function SidebarContent({ onNavigate }: { onNavigate?: () => void }) {
               })}
             </div>
           </div>
-        ))}
+          );
+        })}
       </nav>
 
       <div className="space-y-2 border-t border-white/6 p-3">
-        <Link
-          href="/dashboard/properties/new"
-          onClick={onNavigate}
-          className="hostvia-btn-gradient flex h-9 w-full items-center justify-center gap-2 rounded-lg text-sm font-semibold"
-        >
-          <Plus className="h-4 w-4" />
-          Add property
-        </Link>
+        {isOwner ? (
+          <Link
+            href="/dashboard/properties/new"
+            onClick={onNavigate}
+            className="hostvia-btn-gradient flex h-9 w-full items-center justify-center gap-2 rounded-lg text-sm font-semibold"
+          >
+            <Plus className="h-4 w-4" />
+            Add property
+          </Link>
+        ) : null}
         <InstallAppSidebarButton onNavigate={onNavigate} />
         <button
           type="button"
