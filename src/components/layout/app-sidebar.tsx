@@ -23,6 +23,7 @@ import { Button } from "@/components/ui/button";
 import { useUiStore } from "@/stores/ui-store";
 import { useSupabase } from "@/hooks/use-supabase";
 import { useRouter } from "next/navigation";
+import { InstallAppSidebarButton } from "@/components/pwa/install-app-sidebar-button";
 
 const navGroups = [
   {
@@ -129,6 +130,7 @@ function SidebarContent({ onNavigate }: { onNavigate?: () => void }) {
           <Plus className="h-4 w-4" />
           Add property
         </Link>
+        <InstallAppSidebarButton onNavigate={onNavigate} />
         <button
           type="button"
           onClick={signOut}

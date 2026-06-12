@@ -12,7 +12,6 @@ import { ConnectedFeeds } from "@/components/properties/connected-feeds";
 import { PropertyExportCalendar } from "@/components/properties/property-export-calendar";
 import { PropertyPricingSettings } from "@/components/properties/property-pricing-settings";
 import { PropertyPublicSettings } from "@/components/properties/property-public-settings";
-import { PropertyOverviewStats } from "@/components/dashboard/property-overview-stats";
 import { useProperty, usePropertyFeeds, useReservations } from "@/hooks/use-properties";
 
 export default function PropertyDetailPage({
@@ -50,7 +49,6 @@ export default function PropertyDetailPage({
         <PropertyExportCalendar
           propertyName={property.name}
           exportToken={property.export_token}
-          reservations={reservations}
         />
       )}
     </>
@@ -71,10 +69,6 @@ export default function PropertyDetailPage({
       </div>
 
       <PropertyDetailNav propertyId={id} />
-
-      {reservations.length > 0 && (
-        <PropertyOverviewStats reservations={reservations} />
-      )}
 
       <Card className="hostvia-glow-card overflow-hidden border-0 bg-transparent">
         <CardContent className="flex flex-col gap-4 p-4 sm:flex-row sm:items-center sm:justify-between sm:p-5">

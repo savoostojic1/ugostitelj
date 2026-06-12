@@ -10,10 +10,16 @@ import {
   setStandaloneCookie,
 } from "@/lib/pwa/standalone";
 
+function clientHost(): string | undefined {
+  if (typeof window === "undefined") return undefined;
+  return window.location.hostname;
+}
+
 export function PwaAppGuard({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   const router = useRouter();
   const { user, loading } = useAuthUser();
+  const host = clientHost();
 
   useEffect(() => {
     if (!isStandaloneDisplayMode()) return;
@@ -29,15 +35,15 @@ export function PwaAppGuard({ children }: { children: React.ReactNode }) {
 
   useEffect(() => {
     if (!isStandaloneDisplayMode() || loading) return;
-    if (isPwaAllowedPath(pathname)) return;
+    if (isPwaAllowedPath(pathname, host)) return;
 
     router.replace(user ? "/dashboard" : "/login");
-  }, [pathname, user, loading, router]);
+  }, [host, pathname, user, loading, router]);
 
   if (
     isStandaloneDisplayMode() &&
     !loading &&
-    !isPwaAllowedPath(pathname)
+    !isPwaAllowedPath(pathname, host)
   ) {
     return (
       <div className="flex min-h-screen items-center justify-center bg-[#06060a]">

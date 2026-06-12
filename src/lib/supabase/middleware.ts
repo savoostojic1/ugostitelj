@@ -77,9 +77,16 @@ export async function updateSession(request: NextRequest) {
     const isPwaStandalone =
       request.cookies.get(PWA_STANDALONE_COOKIE)?.value === "1";
     const isPwaAllowedRoute =
-      isAuthRoute || path.startsWith("/dashboard");
+      isAuthRoute ||
+      path.startsWith("/dashboard") ||
+      path.startsWith("/host/") ||
+      Boolean(bookingUsername && (path === "/" || path === ""));
 
-    if (isPwaStandalone && !isPwaAllowedRoute && isPwaBlockedPath(path)) {
+    if (
+      isPwaStandalone &&
+      !isPwaAllowedRoute &&
+      isPwaBlockedPath(path, host)
+    ) {
       const redirectUrl = request.nextUrl.clone();
       redirectUrl.pathname = user ? "/dashboard" : "/login";
       return NextResponse.redirect(redirectUrl);

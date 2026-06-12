@@ -12,7 +12,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { PropertyGalleryUpload } from "@/components/properties/property-gallery-upload";
 import { useHostProfile } from "@/hooks/use-host-profile";
-import { getBookingSiteLabel, getBookingSiteUrl } from "@/lib/public/booking-site-url";
+import { getBookingSiteUrl } from "@/lib/public/booking-site-url";
 import {
   bookingUrlOptionsFromConfig,
   useBookingSiteConfig,
@@ -44,7 +44,6 @@ export function PropertyPublicSettings({ property }: PropertyPublicSettingsProps
   const urlOptions = bookingUrlOptionsFromConfig(bookingConfig, origin);
 
   const [isPublic, setIsPublic] = useState(property.is_public ?? false);
-  const [slug, setSlug] = useState(property.slug ?? suggestPropertySlug(property.name));
   const [shortDescription, setShortDescription] = useState(
     property.short_description ?? ""
   );
@@ -64,7 +63,6 @@ export function PropertyPublicSettings({ property }: PropertyPublicSettingsProps
 
   useEffect(() => {
     setIsPublic(property.is_public ?? false);
-    setSlug(property.slug ?? suggestPropertySlug(property.name));
     setShortDescription(property.short_description ?? "");
     setCapacity(property.capacity?.toString() ?? "");
     setAmenitiesText((property.amenities ?? []).join(", "));
@@ -82,7 +80,7 @@ export function PropertyPublicSettings({ property }: PropertyPublicSettingsProps
     updatePublic.mutate(
       {
         id: property.id,
-        slug,
+        slug: property.slug ?? suggestPropertySlug(property.name),
         short_description: shortDescription,
         capacity: capacity ? Number.parseInt(capacity, 10) : null,
         amenities,
@@ -101,13 +99,7 @@ export function PropertyPublicSettings({ property }: PropertyPublicSettingsProps
     hostProfile?.username && hostProfile.is_published
       ? getBookingSiteUrl(hostProfile.username, urlOptions)
       : null;
-  const hostPublicUrl = hostBookingBaseUrl
-    ? `${hostBookingBaseUrl}${slug ? `#${slug}` : ""}`
-    : null;
-  const hostPublicLabel =
-    hostProfile?.username && hostProfile.is_published
-      ? `${getBookingSiteLabel(hostProfile.username, urlOptions) ?? ""}${slug ? `#${slug}` : ""}`
-      : null;
+  const hostPublicUrl = hostBookingBaseUrl;
 
   return (
     <Card className="overflow-hidden">
@@ -155,31 +147,15 @@ export function PropertyPublicSettings({ property }: PropertyPublicSettingsProps
           onChange={setGalleryUrls}
         />
 
-        <div className="grid gap-4 sm:grid-cols-2">
-          <div className="space-y-2">
-            <Label htmlFor={`slug-${property.id}`}>Section ID (anchor)</Label>
-            <Input
-              id={`slug-${property.id}`}
-              value={slug}
-              onChange={(e) => setSlug(e.target.value.toLowerCase())}
-              placeholder="sea-view-villa"
-            />
-            {hostPublicLabel && slug ? (
-              <p className="text-xs text-muted-foreground">
-                {hostPublicLabel}
-              </p>
-            ) : null}
-          </div>
-          <div className="space-y-2">
-            <Label htmlFor={`capacity-${property.id}`}>Capacity (guests)</Label>
-            <Input
-              id={`capacity-${property.id}`}
-              type="number"
-              min={1}
-              value={capacity}
-              onChange={(e) => setCapacity(e.target.value)}
-            />
-          </div>
+        <div className="space-y-2">
+          <Label htmlFor={`capacity-${property.id}`}>Capacity (guests)</Label>
+          <Input
+            id={`capacity-${property.id}`}
+            type="number"
+            min={1}
+            value={capacity}
+            onChange={(e) => setCapacity(e.target.value)}
+          />
         </div>
 
         <div className="space-y-2">

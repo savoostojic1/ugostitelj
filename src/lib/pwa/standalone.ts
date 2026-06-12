@@ -1,3 +1,5 @@
+import { parseBookingSubdomain } from "@/lib/public/booking-site-url";
+
 export const PWA_STANDALONE_COOKIE = "hostvia-standalone";
 
 export function isStandaloneDisplayMode(): boolean {
@@ -11,17 +13,27 @@ export function isStandaloneDisplayMode(): boolean {
   );
 }
 
-export function isPwaAllowedPath(path: string): boolean {
-  return (
+export function isPwaAllowedPath(path: string, host?: string | null): boolean {
+  if (
     path === "/login" ||
     path === "/register" ||
     path === "/forgot-password" ||
-    path.startsWith("/dashboard")
-  );
+    path.startsWith("/dashboard") ||
+    path.startsWith("/host/")
+  ) {
+    return true;
+  }
+
+  const hostname = host?.split(":")[0] ?? null;
+  if (hostname && parseBookingSubdomain(hostname) && (path === "/" || path === "")) {
+    return true;
+  }
+
+  return false;
 }
 
-export function isPwaBlockedPath(path: string): boolean {
-  if (isPwaAllowedPath(path)) return false;
+export function isPwaBlockedPath(path: string, host?: string | null): boolean {
+  if (isPwaAllowedPath(path, host)) return false;
   if (path.startsWith("/api/")) return false;
   if (path.startsWith("/_next/")) return false;
   if (
