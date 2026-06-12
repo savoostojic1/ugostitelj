@@ -1,7 +1,7 @@
 export const PASSWORD_RECOVERY_COOKIE = "hostvia_password_recovery";
 
 export function getPasswordRecoveryRedirectUrl(origin: string): string {
-  return `${origin}/reset-password`;
+  return `${origin}/auth/callback/recovery`;
 }
 
 export function setPasswordRecoveryPendingCookie() {

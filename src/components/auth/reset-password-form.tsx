@@ -7,10 +7,7 @@ import { ArrowRight, Eye, EyeOff, Loader2, Lock } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { getBrowserClient } from "@/lib/supabase/client";
-import {
-  clearPasswordRecoveryPendingCookie,
-  setPasswordRecoveryPendingCookie,
-} from "@/lib/auth/password-recovery";
+import { clearPasswordRecoveryPendingCookie } from "@/lib/auth/password-recovery";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 
@@ -26,26 +23,7 @@ export function ResetPasswordForm() {
   useEffect(() => {
     const supabase = getBrowserClient();
 
-    async function init() {
-      const url = new URL(window.location.href);
-      const code = url.searchParams.get("code");
-
-      if (code) {
-        const { error } = await supabase.auth.exchangeCodeForSession(code);
-        url.searchParams.delete("code");
-        url.searchParams.delete("type");
-        window.history.replaceState({}, "", `${url.pathname}${url.search}`);
-
-        if (error) {
-          toast.error(error.message);
-          setSessionReady(false);
-          setCheckingSession(false);
-          return;
-        }
-
-        setPasswordRecoveryPendingCookie();
-      }
-
+    async function verifySession() {
       const {
         data: { session },
       } = await supabase.auth.getSession();
@@ -53,17 +31,11 @@ export function ResetPasswordForm() {
       setCheckingSession(false);
     }
 
-    void init();
+    void verifySession();
 
     const {
       data: { subscription },
-    } = supabase.auth.onAuthStateChange((event, session) => {
-      if (event === "PASSWORD_RECOVERY") {
-        setPasswordRecoveryPendingCookie();
-        setSessionReady(true);
-        setCheckingSession(false);
-        return;
-      }
+    } = supabase.auth.onAuthStateChange((_event, session) => {
       if (session) {
         setSessionReady(true);
         setCheckingSession(false);
@@ -120,7 +92,8 @@ export function ResetPasswordForm() {
             Link expired or invalid
           </h1>
           <p className="text-sm leading-relaxed text-zinc-400">
-            Request a new password reset link for your email address.
+            Open the reset link in the same browser where you requested it. If
+            it still fails, request a new link.
           </p>
         </div>
         <Link

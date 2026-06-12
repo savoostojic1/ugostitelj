@@ -15,7 +15,6 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { getBrowserClient } from "@/lib/supabase/client";
-import { getPasswordRecoveryRedirectUrl } from "@/lib/auth/password-recovery";
 import { isTeamAccessEmail } from "@/lib/team-access/permissions";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
@@ -146,12 +145,15 @@ export function AuthForm({ mode }: { mode: AuthMode }) {
           );
         }
 
-        const redirectTo = getPasswordRecoveryRedirectUrl(window.location.origin);
-        const { error } = await supabase.auth.resetPasswordForEmail(
-          normalizedEmail,
-          { redirectTo }
-        );
-        if (error) throw error;
+        const res = await fetch("/api/auth/forgot-password", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ email: normalizedEmail }),
+        });
+        const json = (await res.json()) as { error?: string };
+        if (!res.ok) {
+          throw new Error(json.error ?? "Could not send reset link");
+        }
         toast.success("Password reset link sent to your email");
       }
     } catch (err) {

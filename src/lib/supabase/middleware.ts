@@ -47,6 +47,15 @@ export async function updateSession(request: NextRequest) {
     if (path === "/sw.js" || path === "/manifest.webmanifest") {
       return NextResponse.next({ request });
     }
+
+    if (
+      path === "/reset-password" &&
+      request.nextUrl.searchParams.has("code")
+    ) {
+      const redirectUrl = request.nextUrl.clone();
+      redirectUrl.pathname = "/auth/callback/recovery";
+      return NextResponse.redirect(redirectUrl);
+    }
     const isAuthRoute =
       path.startsWith("/login") ||
       path.startsWith("/register") ||
@@ -76,6 +85,7 @@ export async function updateSession(request: NextRequest) {
       path.startsWith("/api/push/config") ||
       path.startsWith("/api/booking/config") ||
       path.startsWith("/api/auth/team-login") ||
+      path.startsWith("/api/auth/forgot-password") ||
       path.startsWith("/api/public/") ||
       path.startsWith("/host/");
 
