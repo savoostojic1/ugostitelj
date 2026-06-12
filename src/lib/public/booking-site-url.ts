@@ -125,3 +125,7 @@ export function parseBookingSubdomain(host: string): string | null {
 
   return subdomain;
 }
+
+export function isBookingSubdomainHost(host: string): boolean {
+  return parseBookingSubdomain(host) !== null;
+}

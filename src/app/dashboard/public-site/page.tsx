@@ -8,6 +8,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import { DashboardRichTextarea } from "@/components/dashboard/dashboard-rich-textarea";
 import { HostCoverUpload } from "@/components/dashboard/host-cover-upload";
 import {
   useHostProfile,
@@ -41,6 +42,7 @@ export default function PublicSiteSettingsPage() {
   const [username, setUsername] = useState("");
   const [businessName, setBusinessName] = useState("");
   const [description, setDescription] = useState("");
+  const [footerDescription, setFooterDescription] = useState("");
   const [coverImageUrl, setCoverImageUrl] = useState("");
   const [contactEmail, setContactEmail] = useState("");
   const [contactPhone, setContactPhone] = useState("");
@@ -58,6 +60,7 @@ export default function PublicSiteSettingsPage() {
     setUsername(profile.username);
     setBusinessName(profile.business_name ?? "");
     setDescription(profile.description ?? "");
+    setFooterDescription(profile.footer_description ?? "");
     setCoverImageUrl(profile.cover_image_url ?? "");
     setContactEmail(profile.contact_email ?? "");
     setContactPhone(profile.contact_phone ?? "");
@@ -113,6 +116,7 @@ export default function PublicSiteSettingsPage() {
         username,
         business_name: businessName,
         description,
+        footer_description: footerDescription,
         cover_image_url: coverImageUrl,
         contact_email: contactEmail,
         contact_phone: contactPhone,
@@ -177,15 +181,25 @@ export default function PublicSiteSettingsPage() {
             />
           </div>
 
-          <div className="space-y-2">
-            <Label htmlFor="description">Description</Label>
-            <Textarea
-              id="description"
-              rows={4}
-              value={description}
-              onChange={(e) => setDescription(e.target.value)}
-            />
-          </div>
+          <DashboardRichTextarea
+            id="description"
+            label="Hero description"
+            hint="Shown at the top of your booking site. Line breaks are preserved."
+            value={description}
+            onChange={setDescription}
+            rows={6}
+            placeholder="Welcome guests and describe your accommodation…"
+          />
+
+          <DashboardRichTextarea
+            id="footerDescription"
+            label="Footer description"
+            hint="Short text in the page footer, below your business name."
+            value={footerDescription}
+            onChange={setFooterDescription}
+            rows={4}
+            placeholder="A few words about your place, location, or how to reach you…"
+          />
 
           <HostCoverUpload
             value={coverImageUrl}

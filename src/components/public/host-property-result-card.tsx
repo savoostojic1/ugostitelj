@@ -1,6 +1,7 @@
 "use client";
 
 import { ArrowRight, MapPin } from "lucide-react";
+import { FormattedMultilineText } from "@/components/public/formatted-multiline-text";
 import { PublicPropertyGallery } from "@/components/public/public-property-gallery";
 import type {
   HostSearchParams,
@@ -58,9 +59,9 @@ export function HostPropertyResultCard({
               </p>
             ) : null}
             {property.short_description ? (
-              <p className="mt-4 line-clamp-3 text-[15px] leading-relaxed text-[var(--public-muted)]">
+              <FormattedMultilineText className="mt-4 line-clamp-3 text-[15px] leading-relaxed text-[var(--public-muted)]">
                 {property.short_description}
-              </p>
+              </FormattedMultilineText>
             ) : null}
           </div>
 

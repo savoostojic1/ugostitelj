@@ -1103,31 +1103,43 @@ html.dark:has(.public-site) body {
 .public-site .public-hero {
   position: relative;
   isolation: isolate;
+  overflow: hidden;
   min-height: clamp(26rem, 72vh, 38rem);
 }
 
 .public-site .public-hero-media {
   position: absolute;
   inset: 0;
+  min-height: 100%;
   overflow: hidden;
+}
+
+.public-site .public-hero-cover {
+  position: absolute;
+  inset: 0;
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
 }
 
 .public-site .public-hero-scrim {
   background: linear-gradient(
     180deg,
-    rgba(0, 0, 0, 0.26) 0%,
-    rgba(0, 0, 0, 0.2) 50%,
-    rgba(0, 0, 0, 0.34) 100%
+    rgba(0, 0, 0, 0.42) 0%,
+    rgba(0, 0, 0, 0.36) 50%,
+    rgba(0, 0, 0, 0.52) 100%
   );
-  backdrop-filter: blur(5px) saturate(1.08);
-  -webkit-backdrop-filter: blur(5px) saturate(1.08);
+  backdrop-filter: blur(7px) saturate(1.04);
+  -webkit-backdrop-filter: blur(7px) saturate(1.04);
 }
 
 @supports not (
   (backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))
 ) {
   .public-site .public-hero-scrim {
-    background: rgba(0, 0, 0, 0.32);
+    background: rgba(0, 0, 0, 0.46);
   }
 }
 
@@ -1162,13 +1174,22 @@ html.dark:has(.public-site) body {
 .public-site .public-hero-copy {
   margin-inline: auto;
   width: 100%;
-  max-width: 48rem;
+  max-width: 54rem;
   text-align: center;
 }
 
 @media (max-width: 767px) {
   .public-site {
     --public-hero-search-half: 5rem;
+    --public-hero-search-clearance: 9rem;
+  }
+
+  /* Reserve space above the floating search bar; hero grows with longer copy. */
+  .public-site .public-hero-inner {
+    min-height: clamp(26rem, 72vh, 38rem);
+    padding-bottom: calc(
+      var(--public-hero-search-clearance) + var(--public-hero-sheet-overlap) + 1rem
+    );
   }
 }
 
@@ -1210,12 +1231,6 @@ html.dark:has(.public-site) body {
 .public-site .public-section--sheet-inner {
   padding-top: 2rem;
   padding-bottom: 5rem;
-}
-
-@media (max-width: 767px) {
-  .public-site {
-    --public-hero-search-clearance: 9rem;
-  }
 }
 
 .public-site .public-section--tinted {
@@ -1594,6 +1609,15 @@ html.dark:has(.public-site) body {
 .public-site .public-hero-description {
   color: rgba(255, 255, 255, 0.92);
   text-shadow: var(--public-hero-text-shadow);
+  /* Slightly narrower than the search bar (≈59rem inner width on desktop). */
+  max-width: min(100%, calc(64rem - 4rem));
+  margin-inline: auto;
+}
+
+@media (min-width: 768px) {
+  .public-site .public-hero-description {
+    max-width: min(100%, 54rem);
+  }
 }
 
 .public-site .public-hero-text .public-eyebrow {

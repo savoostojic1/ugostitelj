@@ -15,6 +15,7 @@ export type HostProfileUpdate = {
   logo_url?: string | null;
   map_embed_url?: string | null;
   description?: string | null;
+  footer_description?: string | null;
   contact_email?: string | null;
   contact_phone?: string | null;
   location?: string | null;
@@ -92,6 +93,7 @@ export function useUpdateHostProfile() {
         business_name: input.business_name.trim(),
         cover_image_url: input.cover_image_url?.trim() || null,
         description: input.description?.trim() || null,
+        footer_description: input.footer_description?.trim() || null,
         contact_email: input.contact_email?.trim() || null,
         contact_phone: input.contact_phone?.trim() || null,
         location: input.location?.trim() || null,

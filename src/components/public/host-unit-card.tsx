@@ -4,6 +4,7 @@ import { useState } from "react";
 import { format } from "date-fns";
 import { appLocale } from "@/lib/dates/locale";
 import { CalendarDays, ChevronDown, MapPin, Send, Users } from "lucide-react";
+import { FormattedMultilineText } from "@/components/public/formatted-multiline-text";
 import { PublicPropertyGallery } from "@/components/public/public-property-gallery";
 import { PublicPropertyAvailabilityCalendar } from "@/components/public/public-property-availability-calendar";
 import { usePublicStayPrice } from "@/hooks/use-public-stay-price";
@@ -76,9 +77,9 @@ export function HostUnitCard({
               </p>
             ) : null}
             {property.short_description ? (
-              <p className="mt-3 text-[15px] leading-relaxed text-[var(--public-muted)]">
+              <FormattedMultilineText className="mt-3 text-[15px] leading-relaxed text-[var(--public-muted)]">
                 {property.short_description}
-              </p>
+              </FormattedMultilineText>
             ) : null}
             {startingPrice ? (
               <p className="mt-3 text-sm font-semibold text-[var(--public-accent)]">

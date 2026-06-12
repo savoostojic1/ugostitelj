@@ -1,6 +1,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { Mail, MapPin, Phone } from "lucide-react";
+import { FormattedMultilineText } from "@/components/public/formatted-multiline-text";
 import type { PublicHostProfile } from "@/lib/public/types";
 
 interface HostPublicFooterProps {
@@ -41,10 +42,10 @@ export function HostPublicFooter({ host }: HostPublicFooterProps) {
                 ) : null}
               </div>
             </div>
-            {host.description ? (
-              <p className="mt-5 max-w-lg text-sm leading-relaxed text-[var(--public-muted)]">
-                {host.description}
-              </p>
+            {host.footer_description ? (
+              <FormattedMultilineText className="mt-5 max-w-lg text-sm leading-relaxed text-[var(--public-muted)]">
+                {host.footer_description}
+              </FormattedMultilineText>
             ) : null}
           </div>
 

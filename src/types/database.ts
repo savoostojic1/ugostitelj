@@ -60,6 +60,7 @@ export interface HostProfile {
   cover_image_url: string | null;
   logo_url: string | null;
   description: string | null;
+  footer_description?: string | null;
   contact_email: string | null;
   contact_phone: string | null;
   location: string | null;

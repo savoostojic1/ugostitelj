@@ -13,6 +13,7 @@ import {
 } from "lucide-react";
 import type { UnitsViewMode } from "@/components/public/host-all-units-section";
 import { toast } from "sonner";
+import { FormattedMultilineText } from "@/components/public/formatted-multiline-text";
 import { HostSearchBar } from "@/components/public/host-search-bar";
 import { HostPropertyResultCard } from "@/components/public/host-property-result-card";
 import { HostAllUnitsSection } from "@/components/public/host-all-units-section";
@@ -149,14 +150,12 @@ export function HostBookingExperience({
       <section className="public-hero">
         <div className="public-hero-media" aria-hidden>
           {hasCover ? (
-            <Image
+            <img
               src={host.cover_image_url!}
               alt=""
-              fill
-              priority
-              className="object-cover"
-              sizes="100vw"
-              unoptimized
+              className="public-hero-cover"
+              decoding="async"
+              fetchPriority="high"
             />
           ) : (
             <div className="public-hero-fallback absolute inset-0" />
@@ -199,11 +198,11 @@ export function HostBookingExperience({
               </h1>
 
               {host.description ? (
-                <p className="public-hero-description mx-auto mt-4 max-w-2xl text-base leading-relaxed md:mt-5 md:text-lg">
+                <FormattedMultilineText className="public-hero-description mt-4 text-base leading-relaxed md:mt-5 md:text-lg">
                   {host.description}
-                </p>
+                </FormattedMultilineText>
               ) : (
-                <p className="public-hero-description mx-auto mt-4 max-w-xl text-base leading-relaxed md:mt-5 md:text-lg">
+                <p className="public-hero-description mt-4 text-base leading-relaxed md:mt-5 md:text-lg">
                   We look forward to hosting you — pick your dates and find the
                   perfect stay.
                 </p>

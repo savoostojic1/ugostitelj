@@ -1,8 +1,20 @@
+import { isBookingSubdomainHost } from "@/lib/public/booking-site-url";
+
 const SW_URL = "/sw.js";
 const READY_TIMEOUT_MS = 8000;
 
 export async function ensureServiceWorkerRegistration(): Promise<ServiceWorkerRegistration | null> {
   if (typeof window === "undefined" || !("serviceWorker" in navigator)) {
+    return null;
+  }
+
+  if (isBookingSubdomainHost(window.location.hostname)) {
+    try {
+      const existing = await navigator.serviceWorker.getRegistration();
+      await existing?.unregister();
+    } catch {
+      // ignore — public booking sites should not run the dashboard SW
+    }
     return null;
   }
 
