@@ -12,6 +12,7 @@ export type BillingStatus = {
   inheritsHostPlan?: boolean;
   subscriptionStatus: "free" | "active" | "canceled" | "past_due";
   currentPeriodEnd: string | null;
+  isCanceling?: boolean;
   canManageSubscription?: boolean;
   canAddProperty: boolean;
   requiresUpgrade: boolean;
@@ -67,6 +68,29 @@ export function useBillingPortal() {
       toast.error(
         err instanceof Error ? err.message : "Could not open billing portal"
       );
+    },
+  });
+}
+
+export function useSyncBilling() {
+  const qc = useQueryClient();
+
+  return useMutation({
+    mutationFn: async () => {
+      const res = await fetch("/api/billing/sync", { method: "POST" });
+      const data = await res.json();
+      if (!res.ok) {
+        throw new Error(data.error ?? "Could not sync billing");
+      }
+      return data as {
+        isPro: boolean;
+        isCanceling: boolean;
+        subscriptionStatus: BillingStatus["subscriptionStatus"];
+        currentPeriodEnd: string | null;
+      };
+    },
+    onSuccess: () => {
+      void qc.invalidateQueries({ queryKey: QUERY_KEY });
     },
   });
 }

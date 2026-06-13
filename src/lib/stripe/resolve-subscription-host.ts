@@ -4,11 +4,18 @@ import { createServiceClient } from "@/lib/supabase/service";
 export function getSubscriptionPeriodEnd(
   subscription: Stripe.Subscription
 ): string | null {
-  const legacy = (
-    subscription as Stripe.Subscription & { current_period_end?: number }
-  ).current_period_end;
-  if (legacy) {
-    return new Date(legacy * 1000).toISOString();
+  const extended = subscription as Stripe.Subscription & {
+    current_period_end?: number;
+    cancel_at?: number | null;
+    ended_at?: number | null;
+  };
+
+  if (extended.cancel_at) {
+    return new Date(extended.cancel_at * 1000).toISOString();
+  }
+
+  if (extended.current_period_end) {
+    return new Date(extended.current_period_end * 1000).toISOString();
   }
 
   const item = subscription.items?.data?.[0] as
@@ -16,6 +23,10 @@ export function getSubscriptionPeriodEnd(
     | undefined;
   if (item?.current_period_end) {
     return new Date(item.current_period_end * 1000).toISOString();
+  }
+
+  if (extended.ended_at) {
+    return new Date(extended.ended_at * 1000).toISOString();
   }
 
   return null;

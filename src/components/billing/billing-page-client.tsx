@@ -4,6 +4,7 @@ import { useEffect, useRef } from "react";
 import { useSearchParams } from "next/navigation";
 import { format } from "date-fns";
 import {
+  AlertCircle,
   Building2,
   Check,
   Crown,
@@ -17,7 +18,7 @@ import { Button } from "@/components/ui/button";
 import {
   useBillingPortal,
   useBillingStatus,
-  useInvalidateBillingStatus,
+  useSyncBilling,
   useStartCheckout,
 } from "@/hooks/use-billing";
 import {
@@ -54,22 +55,12 @@ export function BillingPageClient() {
   const { data: billing, isLoading, error } = useBillingStatus();
   const checkout = useStartCheckout();
   const portal = useBillingPortal();
-  const invalidateBilling = useInvalidateBillingStatus();
+  const syncBilling = useSyncBilling();
   const toastShown = useRef<string | null>(null);
+  const billingSyncStarted = useRef(false);
 
   useEffect(() => {
     const upgrade = searchParams.get("upgrade");
-    const portalReturn = searchParams.get("portal");
-
-    if (portalReturn === "return") {
-      if (toastShown.current !== "portal-return") {
-        toastShown.current = "portal-return";
-        invalidateBilling();
-        toast.message("Subscription settings updated");
-      }
-      return;
-    }
-
     if (!upgrade || toastShown.current === upgrade) return;
     toastShown.current = upgrade;
 
@@ -79,7 +70,34 @@ export function BillingPageClient() {
     if (upgrade === "success") {
       toast.success("Welcome to Pro — unlimited properties unlocked");
     }
-  }, [searchParams, invalidateBilling]);
+  }, [searchParams]);
+
+  useEffect(() => {
+    if (isLoading || !billing?.isOwner || billing.isComplimentary) return;
+    if (billingSyncStarted.current) return;
+    billingSyncStarted.current = true;
+
+    const portalReturn = searchParams.get("portal") === "return";
+
+    void (async () => {
+      try {
+        const result = await syncBilling.mutateAsync();
+        if (portalReturn && result.isCanceling) {
+          toast.message("Subscription canceled", {
+            description: result.currentPeriodEnd
+              ? `Pro access continues until ${format(new Date(result.currentPeriodEnd), "dd MMM yyyy")}.`
+              : "Your plan will switch to Free at the end of the billing period.",
+          });
+        } else if (portalReturn) {
+          toast.message("Subscription settings updated");
+        }
+      } catch {
+        if (portalReturn) {
+          toast.error("Could not refresh subscription status");
+        }
+      }
+    })();
+  }, [billing?.isOwner, billing?.isComplimentary, isLoading, searchParams, syncBilling]);
 
   if (isLoading) {
     return (
@@ -122,6 +140,25 @@ export function BillingPageClient() {
       />
 
       <div className="hostvia-dashboard-page-inset grid gap-6 lg:grid-cols-[minmax(0,1.2fr)_minmax(0,1fr)]">
+        {billing.isCanceling && billing.currentPeriodEnd ? (
+          <div className="hostvia-panel flex gap-3 border-amber-500/25 bg-amber-500/10 p-4 sm:p-5 lg:col-span-2">
+            <AlertCircle className="mt-0.5 h-5 w-5 shrink-0 text-amber-300" />
+            <div>
+              <p className="text-sm font-medium text-amber-100">
+                Subscription canceled
+              </p>
+              <p className="mt-1 text-sm leading-relaxed text-amber-200/80">
+                Your Pro plan stays active until{" "}
+                <span className="font-medium text-amber-100">
+                  {format(new Date(billing.currentPeriodEnd), "dd MMM yyyy")}
+                </span>
+                . After that, your account returns to the Free plan (up to{" "}
+                {billing.freeLimit} properties).
+              </p>
+            </div>
+          </div>
+        ) : null}
+
         {/* Current plan */}
         <div className="hostvia-panel p-6 sm:p-8">
           <div className="flex flex-wrap items-start justify-between gap-4">
@@ -137,7 +174,9 @@ export function BillingPageClient() {
               )}
               {billing.isPro && !billing.isComplimentary && (
                 <p className="mt-2 text-sm text-zinc-400">
-                  Billed via Stripe · {PRO_LAUNCH_PRICE_EUR}€/month
+                  {billing.isCanceling
+                    ? "Canceled via Stripe"
+                    : `Billed via Stripe · ${PRO_LAUNCH_PRICE_EUR}€/month`}
                 </p>
               )}
               {!billing.isPro && (
@@ -149,12 +188,14 @@ export function BillingPageClient() {
             <Badge
               variant="outline"
               className={cn(
-                billing.isPro
-                  ? "border-violet-500/30 bg-violet-500/10 text-violet-200"
-                  : "border-white/15 text-zinc-400"
+                billing.isCanceling
+                  ? "border-amber-500/30 bg-amber-500/10 text-amber-200"
+                  : billing.isPro
+                    ? "border-violet-500/30 bg-violet-500/10 text-violet-200"
+                    : "border-white/15 text-zinc-400"
               )}
             >
-              {billing.subscriptionStatus}
+              {billing.isCanceling ? "Canceling" : billing.subscriptionStatus}
             </Badge>
           </div>
 
@@ -193,23 +234,15 @@ export function BillingPageClient() {
             )}
           </div>
 
-          {billing.currentPeriodEnd && billing.isPro && !billing.isComplimentary && (
+          {billing.currentPeriodEnd &&
+            billing.isPro &&
+            !billing.isComplimentary &&
+            !billing.isCanceling && (
             <p className="mt-6 text-sm text-zinc-500">
-              {billing.subscriptionStatus === "canceled" ? (
-                <>
-                  Access until{" "}
-                  <span className="text-zinc-300">
-                    {format(new Date(billing.currentPeriodEnd), "dd MMM yyyy")}
-                  </span>
-                </>
-              ) : (
-                <>
-                  Current period ends{" "}
-                  <span className="text-zinc-300">
-                    {format(new Date(billing.currentPeriodEnd), "dd MMM yyyy")}
-                  </span>
-                </>
-              )}
+              Current period ends{" "}
+              <span className="text-zinc-300">
+                {format(new Date(billing.currentPeriodEnd), "dd MMM yyyy")}
+              </span>
             </p>
           )}
 

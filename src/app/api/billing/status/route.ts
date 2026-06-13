@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
-import { hasProAccess } from "@/lib/subscriptions/access";
+import { hasProAccess, isSubscriptionCanceling } from "@/lib/subscriptions/access";
 import { FREE_PROPERTY_LIMIT } from "@/lib/subscriptions/plans";
 import {
   loadHostSubscription,
@@ -31,6 +31,7 @@ export async function GET() {
   const subscription = await loadHostSubscription(supabase, hostId);
   const pro = hasProAccess(subscription);
   const propertyCount = count ?? 0;
+  const isCanceling = isSubscriptionCanceling(subscription, pro);
 
   return NextResponse.json({
     isOwner,
@@ -38,6 +39,7 @@ export async function GET() {
     propertyCount,
     freeLimit: FREE_PROPERTY_LIMIT,
     isPro: pro,
+    isCanceling,
     isComplimentary: Boolean(subscription?.pro_access_granted),
     subscriptionStatus: subscription?.subscription_status ?? "free",
     currentPeriodEnd: subscription?.subscription_current_period_end ?? null,

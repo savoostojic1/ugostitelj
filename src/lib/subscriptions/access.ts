@@ -3,6 +3,7 @@ import {
   type SubscriptionRecord,
   type SubscriptionStatus,
 } from "@/lib/subscriptions/plans";
+import type Stripe from "stripe";
 
 export function hasProAccess(subscription: SubscriptionRecord | null): boolean {
   if (!subscription) return false;
@@ -56,4 +57,32 @@ export function mapStripeSubscriptionStatus(
     default:
       return "free";
   }
+}
+
+export function resolveSubscriptionStatusFromStripe(
+  subscription: Stripe.Subscription
+): SubscriptionStatus {
+  const extended = subscription as Stripe.Subscription & {
+    cancel_at_period_end?: boolean;
+    cancel_at?: number | null;
+    canceled_at?: number | null;
+  };
+
+  if (
+    extended.cancel_at_period_end ||
+    (extended.canceled_at &&
+      (subscription.status === "active" || subscription.status === "trialing"))
+  ) {
+    return "canceled";
+  }
+
+  return mapStripeSubscriptionStatus(subscription.status);
+}
+
+export function isSubscriptionCanceling(
+  subscription: SubscriptionRecord | null,
+  isPro: boolean
+): boolean {
+  if (!subscription || !isPro || subscription.pro_access_granted) return false;
+  return subscription.subscription_status === "canceled";
 }

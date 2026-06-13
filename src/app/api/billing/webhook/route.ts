@@ -1,9 +1,8 @@
 import { NextResponse } from "next/server";
 import Stripe from "stripe";
 import {
-  resetUserSubscription,
-} from "@/lib/stripe/sync-subscription";
-import { syncSubscriptionFromStripeObject } from "@/lib/stripe/confirm-checkout-session";
+  syncSubscriptionFromStripeObject,
+} from "@/lib/stripe/confirm-checkout-session";
 import { resolveHostIdForStripeSubscription } from "@/lib/stripe/resolve-subscription-host";
 import { getStripe, getStripeWebhookSecret } from "@/lib/stripe/stripe";
 
@@ -57,7 +56,10 @@ export async function POST(request: Request) {
         const subscription = event.data.object as Stripe.Subscription;
         const hostId = await resolveHostIdForStripeSubscription(subscription);
         if (hostId) {
-          await resetUserSubscription(hostId);
+          const { syncHostBillingFromStripe } = await import(
+            "@/lib/stripe/sync-host-billing"
+          );
+          await syncHostBillingFromStripe(hostId);
         }
         break;
       }

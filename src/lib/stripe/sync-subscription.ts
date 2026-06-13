@@ -1,5 +1,7 @@
 import type Stripe from "stripe";
-import { mapStripeSubscriptionStatus } from "@/lib/subscriptions/access";
+import {
+  resolveSubscriptionStatusFromStripe,
+} from "@/lib/subscriptions/access";
 import { suggestUsernameFromEmail } from "@/lib/public/slug";
 import { createServiceClient } from "@/lib/supabase/service";
 import { getSubscriptionPeriodEnd, getStripeCustomerId } from "@/lib/stripe/resolve-subscription-host";
@@ -9,7 +11,7 @@ export async function syncSubscriptionToHost(
   hostId: string
 ) {
   const admin = createServiceClient();
-  const status = mapStripeSubscriptionStatus(subscription.status);
+  const status = resolveSubscriptionStatusFromStripe(subscription);
   const periodEnd = getSubscriptionPeriodEnd(subscription);
   const customerId = getStripeCustomerId(subscription.customer);
 
