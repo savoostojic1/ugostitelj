@@ -1,11 +1,32 @@
 import type Stripe from "stripe";
 import { createServiceClient } from "@/lib/supabase/service";
-import { getSubscriptionPeriodEnd } from "@/lib/stripe/resolve-subscription-host";
+import {
+  getSubscriptionPeriodEnd,
+  isStripeSubscriptionScheduledToCancel,
+} from "@/lib/stripe/resolve-subscription-host";
 import { getStripe } from "@/lib/stripe/stripe";
 import {
   resetHostSubscription,
   syncSubscriptionToHost,
 } from "@/lib/stripe/sync-subscription";
+
+function pickBestSubscription(
+  subscriptions: Stripe.Subscription[]
+): Stripe.Subscription | null {
+  if (!subscriptions.length) return null;
+
+  const ranked = [...subscriptions].sort((a, b) => {
+    const score = (sub: Stripe.Subscription) => {
+      if (sub.status === "active" || sub.status === "trialing") return 3;
+      if (sub.status === "past_due") return 2;
+      if (sub.status === "canceled") return 1;
+      return 0;
+    };
+    return score(b) - score(a);
+  });
+
+  return ranked[0] ?? null;
+}
 
 export async function syncHostBillingFromStripe(hostId: string): Promise<void> {
   const admin = createServiceClient();
@@ -37,15 +58,10 @@ export async function syncHostBillingFromStripe(hostId: string): Promise<void> {
     const subscriptions = await stripe.subscriptions.list({
       customer: profile.stripe_customer_id,
       status: "all",
-      limit: 5,
+      limit: 10,
     });
 
-    subscription =
-      subscriptions.data.find((sub) =>
-        ["active", "trialing", "past_due", "canceled"].includes(sub.status)
-      ) ??
-      subscriptions.data[0] ??
-      null;
+    subscription = pickBestSubscription(subscriptions.data);
   }
 
   if (!subscription) {
@@ -53,20 +69,30 @@ export async function syncHostBillingFromStripe(hostId: string): Promise<void> {
     return;
   }
 
-  const periodEnd = getSubscriptionPeriodEnd(subscription);
-  const ended =
-    subscription.status === "canceled" &&
-    periodEnd &&
-    new Date(periodEnd) <= new Date();
-
   if (
     subscription.status === "incomplete_expired" ||
-    subscription.status === "unpaid" ||
-    ended
+    subscription.status === "unpaid"
   ) {
     await resetHostSubscription(hostId);
     return;
   }
 
-  await syncSubscriptionToHost(subscription, hostId);
+  const periodEnd = getSubscriptionPeriodEnd(subscription);
+  const scheduledToCancel = isStripeSubscriptionScheduledToCancel(subscription);
+  const periodStillActive = Boolean(
+    periodEnd && new Date(periodEnd) > new Date()
+  );
+
+  if (
+    scheduledToCancel ||
+    subscription.status === "active" ||
+    subscription.status === "trialing" ||
+    subscription.status === "past_due" ||
+    periodStillActive
+  ) {
+    await syncSubscriptionToHost(subscription, hostId);
+    return;
+  }
+
+  await resetHostSubscription(hostId);
 }

@@ -1,32 +1,61 @@
 import type Stripe from "stripe";
-import { createServiceClient } from "@/lib/supabase/service";
+
+type SubscriptionItemWithPeriod = {
+  current_period_end?: number;
+};
+
+export function isStripeSubscriptionScheduledToCancel(
+  subscription: Stripe.Subscription
+): boolean {
+  if (subscription.cancel_at_period_end) return true;
+
+  if (
+    subscription.cancel_at &&
+    (subscription.status === "active" || subscription.status === "trialing")
+  ) {
+    return true;
+  }
+
+  if (
+    subscription.canceled_at &&
+    (subscription.status === "active" || subscription.status === "trialing")
+  ) {
+    return true;
+  }
+
+  return subscription.status === "canceled";
+}
 
 export function getSubscriptionPeriodEnd(
   subscription: Stripe.Subscription
 ): string | null {
-  const extended = subscription as Stripe.Subscription & {
-    current_period_end?: number;
-    cancel_at?: number | null;
-    ended_at?: number | null;
-  };
-
-  if (extended.cancel_at) {
-    return new Date(extended.cancel_at * 1000).toISOString();
+  if (subscription.cancel_at) {
+    return new Date(subscription.cancel_at * 1000).toISOString();
   }
 
-  if (extended.current_period_end) {
-    return new Date(extended.current_period_end * 1000).toISOString();
+  const items = subscription.items?.data ?? [];
+  let latestEnd: number | null = null;
+
+  for (const item of items) {
+    const itemEnd = (item as SubscriptionItemWithPeriod).current_period_end;
+    if (itemEnd && (latestEnd === null || itemEnd > latestEnd)) {
+      latestEnd = itemEnd;
+    }
   }
 
-  const item = subscription.items?.data?.[0] as
-    | { current_period_end?: number }
-    | undefined;
-  if (item?.current_period_end) {
-    return new Date(item.current_period_end * 1000).toISOString();
+  if (latestEnd) {
+    return new Date(latestEnd * 1000).toISOString();
   }
 
-  if (extended.ended_at) {
-    return new Date(extended.ended_at * 1000).toISOString();
+  const legacy = (
+    subscription as Stripe.Subscription & { current_period_end?: number }
+  ).current_period_end;
+  if (legacy) {
+    return new Date(legacy * 1000).toISOString();
+  }
+
+  if (subscription.ended_at) {
+    return new Date(subscription.ended_at * 1000).toISOString();
   }
 
   return null;
@@ -55,7 +84,7 @@ export async function resolveHostIdForStripeSubscription(
 
   let admin;
   try {
-    admin = createServiceClient();
+    admin = (await import("@/lib/supabase/service")).createServiceClient();
   } catch {
     return null;
   }

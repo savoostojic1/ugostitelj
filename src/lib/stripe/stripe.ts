@@ -113,6 +113,11 @@ export async function getStripe(): Promise<Stripe> {
   return stripeClient;
 }
 
+export async function hasStripeSecretKey(): Promise<boolean> {
+  const config = await resolveStripeConfig();
+  return Boolean(config?.secretKey?.trim());
+}
+
 export async function hasStripeConfig(): Promise<boolean> {
   const config = await resolveStripeConfig();
   return Boolean(config?.secretKey?.trim() && config?.priceId?.trim());

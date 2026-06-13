@@ -3,6 +3,9 @@ import {
   type SubscriptionRecord,
   type SubscriptionStatus,
 } from "@/lib/subscriptions/plans";
+import {
+  isStripeSubscriptionScheduledToCancel,
+} from "@/lib/stripe/resolve-subscription-host";
 import type Stripe from "stripe";
 
 export function hasProAccess(subscription: SubscriptionRecord | null): boolean {
@@ -62,18 +65,14 @@ export function mapStripeSubscriptionStatus(
 export function resolveSubscriptionStatusFromStripe(
   subscription: Stripe.Subscription
 ): SubscriptionStatus {
-  const extended = subscription as Stripe.Subscription & {
-    cancel_at_period_end?: boolean;
-    cancel_at?: number | null;
-    canceled_at?: number | null;
-  };
-
-  if (
-    extended.cancel_at_period_end ||
-    (extended.canceled_at &&
-      (subscription.status === "active" || subscription.status === "trialing"))
-  ) {
-    return "canceled";
+  if (isStripeSubscriptionScheduledToCancel(subscription)) {
+    if (
+      subscription.status === "active" ||
+      subscription.status === "trialing" ||
+      subscription.status === "canceled"
+    ) {
+      return "canceled";
+    }
   }
 
   return mapStripeSubscriptionStatus(subscription.status);

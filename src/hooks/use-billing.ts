@@ -24,10 +24,12 @@ export function useBillingStatus() {
   return useQuery({
     queryKey: QUERY_KEY,
     queryFn: async () => {
-      const res = await fetch("/api/billing/status");
+      const res = await fetch("/api/billing/status", { cache: "no-store" });
       if (!res.ok) throw new Error("Could not load billing status");
       return res.json() as Promise<BillingStatus>;
     },
+    staleTime: 0,
+    refetchOnMount: "always",
   });
 }
 

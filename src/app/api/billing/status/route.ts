@@ -6,26 +6,21 @@ import {
   loadHostSubscription,
   resolveBillingHostId,
 } from "@/lib/subscriptions/resolve-host-subscription";
+import { syncHostBillingFromStripe } from "@/lib/stripe/sync-host-billing";
+import { hasStripeSecretKey } from "@/lib/stripe/stripe";
 
-export async function GET() {
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-
-  if (!user) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-  }
-
-  const { hostId, isOwner } = await resolveBillingHostId(supabase, user.id);
-
+async function buildBillingStatusResponse(
+  supabase: Awaited<ReturnType<typeof createClient>>,
+  hostId: string,
+  isOwner: boolean
+) {
   const { count, error: countError } = await supabase
     .from("properties")
     .select("id", { count: "exact", head: true })
     .eq("user_id", hostId);
 
   if (countError) {
-    return NextResponse.json({ error: "Could not load usage" }, { status: 500 });
+    throw new Error("Could not load usage");
   }
 
   const subscription = await loadHostSubscription(supabase, hostId);
@@ -33,7 +28,7 @@ export async function GET() {
   const propertyCount = count ?? 0;
   const isCanceling = isSubscriptionCanceling(subscription, pro);
 
-  return NextResponse.json({
+  return {
     isOwner,
     inheritsHostPlan: !isOwner,
     propertyCount,
@@ -51,5 +46,39 @@ export async function GET() {
     canAddProperty: isOwner && (pro || propertyCount < FREE_PROPERTY_LIMIT),
     requiresUpgrade:
       isOwner && !pro && propertyCount >= FREE_PROPERTY_LIMIT,
-  });
+  };
+}
+
+export async function GET() {
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  if (!user) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
+
+  const { hostId, isOwner } = await resolveBillingHostId(supabase, user.id);
+
+  if (isOwner && (await hasStripeSecretKey())) {
+    try {
+      await syncHostBillingFromStripe(hostId);
+    } catch (err) {
+      console.error("[billing status sync]", err);
+    }
+  }
+
+  try {
+    const payload = await buildBillingStatusResponse(supabase, hostId, isOwner);
+    return NextResponse.json(payload);
+  } catch (err) {
+    return NextResponse.json(
+      {
+        error:
+          err instanceof Error ? err.message : "Could not load billing status",
+      },
+      { status: 500 }
+    );
+  }
 }

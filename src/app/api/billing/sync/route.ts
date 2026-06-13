@@ -7,7 +7,7 @@ import {
   resolveBillingHostId,
 } from "@/lib/subscriptions/resolve-host-subscription";
 import { syncHostBillingFromStripe } from "@/lib/stripe/sync-host-billing";
-import { hasStripeConfig } from "@/lib/stripe/stripe";
+import { hasStripeSecretKey } from "@/lib/stripe/stripe";
 
 export async function POST() {
   const supabase = await createClient();
@@ -27,7 +27,7 @@ export async function POST() {
     );
   }
 
-  if (await hasStripeConfig()) {
+  if (await hasStripeSecretKey()) {
     try {
       await syncHostBillingFromStripe(hostId);
     } catch (err) {
