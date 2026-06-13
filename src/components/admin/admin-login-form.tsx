@@ -1,35 +1,48 @@
 "use client";
 
-import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { Loader2, Lock, Shield, User } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
+
+const adminFetch = (input: RequestInfo, init?: RequestInit) =>
+  fetch(input, { ...init, credentials: "include" });
+
+async function redirectToDashboard() {
+  const sessionRes = await adminFetch("/api/admin/session");
+  const sessionData = await sessionRes.json();
+
+  if (!sessionData.authenticated) {
+    throw new Error("Session was not saved. Try again or use the same URL (www vs non-www).");
+  }
+
+  window.location.assign("/admin/dashboard");
+}
 
 export function AdminLoginForm({
   setupRequiredInitially = false,
 }: {
   setupRequiredInitially?: boolean;
 }) {
-  const router = useRouter();
   const [username, setUsername] = useState("admin-savo");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const [checking, setChecking] = useState(true);
   const [setupRequired, setSetupRequired] = useState(setupRequiredInitially);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
   useEffect(() => {
     void (async () => {
       try {
-        const res = await fetch("/api/admin/setup");
+        const res = await adminFetch("/api/admin/setup");
         const data = await res.json();
         if (data.username) setUsername(data.username);
         const needsSetup = Boolean(data.setupRequired);
         setSetupRequired(needsSetup);
 
         if (needsSetup) {
-          await fetch("/api/admin/logout", { method: "POST" });
+          await adminFetch("/api/admin/logout", { method: "POST" });
         }
       } catch {
         toast.error("Could not load admin status");
@@ -41,20 +54,21 @@ export function AdminLoginForm({
 
   async function handleSetup(e: React.FormEvent) {
     e.preventDefault();
+    setErrorMessage(null);
 
     if (password.length < 8) {
-      toast.error("Password must be at least 8 characters");
+      setErrorMessage("Password must be at least 8 characters");
       return;
     }
 
     if (password !== confirmPassword) {
-      toast.error("Passwords do not match");
+      setErrorMessage("Passwords do not match");
       return;
     }
 
     setLoading(true);
     try {
-      const res = await fetch("/api/admin/setup", {
+      const res = await adminFetch("/api/admin/setup", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ username, password }),
@@ -64,7 +78,7 @@ export function AdminLoginForm({
 
       toast.success("Admin password saved. Signing you in…");
 
-      const loginRes = await fetch("/api/admin/login", {
+      const loginRes = await adminFetch("/api/admin/login", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ username, password }),
@@ -72,10 +86,11 @@ export function AdminLoginForm({
       const loginData = await loginRes.json();
       if (!loginRes.ok) throw new Error(loginData.error ?? "Login failed");
 
-      router.push("/admin/dashboard");
-      router.refresh();
+      await redirectToDashboard();
     } catch (err) {
-      toast.error(err instanceof Error ? err.message : "Setup failed");
+      const message = err instanceof Error ? err.message : "Setup failed";
+      setErrorMessage(message);
+      toast.error(message);
     } finally {
       setLoading(false);
     }
@@ -83,10 +98,11 @@ export function AdminLoginForm({
 
   async function handleLogin(e: React.FormEvent) {
     e.preventDefault();
+    setErrorMessage(null);
     setLoading(true);
 
     try {
-      const res = await fetch("/api/admin/login", {
+      const res = await adminFetch("/api/admin/login", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ username, password }),
@@ -94,13 +110,15 @@ export function AdminLoginForm({
       const data = await res.json();
 
       if (!res.ok) {
-        throw new Error(data.error ?? "Login failed");
+        throw new Error(data.error ?? "Invalid username or password");
       }
 
-      router.push("/admin/dashboard");
-      router.refresh();
+      await redirectToDashboard();
     } catch (err) {
-      toast.error(err instanceof Error ? err.message : "Login failed");
+      const message =
+        err instanceof Error ? err.message : "Invalid username or password";
+      setErrorMessage(message);
+      toast.error(message);
     } finally {
       setLoading(false);
     }
@@ -194,6 +212,12 @@ export function AdminLoginForm({
                 />
               </div>
             </div>
+          )}
+
+          {errorMessage && (
+            <p className="rounded-lg border border-red-500/30 bg-red-500/10 px-3 py-2 text-sm text-red-200">
+              {errorMessage}
+            </p>
           )}
 
           <Button

@@ -24,7 +24,13 @@ export async function loadAdminAuth(): Promise<AdminAuthRecord | null> {
     .eq("id", 1)
     .maybeSingle();
 
-  if (error || !data) return null;
+  if (error) {
+    if (error.code === "42P01") return null;
+    console.error("[admin] loadAdminAuth failed:", error.message);
+    return null;
+  }
+
+  if (!data) return null;
   return data;
 }
 

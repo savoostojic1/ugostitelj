@@ -11,6 +11,11 @@ async function getSecret(): Promise<string> {
   const stored = await loadAdminAuth();
   if (stored?.session_secret) return stored.session_secret;
 
+  const { adminSetupRequired } = await import("@/lib/admin/credentials");
+  if (!(await adminSetupRequired())) {
+    throw new Error("Could not load admin session secret from database");
+  }
+
   const secret = process.env.ADMIN_SESSION_SECRET ?? process.env.CRON_SECRET;
   if (!secret) {
     throw new Error(
