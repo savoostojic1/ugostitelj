@@ -20,7 +20,6 @@ import { toast } from "sonner";
 
 type Stats = {
   totalUsers: number;
-  teamMembers: number;
   withProfile: number;
   published: number;
   pro: number;
@@ -29,11 +28,6 @@ type Stats = {
 };
 
 function planLabel(host: AdminHostRow): string {
-  if (host.account_type === "team") {
-    if (host.pro_access_granted) return "Team · Complimentary Pro";
-    if (host.is_pro) return "Team · Pro";
-    return "Team · Free";
-  }
   if (host.pro_access_granted) return "Complimentary Pro";
   if (host.is_pro) return "Pro";
   return "Free";
@@ -62,11 +56,11 @@ export function AdminDashboard() {
         return;
       }
       const data = await res.json();
-      if (!res.ok) throw new Error(data.error ?? "Could not load users");
+      if (!res.ok) throw new Error(data.error ?? "Could not load hosts");
       setHosts(data.hosts ?? []);
       setStats(data.stats ?? null);
     } catch (err) {
-      toast.error(err instanceof Error ? err.message : "Could not load users");
+      toast.error(err instanceof Error ? err.message : "Could not load hosts");
     } finally {
       setLoading(false);
     }
@@ -84,14 +78,11 @@ export function AdminDashboard() {
         h.email?.toLowerCase().includes(q) ||
         h.username?.toLowerCase().includes(q) ||
         h.business_name?.toLowerCase().includes(q) ||
-        h.host_username?.toLowerCase().includes(q) ||
         h.id.toLowerCase().includes(q)
     );
   }, [hosts, query]);
 
   async function togglePro(host: AdminHostRow) {
-    if (host.account_type === "team") return;
-
     setBusyId(host.id);
     try {
       const res = await fetch("/api/admin/pro-access", {
@@ -129,7 +120,7 @@ export function AdminDashboard() {
           </div>
           <div>
             <h1 className="text-2xl font-semibold text-white">Hostvia Admin</h1>
-            <p className="text-sm text-white/55">Users, plans and complimentary Pro</p>
+            <p className="text-sm text-white/55">Host accounts, plans and complimentary Pro</p>
           </div>
         </div>
         <div className="flex gap-2">
@@ -155,34 +146,17 @@ export function AdminDashboard() {
 
       {stats && (
         <div className="mb-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-          <StatCard
-            icon={Users}
-            label="Host accounts"
-            value={stats.totalUsers}
-          />
-          <StatCard
-            icon={Users}
-            label="Team members"
-            value={stats.teamMembers}
-          />
-          <StatCard
-            icon={Building2}
-            label="Properties"
-            value={stats.totalProperties}
-          />
+          <StatCard icon={Users} label="Host accounts" value={stats.totalUsers} />
+          <StatCard icon={Building2} label="Properties" value={stats.totalProperties} />
           <StatCard icon={Crown} label="Pro accounts" value={stats.pro} />
-          <StatCard
-            icon={ShieldCheck}
-            label="Complimentary"
-            value={stats.complimentary}
-          />
+          <StatCard icon={ShieldCheck} label="Complimentary" value={stats.complimentary} />
         </div>
       )}
 
       <div className="hostvia-admin-card overflow-hidden">
         <div className="flex flex-col gap-3 border-b border-white/8 p-4 sm:flex-row sm:items-center sm:justify-between">
           <p className="text-sm text-white/60">
-            {filtered.length} user{filtered.length === 1 ? "" : "s"}
+            {filtered.length} host account{filtered.length === 1 ? "" : "s"}
           </p>
           <div className="relative w-full sm:max-w-xs">
             <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-white/35" />
@@ -198,7 +172,7 @@ export function AdminDashboard() {
         {loading ? (
           <div className="flex items-center justify-center gap-2 py-20 text-white/60">
             <Loader2 className="h-5 w-5 animate-spin" />
-            Loading users…
+            Loading hosts…
           </div>
         ) : (
           <div className="overflow-x-auto">
@@ -206,7 +180,7 @@ export function AdminDashboard() {
               <thead>
                 <tr>
                   <th>Email</th>
-                  <th>Account</th>
+                  <th>Username</th>
                   <th>Properties</th>
                   <th>Plan</th>
                   <th>Published</th>
@@ -222,28 +196,13 @@ export function AdminDashboard() {
                       {host.email ?? "—"}
                     </td>
                     <td>
-                      {host.account_type === "team" ? (
-                        <div className="space-y-1">
-                          <span className="text-sky-300">@{host.username}</span>
-                          <p className="text-xs text-white/45">
-                            Team · inherits @{host.host_username ?? "host"}
-                          </p>
-                        </div>
-                      ) : host.username ? (
+                      {host.username ? (
                         <span className="text-sky-300">@{host.username}</span>
                       ) : (
                         <span className="text-white/35">No profile</span>
                       )}
                     </td>
-                    <td>
-                      {host.account_type === "team" ? (
-                        <span className="text-white/45" title="Host account total">
-                          {host.property_count}
-                        </span>
-                      ) : (
-                        host.property_count
-                      )}
-                    </td>
+                    <td>{host.property_count}</td>
                     <td>
                       <Badge
                         variant={planBadgeVariant(host)}
@@ -270,36 +229,32 @@ export function AdminDashboard() {
                         : "—"}
                     </td>
                     <td>
-                      {host.account_type === "owner" ? (
-                        <Button
-                          size="sm"
-                          variant={host.pro_access_granted ? "outline" : "default"}
-                          className={
-                            host.pro_access_granted
-                              ? "border-white/15 bg-transparent text-white hover:bg-white/5"
-                              : "bg-emerald-600 text-white hover:bg-emerald-500"
-                          }
-                          disabled={busyId === host.id}
-                          onClick={() => void togglePro(host)}
-                        >
-                          {busyId === host.id ? (
-                            <Loader2 className="animate-spin" />
-                          ) : host.pro_access_granted ? (
-                            "Revoke Pro"
-                          ) : (
-                            "Grant Pro"
-                          )}
-                        </Button>
-                      ) : (
-                        <span className="text-xs text-white/35">Uses host plan</span>
-                      )}
+                      <Button
+                        size="sm"
+                        variant={host.pro_access_granted ? "outline" : "default"}
+                        className={
+                          host.pro_access_granted
+                            ? "border-white/15 bg-transparent text-white hover:bg-white/5"
+                            : "bg-emerald-600 text-white hover:bg-emerald-500"
+                        }
+                        disabled={busyId === host.id}
+                        onClick={() => void togglePro(host)}
+                      >
+                        {busyId === host.id ? (
+                          <Loader2 className="animate-spin" />
+                        ) : host.pro_access_granted ? (
+                          "Revoke Pro"
+                        ) : (
+                          "Grant Pro"
+                        )}
+                      </Button>
                     </td>
                   </tr>
                 ))}
                 {!filtered.length && (
                   <tr>
                     <td colSpan={8} className="py-16 text-center text-white/45">
-                      No users match your search.
+                      No host accounts match your search.
                     </td>
                   </tr>
                 )}

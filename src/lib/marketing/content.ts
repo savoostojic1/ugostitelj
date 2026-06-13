@@ -157,9 +157,11 @@ export const publicSiteFeatures: MarketingFeature[] = [
 
 export const pricingSectionCopy = {
   eyebrow: "Pricing",
-  headline: "Start free. Upgrade only when your business grows.",
+  headline: "Start free. Pay only when you grow.",
   subheadline:
-    "Manage up to 2 properties completely free. Upgrade only when you need more.",
+    "Everything you need for up to 2 properties — no credit card required.",
+  upgradeNote:
+    "More than 2 properties? Pro is 20€/month when you need it.",
 };
 
 export const pricingPlans = [
@@ -168,8 +170,7 @@ export const pricingPlans = [
     name: "Free",
     price: "0€",
     period: "month",
-    description: "Everything you need to run your first listings.",
-    highlighted: false,
+    description: "Everything you need to run your listings.",
     features: [
       "Up to 2 properties",
       "Direct booking website",
@@ -179,24 +180,6 @@ export const pricingPlans = [
       "Airbnb & Booking imports",
     ],
     cta: "Start free",
-    href: "/register",
-  },
-  {
-    tier: "pro" as const,
-    name: "Pro",
-    price: "20€",
-    regularPrice: "30€",
-    period: "month",
-    description: "For hosts growing beyond two properties.",
-    highlighted: true,
-    features: [
-      "Unlimited properties",
-      "Everything in Free",
-      "Portfolio management",
-      "Future premium features",
-      "Priority support",
-    ],
-    cta: "Upgrade to Pro",
     href: "/register",
   },
 ];
