@@ -14,6 +14,7 @@ import {
   Users,
 } from "lucide-react";
 import type { AdminHostRow } from "@/app/api/admin/hosts/route";
+import { AdminStripeConfig } from "@/components/admin/admin-stripe-config";
 import { AdminPricingDialog } from "@/components/admin/admin-pricing-dialog";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -121,6 +122,8 @@ export function AdminDashboard() {
           </Button>
         </div>
       </header>
+
+      <AdminStripeConfig />
 
       {stats && (
         <div className="mb-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-5">

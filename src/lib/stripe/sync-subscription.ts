@@ -63,7 +63,7 @@ export async function ensureStripeCustomer(
   if (existingCustomerId) return existingCustomerId;
 
   const { getStripe } = await import("@/lib/stripe/stripe");
-  const stripe = getStripe();
+  const stripe = await getStripe();
   const admin = createServiceClient();
 
   const customer = await stripe.customers.create({

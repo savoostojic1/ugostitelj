@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { Sparkles } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useStartCheckout } from "@/hooks/use-billing";
@@ -9,12 +10,14 @@ interface PropertyLimitNoticeProps {
   propertyCount: number;
   isPro: boolean;
   isOwner?: boolean;
+  billingHref?: string;
 }
 
 export function PropertyLimitNotice({
   propertyCount,
   isPro,
   isOwner = true,
+  billingHref = "/dashboard/billing",
 }: PropertyLimitNoticeProps) {
   const checkout = useStartCheckout();
 
@@ -29,7 +32,13 @@ export function PropertyLimitNotice({
         <span className="font-semibold text-white">
           {propertyCount} of {FREE_PROPERTY_LIMIT}
         </span>{" "}
-        free properties.
+        free properties.{" "}
+        <Link
+          href={billingHref}
+          className="text-violet-300 underline-offset-2 hover:text-violet-200 hover:underline"
+        >
+          Manage plan
+        </Link>
       </p>
       <Button
         type="button"

@@ -53,17 +53,15 @@ export default function BillingSuccessClient() {
           disabled={!ready && isFetching}
           onClick={() =>
             router.push(
-              ready
-                ? "/dashboard/properties?upgrade=success"
-                : "/dashboard/properties"
+              ready ? "/dashboard/billing?upgrade=success" : "/dashboard/billing"
             )
           }
         >
-          {ready ? "Go to properties" : "Continue to dashboard"}
+          {ready ? "View pricing plan" : "Continue to dashboard"}
         </Button>
         {!ready ? (
           <Button variant="outline" className="hostvia-dashboard-btn" asChild>
-            <Link href="/dashboard/properties">Skip for now</Link>
+            <Link href="/dashboard/billing">Skip for now</Link>
           </Button>
         ) : null}
       </div>

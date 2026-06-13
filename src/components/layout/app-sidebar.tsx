@@ -5,6 +5,7 @@ import { usePathname } from "next/navigation";
 import {
   CalendarDays,
   ClipboardPen,
+  CreditCard,
   Globe,
   Home,
   Inbox,
@@ -106,6 +107,17 @@ const navGroups: { label: string; items: NavItem[] }[] = [
         label: "Messages",
         icon: MessageSquare,
         permission: "messages",
+      },
+    ],
+  },
+  {
+    label: "Account",
+    items: [
+      {
+        href: "/dashboard/billing",
+        label: "Pricing plan",
+        icon: CreditCard,
+        ownerOnly: true,
       },
     ],
   },

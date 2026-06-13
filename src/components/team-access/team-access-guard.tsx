@@ -21,6 +21,11 @@ export function TeamAccessGuard({ children }: { children: React.ReactNode }) {
       return;
     }
 
+    if (pathname.startsWith("/dashboard/billing")) {
+      router.replace(defaultTeamLandingPath(context.permissions));
+      return;
+    }
+
     if (!canAccessDashboardPath(pathname, context.permissions)) {
       router.replace(defaultTeamLandingPath(context.permissions));
       return;
@@ -38,6 +43,7 @@ export function TeamAccessGuard({ children }: { children: React.ReactNode }) {
 
   if (context && !context.isOwner) {
     if (pathname === "/dashboard/team-access") return null;
+    if (pathname.startsWith("/dashboard/billing")) return null;
     if (!canAccessDashboardPath(pathname, context.permissions)) return null;
     if (
       pathname === "/dashboard" &&

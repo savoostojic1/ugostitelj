@@ -19,11 +19,11 @@ export async function POST(request: Request) {
   let event: Stripe.Event;
 
   try {
-    const stripe = getStripe();
+    const stripe = await getStripe();
     event = stripe.webhooks.constructEvent(
       body,
       signature,
-      getStripeWebhookSecret()
+      await getStripeWebhookSecret()
     );
   } catch (err) {
     console.error("[stripe webhook]", err);
@@ -36,7 +36,7 @@ export async function POST(request: Request) {
         const session = event.data.object as Stripe.Checkout.Session;
         if (session.mode !== "subscription" || !session.subscription) break;
 
-        const stripe = getStripe();
+        const stripe = await getStripe();
         const subscription = await stripe.subscriptions.retrieve(
           String(session.subscription)
         );
@@ -77,7 +77,7 @@ export async function POST(request: Request) {
         ).subscription;
         if (!subscriptionRef) break;
 
-        const stripe = getStripe();
+        const stripe = await getStripe();
         const subscriptionId =
           typeof subscriptionRef === "string" ? subscriptionRef : subscriptionRef.id;
         const subscription = await stripe.subscriptions.retrieve(subscriptionId);

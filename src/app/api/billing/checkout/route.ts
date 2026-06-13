@@ -11,11 +11,11 @@ import {
 import { getSiteBaseUrl } from "@/lib/public/site-url";
 
 export async function POST() {
-  if (!hasStripeConfig()) {
+  if (!(await hasStripeConfig())) {
     return NextResponse.json(
       {
         error:
-          "Stripe is not configured. Add STRIPE_SECRET_KEY and STRIPE_PRICE_ID.",
+          "Stripe is not configured. Add keys in /admin or STRIPE_SECRET_KEY and STRIPE_PRICE_ID.",
       },
       { status: 503 }
     );
@@ -55,15 +55,15 @@ export async function POST() {
     profile?.stripe_customer_id
   );
 
-  const stripe = getStripe();
+  const stripe = await getStripe();
   const baseUrl = getSiteBaseUrl();
 
   const session = await stripe.checkout.sessions.create({
     customer: customerId,
     mode: "subscription",
-    line_items: [{ price: getStripePriceId(), quantity: 1 }],
+    line_items: [{ price: await getStripePriceId(), quantity: 1 }],
     success_url: `${baseUrl}/dashboard/billing/success?session_id={CHECKOUT_SESSION_ID}`,
-    cancel_url: `${baseUrl}/dashboard/properties?upgrade=canceled`,
+    cancel_url: `${baseUrl}/dashboard/billing?upgrade=canceled`,
     metadata: { userId: user.id },
     subscription_data: {
       metadata: { userId: user.id },

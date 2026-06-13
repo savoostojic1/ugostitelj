@@ -56,6 +56,7 @@ export default function PropertiesPageClient() {
             propertyCount={billing.propertyCount}
             isPro={billing.isPro}
             isOwner={billing.isOwner}
+            billingHref="/dashboard/billing"
           />
         ) : null}
 
