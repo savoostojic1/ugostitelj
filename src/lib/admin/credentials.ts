@@ -33,10 +33,10 @@ export async function adminPanelConfigured(): Promise<boolean> {
   return envPasswordConfigured();
 }
 
+/** True until a password is saved in Supabase (ignores CRON_SECRET). */
 export async function adminSetupRequired(): Promise<boolean> {
   const stored = await loadAdminAuth();
-  if (stored) return false;
-  return !envPasswordConfigured();
+  return !stored;
 }
 
 export async function getAdminUsername(): Promise<string> {

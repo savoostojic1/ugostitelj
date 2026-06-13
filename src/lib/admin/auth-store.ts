@@ -52,7 +52,14 @@ export async function saveInitialAdminAuth(input: {
     session_secret: input.sessionSecret,
   });
 
-  if (error) throw error;
+  if (error) {
+    if (error.code === "42P01") {
+      throw new Error(
+        "Admin table missing. Run migration 031_admin_panel_auth.sql in Supabase."
+      );
+    }
+    throw error;
+  }
 }
 
 export function resolveAdminUsername(record: AdminAuthRecord | null): string {

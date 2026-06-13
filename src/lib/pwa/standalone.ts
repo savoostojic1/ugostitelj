@@ -21,6 +21,7 @@ export function isPwaAllowedPath(path: string, host?: string | null): boolean {
     path === "/reset-password" ||
     path.startsWith("/auth/callback") ||
     path.startsWith("/dashboard") ||
+    path.startsWith("/admin") ||
     path.startsWith("/host/")
   ) {
     return true;

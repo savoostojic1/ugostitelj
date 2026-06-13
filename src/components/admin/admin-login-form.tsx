@@ -6,14 +6,18 @@ import { Loader2, Lock, Shield, User } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 
-export function AdminLoginForm() {
+export function AdminLoginForm({
+  setupRequiredInitially = false,
+}: {
+  setupRequiredInitially?: boolean;
+}) {
   const router = useRouter();
   const [username, setUsername] = useState("admin-savo");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const [checking, setChecking] = useState(true);
-  const [setupRequired, setSetupRequired] = useState(false);
+  const [setupRequired, setSetupRequired] = useState(setupRequiredInitially);
 
   useEffect(() => {
     void (async () => {
@@ -21,7 +25,12 @@ export function AdminLoginForm() {
         const res = await fetch("/api/admin/setup");
         const data = await res.json();
         if (data.username) setUsername(data.username);
-        setSetupRequired(Boolean(data.setupRequired));
+        const needsSetup = Boolean(data.setupRequired);
+        setSetupRequired(needsSetup);
+
+        if (needsSetup) {
+          await fetch("/api/admin/logout", { method: "POST" });
+        }
       } catch {
         toast.error("Could not load admin status");
       } finally {
