@@ -10,10 +10,8 @@ import {
   Zap,
 } from "lucide-react";
 import { HostviaHeroMockup } from "@/components/marketing/hostvia-hero-mockup";
-import { MarketingPlanCta } from "@/components/marketing/marketing-plan-cta";
 import { MarketingPrimaryCta } from "@/components/marketing/marketing-primary-cta";
-import { pricingPlans } from "@/lib/marketing/content";
-import { cn } from "@/lib/utils";
+import { PricingSection } from "@/components/marketing/pricing-section";
 
 const testimonials = [
   {
@@ -354,65 +352,7 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* Pricing */}
-      <section className="marketing-section">
-        <div className="marketing-container">
-          <div className="mx-auto max-w-2xl text-center">
-            <p className="marketing-eyebrow mb-4 justify-center">Pricing</p>
-            <h2 className="marketing-heading text-3xl text-white md:text-4xl">
-              Simple, transparent pricing
-            </h2>
-            <p className="mt-3 text-sm text-zinc-400 sm:mt-4 sm:text-base">
-              Start free. Scale when you&apos;re ready.
-            </p>
-          </div>
-          <div className="mx-auto mt-10 grid max-w-4xl gap-4 sm:mt-12 sm:gap-6 lg:grid-cols-2 lg:gap-8">
-            {pricingPlans.map((plan) => (
-              <div
-                key={plan.name}
-                className={cn(
-                  "relative rounded-2xl p-6 sm:p-8",
-                  plan.highlighted
-                    ? "hostvia-glow-card bg-gradient-to-b from-violet-500/10 to-transparent"
-                    : "border border-white/10 bg-white/[0.02]"
-                )}
-              >
-                {plan.highlighted && (
-                  <span className="absolute -top-3 left-5 rounded-full bg-gradient-to-r from-violet-500 to-cyan-500 px-3 py-1 text-xs font-bold text-white sm:left-6">
-                    Most popular
-                  </span>
-                )}
-                <h3 className="text-xl font-semibold text-white">{plan.name}</h3>
-                <div className="mt-4 flex flex-wrap items-baseline gap-2">
-                  <span className="text-4xl font-bold tracking-tight text-white sm:text-5xl">
-                    {plan.price}
-                  </span>
-                  {plan.period && (
-                    <span className="text-zinc-500">/ {plan.period}</span>
-                  )}
-                </div>
-                <p className="mt-3 text-sm text-zinc-400">{plan.description}</p>
-                <ul className="mt-6 space-y-2.5 sm:mt-8 sm:space-y-3">
-                  {plan.features.map((f) => (
-                    <li
-                      key={f}
-                      className="flex items-start gap-2 text-sm text-zinc-300"
-                    >
-                      <Sparkles className="mt-0.5 h-4 w-4 shrink-0 text-violet-400" />
-                      {f}
-                    </li>
-                  ))}
-                </ul>
-                <MarketingPlanCta
-                  loggedOutHref={plan.href}
-                  loggedOutLabel={plan.cta}
-                  highlighted={plan.highlighted}
-                />
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
+      <PricingSection />
 
       {/* Final CTA */}
       <section className="marketing-container pb-12 pt-4 sm:pb-16 md:pb-20">

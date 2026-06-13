@@ -67,6 +67,13 @@ export interface HostProfile {
   map_embed_url?: string | null;
   social_links: Record<string, string>;
   is_published: boolean;
+  stripe_customer_id?: string | null;
+  stripe_subscription_id?: string | null;
+  subscription_status?: "free" | "active" | "canceled" | "past_due";
+  subscription_current_period_end?: string | null;
+  pro_access_granted?: boolean;
+  pro_access_granted_at?: string | null;
+  pro_access_granted_note?: string | null;
   created_at: string;
   updated_at: string;
 }

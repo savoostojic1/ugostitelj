@@ -155,40 +155,49 @@ export const publicSiteFeatures: MarketingFeature[] = [
   },
 ];
 
+export const pricingSectionCopy = {
+  eyebrow: "Pricing",
+  headline: "Start free. Upgrade only when your business grows.",
+  subheadline:
+    "Manage up to 2 properties completely free. Upgrade only when you need more.",
+};
+
 export const pricingPlans = [
   {
+    tier: "free" as const,
     name: "Free",
-    price: "$0",
-    period: "for now",
-    description: "All features available during early access.",
-    highlighted: true,
+    price: "0€",
+    period: "month",
+    description: "Everything you need to run your first listings.",
+    highlighted: false,
     features: [
-      "Unlimited units",
-      "iCal sync (Airbnb, Booking.com)",
-      "Booking site with inquiries",
-      "Date-based pricing",
-      "Gallery & location map",
-      "Manual bookings & iCal export",
-      "PWA — install on your phone",
+      "Up to 2 properties",
+      "Direct booking website",
+      "Calendar sync",
+      "Reservations",
+      "Dashboard",
+      "Airbnb & Booking imports",
     ],
     cta: "Start free",
     href: "/register",
   },
   {
+    tier: "pro" as const,
     name: "Pro",
-    price: "Soon",
-    period: "",
-    description: "Advanced features for larger portfolios and teams.",
-    highlighted: false,
+    price: "20€",
+    regularPrice: "30€",
+    period: "month",
+    description: "For hosts growing beyond two properties.",
+    highlighted: true,
     features: [
+      "Unlimited properties",
       "Everything in Free",
-      "Multiple users per account",
+      "Portfolio management",
+      "Future premium features",
       "Priority support",
-      "Advanced analytics",
-      "Custom domain",
     ],
-    cta: "Contact us",
-    href: "/kontakt",
+    cta: "Upgrade to Pro",
+    href: "/register",
   },
 ];
 
