@@ -3,11 +3,11 @@
 import Link from "next/link";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { useProperties } from "@/hooks/use-properties";
+import { useAllowedProperties } from "@/hooks/use-allowed-properties";
 import { getPropertyNeighbors } from "@/lib/properties/property-navigation";
 
 export function PropertyCalendarNav({ propertyId }: { propertyId: string }) {
-  const { data: properties = [] } = useProperties();
+  const { data: properties = [] } = useAllowedProperties();
   const { prev, next, index, total } = getPropertyNeighbors(
     properties,
     propertyId

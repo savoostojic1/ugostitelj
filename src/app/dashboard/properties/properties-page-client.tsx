@@ -3,19 +3,24 @@
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
-import { ArrowRight, Home, Lock, Plus } from "lucide-react";
+import { ArrowRight, Home, Plus } from "lucide-react";
 import { DashboardPageHeader } from "@/components/dashboard/dashboard-page-header";
 import { PropertyExcessNotice } from "@/components/billing/property-excess-notice";
 import { PropertyLimitNotice } from "@/components/billing/property-limit-notice";
 import { UpgradeModal } from "@/components/billing/upgrade-modal";
+import { useAllowedProperties, useAllowedReservations } from "@/hooks/use-allowed-properties";
 import { useBillingStatus, useInvalidateBillingStatus } from "@/hooks/use-billing";
-import { useProperties, useReservations } from "@/hooks/use-properties";
+import { LockedPropertiesSection } from "@/components/properties/locked-properties-section";
 import { getPropertyCalendarColor } from "@/lib/properties/property-colors";
 import { toast } from "sonner";
 
 export default function PropertiesPageClient() {
-  const { data: properties = [], isLoading } = useProperties();
-  const { data: reservations = [] } = useReservations();
+  const {
+    data: properties = [],
+    lockedProperties = [],
+    isLoading,
+  } = useAllowedProperties();
+  const { data: reservations = [] } = useAllowedReservations();
   const { data: billing } = useBillingStatus();
   const invalidateBilling = useInvalidateBillingStatus();
   const searchParams = useSearchParams();
@@ -99,67 +104,37 @@ export default function PropertiesPageClient() {
             const count = reservations.filter(
               (r) => r.property_id === p.id
             ).length;
-            const isLocked = Boolean(
-              billing &&
-                !billing.isPro &&
-                !(billing.allowedPropertyIds ?? []).includes(p.id)
-            );
-
-            const card = (
-              <>
-                <div className="flex items-start justify-between gap-3">
-                  <div
-                    className="flex h-11 w-11 items-center justify-center rounded-xl ring-1 ring-inset ring-white/5"
-                    style={{ background: `${colors.solid}18` }}
-                  >
-                    {isLocked ? (
-                      <Lock className="h-5 w-5 text-amber-300" />
-                    ) : (
-                      <Home className="h-5 w-5" style={{ color: colors.solid }} />
-                    )}
-                  </div>
-                  <div className="flex flex-col items-end gap-1.5">
-                    {isLocked ? (
-                      <span className="rounded-full border border-amber-500/30 bg-amber-500/10 px-2.5 py-1 text-[10px] font-semibold uppercase tracking-wide text-amber-200">
-                        Locked
-                      </span>
-                    ) : null}
-                    <span className="rounded-full border border-white/8 bg-white/[0.03] px-2.5 py-1 text-xs text-zinc-500">
-                      {count} bookings
-                    </span>
-                  </div>
-                </div>
-                <h3
-                  className={`mt-5 text-lg font-semibold ${
-                    isLocked
-                      ? "text-zinc-400"
-                      : "text-white group-hover:text-violet-200"
-                  }`}
-                >
-                  {p.name}
-                </h3>
-                <p className="mt-2 flex items-center gap-1 text-sm text-zinc-500 group-hover:text-zinc-400">
-                  {isLocked ? "View locked listing" : "Open settings"}
-                  <ArrowRight className="h-3.5 w-3.5 transition group-hover:translate-x-0.5" />
-                </p>
-              </>
-            );
 
             return (
               <Link
                 key={p.id}
                 href={`/dashboard/properties/${p.id}`}
-                className={`hostvia-panel group block p-5 transition ${
-                  isLocked
-                    ? "border-amber-500/15 opacity-90 hover:border-amber-500/25"
-                    : "hover:border-violet-500/25"
-                }`}
+                className="hostvia-panel group block p-5 transition hover:border-violet-500/25"
               >
-                {card}
+                <div className="flex items-start justify-between gap-3">
+                  <div
+                    className="flex h-11 w-11 items-center justify-center rounded-xl ring-1 ring-inset ring-white/5"
+                    style={{ background: `${colors.solid}18` }}
+                  >
+                    <Home className="h-5 w-5" style={{ color: colors.solid }} />
+                  </div>
+                  <span className="rounded-full border border-white/8 bg-white/[0.03] px-2.5 py-1 text-xs text-zinc-500">
+                    {count} bookings
+                  </span>
+                </div>
+                <h3 className="mt-5 text-lg font-semibold text-white group-hover:text-violet-200">
+                  {p.name}
+                </h3>
+                <p className="mt-2 flex items-center gap-1 text-sm text-zinc-500 group-hover:text-zinc-400">
+                  Open settings
+                  <ArrowRight className="h-3.5 w-3.5 transition group-hover:translate-x-0.5" />
+                </p>
               </Link>
             );
           })}
         </div>
+
+        <LockedPropertiesSection properties={lockedProperties} />
       </div>
 
       <UpgradeModal open={upgradeOpen} onOpenChange={setUpgradeOpen} />

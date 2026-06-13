@@ -25,7 +25,7 @@ import {
   getPropertyCalendarColor,
   type PropertyCalendarColor,
 } from "@/lib/properties/property-colors";
-import { useProperties, useReservations } from "@/hooks/use-properties";
+import { useAllowedProperties, useAllowedReservations } from "@/hooks/use-allowed-properties";
 import { useUiStore } from "@/stores/ui-store";
 import { cn } from "@/lib/utils";
 
@@ -139,9 +139,9 @@ function EventSquare({
 
 export function DateEventsList({ embedded = false }: { embedded?: boolean }) {
   const { data: properties = [], isLoading: loadingProperties } =
-    useProperties();
+    useAllowedProperties();
   const { data: reservations = [], isLoading: loadingReservations } =
-    useReservations();
+    useAllowedReservations();
   const { calendarMonth, setCalendarMonth } = useUiStore();
 
   const today = useMemo(() => startOfDay(new Date()), []);

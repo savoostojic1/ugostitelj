@@ -6,7 +6,7 @@ import { format } from "date-fns";
 import { Button } from "@/components/ui/button";
 import { CompactPropertyCalendar } from "@/components/calendar/compact-property-calendar";
 import { DashboardPageHeader } from "@/components/dashboard/dashboard-page-header";
-import { useProperties, useReservations } from "@/hooks/use-properties";
+import { useAllowedProperties, useAllowedReservations } from "@/hooks/use-allowed-properties";
 import { useDashboardContext } from "@/hooks/use-team-access";
 import { useUiStore } from "@/stores/ui-store";
 import { getPropertyCalendarColor } from "@/lib/properties/property-colors";
@@ -33,9 +33,9 @@ function groupByProperty(
 
 export default function CalendarsOverviewPage() {
   const { data: properties = [], isLoading: propertiesLoading } =
-    useProperties();
+    useAllowedProperties();
   const { data: reservations = [], isLoading: reservationsLoading } =
-    useReservations();
+    useAllowedReservations();
   const { calendarMonth, setCalendarMonth } = useUiStore();
   const { data: context } = useDashboardContext();
   const isOwner = context?.isOwner ?? true;

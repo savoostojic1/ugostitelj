@@ -3,7 +3,7 @@
 import { format, parseISO } from "date-fns";
 import { DashboardPageHeader } from "@/components/dashboard/dashboard-page-header";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { useReservations } from "@/hooks/use-properties";
+import { useAllowedReservations } from "@/hooks/use-allowed-properties";
 import { groupArrivalsDepartures } from "@/lib/dashboard-stats";
 import { PLATFORM_LABELS, PLATFORM_COLORS } from "@/lib/constants";
 import { formatReservationLabel } from "@/lib/reservations/display";
@@ -89,7 +89,7 @@ function Section({
 }
 
 export default function ArrivalsPage() {
-  const { data: reservations = [] } = useReservations();
+  const { data: reservations = [] } = useAllowedReservations();
   const groups = groupArrivalsDepartures(reservations);
 
   return (

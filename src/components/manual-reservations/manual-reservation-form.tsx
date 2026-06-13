@@ -13,7 +13,10 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { ReservationDatePicker } from "@/components/manual-reservations/reservation-date-picker";
-import { useProperties, useReservations } from "@/hooks/use-properties";
+import {
+  useAllowedProperties,
+  useAllowedReservations,
+} from "@/hooks/use-allowed-properties";
 import {
   useCreateManualReservation,
   useManualReservation,
@@ -49,9 +52,9 @@ export function ManualReservationForm({
   const { data: reservation, isLoading: reservationLoading } =
     useManualReservation(reservationId ?? "");
   const { data: properties = [], isLoading: propertiesLoading } =
-    useProperties();
+    useAllowedProperties();
   const { data: propertyReservations = [], isLoading: reservationsLoading } =
-    useReservations(propertyId, { enabled: !!propertyId });
+    useAllowedReservations(propertyId, { enabled: !!propertyId });
   const createReservation = useCreateManualReservation();
   const updateReservation = useUpdateManualReservation();
 

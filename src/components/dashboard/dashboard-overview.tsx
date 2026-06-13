@@ -19,7 +19,7 @@ import { PushNotificationsPrompt } from "@/components/pwa/push-notifications-pro
 import { DashboardPanel } from "@/components/dashboard/dashboard-panel";
 import { DashboardStatCard } from "@/components/dashboard/dashboard-stat-card";
 import { Button } from "@/components/ui/button";
-import { useProperties, useReservations } from "@/hooks/use-properties";
+import { useAllowedProperties, useAllowedReservations } from "@/hooks/use-allowed-properties";
 import {
   getDashboardStats,
   groupArrivalsDepartures,
@@ -52,8 +52,10 @@ function ReservationListItem({
 }
 
 export function DashboardOverview() {
-  const { data: properties = [], isLoading: propsLoading } = useProperties();
-  const { data: reservations = [], isLoading: resLoading } = useReservations();
+  const { data: properties = [], isLoading: propsLoading } =
+    useAllowedProperties();
+  const { data: reservations = [], isLoading: resLoading } =
+    useAllowedReservations();
 
   const isLoading = propsLoading || resLoading;
   const stats = getDashboardStats(properties, reservations);
