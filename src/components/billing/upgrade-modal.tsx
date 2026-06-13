@@ -75,7 +75,7 @@ export function UpgradeModal({ open, onOpenChange }: UpgradeModalProps) {
               type="button"
               className="hostvia-btn-gradient h-11 flex-1 font-semibold"
               disabled={checkout.isPending}
-              onClick={() => checkout.mutate()}
+              onClick={() => checkout.mutate(undefined)}
             >
               {checkout.isPending ? (
                 <>

@@ -45,7 +45,7 @@ export function PropertyLimitNotice({
         size="sm"
         className="hostvia-btn-gradient shrink-0 gap-1.5 font-semibold"
         disabled={checkout.isPending}
-        onClick={() => checkout.mutate()}
+        onClick={() => checkout.mutate(undefined)}
       >
         <Sparkles className="h-3.5 w-3.5" />
         {checkout.isPending ? "Redirecting…" : "Upgrade to Pro"}
