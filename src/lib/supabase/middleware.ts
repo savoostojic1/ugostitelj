@@ -3,10 +3,6 @@ import { NextResponse, type NextRequest } from "next/server";
 import { isMarketingPublicPath } from "@/lib/marketing/content";
 import { parseBookingSubdomain } from "@/lib/public/booking-site-url";
 import { PASSWORD_RECOVERY_COOKIE } from "@/lib/auth/password-recovery";
-import {
-  PWA_STANDALONE_COOKIE,
-  isPwaBlockedPath,
-} from "@/lib/pwa/standalone";
 
 export async function updateSession(request: NextRequest) {
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
@@ -91,26 +87,6 @@ export async function updateSession(request: NextRequest) {
       path.startsWith("/admin") ||
       path.startsWith("/api/public/") ||
       path.startsWith("/host/");
-
-    const isPwaStandalone =
-      request.cookies.get(PWA_STANDALONE_COOKIE)?.value === "1";
-    const isPwaAllowedRoute =
-      isAuthRoute ||
-      isPasswordResetRoute ||
-      path.startsWith("/auth/callback") ||
-      path.startsWith("/dashboard") ||
-      path.startsWith("/host/") ||
-      Boolean(bookingUsername && (path === "/" || path === ""));
-
-    if (
-      isPwaStandalone &&
-      !isPwaAllowedRoute &&
-      isPwaBlockedPath(path, host)
-    ) {
-      const redirectUrl = request.nextUrl.clone();
-      redirectUrl.pathname = user ? "/dashboard" : "/login";
-      return NextResponse.redirect(redirectUrl);
-    }
 
     const recoveryPending =
       request.cookies.get(PASSWORD_RECOVERY_COOKIE)?.value === "1";

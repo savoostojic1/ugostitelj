@@ -20,6 +20,7 @@ import { toast } from "sonner";
 
 type Stats = {
   totalUsers: number;
+  teamMembers: number;
   withProfile: number;
   published: number;
   pro: number;
@@ -28,6 +29,11 @@ type Stats = {
 };
 
 function planLabel(host: AdminHostRow): string {
+  if (host.account_type === "team") {
+    if (host.pro_access_granted) return "Team · Complimentary Pro";
+    if (host.is_pro) return "Team · Pro";
+    return "Team · Free";
+  }
   if (host.pro_access_granted) return "Complimentary Pro";
   if (host.is_pro) return "Pro";
   return "Free";
@@ -78,11 +84,14 @@ export function AdminDashboard() {
         h.email?.toLowerCase().includes(q) ||
         h.username?.toLowerCase().includes(q) ||
         h.business_name?.toLowerCase().includes(q) ||
+        h.host_username?.toLowerCase().includes(q) ||
         h.id.toLowerCase().includes(q)
     );
   }, [hosts, query]);
 
   async function togglePro(host: AdminHostRow) {
+    if (host.account_type === "team") return;
+
     setBusyId(host.id);
     try {
       const res = await fetch("/api/admin/pro-access", {
@@ -148,8 +157,13 @@ export function AdminDashboard() {
         <div className="mb-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
           <StatCard
             icon={Users}
-            label="Total users"
+            label="Host accounts"
             value={stats.totalUsers}
+          />
+          <StatCard
+            icon={Users}
+            label="Team members"
+            value={stats.teamMembers}
           />
           <StatCard
             icon={Building2}
@@ -192,7 +206,7 @@ export function AdminDashboard() {
               <thead>
                 <tr>
                   <th>Email</th>
-                  <th>Username</th>
+                  <th>Account</th>
                   <th>Properties</th>
                   <th>Plan</th>
                   <th>Published</th>
@@ -208,13 +222,28 @@ export function AdminDashboard() {
                       {host.email ?? "—"}
                     </td>
                     <td>
-                      {host.username ? (
+                      {host.account_type === "team" ? (
+                        <div className="space-y-1">
+                          <span className="text-sky-300">@{host.username}</span>
+                          <p className="text-xs text-white/45">
+                            Team · inherits @{host.host_username ?? "host"}
+                          </p>
+                        </div>
+                      ) : host.username ? (
                         <span className="text-sky-300">@{host.username}</span>
                       ) : (
                         <span className="text-white/35">No profile</span>
                       )}
                     </td>
-                    <td>{host.property_count}</td>
+                    <td>
+                      {host.account_type === "team" ? (
+                        <span className="text-white/45" title="Host account total">
+                          {host.property_count}
+                        </span>
+                      ) : (
+                        host.property_count
+                      )}
+                    </td>
                     <td>
                       <Badge
                         variant={planBadgeVariant(host)}
@@ -241,25 +270,29 @@ export function AdminDashboard() {
                         : "—"}
                     </td>
                     <td>
-                      <Button
-                        size="sm"
-                        variant={host.pro_access_granted ? "outline" : "default"}
-                        className={
-                          host.pro_access_granted
-                            ? "border-white/15 bg-transparent text-white hover:bg-white/5"
-                            : "bg-emerald-600 text-white hover:bg-emerald-500"
-                        }
-                        disabled={busyId === host.id}
-                        onClick={() => void togglePro(host)}
-                      >
-                        {busyId === host.id ? (
-                          <Loader2 className="animate-spin" />
-                        ) : host.pro_access_granted ? (
-                          "Revoke Pro"
-                        ) : (
-                          "Grant Pro"
-                        )}
-                      </Button>
+                      {host.account_type === "owner" ? (
+                        <Button
+                          size="sm"
+                          variant={host.pro_access_granted ? "outline" : "default"}
+                          className={
+                            host.pro_access_granted
+                              ? "border-white/15 bg-transparent text-white hover:bg-white/5"
+                              : "bg-emerald-600 text-white hover:bg-emerald-500"
+                          }
+                          disabled={busyId === host.id}
+                          onClick={() => void togglePro(host)}
+                        >
+                          {busyId === host.id ? (
+                            <Loader2 className="animate-spin" />
+                          ) : host.pro_access_granted ? (
+                            "Revoke Pro"
+                          ) : (
+                            "Grant Pro"
+                          )}
+                        </Button>
+                      ) : (
+                        <span className="text-xs text-white/35">Uses host plan</span>
+                      )}
                     </td>
                   </tr>
                 ))}

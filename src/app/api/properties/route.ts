@@ -4,7 +4,10 @@ import {
   canAddProperty,
   requiresUpgradeForPropertyCount,
 } from "@/lib/subscriptions/access";
-import type { SubscriptionStatus } from "@/lib/subscriptions/plans";
+import {
+  loadHostSubscription,
+  resolveBillingHostId,
+} from "@/lib/subscriptions/resolve-host-subscription";
 
 export async function POST(request: Request) {
   const supabase = await createClient();
@@ -16,13 +19,9 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
-  const { data: teamRow } = await supabase
-    .from("team_access_users")
-    .select("id")
-    .eq("auth_user_id", user.id)
-    .maybeSingle();
+  const { hostId, isOwner } = await resolveBillingHostId(supabase, user.id);
 
-  if (teamRow) {
+  if (!isOwner) {
     return NextResponse.json(
       { error: "Only the account owner can add properties" },
       { status: 403 }
@@ -39,29 +38,13 @@ export async function POST(request: Request) {
   const { count, error: countError } = await supabase
     .from("properties")
     .select("id", { count: "exact", head: true })
-    .eq("user_id", user.id);
+    .eq("user_id", hostId);
 
   if (countError) {
     return NextResponse.json({ error: countError.message }, { status: 500 });
   }
 
-  const { data: billing } = await supabase
-    .from("host_profiles")
-    .select(
-      "subscription_status, subscription_current_period_end, pro_access_granted"
-    )
-    .eq("id", user.id)
-    .maybeSingle();
-
-  const subscription = billing
-    ? {
-        subscription_status: billing.subscription_status as SubscriptionStatus,
-        subscription_current_period_end:
-          billing.subscription_current_period_end,
-        pro_access_granted: billing.pro_access_granted ?? false,
-      }
-    : null;
-
+  const subscription = await loadHostSubscription(supabase, hostId);
   const currentCount = count ?? 0;
 
   if (requiresUpgradeForPropertyCount(currentCount, subscription)) {
@@ -84,7 +67,7 @@ export async function POST(request: Request) {
 
   const { data, error } = await supabase
     .from("properties")
-    .insert({ user_id: user.id, name })
+    .insert({ user_id: hostId, name })
     .select()
     .single();
 

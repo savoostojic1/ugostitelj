@@ -1,4 +1,5 @@
 import { parseBookingSubdomain } from "@/lib/public/booking-site-url";
+import { isMarketingPublicPath } from "@/lib/marketing/content";
 
 export const PWA_STANDALONE_COOKIE = "hostvia-standalone";
 
@@ -14,6 +15,8 @@ export function isStandaloneDisplayMode(): boolean {
 }
 
 export function isPwaAllowedPath(path: string, host?: string | null): boolean {
+  if (isMarketingPublicPath(path)) return true;
+
   if (
     path === "/login" ||
     path === "/register" ||

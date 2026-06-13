@@ -9,6 +9,7 @@ export type BillingStatus = {
   freeLimit: number;
   isPro: boolean;
   isComplimentary?: boolean;
+  inheritsHostPlan?: boolean;
   subscriptionStatus: "free" | "active" | "canceled" | "past_due";
   currentPeriodEnd: string | null;
   canAddProperty: boolean;
