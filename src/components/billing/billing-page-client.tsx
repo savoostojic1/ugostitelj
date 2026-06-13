@@ -154,6 +154,11 @@ export function BillingPageClient() {
                 Current plan
               </p>
               <h2 className="mt-2 text-2xl font-semibold text-white">{label}</h2>
+              {billing.isTestBillingUser ? (
+                <Badge className="mt-3 border-amber-500/30 bg-amber-500/10 text-amber-200">
+                  Test billing user
+                </Badge>
+              ) : null}
               {billing.isComplimentary && (
                 <p className="mt-2 text-sm text-emerald-300/90">
                   Full access granted — no payment required.

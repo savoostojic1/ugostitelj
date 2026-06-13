@@ -1,4 +1,5 @@
 import type Stripe from "stripe";
+import { assertCheckoutSessionBelongsToApplication } from "@/lib/stripe/app-identity";
 import { suggestUsernameFromEmail } from "@/lib/public/slug";
 import { createServiceClient } from "@/lib/supabase/service";
 import { getStripe } from "@/lib/stripe/stripe";
@@ -30,6 +31,8 @@ export async function confirmCheckoutSession(
   if (session.payment_status !== "paid" && session.payment_status !== "no_payment_required") {
     throw new Error("Payment has not completed yet. Please wait a moment.");
   }
+
+  await assertCheckoutSessionBelongsToApplication(session);
 
   const sessionHostId = session.metadata?.userId?.trim();
   if (sessionHostId && sessionHostId !== expectedHostId) {

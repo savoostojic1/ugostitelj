@@ -11,6 +11,7 @@ import {
   resolveBillingHostId,
 } from "@/lib/subscriptions/resolve-host-subscription";
 import { syncHostBillingFromStripe } from "@/lib/stripe/sync-host-billing";
+import { isTestHostId, loadStripeAppIdentity } from "@/lib/stripe/app-identity";
 import { hasStripeSecretKey } from "@/lib/stripe/stripe";
 
 async function buildBillingStatusResponse(
@@ -46,6 +47,7 @@ async function buildBillingStatusResponse(
     subscription
   );
   const lockedPropertyCount = countLockedProperties(propertyCount, subscription);
+  const identity = await loadStripeAppIdentity();
 
   return {
     isOwner,
@@ -55,6 +57,8 @@ async function buildBillingStatusResponse(
     isPro: pro,
     isCanceling,
     isComplimentary: Boolean(subscription?.pro_access_granted),
+    isTestBillingUser: isTestHostId(hostId, identity),
+    stripeMode: identity.stripeMode,
     subscriptionStatus: subscription?.subscription_status ?? "free",
     currentPeriodEnd: subscription?.subscription_current_period_end ?? null,
     allowedPropertyIds,

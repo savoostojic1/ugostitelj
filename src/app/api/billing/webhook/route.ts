@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import Stripe from "stripe";
+import { shouldProcessStripeWebhookEvent } from "@/lib/stripe/app-identity";
 import {
   syncSubscriptionFromStripeObject,
 } from "@/lib/stripe/confirm-checkout-session";
@@ -31,6 +32,16 @@ export async function POST(request: Request) {
   }
 
   try {
+    const belongsToHostvia = await shouldProcessStripeWebhookEvent(event);
+    if (!belongsToHostvia) {
+      console.info(
+        "[stripe webhook] skipped event for another app or unknown host:",
+        event.type,
+        event.id
+      );
+      return NextResponse.json({ received: true, skipped: true });
+    }
+
     switch (event.type) {
       case "checkout.session.completed": {
         const session = event.data.object as Stripe.Checkout.Session;

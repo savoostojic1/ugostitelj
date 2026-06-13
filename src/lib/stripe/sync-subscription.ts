@@ -100,10 +100,15 @@ export async function ensureStripeCustomer(
   }
 
   const admin = createServiceClient();
+  const { buildHostStripeMetadata, loadStripeAppIdentity } = await import(
+    "@/lib/stripe/app-identity"
+  );
+  const identity = await loadStripeAppIdentity();
+  const metadata = buildHostStripeMetadata(hostId, identity);
 
   const customer = await stripe.customers.create({
     email,
-    metadata: { userId: hostId },
+    metadata,
   });
 
   const { data: existing } = await admin

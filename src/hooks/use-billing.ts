@@ -9,6 +9,8 @@ export type BillingStatus = {
   freeLimit: number;
   isPro: boolean;
   isComplimentary?: boolean;
+  isTestBillingUser?: boolean;
+  stripeMode?: "test" | "live" | "unknown";
   inheritsHostPlan?: boolean;
   subscriptionStatus: "free" | "active" | "canceled" | "past_due";
   currentPeriodEnd: string | null;

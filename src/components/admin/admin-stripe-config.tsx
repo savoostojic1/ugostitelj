@@ -19,6 +19,9 @@ type StripeConfigStatus = {
   secretKey: string | null;
   webhookSecret: string | null;
   priceId: string | null;
+  applicationId: string;
+  testHostIds: string[];
+  stripeMode: "test" | "live" | "unknown";
   updatedAt: string | null;
   webhookUrl: string;
 };
@@ -30,6 +33,8 @@ export function AdminStripeConfig() {
   const [secretKey, setSecretKey] = useState("");
   const [webhookSecret, setWebhookSecret] = useState("");
   const [priceId, setPriceId] = useState("");
+  const [applicationId, setApplicationId] = useState("");
+  const [testHostIds, setTestHostIds] = useState("");
 
   const loadStatus = useCallback(async () => {
     setLoading(true);
@@ -38,6 +43,8 @@ export function AdminStripeConfig() {
       const data = await res.json();
       if (!res.ok) throw new Error(data.error ?? "Could not load Stripe config");
       setStatus(data);
+      setApplicationId(data.applicationId ?? "hostvia");
+      setTestHostIds((data.testHostIds ?? []).join(", "));
     } catch (err) {
       toast.error(
         err instanceof Error ? err.message : "Could not load Stripe config"
@@ -54,7 +61,13 @@ export function AdminStripeConfig() {
   async function handleSave(event: React.FormEvent) {
     event.preventDefault();
 
-    if (!secretKey.trim() && !webhookSecret.trim() && !priceId.trim()) {
+    if (
+      !secretKey.trim() &&
+      !webhookSecret.trim() &&
+      !priceId.trim() &&
+      !applicationId.trim() &&
+      !testHostIds.trim()
+    ) {
       toast.error("Enter at least one value to save.");
       return;
     }
@@ -65,6 +78,8 @@ export function AdminStripeConfig() {
       if (secretKey.trim()) payload.secretKey = secretKey.trim();
       if (webhookSecret.trim()) payload.webhookSecret = webhookSecret.trim();
       if (priceId.trim()) payload.priceId = priceId.trim();
+      if (applicationId.trim()) payload.applicationId = applicationId.trim();
+      payload.testHostIds = testHostIds.trim();
 
       const res = await fetch("/api/admin/stripe-config", {
         method: "PUT",
@@ -126,7 +141,7 @@ export function AdminStripeConfig() {
         </div>
       ) : (
         <>
-          <div className="mb-5 grid gap-3 text-sm sm:grid-cols-3">
+          <div className="mb-5 grid gap-3 text-sm sm:grid-cols-2 lg:grid-cols-4">
             <StatusPill
               label="Supabase"
               active={Boolean(status?.supabaseConfigured)}
@@ -146,9 +161,36 @@ export function AdminStripeConfig() {
               active={Boolean(status?.priceId)}
               detail={status?.priceId ?? "Missing"}
             />
+            <StatusPill
+              label="Stripe mode"
+              active={status?.stripeMode === "live"}
+              detail={
+                status?.stripeMode === "live"
+                  ? "Live keys"
+                  : status?.stripeMode === "test"
+                    ? "Test / sandbox keys"
+                    : "Unknown"
+              }
+            />
           </div>
 
           <form onSubmit={(e) => void handleSave(e)} className="space-y-4">
+            <Field
+              label="Application ID"
+              hint="Unique ID for Hostvia on a shared Stripe account. Webhooks ignore events from other apps with a different appId."
+              value={applicationId}
+              onChange={setApplicationId}
+              placeholder="hostvia"
+              type="text"
+            />
+            <Field
+              label="Test billing users"
+              hint="Comma-separated host UUIDs or emails. Their Stripe metadata is tagged billingEnv=test for easier filtering."
+              value={testHostIds}
+              onChange={setTestHostIds}
+              placeholder="user@example.com, 550e8400-e29b-41d4-a716-446655440000"
+              type="text"
+            />
             <Field
               label="Secret key"
               hint={
@@ -201,8 +243,10 @@ export function AdminStripeConfig() {
               </div>
               <p className="mt-2 text-xs text-white/45">
                 Add this endpoint in Stripe Dashboard → Developers → Webhooks.
+                Use a dedicated webhook for Hostvia with its own whsec secret.
                 Events: checkout.session.completed, customer.subscription.*,
-                invoice.payment_failed.
+                invoice.payment_failed. Other apps on the same Stripe account
+                are ignored when their metadata appId differs.
               </p>
             </div>
 

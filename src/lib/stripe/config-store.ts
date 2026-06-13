@@ -6,6 +6,8 @@ export type StripeConfigRecord = {
   secret_key: string | null;
   webhook_secret: string | null;
   price_id: string | null;
+  application_id: string | null;
+  test_host_ids: string[] | null;
   updated_at: string;
 };
 
@@ -19,7 +21,9 @@ export async function loadStripeConfigFromDb(): Promise<StripeConfigRecord | nul
 
   const { data, error } = await admin
     .from("stripe_config")
-    .select("secret_key, webhook_secret, price_id, updated_at")
+    .select(
+      "secret_key, webhook_secret, price_id, application_id, test_host_ids, updated_at"
+    )
     .eq("id", 1)
     .maybeSingle();
 
@@ -36,12 +40,14 @@ export async function saveStripeConfigToDb(input: {
   secretKey?: string | null;
   webhookSecret?: string | null;
   priceId?: string | null;
+  applicationId?: string | null;
+  testHostIds?: string[] | null;
 }): Promise<StripeConfigRecord> {
   const admin = createServiceClient();
 
   const { data: existing } = await admin
     .from("stripe_config")
-    .select("secret_key, webhook_secret, price_id")
+    .select("secret_key, webhook_secret, price_id, application_id, test_host_ids")
     .eq("id", 1)
     .maybeSingle();
 
@@ -58,6 +64,14 @@ export async function saveStripeConfigToDb(input: {
       input.priceId !== undefined
         ? input.priceId?.trim() || null
         : (existing?.price_id ?? null),
+    application_id:
+      input.applicationId !== undefined
+        ? input.applicationId?.trim() || "hostvia"
+        : (existing?.application_id ?? "hostvia"),
+    test_host_ids:
+      input.testHostIds !== undefined
+        ? input.testHostIds
+        : (existing?.test_host_ids ?? []),
     updated_at: new Date().toISOString(),
   };
 
@@ -66,7 +80,9 @@ export async function saveStripeConfigToDb(input: {
       .from("stripe_config")
       .update(payload)
       .eq("id", 1)
-      .select("secret_key, webhook_secret, price_id, updated_at")
+      .select(
+        "secret_key, webhook_secret, price_id, application_id, test_host_ids, updated_at"
+      )
       .single();
 
     if (error) {
@@ -84,7 +100,9 @@ export async function saveStripeConfigToDb(input: {
   const { data, error } = await admin
     .from("stripe_config")
     .insert({ id: 1, ...payload })
-    .select("secret_key, webhook_secret, price_id, updated_at")
+    .select(
+      "secret_key, webhook_secret, price_id, application_id, test_host_ids, updated_at"
+    )
     .single();
 
   if (error) {

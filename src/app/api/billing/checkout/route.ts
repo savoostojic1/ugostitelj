@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
+import { buildHostStripeMetadata, loadStripeAppIdentity } from "@/lib/stripe/app-identity";
 import {
   ensureStripeCustomer,
 } from "@/lib/stripe/sync-subscription";
@@ -57,6 +58,8 @@ export async function POST() {
 
   const stripe = await getStripe();
   const baseUrl = getSiteBaseUrl();
+  const identity = await loadStripeAppIdentity();
+  const metadata = buildHostStripeMetadata(user.id, identity);
 
   const session = await stripe.checkout.sessions.create({
     customer: customerId,
@@ -64,9 +67,9 @@ export async function POST() {
     line_items: [{ price: await getStripePriceId(), quantity: 1 }],
     success_url: `${baseUrl}/dashboard/billing/success?session_id={CHECKOUT_SESSION_ID}`,
     cancel_url: `${baseUrl}/dashboard/billing?upgrade=canceled`,
-    metadata: { userId: user.id },
+    metadata,
     subscription_data: {
-      metadata: { userId: user.id },
+      metadata,
     },
     allow_promotion_codes: true,
   });

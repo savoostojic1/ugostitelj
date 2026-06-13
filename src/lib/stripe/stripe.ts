@@ -1,4 +1,5 @@
 import Stripe from "stripe";
+import { invalidateStripeAppIdentityCache } from "@/lib/stripe/app-identity";
 import { loadStripeConfigFromDb } from "@/lib/stripe/config-store";
 
 export type StripeConfigParts = {
@@ -78,6 +79,7 @@ export function invalidateStripeConfigCache() {
   cachedConfigAt = 0;
   stripeClient = null;
   stripeClientKey = null;
+  invalidateStripeAppIdentityCache();
 }
 
 export async function resolveStripeConfig(): Promise<StripeConfigParts | null> {
