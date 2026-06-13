@@ -224,7 +224,7 @@ export function TeamAccessPage() {
   const users = teamList?.users ?? [];
   const canCreateUsers = teamList?.canCreateUsers ?? false;
 
-  const [accessName, setAccessName] = useState("pregled");
+  const [accessName, setAccessName] = useState("");
   const [password, setPassword] = useState("");
   const [displayName, setDisplayName] = useState("");
   const [permissions, setPermissions] = useState<TeamPermission[]>([
@@ -243,6 +243,11 @@ export function TeamAccessPage() {
   async function handleCreate(e: React.FormEvent) {
     e.preventDefault();
     const username = suggestedUsername;
+
+    if (!accessName.trim()) {
+      toast.error("Enter an access name.");
+      return;
+    }
 
     if (!isValidTeamUsername(username)) {
       toast.error("Choose a valid access name (letters and numbers).");
@@ -275,6 +280,8 @@ export function TeamAccessPage() {
       if (!res.ok) throw new Error(json.error ?? "Could not create user");
 
       toast.success(`Access user ${username} created`);
+      setAccessName("");
+      setPassword("");
       setDisplayName("");
       await queryClient.invalidateQueries({ queryKey: TEAM_LIST_KEY });
     } catch (err) {
@@ -355,7 +362,9 @@ export function TeamAccessPage() {
               <p className="text-xs text-zinc-500">
                 Login username:{" "}
                 <span className="font-medium text-zinc-300">
-                  {suggestedUsername}
+                  {accessName.trim()
+                    ? suggestedUsername
+                    : `(access name).${hostUsername}`}
                 </span>
               </p>
             </div>

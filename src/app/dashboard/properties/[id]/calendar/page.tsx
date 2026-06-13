@@ -101,7 +101,14 @@ export default function PropertyCalendarPage({
         <CardContent className="divide-y divide-border">
           {reservationsLoading ? null : reservations.length === 0 ? (
             <p className="py-4 text-sm text-muted-foreground">
-              No reservations. Connect calendars in settings and run sync.
+              No reservations yet. Connect calendars in{" "}
+              <Link
+                href={`/dashboard/properties/${id}/sync`}
+                className="text-violet-400 hover:text-violet-300"
+              >
+                Calendar sync
+              </Link>{" "}
+              and run sync.
             </p>
           ) : (
             reservations.map((r) => {

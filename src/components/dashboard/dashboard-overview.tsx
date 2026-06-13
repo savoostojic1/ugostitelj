@@ -15,11 +15,13 @@ import {
   TrendingUp,
 } from "lucide-react";
 import { DashboardPageHeader } from "@/components/dashboard/dashboard-page-header";
+import { GettingStartedChecklist } from "@/components/dashboard/getting-started-checklist";
 import { PushNotificationsPrompt } from "@/components/pwa/push-notifications-prompt";
 import { DashboardPanel } from "@/components/dashboard/dashboard-panel";
 import { DashboardStatCard } from "@/components/dashboard/dashboard-stat-card";
 import { Button } from "@/components/ui/button";
 import { useAllowedProperties, useAllowedReservations } from "@/hooks/use-allowed-properties";
+import { useSetupProgress } from "@/hooks/use-setup-progress";
 import {
   getDashboardStats,
   groupArrivalsDepartures,
@@ -57,7 +59,13 @@ export function DashboardOverview() {
   const { data: reservations = [], isLoading: resLoading } =
     useAllowedReservations();
 
-  const isLoading = propsLoading || resLoading;
+  const { progress: setupProgress, isLoading: setupLoading } =
+    useSetupProgress();
+
+  const isLoading = propsLoading || resLoading || setupLoading;
+  const isNewUser = !propsLoading && properties.length === 0;
+  const showGettingStarted =
+    !setupLoading && setupProgress && !setupProgress.isComplete;
   const stats = getDashboardStats(properties, reservations);
   const arrivals = groupArrivalsDepartures(reservations);
 
@@ -74,7 +82,11 @@ export function DashboardOverview() {
       <DashboardPageHeader
         eyebrow="Operations"
         title="Dashboard"
-        description={`${stats.weekLabel} · ${properties.length} propert${properties.length === 1 ? "y" : "ies"}`}
+        description={
+          isNewUser
+            ? "Let's set up your first accommodation"
+            : `${stats.weekLabel} · ${properties.length} propert${properties.length === 1 ? "y" : "ies"}`
+        }
         actions={
           <>
             <Button
@@ -99,7 +111,9 @@ export function DashboardOverview() {
         }
       />
 
-      {!isLoading ? (
+      {showGettingStarted ? <GettingStartedChecklist /> : null}
+
+      {!isLoading && !isNewUser ? (
         <>
           <div className="grid gap-4 lg:grid-cols-[1.4fr_1fr]">
             <div className="hostvia-hero-metric">

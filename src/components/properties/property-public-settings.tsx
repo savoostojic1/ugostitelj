@@ -1,22 +1,12 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import Link from "next/link";
-import { ExternalLink } from "lucide-react";
-import { useIsStandalonePwa } from "@/hooks/use-is-standalone-pwa";
-import { openInSystemBrowser } from "@/lib/pwa/standalone";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { PropertyGalleryUpload } from "@/components/properties/property-gallery-upload";
-import { useHostProfile } from "@/hooks/use-host-profile";
-import { getBookingSiteUrl } from "@/lib/public/booking-site-url";
-import {
-  bookingUrlOptionsFromConfig,
-  useBookingSiteConfig,
-} from "@/hooks/use-booking-site-config";
 import {
   suggestPropertySlug,
   useUpdatePropertyPublic,
@@ -34,16 +24,8 @@ function normalizeGalleryUrls(value: unknown): string[] {
 }
 
 export function PropertyPublicSettings({ property }: PropertyPublicSettingsProps) {
-  const { data: hostProfile } = useHostProfile();
-  const { data: bookingConfig } = useBookingSiteConfig();
-  const isPwa = useIsStandalonePwa();
   const updatePublic = useUpdatePropertyPublic();
 
-  const origin =
-    typeof window !== "undefined" ? window.location.origin : undefined;
-  const urlOptions = bookingUrlOptionsFromConfig(bookingConfig, origin);
-
-  const [isPublic, setIsPublic] = useState(property.is_public ?? false);
   const [shortDescription, setShortDescription] = useState(
     property.short_description ?? ""
   );
@@ -62,7 +44,6 @@ export function PropertyPublicSettings({ property }: PropertyPublicSettingsProps
   );
 
   useEffect(() => {
-    setIsPublic(property.is_public ?? false);
     setShortDescription(property.short_description ?? "");
     setCapacity(property.capacity?.toString() ?? "");
     setAmenitiesText((property.amenities ?? []).join(", "));
@@ -85,62 +66,25 @@ export function PropertyPublicSettings({ property }: PropertyPublicSettingsProps
         capacity: capacity ? Number.parseInt(capacity, 10) : null,
         amenities,
         gallery_urls: galleryUrls,
-        is_public: isPublic,
+        is_public: property.is_public ?? false,
       },
       {
-        onSuccess: () => toast.success("Public page saved"),
+        onSuccess: () => toast.success("Listing details saved"),
         onError: (err) =>
           toast.error(err instanceof Error ? err.message : "Error"),
       }
     );
   }
 
-  const hostBookingBaseUrl =
-    hostProfile?.username && hostProfile.is_published
-      ? getBookingSiteUrl(hostProfile.username, urlOptions)
-      : null;
-  const hostPublicUrl = hostBookingBaseUrl;
-
   return (
     <Card className="overflow-hidden">
-      <CardHeader className="flex flex-col gap-3 p-4 sm:flex-row sm:items-center sm:justify-between sm:p-6">
-        <div className="min-w-0">
-          <CardTitle>Public page</CardTitle>
-          <p className="mt-1 text-sm text-muted-foreground">
-            Shown on your booking site alongside your other listings
-          </p>
-        </div>
-        {isPublic && hostPublicUrl && !isPwa ? (
-          <Button variant="outline" size="sm" className="w-full shrink-0 sm:w-auto" asChild>
-            <Link href={hostPublicUrl} target="_blank" rel="noopener noreferrer">
-              <ExternalLink className="h-4 w-4" />
-              View
-            </Link>
-          </Button>
-        ) : isPublic && hostPublicUrl && isPwa ? (
-          <Button
-            type="button"
-            variant="outline"
-            size="sm"
-            className="w-full shrink-0 sm:w-auto"
-            onClick={() => openInSystemBrowser(hostPublicUrl)}
-          >
-            <ExternalLink className="h-4 w-4" />
-            Open in browser
-          </Button>
-        ) : null}
+      <CardHeader className="p-4 sm:p-6">
+        <CardTitle>Listing details</CardTitle>
+        <p className="mt-1 text-sm text-muted-foreground">
+          Photos, description and amenities shown on your booking site
+        </p>
       </CardHeader>
       <CardContent className="space-y-4 p-4 pt-0 sm:p-6 sm:pt-0">
-        <label className="flex items-center gap-3">
-          <input
-            type="checkbox"
-            checked={isPublic}
-            onChange={(e) => setIsPublic(e.target.checked)}
-            className="h-4 w-4 rounded border-border"
-          />
-          <span className="text-sm font-medium">Publish on booking site</span>
-        </label>
-
         <PropertyGalleryUpload
           propertyId={property.id}
           value={galleryUrls}
@@ -181,7 +125,7 @@ export function PropertyPublicSettings({ property }: PropertyPublicSettingsProps
         </div>
 
         <Button onClick={handleSave} disabled={updatePublic.isPending}>
-          {updatePublic.isPending ? "Saving…" : "Save public page"}
+          {updatePublic.isPending ? "Saving…" : "Save listing details"}
         </Button>
       </CardContent>
     </Card>

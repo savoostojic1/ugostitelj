@@ -9,9 +9,8 @@ import {
   Loader2,
   Star,
   Trash2,
+  Upload,
 } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { Label } from "@/components/ui/label";
 import { createClient } from "@/lib/supabase/client";
 import { requireUser } from "@/lib/supabase/require-user";
 import {
@@ -38,6 +37,14 @@ export function PropertyGalleryUpload({
   const [removingUrl, setRemovingUrl] = useState<string | null>(null);
 
   const atLimit = value.length >= MAX_PROPERTY_GALLERY;
+  const coverUrl = value[0];
+  const otherUrls = value.slice(1);
+
+  function openFilePicker() {
+    if (!uploading && !atLimit) {
+      inputRef.current?.click();
+    }
+  }
 
   async function handleFileSelect(e: React.ChangeEvent<HTMLInputElement>) {
     const files = Array.from(e.target.files ?? []);
@@ -71,8 +78,8 @@ export function PropertyGalleryUpload({
       onChange([...value, ...uploaded]);
       toast.success(
         uploaded.length === 1
-          ? "Image added"
-          : `${uploaded.length} images added`
+          ? "Photo added"
+          : `${uploaded.length} photos added`
       );
     } catch (err) {
       toast.error(err instanceof Error ? err.message : "Upload failed");
@@ -87,7 +94,7 @@ export function PropertyGalleryUpload({
       const supabase = createClient();
       await removePropertyGalleryImage(supabase, url).catch(() => undefined);
       onChange(value.filter((item) => item !== url));
-      toast.success("Image removed");
+      toast.success("Photo removed");
     } catch (err) {
       toast.error(err instanceof Error ? err.message : "Remove failed");
     } finally {
@@ -105,79 +112,19 @@ export function PropertyGalleryUpload({
 
   return (
     <div className="space-y-3">
-      <div className="flex items-center justify-between gap-3">
-        <Label>Image gallery</Label>
-        <span className="text-xs text-muted-foreground">
+      <div className="flex items-start justify-between gap-3">
+        <div>
+          <p className="text-sm font-medium text-white">Photos</p>
+          <p className="mt-0.5 text-xs text-zinc-500">
+            First photo is the cover on your booking site
+          </p>
+        </div>
+        <span className="shrink-0 rounded-full border border-white/10 bg-white/[0.04] px-2.5 py-1 text-xs font-medium tabular-nums text-zinc-400">
           {value.length}/{MAX_PROPERTY_GALLERY}
         </span>
       </div>
 
-      {value.length > 0 ? (
-        <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4">
-          {value.map((url, index) => (
-            <div
-              key={url}
-              className="group relative aspect-[4/3] overflow-hidden rounded-lg border border-border bg-muted"
-            >
-              <Image
-                src={url}
-                alt=""
-                fill
-                className="object-cover"
-                sizes="(max-width: 640px) 50vw, 200px"
-                unoptimized
-              />
-              {index === 0 ? (
-                <span className="absolute left-2 top-2 inline-flex items-center gap-1 rounded-md bg-black/55 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-white">
-                  <Star className="h-3 w-3" />
-                  Cover
-                </span>
-              ) : null}
-              <div className="absolute inset-x-0 bottom-0 flex items-center justify-between gap-1 bg-gradient-to-t from-black/70 to-transparent p-2 opacity-0 transition group-hover:opacity-100">
-                <div className="flex gap-1">
-                  <button
-                    type="button"
-                    disabled={index === 0}
-                    onClick={() => moveImage(index, -1)}
-                    className="flex h-7 w-7 items-center justify-center rounded-md bg-white/90 text-foreground disabled:opacity-40"
-                    aria-label="Move left"
-                  >
-                    <ChevronLeft className="h-4 w-4" />
-                  </button>
-                  <button
-                    type="button"
-                    disabled={index === value.length - 1}
-                    onClick={() => moveImage(index, 1)}
-                    className="flex h-7 w-7 items-center justify-center rounded-md bg-white/90 text-foreground disabled:opacity-40"
-                    aria-label="Move right"
-                  >
-                    <ChevronRight className="h-4 w-4" />
-                  </button>
-                </div>
-                <button
-                  type="button"
-                  disabled={removingUrl === url}
-                  onClick={() => handleRemove(url)}
-                  className="flex h-7 w-7 items-center justify-center rounded-md bg-white/90 text-red-600"
-                  aria-label="Remove image"
-                >
-                  {removingUrl === url ? (
-                    <Loader2 className="h-4 w-4 animate-spin" />
-                  ) : (
-                    <Trash2 className="h-4 w-4" />
-                  )}
-                </button>
-              </div>
-            </div>
-          ))}
-        </div>
-      ) : (
-        <div className="flex aspect-[2/1] items-center justify-center rounded-lg border border-dashed border-border bg-muted/40 text-sm text-muted-foreground">
-          No images for this listing yet
-        </div>
-      )}
-
-      <div className="flex flex-wrap gap-2">
+      <div className="overflow-hidden rounded-xl border border-white/10 bg-white/[0.02] p-3 sm:p-4">
         <input
           ref={inputRef}
           type="file"
@@ -186,25 +133,176 @@ export function PropertyGalleryUpload({
           className="hidden"
           onChange={handleFileSelect}
         />
-        <Button
+
+        {value.length === 0 ? (
+          <button
+            type="button"
+            onClick={openFilePicker}
+            disabled={uploading}
+            className="flex min-h-[180px] w-full flex-col items-center justify-center rounded-lg border border-dashed border-violet-500/30 bg-violet-500/[0.04] px-6 py-10 text-center transition hover:border-violet-500/45 hover:bg-violet-500/[0.07] disabled:cursor-not-allowed disabled:opacity-60"
+          >
+            {uploading ? (
+              <Loader2 className="h-8 w-8 animate-spin text-violet-300" />
+            ) : (
+              <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-violet-500/15 text-violet-300">
+                <Upload className="h-6 w-6" />
+              </div>
+            )}
+            <p className="mt-4 text-sm font-medium text-zinc-200">
+              {uploading ? "Uploading…" : "Upload photos"}
+            </p>
+            <p className="mt-1 max-w-xs text-xs leading-relaxed text-zinc-500">
+              JPG, PNG, WebP or GIF · up to 5 MB each · up to{" "}
+              {MAX_PROPERTY_GALLERY} photos
+            </p>
+          </button>
+        ) : (
+          <div className="space-y-3">
+            {coverUrl ? (
+              <GalleryImageTile
+                url={coverUrl}
+                index={0}
+                total={value.length}
+                isCover
+                removing={removingUrl === coverUrl}
+                onRemove={() => handleRemove(coverUrl)}
+                onMoveLeft={() => moveImage(0, -1)}
+                onMoveRight={() => moveImage(0, 1)}
+                className="aspect-[16/10] w-full sm:aspect-[21/9]"
+              />
+            ) : null}
+
+            {otherUrls.length > 0 ? (
+              <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
+                {otherUrls.map((url, offset) => {
+                  const index = offset + 1;
+                  return (
+                    <GalleryImageTile
+                      key={url}
+                      url={url}
+                      index={index}
+                      total={value.length}
+                      removing={removingUrl === url}
+                      onRemove={() => handleRemove(url)}
+                      onMoveLeft={() => moveImage(index, -1)}
+                      onMoveRight={() => moveImage(index, 1)}
+                      className="aspect-[4/3]"
+                    />
+                  );
+                })}
+              </div>
+            ) : null}
+
+            {!atLimit ? (
+              <button
+                type="button"
+                onClick={openFilePicker}
+                disabled={uploading}
+                className="flex min-h-[88px] w-full items-center justify-center gap-2 rounded-lg border border-dashed border-white/12 bg-white/[0.02] text-sm text-zinc-400 transition hover:border-violet-500/30 hover:bg-violet-500/[0.04] hover:text-zinc-200 disabled:cursor-not-allowed disabled:opacity-60"
+              >
+                {uploading ? (
+                  <>
+                    <Loader2 className="h-4 w-4 animate-spin" />
+                    Uploading…
+                  </>
+                ) : (
+                  <>
+                    <ImagePlus className="h-4 w-4" />
+                    Add more photos
+                  </>
+                )}
+              </button>
+            ) : null}
+          </div>
+        )}
+      </div>
+
+      {value.length > 0 ? (
+        <p className="text-xs text-zinc-500">
+          Use arrows on a photo to change order · first photo stays the cover
+        </p>
+      ) : null}
+    </div>
+  );
+}
+
+function GalleryImageTile({
+  url,
+  index,
+  total,
+  isCover = false,
+  removing,
+  onRemove,
+  onMoveLeft,
+  onMoveRight,
+  className,
+}: {
+  url: string;
+  index: number;
+  total: number;
+  isCover?: boolean;
+  removing: boolean;
+  onRemove: () => void;
+  onMoveLeft: () => void;
+  onMoveRight: () => void;
+  className?: string;
+}) {
+  return (
+    <div
+      className={cn(
+        "group relative overflow-hidden rounded-lg border border-white/10 bg-zinc-900/50",
+        className
+      )}
+    >
+      <Image
+        src={url}
+        alt=""
+        fill
+        className="object-cover"
+        sizes={isCover ? "(max-width: 768px) 100vw, 640px" : "200px"}
+        unoptimized
+      />
+
+      {isCover ? (
+        <span className="absolute left-2 top-2 inline-flex items-center gap-1 rounded-md bg-black/60 px-2 py-1 text-[10px] font-semibold uppercase tracking-wide text-white backdrop-blur-sm">
+          <Star className="h-3 w-3 text-amber-300" />
+          Cover photo
+        </span>
+      ) : null}
+
+      <div className="absolute right-2 top-2 flex gap-1">
+        <button
           type="button"
-          variant="outline"
-          size="sm"
-          disabled={uploading || atLimit}
-          onClick={() => inputRef.current?.click()}
+          disabled={index === 0 || removing}
+          onClick={onMoveLeft}
+          className="flex h-8 w-8 items-center justify-center rounded-md bg-black/55 text-white backdrop-blur-sm transition hover:bg-black/70 disabled:opacity-40"
+          aria-label="Move earlier"
         >
-          {uploading ? (
+          <ChevronLeft className="h-4 w-4" />
+        </button>
+        <button
+          type="button"
+          disabled={index === total - 1 || removing}
+          onClick={onMoveRight}
+          className="flex h-8 w-8 items-center justify-center rounded-md bg-black/55 text-white backdrop-blur-sm transition hover:bg-black/70 disabled:opacity-40"
+          aria-label="Move later"
+        >
+          <ChevronRight className="h-4 w-4" />
+        </button>
+        <button
+          type="button"
+          disabled={removing}
+          onClick={onRemove}
+          className="flex h-8 w-8 items-center justify-center rounded-md bg-black/55 text-red-300 backdrop-blur-sm transition hover:bg-red-950/80 disabled:opacity-40"
+          aria-label="Remove photo"
+        >
+          {removing ? (
             <Loader2 className="h-4 w-4 animate-spin" />
           ) : (
-            <ImagePlus className="h-4 w-4" />
+            <Trash2 className="h-4 w-4" />
           )}
-          {uploading ? "Uploading…" : "Add images"}
-        </Button>
+        </button>
       </div>
-      <p className={cn("text-xs text-muted-foreground")}>
-        Up to {MAX_PROPERTY_GALLERY} images · JPG, PNG, WebP or GIF · up to 5 MB
-        per image · first image is the cover on your booking site
-      </p>
     </div>
   );
 }

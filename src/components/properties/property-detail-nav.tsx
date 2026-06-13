@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { CalendarDays, Settings2 } from "lucide-react";
+import { CalendarDays, Link2, Settings2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useDashboardContext } from "@/hooks/use-team-access";
 import { canAccessPropertySettings } from "@/lib/team-access/permissions";
@@ -14,6 +14,7 @@ export function PropertyDetailNav({ propertyId }: { propertyId: string }) {
     ? canAccessPropertySettings(context.permissions, context.isOwner)
     : false;
   const base = `/dashboard/properties/${propertyId}`;
+  const syncHref = `${base}/sync`;
   const calendarHref = `${base}/calendar`;
 
   const tabs = [
@@ -25,6 +26,13 @@ export function PropertyDetailNav({ propertyId }: { propertyId: string }) {
             shortLabel: "Settings",
             icon: Settings2,
             active: pathname === base,
+          },
+          {
+            href: syncHref,
+            label: "Calendar sync",
+            shortLabel: "Sync",
+            icon: Link2,
+            active: pathname.startsWith(syncHref),
           },
         ]
       : []),

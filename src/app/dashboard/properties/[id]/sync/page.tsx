@@ -4,17 +4,17 @@ import { use, useState } from "react";
 import Link from "next/link";
 import { ArrowLeft } from "lucide-react";
 import { PropertyLockedBanner } from "@/components/properties/property-locked-banner";
+import { CalendarSyncGuide } from "@/components/properties/calendar-sync-guide";
 import { PropertyDeleteButton } from "@/components/properties/property-delete-button";
 import { PropertyDetailNav } from "@/components/properties/property-detail-nav";
 import { PropertyNameEditor } from "@/components/properties/property-name-editor";
-import { PropertyPublishPanel } from "@/components/properties/property-publish-panel";
-import { PropertyPricingSettings } from "@/components/properties/property-pricing-settings";
-import { PropertyPublicSettings } from "@/components/properties/property-public-settings";
+import { ConnectedFeeds } from "@/components/properties/connected-feeds";
+import { PropertyExportCalendar } from "@/components/properties/property-export-calendar";
 import { usePropertyPlanLock } from "@/hooks/use-property-plan-lock";
 import { useProperty } from "@/hooks/use-properties";
 import { Button } from "@/components/ui/button";
 
-export default function PropertyDetailPage({
+export default function PropertySyncPage({
   params,
 }: {
   params: Promise<{ id: string }>;
@@ -63,11 +63,16 @@ export default function PropertyDetailPage({
       ) : null}
 
       <div className="hostvia-dashboard-page-inset flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
-        <PropertyNameEditor
-          propertyId={id}
-          name={property.name}
-          readOnly={isLocked}
-        />
+        <div className="min-w-0 space-y-1">
+          <PropertyNameEditor
+            propertyId={id}
+            name={property.name}
+            readOnly={isLocked}
+          />
+          <p className="text-sm text-zinc-500">
+            Import from Airbnb & Booking, or export availability to them
+          </p>
+        </div>
         <PropertyDeleteButton
           propertyId={id}
           propertyName={property.name}
@@ -80,9 +85,16 @@ export default function PropertyDetailPage({
 
       {!isLocked ? (
         <div className="hostvia-dashboard-page-inset space-y-6">
-          <PropertyPublishPanel property={property} />
-          <PropertyPricingSettings property={property} />
-          <PropertyPublicSettings property={property} />
+          <CalendarSyncGuide />
+
+          <ConnectedFeeds propertyId={id} />
+
+          {property.export_token ? (
+            <PropertyExportCalendar
+              propertyName={property.name}
+              exportToken={property.export_token}
+            />
+          ) : null}
         </div>
       ) : null}
     </div>

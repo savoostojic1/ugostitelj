@@ -3,7 +3,6 @@
 import { useState } from "react";
 import { formatDistanceToNow } from "date-fns";
 import { Pencil, RefreshCw, Trash2 } from "lucide-react";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { FeedDialog } from "./feed-dialog";
@@ -79,24 +78,27 @@ export function ConnectedFeeds({ propertyId }: { propertyId: string }) {
 
   return (
     <>
-      <Card className="overflow-hidden">
-        <CardHeader className="flex flex-col gap-3 space-y-0 p-4 sm:flex-row sm:items-center sm:justify-between sm:p-6">
+      <section id="import-calendars" className="hostvia-panel overflow-hidden">
+        <div className="hostvia-panel-header flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
           <div className="min-w-0">
-            <CardTitle>Connected Calendars</CardTitle>
-            <p className="text-sm text-muted-foreground mt-1">
-              Airbnb, Booking.com, or custom iCal URLs
+            <h2 className="text-sm font-semibold text-white">
+              Import calendars
+            </h2>
+            <p className="mt-0.5 text-xs text-zinc-500">
+              Paste iCal links from Airbnb or Booking.com — reservations import
+              into Hostvia
             </p>
           </div>
           <div className="flex w-full flex-wrap gap-2 sm:w-auto sm:justify-end">
             <Button
               variant="outline"
               size="sm"
-              className="flex-1 sm:flex-none"
+              className="hostvia-dashboard-btn flex-1 border-white/10 sm:flex-none"
               onClick={syncAll}
               disabled={!feeds.length}
             >
               <RefreshCw className="h-4 w-4" />
-              Sync All
+              Sync all
             </Button>
             <Button
               size="sm"
@@ -106,17 +108,17 @@ export function ConnectedFeeds({ propertyId }: { propertyId: string }) {
                 setDialogOpen(true);
               }}
             >
-              Add Feed
+              Add import link
             </Button>
           </div>
-        </CardHeader>
-        <CardContent className="space-y-3 p-4 pt-0 sm:p-6 sm:pt-0">
+        </div>
+        <div className="hostvia-panel-body space-y-3">
           {isLoading && (
             <p className="text-sm text-muted-foreground">Loading feeds…</p>
           )}
           {!isLoading && feeds.length === 0 && (
-            <p className="rounded-lg border border-dashed border-border p-6 text-center text-sm text-muted-foreground">
-              No calendar feeds yet. Add your Airbnb or Booking iCal URL to import reservations.
+            <p className="rounded-lg border border-dashed border-white/10 p-6 text-center text-sm text-zinc-500">
+              No import links yet. Add your Airbnb or Booking.com iCal URL.
             </p>
           )}
           {feeds.map((feed) => {
@@ -201,8 +203,8 @@ export function ConnectedFeeds({ propertyId }: { propertyId: string }) {
               </div>
             );
           })}
-        </CardContent>
-      </Card>
+        </div>
+      </section>
       <FeedDialog
         open={dialogOpen}
         onOpenChange={setDialogOpen}

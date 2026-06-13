@@ -2,7 +2,6 @@
 
 import { Copy } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { buildPropertyExportUrl } from "@/lib/calendar/export-url";
 import { toast } from "sonner";
@@ -28,34 +27,35 @@ export function PropertyExportCalendar({
   }
 
   return (
-    <Card className="overflow-hidden">
-      <CardHeader className="p-4 pb-3 sm:p-6 sm:pb-3">
-        <CardTitle className="text-base">Export link (Airbnb & Booking)</CardTitle>
-      </CardHeader>
-      <CardContent className="p-4 pt-0 sm:p-6 sm:pt-0">
+    <section id="export-calendar" className="hostvia-panel overflow-hidden">
+      <div className="hostvia-panel-header">
+        <div className="min-w-0">
+          <h2 className="text-sm font-semibold text-white">Export calendar</h2>
+          <p className="mt-0.5 text-xs text-zinc-500">
+            Paste this link into Airbnb or Booking.com to block dates from
+            Hostvia reservations
+          </p>
+        </div>
+      </div>
+      <div className="hostvia-panel-body">
         <div className="flex min-w-0 flex-col gap-2 sm:flex-row">
           <Input
             readOnly
             value={exportUrl}
-            className="min-w-0 font-mono text-xs"
+            className="hostvia-input min-w-0 font-mono text-xs"
             aria-label={`Export link for ${propertyName}`}
           />
           <Button
             type="button"
             variant="outline"
-            size="icon"
-            className="shrink-0"
+            className="hostvia-dashboard-btn shrink-0 gap-2 border-white/10 sm:w-auto"
             onClick={copyUrl}
-            aria-label="Copy link"
           >
             <Copy className="h-4 w-4" />
+            Copy link
           </Button>
         </div>
-        <p className="mt-3 text-xs text-muted-foreground">
-          Paste into Airbnb or Booking.com as an import calendar URL — it blocks
-          dates from your manual Hostvia reservations on those platforms.
-        </p>
-      </CardContent>
-    </Card>
+      </div>
+    </section>
   );
 }
