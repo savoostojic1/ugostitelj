@@ -1,9 +1,5 @@
 import type Stripe from "stripe";
 import { createServiceClient } from "@/lib/supabase/service";
-import {
-  getSubscriptionPeriodEnd,
-  isStripeSubscriptionScheduledToCancel,
-} from "@/lib/stripe/resolve-subscription-host";
 import { getStripe } from "@/lib/stripe/stripe";
 import {
   resetHostSubscription,
@@ -70,6 +66,7 @@ export async function syncHostBillingFromStripe(hostId: string): Promise<void> {
   }
 
   if (
+    subscription.status === "canceled" ||
     subscription.status === "incomplete_expired" ||
     subscription.status === "unpaid"
   ) {
@@ -77,22 +74,5 @@ export async function syncHostBillingFromStripe(hostId: string): Promise<void> {
     return;
   }
 
-  const periodEnd = getSubscriptionPeriodEnd(subscription);
-  const scheduledToCancel = isStripeSubscriptionScheduledToCancel(subscription);
-  const periodStillActive = Boolean(
-    periodEnd && new Date(periodEnd) > new Date()
-  );
-
-  if (
-    scheduledToCancel ||
-    subscription.status === "active" ||
-    subscription.status === "trialing" ||
-    subscription.status === "past_due" ||
-    periodStillActive
-  ) {
-    await syncSubscriptionToHost(subscription, hostId);
-    return;
-  }
-
-  await resetHostSubscription(hostId);
+  await syncSubscriptionToHost(subscription, hostId);
 }

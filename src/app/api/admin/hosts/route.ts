@@ -73,7 +73,7 @@ export async function GET() {
   const { data: profiles, error: profilesError } = await admin
     .from("host_profiles")
     .select(
-      "id, username, business_name, is_published, subscription_status, subscription_current_period_end, stripe_customer_id, stripe_subscription_id, pro_access_granted, pro_access_granted_at, pro_access_granted_note, created_at"
+      "id, username, business_name, is_published, subscription_status, subscription_current_period_end, subscription_cancel_at_period_end, stripe_customer_id, stripe_subscription_id, pro_access_granted, pro_access_granted_at, pro_access_granted_note, created_at"
     );
 
   if (profilesError) {
@@ -117,6 +117,8 @@ export async function GET() {
               subscription_status: profile.subscription_status as SubscriptionStatus | null,
               subscription_current_period_end:
                 profile.subscription_current_period_end,
+              subscription_cancel_at_period_end:
+                profile.subscription_cancel_at_period_end ?? false,
               stripe_customer_id: profile.stripe_customer_id,
               stripe_subscription_id: profile.stripe_subscription_id,
               pro_access_granted: profile.pro_access_granted ?? false,

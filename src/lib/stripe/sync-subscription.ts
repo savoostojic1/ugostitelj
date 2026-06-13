@@ -4,7 +4,11 @@ import {
 } from "@/lib/subscriptions/access";
 import { suggestUsernameFromEmail } from "@/lib/public/slug";
 import { createServiceClient } from "@/lib/supabase/service";
-import { getSubscriptionPeriodEnd, getStripeCustomerId } from "@/lib/stripe/resolve-subscription-host";
+import {
+  getSubscriptionPeriodEnd,
+  getStripeCustomerId,
+  isStripeSubscriptionScheduledToCancel,
+} from "@/lib/stripe/resolve-subscription-host";
 
 export async function syncSubscriptionToHost(
   subscription: Stripe.Subscription,
@@ -14,12 +18,14 @@ export async function syncSubscriptionToHost(
   const status = resolveSubscriptionStatusFromStripe(subscription);
   const periodEnd = getSubscriptionPeriodEnd(subscription);
   const customerId = getStripeCustomerId(subscription.customer);
+  const scheduledCancel = isStripeSubscriptionScheduledToCancel(subscription);
 
   const payload = {
     stripe_customer_id: customerId,
     stripe_subscription_id: subscription.id,
     subscription_status: status,
     subscription_current_period_end: periodEnd,
+    subscription_cancel_at_period_end: scheduledCancel,
   };
 
   const { data: updated, error } = await admin
@@ -64,6 +70,7 @@ export async function resetHostSubscription(hostId: string) {
       stripe_subscription_id: null,
       subscription_status: "free",
       subscription_current_period_end: null,
+      subscription_cancel_at_period_end: false,
     })
     .eq("id", hostId);
 

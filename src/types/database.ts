@@ -71,6 +71,7 @@ export interface HostProfile {
   stripe_subscription_id?: string | null;
   subscription_status?: "free" | "active" | "canceled" | "past_due";
   subscription_current_period_end?: string | null;
+  subscription_cancel_at_period_end?: boolean;
   pro_access_granted?: boolean;
   pro_access_granted_at?: string | null;
   pro_access_granted_note?: string | null;

@@ -7,23 +7,13 @@ type SubscriptionItemWithPeriod = {
 export function isStripeSubscriptionScheduledToCancel(
   subscription: Stripe.Subscription
 ): boolean {
+  if (subscription.status !== "active" && subscription.status !== "trialing") {
+    return false;
+  }
+
   if (subscription.cancel_at_period_end) return true;
 
-  if (
-    subscription.cancel_at &&
-    (subscription.status === "active" || subscription.status === "trialing")
-  ) {
-    return true;
-  }
-
-  if (
-    subscription.canceled_at &&
-    (subscription.status === "active" || subscription.status === "trialing")
-  ) {
-    return true;
-  }
-
-  return subscription.status === "canceled";
+  return Boolean(subscription.cancel_at);
 }
 
 export function getSubscriptionPeriodEnd(

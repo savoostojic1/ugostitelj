@@ -19,10 +19,6 @@ export function hasProAccess(subscription: SubscriptionRecord | null): boolean {
     return true;
   }
 
-  if (status === "canceled" && subscription.subscription_current_period_end) {
-    return new Date(subscription.subscription_current_period_end) > new Date();
-  }
-
   return false;
 }
 
@@ -66,13 +62,7 @@ export function resolveSubscriptionStatusFromStripe(
   subscription: Stripe.Subscription
 ): SubscriptionStatus {
   if (isStripeSubscriptionScheduledToCancel(subscription)) {
-    if (
-      subscription.status === "active" ||
-      subscription.status === "trialing" ||
-      subscription.status === "canceled"
-    ) {
-      return "canceled";
-    }
+    return "active";
   }
 
   return mapStripeSubscriptionStatus(subscription.status);
@@ -83,5 +73,10 @@ export function isSubscriptionCanceling(
   isPro: boolean
 ): boolean {
   if (!subscription || !isPro || subscription.pro_access_granted) return false;
-  return subscription.subscription_status === "canceled";
+
+  return Boolean(
+    subscription.subscription_cancel_at_period_end &&
+      (subscription.subscription_status === "active" ||
+        subscription.subscription_status === "past_due")
+  );
 }
