@@ -1,7 +1,8 @@
 "use client";
 
-import { use } from "react";
+import { use, useEffect } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { ArrowLeft } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -9,6 +10,7 @@ import { MonthlyCalendar } from "@/components/calendar/monthly-calendar";
 import { PropertyDeleteButton } from "@/components/properties/property-delete-button";
 import { PropertyCalendarNav } from "@/components/properties/property-calendar-nav";
 import { PropertyDetailNav } from "@/components/properties/property-detail-nav";
+import { usePropertyPlanLock } from "@/hooks/use-property-plan-lock";
 import { useProperty, useReservations } from "@/hooks/use-properties";
 import { useDashboardContext } from "@/hooks/use-team-access";
 import { canAccessPropertySettings } from "@/lib/team-access/permissions";
@@ -24,7 +26,9 @@ export default function PropertyCalendarPage({
   params: Promise<{ id: string }>;
 }) {
   const { id } = use(params);
+  const router = useRouter();
   const { data: property, isLoading } = useProperty(id);
+  const { isLocked } = usePropertyPlanLock(id);
   const { data: reservations = [], isLoading: reservationsLoading } =
     useReservations(id);
   const { data: context, isLoading: contextLoading } = useDashboardContext();
@@ -36,7 +40,13 @@ export default function PropertyCalendarPage({
     : "/dashboard/calendars";
   const backLabel = showSettings ? "Properties" : "Calendars";
 
-  if (isLoading || contextLoading) {
+  useEffect(() => {
+    if (!isLoading && isLocked) {
+      router.replace(`/dashboard/properties/${id}`);
+    }
+  }, [id, isLoading, isLocked, router]);
+
+  if (isLoading || contextLoading || isLocked) {
     return null;
   }
 

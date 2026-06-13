@@ -10,11 +10,13 @@ import { toast } from "sonner";
 interface PropertyNameEditorProps {
   propertyId: string;
   name: string;
+  readOnly?: boolean;
 }
 
 export function PropertyNameEditor({
   propertyId,
   name,
+  readOnly = false,
 }: PropertyNameEditorProps) {
   const [editing, setEditing] = useState(false);
   const [value, setValue] = useState(name);
@@ -41,6 +43,12 @@ export function PropertyNameEditor({
     } catch (err) {
       toast.error(err instanceof Error ? err.message : "Failed to save");
     }
+  }
+
+  if (readOnly) {
+    return (
+      <h1 className="hostvia-dashboard-title min-w-0 truncate">{name}</h1>
+    );
   }
 
   if (editing) {

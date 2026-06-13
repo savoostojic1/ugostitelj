@@ -17,13 +17,19 @@ import { toast } from "sonner";
 interface PropertyDeleteButtonProps {
   propertyId: string;
   propertyName: string;
+  open?: boolean;
+  onOpenChange?: (open: boolean) => void;
 }
 
 export function PropertyDeleteButton({
   propertyId,
   propertyName,
+  open: controlledOpen,
+  onOpenChange: controlledOnOpenChange,
 }: PropertyDeleteButtonProps) {
-  const [open, setOpen] = useState(false);
+  const [internalOpen, setInternalOpen] = useState(false);
+  const open = controlledOpen ?? internalOpen;
+  const setOpen = controlledOnOpenChange ?? setInternalOpen;
   const router = useRouter();
   const deleteProperty = useDeleteProperty();
 

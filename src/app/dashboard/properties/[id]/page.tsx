@@ -1,18 +1,20 @@
 "use client";
 
-import { use } from "react";
+import { use, useState } from "react";
 import Link from "next/link";
 import { ArrowLeft, CalendarDays } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
-import { PropertyNameEditor } from "@/components/properties/property-name-editor";
+import { PropertyLockedBanner } from "@/components/properties/property-locked-banner";
 import { PropertyDeleteButton } from "@/components/properties/property-delete-button";
 import { PropertyDetailNav } from "@/components/properties/property-detail-nav";
+import { PropertyNameEditor } from "@/components/properties/property-name-editor";
 import { ConnectedFeeds } from "@/components/properties/connected-feeds";
 import { PropertyExportCalendar } from "@/components/properties/property-export-calendar";
 import { PropertyPricingSettings } from "@/components/properties/property-pricing-settings";
 import { PropertyPublicSettings } from "@/components/properties/property-public-settings";
+import { usePropertyPlanLock } from "@/hooks/use-property-plan-lock";
 import { useProperty, usePropertyFeeds, useReservations } from "@/hooks/use-properties";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
 
 export default function PropertyDetailPage({
   params,
@@ -23,6 +25,8 @@ export default function PropertyDetailPage({
   const { data: property, isLoading } = useProperty(id);
   const { data: feeds = [], isLoading: feedsLoading } = usePropertyFeeds(id);
   const { data: reservations = [] } = useReservations(id);
+  const { isLocked } = usePropertyPlanLock(id);
+  const [deleteOpen, setDeleteOpen] = useState(false);
 
   if (isLoading) {
     return null;
@@ -42,18 +46,6 @@ export default function PropertyDetailPage({
   const needsCalendarSetup =
     !feedsLoading && feeds.length === 0 && reservations.length === 0;
 
-  const calendarIntegrations = (
-    <>
-      <ConnectedFeeds propertyId={id} />
-      {property.export_token && (
-        <PropertyExportCalendar
-          propertyName={property.name}
-          exportToken={property.export_token}
-        />
-      )}
-    </>
-  );
-
   return (
     <div className="hostvia-property-page hostvia-pwa-property-page space-y-8">
       <Button variant="ghost" size="sm" asChild className="hostvia-dashboard-page-inset w-fit">
@@ -63,39 +55,68 @@ export default function PropertyDetailPage({
         </Link>
       </Button>
 
+      {isLocked ? (
+        <div className="hostvia-dashboard-page-inset">
+          <PropertyLockedBanner
+            propertyName={property.name}
+            onDelete={() => setDeleteOpen(true)}
+          />
+        </div>
+      ) : null}
+
       <div className="hostvia-dashboard-page-inset flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
-        <PropertyNameEditor propertyId={id} name={property.name} />
-        <PropertyDeleteButton propertyId={id} propertyName={property.name} />
+        <PropertyNameEditor
+          propertyId={id}
+          name={property.name}
+          readOnly={isLocked}
+        />
+        <PropertyDeleteButton
+          propertyId={id}
+          propertyName={property.name}
+          open={deleteOpen}
+          onOpenChange={setDeleteOpen}
+        />
       </div>
 
-      <PropertyDetailNav propertyId={id} />
+      {!isLocked ? <PropertyDetailNav propertyId={id} /> : null}
 
-      <Card className="hostvia-glow-card overflow-hidden border-0 bg-transparent">
-        <CardContent className="flex flex-col gap-4 p-4 sm:flex-row sm:items-center sm:justify-between sm:p-5">
-          <div>
-            <p className="font-medium">Calendar & reservations</p>
-            <p className="mt-1 text-sm text-muted-foreground">
-              {needsCalendarSetup
-                ? "Connect calendars below, then open the calendar to view availability."
-                : "View the calendar and reservations."}
-            </p>
-          </div>
-          <Button asChild className="shrink-0">
-            <Link href={`/dashboard/properties/${id}/calendar`}>
-              <CalendarDays className="h-4 w-4" />
-              Open calendar
-            </Link>
-          </Button>
-        </CardContent>
-      </Card>
+      {!isLocked ? (
+        <>
+          <Card className="hostvia-glow-card overflow-hidden border-0 bg-transparent">
+            <CardContent className="flex flex-col gap-4 p-4 sm:flex-row sm:items-center sm:justify-between sm:p-5">
+              <div>
+                <p className="font-medium">Calendar & reservations</p>
+                <p className="mt-1 text-sm text-muted-foreground">
+                  {needsCalendarSetup
+                    ? "Connect calendars below, then open the calendar to view availability."
+                    : "View the calendar and reservations."}
+                </p>
+              </div>
+              <Button asChild className="shrink-0">
+                <Link href={`/dashboard/properties/${id}/calendar`}>
+                  <CalendarDays className="h-4 w-4" />
+                  Open calendar
+                </Link>
+              </Button>
+            </CardContent>
+          </Card>
 
-      {feedsLoading && reservations.length === 0
-        ? null
-        : calendarIntegrations}
+          {feedsLoading && reservations.length === 0 ? null : (
+            <>
+              <ConnectedFeeds propertyId={id} />
+              {property.export_token ? (
+                <PropertyExportCalendar
+                  propertyName={property.name}
+                  exportToken={property.export_token}
+                />
+              ) : null}
+            </>
+          )}
 
-      <PropertyPricingSettings property={property} />
-
-      <PropertyPublicSettings property={property} />
+          <PropertyPricingSettings property={property} />
+          <PropertyPublicSettings property={property} />
+        </>
+      ) : null}
     </div>
   );
 }

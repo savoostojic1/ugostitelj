@@ -3,6 +3,10 @@ import { createClient } from "@/lib/supabase/server";
 import { hasProAccess, isSubscriptionCanceling } from "@/lib/subscriptions/access";
 import { FREE_PROPERTY_LIMIT } from "@/lib/subscriptions/plans";
 import {
+  countLockedProperties,
+  getAllowedPropertyIds,
+} from "@/lib/subscriptions/property-access";
+import {
   loadHostSubscription,
   resolveBillingHostId,
 } from "@/lib/subscriptions/resolve-host-subscription";
@@ -28,6 +32,21 @@ async function buildBillingStatusResponse(
   const propertyCount = count ?? 0;
   const isCanceling = isSubscriptionCanceling(subscription, pro);
 
+  const { data: propertyRows, error: propertyRowsError } = await supabase
+    .from("properties")
+    .select("id, created_at")
+    .eq("user_id", hostId);
+
+  if (propertyRowsError) {
+    throw new Error("Could not load properties");
+  }
+
+  const allowedPropertyIds = getAllowedPropertyIds(
+    propertyRows ?? [],
+    subscription
+  );
+  const lockedPropertyCount = countLockedProperties(propertyCount, subscription);
+
   return {
     isOwner,
     inheritsHostPlan: !isOwner,
@@ -38,6 +57,8 @@ async function buildBillingStatusResponse(
     isComplimentary: Boolean(subscription?.pro_access_granted),
     subscriptionStatus: subscription?.subscription_status ?? "free",
     currentPeriodEnd: subscription?.subscription_current_period_end ?? null,
+    allowedPropertyIds,
+    lockedPropertyCount,
     canManageSubscription:
       isOwner &&
       !subscription?.pro_access_granted &&

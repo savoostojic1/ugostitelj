@@ -12,6 +12,8 @@ export type BillingStatus = {
   inheritsHostPlan?: boolean;
   subscriptionStatus: "free" | "active" | "canceled" | "past_due";
   currentPeriodEnd: string | null;
+  allowedPropertyIds?: string[];
+  lockedPropertyCount?: number;
   isCanceling?: boolean;
   canManageSubscription?: boolean;
   canAddProperty: boolean;

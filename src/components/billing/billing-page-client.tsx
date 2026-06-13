@@ -160,12 +160,19 @@ export function BillingPageClient() {
                 </p>
               )}
               {billing.isPro && !billing.isComplimentary && (
-                <p className="mt-2 text-sm text-zinc-400">
-                  {billing.isCanceling
-                    ? "Canceled via Stripe"
-                    : `Billed via Stripe · ${PRO_LAUNCH_PRICE_EUR}€/month`}
-                </p>
-              )}
+            <p className="mt-2 text-sm text-zinc-400">
+              {billing.isCanceling
+                ? "Canceled via Stripe"
+                : `Billed via Stripe · ${PRO_LAUNCH_PRICE_EUR}€/month`}
+            </p>
+          )}
+          {!billing.isPro && (billing.lockedPropertyCount ?? 0) > 0 && (
+            <p className="mt-2 text-sm text-amber-300/90">
+              {billing.lockedPropertyCount} listing
+              {billing.lockedPropertyCount === 1 ? "" : "s"} locked — only the{" "}
+              {billing.freeLimit} oldest stay active on Free.
+            </p>
+          )}
               {!billing.isPro && (
                 <p className="mt-2 text-sm text-zinc-400">
                   Free for up to {billing.freeLimit} properties.
