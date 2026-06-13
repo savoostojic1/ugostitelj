@@ -7,6 +7,7 @@ import {
   Building2,
   Check,
   Crown,
+  ExternalLink,
   Loader2,
   Sparkles,
 } from "lucide-react";
@@ -14,7 +15,9 @@ import { DashboardPageHeader } from "@/components/dashboard/dashboard-page-heade
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
+  useBillingPortal,
   useBillingStatus,
+  useInvalidateBillingStatus,
   useStartCheckout,
 } from "@/hooks/use-billing";
 import {
@@ -50,10 +53,23 @@ export function BillingPageClient() {
   const searchParams = useSearchParams();
   const { data: billing, isLoading, error } = useBillingStatus();
   const checkout = useStartCheckout();
+  const portal = useBillingPortal();
+  const invalidateBilling = useInvalidateBillingStatus();
   const toastShown = useRef<string | null>(null);
 
   useEffect(() => {
     const upgrade = searchParams.get("upgrade");
+    const portalReturn = searchParams.get("portal");
+
+    if (portalReturn === "return") {
+      if (toastShown.current !== "portal-return") {
+        toastShown.current = "portal-return";
+        invalidateBilling();
+        toast.message("Subscription settings updated");
+      }
+      return;
+    }
+
     if (!upgrade || toastShown.current === upgrade) return;
     toastShown.current = upgrade;
 
@@ -63,7 +79,7 @@ export function BillingPageClient() {
     if (upgrade === "success") {
       toast.success("Welcome to Pro — unlimited properties unlocked");
     }
-  }, [searchParams]);
+  }, [searchParams, invalidateBilling]);
 
   if (isLoading) {
     return (
@@ -179,11 +195,53 @@ export function BillingPageClient() {
 
           {billing.currentPeriodEnd && billing.isPro && !billing.isComplimentary && (
             <p className="mt-6 text-sm text-zinc-500">
-              Current period ends{" "}
-              <span className="text-zinc-300">
-                {format(new Date(billing.currentPeriodEnd), "dd MMM yyyy")}
-              </span>
+              {billing.subscriptionStatus === "canceled" ? (
+                <>
+                  Access until{" "}
+                  <span className="text-zinc-300">
+                    {format(new Date(billing.currentPeriodEnd), "dd MMM yyyy")}
+                  </span>
+                </>
+              ) : (
+                <>
+                  Current period ends{" "}
+                  <span className="text-zinc-300">
+                    {format(new Date(billing.currentPeriodEnd), "dd MMM yyyy")}
+                  </span>
+                </>
+              )}
             </p>
+          )}
+
+          {billing.canManageSubscription && (
+            <div className="mt-8 rounded-xl border border-white/10 bg-white/[0.03] p-5">
+              <p className="text-sm font-medium text-white">
+                Manage subscription
+              </p>
+              <p className="mt-1 text-xs leading-relaxed text-zinc-500">
+                Update payment method, view invoices, or cancel your Pro plan in
+                Stripe&apos;s secure billing portal.
+              </p>
+              <Button
+                type="button"
+                variant="outline"
+                className="hostvia-dashboard-btn mt-4 h-11 gap-2 border-white/15 bg-white/[0.03] text-zinc-200 hover:bg-white/[0.06] hover:text-white"
+                disabled={portal.isPending}
+                onClick={() => portal.mutate()}
+              >
+                {portal.isPending ? (
+                  <>
+                    <Loader2 className="h-4 w-4 animate-spin" />
+                    Opening Stripe…
+                  </>
+                ) : (
+                  <>
+                    <ExternalLink className="h-4 w-4" />
+                    Manage in Stripe
+                  </>
+                )}
+              </Button>
+            </div>
           )}
 
           {!billing.isPro && !billing.isComplimentary && (
@@ -225,7 +283,9 @@ export function BillingPageClient() {
             </div>
           )}
 
-          {billing.isPro && !billing.isComplimentary && (
+          {billing.isPro &&
+            !billing.isComplimentary &&
+            !billing.canManageSubscription && (
             <p className="mt-6 text-xs text-zinc-500">
               Subscription managed via Stripe. Contact support if you need help
               with billing.

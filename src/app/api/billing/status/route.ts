@@ -41,6 +41,11 @@ export async function GET() {
     isComplimentary: Boolean(subscription?.pro_access_granted),
     subscriptionStatus: subscription?.subscription_status ?? "free",
     currentPeriodEnd: subscription?.subscription_current_period_end ?? null,
+    canManageSubscription:
+      isOwner &&
+      !subscription?.pro_access_granted &&
+      Boolean(subscription?.stripe_customer_id) &&
+      Boolean(subscription?.stripe_subscription_id),
     canAddProperty: isOwner && (pro || propertyCount < FREE_PROPERTY_LIMIT),
     requiresUpgrade:
       isOwner && !pro && propertyCount >= FREE_PROPERTY_LIMIT,

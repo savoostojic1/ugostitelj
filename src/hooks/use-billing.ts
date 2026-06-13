@@ -12,6 +12,7 @@ export type BillingStatus = {
   inheritsHostPlan?: boolean;
   subscriptionStatus: "free" | "active" | "canceled" | "past_due";
   currentPeriodEnd: string | null;
+  canManageSubscription?: boolean;
   canAddProperty: boolean;
   requiresUpgrade: boolean;
 };
@@ -42,6 +43,30 @@ export function useStartCheckout() {
     },
     onError: (err) => {
       toast.error(err instanceof Error ? err.message : "Checkout failed");
+    },
+  });
+}
+
+export function useBillingPortal() {
+  const qc = useQueryClient();
+
+  return useMutation({
+    mutationFn: async () => {
+      const res = await fetch("/api/billing/portal", { method: "POST" });
+      const data = await res.json();
+      if (!res.ok) {
+        throw new Error(data.error ?? "Could not open billing portal");
+      }
+      if (!data.url) throw new Error("Missing portal URL");
+      window.location.href = data.url as string;
+    },
+    onSuccess: () => {
+      void qc.invalidateQueries({ queryKey: QUERY_KEY });
+    },
+    onError: (err) => {
+      toast.error(
+        err instanceof Error ? err.message : "Could not open billing portal"
+      );
     },
   });
 }
