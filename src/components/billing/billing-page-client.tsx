@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 import { useSearchParams } from "next/navigation";
 import { format } from "date-fns";
 import {
@@ -50,12 +50,17 @@ export function BillingPageClient() {
   const searchParams = useSearchParams();
   const { data: billing, isLoading, error } = useBillingStatus();
   const checkout = useStartCheckout();
+  const toastShown = useRef<string | null>(null);
 
   useEffect(() => {
-    if (searchParams.get("upgrade") === "canceled") {
+    const upgrade = searchParams.get("upgrade");
+    if (!upgrade || toastShown.current === upgrade) return;
+    toastShown.current = upgrade;
+
+    if (upgrade === "canceled") {
       toast.message("Upgrade canceled");
     }
-    if (searchParams.get("upgrade") === "success") {
+    if (upgrade === "success") {
       toast.success("Welcome to Pro — unlimited properties unlocked");
     }
   }, [searchParams]);

@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { ArrowRight, Home, Plus } from "lucide-react";
 import { DashboardPageHeader } from "@/components/dashboard/dashboard-page-header";
 import { PropertyLimitNotice } from "@/components/billing/property-limit-notice";
@@ -19,16 +19,21 @@ export default function PropertiesPageClient() {
   const invalidateBilling = useInvalidateBillingStatus();
   const searchParams = useSearchParams();
   const [upgradeOpen, setUpgradeOpen] = useState(false);
+  const toastShown = useRef<string | null>(null);
 
   useEffect(() => {
-    if (searchParams.get("upgrade") === "1") {
+    const upgrade = searchParams.get("upgrade");
+    if (!upgrade || toastShown.current === upgrade) return;
+    toastShown.current = upgrade;
+
+    if (upgrade === "1") {
       setUpgradeOpen(true);
     }
-    if (searchParams.get("upgrade") === "success") {
+    if (upgrade === "success") {
       toast.success("Welcome to Pro — unlimited properties unlocked");
       invalidateBilling();
     }
-    if (searchParams.get("upgrade") === "canceled") {
+    if (upgrade === "canceled") {
       toast.message("Upgrade canceled");
     }
   }, [searchParams, invalidateBilling]);

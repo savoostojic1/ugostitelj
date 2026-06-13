@@ -2,6 +2,7 @@ import type Stripe from "stripe";
 import { mapStripeSubscriptionStatus } from "@/lib/subscriptions/access";
 import { suggestUsernameFromEmail } from "@/lib/public/slug";
 import { createServiceClient } from "@/lib/supabase/service";
+import { getSubscriptionPeriodEnd, getStripeCustomerId } from "@/lib/stripe/resolve-subscription-host";
 
 export async function syncSubscriptionToHost(
   subscription: Stripe.Subscription,
@@ -9,29 +10,44 @@ export async function syncSubscriptionToHost(
 ) {
   const admin = createServiceClient();
   const status = mapStripeSubscriptionStatus(subscription.status);
-  const periodEndUnix = (
-    subscription as Stripe.Subscription & { current_period_end?: number }
-  ).current_period_end;
-  const periodEnd = periodEndUnix
-    ? new Date(periodEndUnix * 1000).toISOString()
-    : null;
+  const periodEnd = getSubscriptionPeriodEnd(subscription);
+  const customerId = getStripeCustomerId(subscription.customer);
 
-  const customerId =
-    typeof subscription.customer === "string"
-      ? subscription.customer
-      : subscription.customer.id;
+  const payload = {
+    stripe_customer_id: customerId,
+    stripe_subscription_id: subscription.id,
+    subscription_status: status,
+    subscription_current_period_end: periodEnd,
+  };
 
-  const { error } = await admin
+  const { data: updated, error } = await admin
     .from("host_profiles")
-    .update({
-      stripe_customer_id: customerId,
-      stripe_subscription_id: subscription.id,
-      subscription_status: status,
-      subscription_current_period_end: periodEnd,
-    })
-    .eq("id", hostId);
+    .update(payload)
+    .eq("id", hostId)
+    .select("id")
+    .maybeSingle();
 
   if (error) throw error;
+
+  if (!updated) {
+    const { data: authData, error: authError } =
+      await admin.auth.admin.getUserById(hostId);
+
+    if (authError || !authData.user) {
+      throw new Error(`Could not update subscription for host ${hostId}`);
+    }
+
+    const username = suggestUsernameFromEmail(authData.user.email ?? "host");
+    const { error: insertError } = await admin.from("host_profiles").insert({
+      id: hostId,
+      username,
+      business_name: username,
+      is_published: false,
+      ...payload,
+    });
+
+    if (insertError) throw insertError;
+  }
 }
 
 /** @deprecated Use syncSubscriptionToHost */
@@ -60,10 +76,20 @@ export async function ensureStripeCustomer(
   email: string,
   existingCustomerId?: string | null
 ): Promise<string> {
-  if (existingCustomerId) return existingCustomerId;
-
   const { getStripe } = await import("@/lib/stripe/stripe");
   const stripe = await getStripe();
+
+  if (existingCustomerId) {
+    try {
+      const existing = await stripe.customers.retrieve(existingCustomerId);
+      if (!existing.deleted) {
+        return existingCustomerId;
+      }
+    } catch {
+      // Stale customer from another Stripe mode/account — create a fresh one.
+    }
+  }
+
   const admin = createServiceClient();
 
   const customer = await stripe.customers.create({

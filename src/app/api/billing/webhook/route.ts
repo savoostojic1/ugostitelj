@@ -2,8 +2,9 @@ import { NextResponse } from "next/server";
 import Stripe from "stripe";
 import {
   resetUserSubscription,
-  syncSubscriptionToUser,
 } from "@/lib/stripe/sync-subscription";
+import { syncSubscriptionFromStripeObject } from "@/lib/stripe/confirm-checkout-session";
+import { resolveHostIdForStripeSubscription } from "@/lib/stripe/resolve-subscription-host";
 import { getStripe, getStripeWebhookSecret } from "@/lib/stripe/stripe";
 
 export const runtime = "nodejs";
@@ -40,32 +41,23 @@ export async function POST(request: Request) {
         const subscription = await stripe.subscriptions.retrieve(
           String(session.subscription)
         );
-        const userId =
-          subscription.metadata.userId ??
-          session.metadata?.userId ??
-          null;
 
-        if (userId) {
-          await syncSubscriptionToUser(subscription, userId);
-        }
+        await syncSubscriptionFromStripeObject(subscription, session);
         break;
       }
 
       case "customer.subscription.updated":
       case "customer.subscription.created": {
         const subscription = event.data.object as Stripe.Subscription;
-        const userId = subscription.metadata.userId;
-        if (userId) {
-          await syncSubscriptionToUser(subscription, userId);
-        }
+        await syncSubscriptionFromStripeObject(subscription);
         break;
       }
 
       case "customer.subscription.deleted": {
         const subscription = event.data.object as Stripe.Subscription;
-        const userId = subscription.metadata.userId;
-        if (userId) {
-          await resetUserSubscription(userId);
+        const hostId = await resolveHostIdForStripeSubscription(subscription);
+        if (hostId) {
+          await resetUserSubscription(hostId);
         }
         break;
       }
@@ -81,10 +73,7 @@ export async function POST(request: Request) {
         const subscriptionId =
           typeof subscriptionRef === "string" ? subscriptionRef : subscriptionRef.id;
         const subscription = await stripe.subscriptions.retrieve(subscriptionId);
-        const userId = subscription.metadata.userId;
-        if (userId) {
-          await syncSubscriptionToUser(subscription, userId);
-        }
+        await syncSubscriptionFromStripeObject(subscription);
         break;
       }
 
