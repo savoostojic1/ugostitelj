@@ -5,6 +5,7 @@ export type HostSubscriptionRow = {
   subscription_status: SubscriptionStatus | null;
   subscription_current_period_end: string | null;
   stripe_customer_id: string | null;
+  stripe_subscription_id?: string | null;
   pro_access_granted: boolean | null;
 };
 
@@ -17,6 +18,7 @@ export function toSubscriptionRecord(
     subscription_status: (row.subscription_status ?? "free") as SubscriptionStatus,
     subscription_current_period_end: row.subscription_current_period_end,
     stripe_customer_id: row.stripe_customer_id,
+    stripe_subscription_id: row.stripe_subscription_id,
     pro_access_granted: row.pro_access_granted ?? false,
   };
 }
@@ -28,7 +30,7 @@ export async function loadHostSubscription(
   const { data, error } = await supabase
     .from("host_profiles")
     .select(
-      "subscription_status, subscription_current_period_end, stripe_customer_id, pro_access_granted"
+      "subscription_status, subscription_current_period_end, stripe_customer_id, stripe_subscription_id, pro_access_granted"
     )
     .eq("id", hostId)
     .maybeSingle();

@@ -1,6 +1,8 @@
 import { NextResponse } from "next/server";
 import { requireAdminSession } from "@/lib/admin/require-admin";
+import { summarizeAdminPlan } from "@/lib/admin/plan-summary";
 import { hasProAccess } from "@/lib/subscriptions/access";
+import { FREE_PROPERTY_LIMIT } from "@/lib/subscriptions/plans";
 import type { SubscriptionStatus } from "@/lib/subscriptions/plans";
 import { toSubscriptionRecord } from "@/lib/subscriptions/resolve-host-subscription";
 import { createServiceClient } from "@/lib/supabase/service";
@@ -13,10 +15,19 @@ export type AdminHostRow = {
   is_published: boolean;
   property_count: number;
   subscription_status: SubscriptionStatus;
+  subscription_current_period_end: string | null;
+  stripe_customer_id: string | null;
+  stripe_subscription_id: string | null;
   pro_access_granted: boolean;
+  pro_access_granted_at: string | null;
   pro_access_granted_note: string | null;
   is_pro: boolean;
   has_host_profile: boolean;
+  free_limit: number;
+  can_add_property: boolean;
+  requires_upgrade: boolean;
+  plan_label: string;
+  plan_source: "complimentary" | "stripe" | "free";
   created_at: string | null;
   last_sign_in_at: string | null;
 };
@@ -62,7 +73,7 @@ export async function GET() {
   const { data: profiles, error: profilesError } = await admin
     .from("host_profiles")
     .select(
-      "id, username, business_name, is_published, subscription_status, pro_access_granted, pro_access_granted_note, created_at"
+      "id, username, business_name, is_published, subscription_status, subscription_current_period_end, stripe_customer_id, stripe_subscription_id, pro_access_granted, pro_access_granted_at, pro_access_granted_note, created_at"
     );
 
   if (profilesError) {
@@ -104,26 +115,46 @@ export async function GET() {
         profile
           ? {
               subscription_status: profile.subscription_status as SubscriptionStatus | null,
-              subscription_current_period_end: null,
-              stripe_customer_id: null,
+              subscription_current_period_end:
+                profile.subscription_current_period_end,
+              stripe_customer_id: profile.stripe_customer_id,
+              stripe_subscription_id: profile.stripe_subscription_id,
               pro_access_granted: profile.pro_access_granted ?? false,
             }
           : null
       );
 
-      return {
+      const propertyCount = propertyCounts.get(user.id) ?? 0;
+      const isPro = hasProAccess(subscription);
+      const billing = {
         id: user.id,
         email: user.email ?? null,
         username: profile?.username ?? null,
-        business_name: profile?.business_name ?? null,
-        is_published: profile?.is_published ?? false,
-        property_count: propertyCounts.get(user.id) ?? 0,
+        property_count: propertyCount,
         subscription_status: (profile?.subscription_status ??
           "free") as SubscriptionStatus,
+        subscription_current_period_end:
+          profile?.subscription_current_period_end ?? null,
+        stripe_customer_id: profile?.stripe_customer_id ?? null,
+        stripe_subscription_id: profile?.stripe_subscription_id ?? null,
         pro_access_granted: profile?.pro_access_granted ?? false,
+        pro_access_granted_at: profile?.pro_access_granted_at ?? null,
         pro_access_granted_note: profile?.pro_access_granted_note ?? null,
-        is_pro: hasProAccess(subscription),
+        is_pro: isPro,
         has_host_profile: Boolean(profile),
+      };
+
+      const summary = summarizeAdminPlan(billing);
+
+      return {
+        ...billing,
+        business_name: profile?.business_name ?? null,
+        is_published: profile?.is_published ?? false,
+        free_limit: FREE_PROPERTY_LIMIT,
+        can_add_property: summary.canAddProperty,
+        requires_upgrade: summary.requiresUpgrade,
+        plan_label: summary.planLabel,
+        plan_source: summary.planSource,
         created_at: profile?.created_at ?? user.created_at ?? null,
         last_sign_in_at: user.last_sign_in_at ?? null,
       };
@@ -141,6 +172,7 @@ export async function GET() {
     published: hosts.filter((h) => h.is_published).length,
     pro: hosts.filter((h) => h.is_pro).length,
     complimentary: hosts.filter((h) => h.pro_access_granted).length,
+    stripePro: hosts.filter((h) => h.plan_source === "stripe" && h.is_pro).length,
     totalProperties: hosts.reduce((sum, h) => sum + h.property_count, 0),
   };
 
