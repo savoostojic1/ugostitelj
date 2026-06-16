@@ -3,6 +3,7 @@ import Script from "next/script";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { HostviaGoogleAnalytics } from "@/components/analytics/google-analytics";
+import { HostviaVercelAnalytics } from "@/components/analytics/vercel-analytics";
 import { Providers } from "@/components/providers";
 import { ServiceWorkerRegister } from "@/components/pwa/service-worker-register";
 
@@ -58,6 +59,7 @@ export default function RootLayout({
         </Script>
         <Providers>{children}</Providers>
         <ServiceWorkerRegister />
+        <HostviaVercelAnalytics />
       </body>
       <HostviaGoogleAnalytics />
     </html>
