@@ -244,6 +244,8 @@ export function AdminStripeConfig() {
               <p className="mt-2 text-xs text-white/45">
                 Add this endpoint in Stripe Dashboard → Developers → Webhooks.
                 Use a dedicated webhook for Hostvia with its own whsec secret.
+                Copy the URL exactly as shown (with <code className="text-white/60">www</code> if
+                listed) — Stripe fails on apex→www redirects (HTTP 308).
                 Events: checkout.session.completed, customer.subscription.*,
                 invoice.payment_failed. Other apps on the same Stripe account
                 are ignored when their metadata appId differs.
