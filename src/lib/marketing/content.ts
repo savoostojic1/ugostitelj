@@ -24,6 +24,9 @@ export const marketingPublicPaths = [
   ...marketingNav.map((item) => item.href),
   "/o-nama",
   "/kontakt",
+  "/terms",
+  "/privacy",
+  "/refund-policy",
   "/privatnost",
   "/uslovi",
 ] as const;
@@ -48,8 +51,9 @@ export const marketingFooter = {
     { href: "/faq", label: "FAQ" },
   ],
   legal: [
-    { href: "/privatnost", label: "Privacy" },
-    { href: "/uslovi", label: "Terms of service" },
+    { href: "/terms", label: "Terms of service" },
+    { href: "/privacy", label: "Privacy policy" },
+    { href: "/refund-policy", label: "Refunds and cancellation" },
   ],
   contact: {
     email: "hello@hostvia.me",

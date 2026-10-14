@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef } from "react";
+import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { format } from "date-fns";
 import {
@@ -252,7 +253,12 @@ export function BillingPageClient() {
               </p>
               <p className="mt-1 text-xs leading-relaxed text-zinc-500">
                 Update payment method, view invoices, or cancel your Pro plan in
-                Stripe&apos;s secure billing portal.
+                Stripe&apos;s secure billing portal. Cancellation and refund
+                requests are described in the{" "}
+                <Link href="/refund-policy" className="text-violet-300 hover:underline">
+                  refund and cancellation policy
+                </Link>
+                .
               </p>
               <Button
                 type="button"
@@ -310,7 +316,11 @@ export function BillingPageClient() {
                 )}
               </Button>
               <p className="mt-3 text-xs text-zinc-500">
-                Secure checkout via Stripe. Cancel anytime.
+                Secure checkout via Stripe. Cancel anytime. See the{" "}
+                <Link href="/refund-policy" className="text-violet-300 hover:underline">
+                  refund and cancellation policy
+                </Link>
+                .
               </p>
             </div>
           )}

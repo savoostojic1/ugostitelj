@@ -24,12 +24,16 @@ export function AuthShell({ children }: { children: ReactNode }) {
 
           <p className="mt-6 text-center text-xs text-zinc-500">
             By continuing you agree to our{" "}
-            <Link href="/uslovi" className="text-zinc-400 hover:text-white">
+            <Link href="/terms" className="text-zinc-400 hover:text-white">
               Terms
-            </Link>{" "}
-            and{" "}
-            <Link href="/privatnost" className="text-zinc-400 hover:text-white">
+            </Link>
+            ,{" "}
+            <Link href="/privacy" className="text-zinc-400 hover:text-white">
               Privacy policy
+            </Link>
+            , and{" "}
+            <Link href="/refund-policy" className="text-zinc-400 hover:text-white">
+              Refund policy
             </Link>
             .
           </p>

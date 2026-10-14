@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Link from "next/link";
 import { Check } from "lucide-react";
 import { CtaBanner } from "@/components/marketing/cta-banner";
 import { PageHero } from "@/components/marketing/page-hero";
@@ -48,6 +49,20 @@ export default function CijenePage() {
               </li>
             ))}
           </ul>
+          <p className="mx-auto mt-8 max-w-2xl text-center text-sm text-zinc-500">
+            Paid plans renew monthly until canceled.{" "}
+            <Link href="/terms" className="text-violet-300 hover:underline">
+              Terms
+            </Link>
+            {" · "}
+            <Link href="/privacy" className="text-violet-300 hover:underline">
+              Privacy
+            </Link>
+            {" · "}
+            <Link href="/refund-policy" className="text-violet-300 hover:underline">
+              Refunds and cancellation
+            </Link>
+          </p>
         </div>
       </section>
 
