@@ -12,7 +12,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { PRO_LAUNCH_PRICE_EUR } from "@/lib/subscriptions/plans";
+import { PRO_MONTHLY_PRICE_USD } from "@/lib/subscriptions/plans";
 import { toast } from "sonner";
 
 type AdminPricingDialogProps = {
@@ -134,7 +134,7 @@ export function AdminPricingDialog({
               {!host.is_pro && (
                 <span className="text-white/40">
                   {" "}
-                  Pro via Stripe is {PRO_LAUNCH_PRICE_EUR}€/month when they
+                  Pro via Stripe is ${PRO_MONTHLY_PRICE_USD}/month when they
                   upgrade.
                 </span>
               )}

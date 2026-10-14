@@ -23,8 +23,7 @@ import {
 } from "@/hooks/use-billing";
 import {
   FREE_PROPERTY_LIMIT,
-  PRO_LAUNCH_PRICE_EUR,
-  PRO_REGULAR_PRICE_EUR,
+  PRO_MONTHLY_PRICE_USD,
 } from "@/lib/subscriptions/plans";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
@@ -169,7 +168,7 @@ export function BillingPageClient() {
             <p className="mt-2 text-sm text-zinc-400">
               {billing.isCanceling
                 ? "Canceled via Stripe"
-                : `Billed via Stripe · ${PRO_LAUNCH_PRICE_EUR}€/month`}
+                : `Billed via Stripe · $${PRO_MONTHLY_PRICE_USD}/month`}
             </p>
           )}
           {!billing.isPro && (billing.lockedPropertyCount ?? 0) > 0 && (
@@ -285,17 +284,11 @@ export function BillingPageClient() {
           {!billing.isPro && !billing.isComplimentary && (
             <div className="mt-8 rounded-xl border border-violet-500/20 bg-violet-500/5 p-5">
               <div className="flex flex-wrap items-end gap-3">
-                <span className="text-lg text-zinc-500 line-through">
-                  {PRO_REGULAR_PRICE_EUR}€
-                </span>
                 <span className="text-3xl font-bold text-white">
-                  {PRO_LAUNCH_PRICE_EUR}€
+                  ${PRO_MONTHLY_PRICE_USD}
                   <span className="text-base font-normal text-zinc-400">
                     /month
                   </span>
-                </span>
-                <span className="rounded-full bg-gradient-to-r from-violet-500 to-cyan-500 px-2.5 py-0.5 text-[10px] font-bold uppercase text-white">
-                  Launch price
                 </span>
               </div>
               <Button
@@ -361,8 +354,7 @@ export function BillingPageClient() {
                 Need more than {FREE_PROPERTY_LIMIT} properties?
               </p>
               <p className="mt-1 text-xs leading-relaxed text-zinc-500">
-                Pro unlocks unlimited listings for {PRO_LAUNCH_PRICE_EUR}€/month
-                during our launch period.
+                Pro unlocks unlimited listings for ${PRO_MONTHLY_PRICE_USD}/month.
               </p>
             </div>
           )}

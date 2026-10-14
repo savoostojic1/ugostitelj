@@ -1,7 +1,7 @@
 export const FREE_PROPERTY_LIMIT = 2;
 
-export const PRO_LAUNCH_PRICE_EUR = 20;
-export const PRO_REGULAR_PRICE_EUR = 30;
+/** Flat monthly Pro price for the whole owner account. */
+export const PRO_MONTHLY_PRICE_USD = 20;
 
 export type SubscriptionStatus = "free" | "active" | "canceled" | "past_due";
 

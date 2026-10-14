@@ -9,6 +9,7 @@ import {
   Users,
   Wallet,
 } from "lucide-react";
+import { PRO_MONTHLY_PRICE_USD } from "@/lib/subscriptions/plans";
 
 export const marketingNav = [
   { href: "/funkcije", label: "Features" },
@@ -164,8 +165,7 @@ export const pricingSectionCopy = {
   headline: "Start free. Pay only when you grow.",
   subheadline:
     "Everything you need for up to 2 properties — no credit card required.",
-  upgradeNote:
-    "More than 2 properties? Pro is 20€/month when you need it.",
+  upgradeNote: `More than 2 properties? Pro is $${PRO_MONTHLY_PRICE_USD}/month when you need it.`,
 };
 
 export const pricingPlans = [

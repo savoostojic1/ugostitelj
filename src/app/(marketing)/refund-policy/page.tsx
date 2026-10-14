@@ -5,7 +5,7 @@ import {
   LegalList,
   LegalMailLink,
   LegalSection,
-  PriceNotConfirmed,
+  ProSubscriptionPrice,
   RelatedLegalLinks,
   UnconfirmedOperatorDetails,
 } from "@/components/marketing/legal-document";
@@ -54,7 +54,7 @@ export default function RefundPolicyPage() {
           when the operator grants it without Stripe, is not a payment and has
           no charge to refund.
         </p>
-        <PriceNotConfirmed />
+        <ProSubscriptionPrice />
       </LegalSection>
 
       <LegalSection id="how-to-cancel" title="3. How to cancel">

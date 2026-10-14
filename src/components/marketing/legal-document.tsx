@@ -4,6 +4,7 @@ import {
   LEGAL_SUPPORT_EMAIL,
   UNCONFIRMED_OPERATOR_DETAILS,
 } from "@/lib/marketing/legal";
+import { PRO_MONTHLY_PRICE_USD } from "@/lib/subscriptions/plans";
 
 export function LegalDocument({
   title,
@@ -89,26 +90,11 @@ export function UnconfirmedOperatorDetails() {
   );
 }
 
-export function PriceNotConfirmed() {
+export function ProSubscriptionPrice() {
   return (
-    <div className="rounded-xl border border-white/10 bg-white/[0.03] p-4">
-      <p className="font-medium text-foreground">
-        Charged amount still to be confirmed
-      </p>
-      <p className="mt-2">
-        Pro checkout creates one Stripe subscription for the owner account,
-        with quantity 1. The fee is not multiplied by the number of properties.
-        The amount and currency Stripe charges are the Price configured for
-        that checkout.
-      </p>
-      <p className="mt-2">
-        Screens in the application currently show 20€ per month as a launch
-        price and 30€ per month as a crossed-out regular price. The operator
-        has said the intended price is 20 US dollars per month for the whole
-        account. The live Stripe Price could not be read from this project, so
-        this page does not state that Stripe charges 20 US dollars.
-      </p>
-    </div>
+    <p>
+      {`Pro is $${PRO_MONTHLY_PRICE_USD} per month for the whole owner account. The fee does not increase with the number of properties. Checkout is one Stripe subscription.`}
+    </p>
   );
 }
 

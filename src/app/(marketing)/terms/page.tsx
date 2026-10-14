@@ -4,7 +4,7 @@ import {
   LegalList,
   LegalMailLink,
   LegalSection,
-  PriceNotConfirmed,
+  ProSubscriptionPrice,
   RelatedLegalLinks,
   UnconfirmedOperatorDetails,
 } from "@/components/marketing/legal-document";
@@ -149,7 +149,7 @@ export default function TermsPage() {
         <p>
           {`Pro is the same product without that property cap. It is one monthly subscription for the whole owner account. Adding properties does not add another Hostvia fee. Checkout sends a single subscription line with quantity 1.`}
         </p>
-        <PriceNotConfirmed />
+        <ProSubscriptionPrice />
         <p>
           Pro renews each billing period until the account owner cancels.
           Renewal is charged to the payment method on that Stripe subscription.

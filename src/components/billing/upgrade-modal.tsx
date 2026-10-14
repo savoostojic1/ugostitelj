@@ -9,10 +9,7 @@ import {
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { useStartCheckout } from "@/hooks/use-billing";
-import {
-  PRO_LAUNCH_PRICE_EUR,
-  PRO_REGULAR_PRICE_EUR,
-} from "@/lib/subscriptions/plans";
+import { PRO_MONTHLY_PRICE_USD } from "@/lib/subscriptions/plans";
 
 interface UpgradeModalProps {
   open: boolean;
@@ -54,18 +51,12 @@ export function UpgradeModal({ open, onOpenChange }: UpgradeModalProps) {
           </DialogHeader>
 
           <div className="relative mt-6 rounded-2xl border border-white/10 bg-white/[0.04] p-5">
-            <div className="flex flex-wrap items-end gap-3">
-              <span className="text-lg text-zinc-500 line-through">
-                {PRO_REGULAR_PRICE_EUR}€/month
-              </span>
+            <div className="flex flex-wrap items-end gap-1">
               <span className="text-3xl font-bold tracking-tight text-white">
-                {PRO_LAUNCH_PRICE_EUR}€
+                ${PRO_MONTHLY_PRICE_USD}
                 <span className="text-base font-medium text-zinc-400">
                   /month
                 </span>
-              </span>
-              <span className="rounded-full bg-gradient-to-r from-violet-500 to-cyan-500 px-2.5 py-0.5 text-[11px] font-bold uppercase tracking-wide text-white">
-                Launch Discount
               </span>
             </div>
           </div>
