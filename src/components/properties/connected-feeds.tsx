@@ -34,6 +34,7 @@ export function ConnectedFeeds({ propertyId }: { propertyId: string }) {
     }
     toast.success("Feed deleted");
     qc.invalidateQueries({ queryKey: ["calendar_feeds", propertyId] });
+    qc.invalidateQueries({ queryKey: ["setup-feed-count"] });
   }
 
   async function syncAll() {

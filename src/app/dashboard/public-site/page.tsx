@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { BookingSiteUrlPanel } from "@/components/dashboard/booking-site-url-panel";
+import { SetupStepBanner } from "@/components/dashboard/setup-step-banner";
 import { DashboardPageHeader } from "@/components/dashboard/dashboard-page-header";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -145,6 +146,7 @@ export default function PublicSiteSettingsPage() {
 
   return (
     <div className="space-y-8">
+      <SetupStepBanner stepId="booking-site" />
       <DashboardPageHeader
         eyebrow="Website"
         title="Booking site"

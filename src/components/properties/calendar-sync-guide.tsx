@@ -1,6 +1,12 @@
 "use client";
 
-import { ArrowDownToLine, ArrowUpFromLine, CalendarDays } from "lucide-react";
+import { ArrowDownToLine, ArrowUpFromLine, CalendarDays, ExternalLink } from "lucide-react";
+import { openInSystemBrowser } from "@/lib/pwa/standalone";
+
+const AIRBNB_EXPORT_URL = "https://www.airbnb.com/hosting/calendar";
+/** Sync calendars — the page Booking's own help uses for Copy link. */
+const BOOKING_EXPORT_URL =
+  "https://admin.booking.com/hotel/hoteladmin/extranet_ng/manage/sync/index.html";
 
 export function CalendarSyncGuide() {
   return (
@@ -46,6 +52,38 @@ export function CalendarSyncGuide() {
               appear in Hostvia and on your calendar tab.
             </li>
           </ol>
+          <p className="mt-3 rounded-lg border border-amber-500/20 bg-amber-500/10 px-3 py-2 text-xs leading-relaxed text-amber-100/90">
+            On Booking.com, open{" "}
+            <span className="font-medium text-amber-50">
+              Decide what to export
+            </span>{" "}
+            and choose{" "}
+            <span className="font-medium text-amber-50">Booked dates only</span>
+            , then Save. Closed dates use the same label as real bookings, so
+            exporting them brings those days in as guest stays.
+          </p>
+          <div className="mt-4 flex flex-col gap-2">
+            <button
+              type="button"
+              onClick={() => openInSystemBrowser(AIRBNB_EXPORT_URL)}
+              className="inline-flex h-10 items-center justify-center gap-2 rounded-lg border border-white/10 bg-white/[0.04] px-3 text-sm font-medium text-white transition hover:bg-white/[0.08]"
+            >
+              <ExternalLink className="h-3.5 w-3.5 shrink-0 text-zinc-400" />
+              Find Airbnb link
+            </button>
+            <button
+              type="button"
+              onClick={() => openInSystemBrowser(BOOKING_EXPORT_URL)}
+              className="inline-flex h-10 items-center justify-center gap-2 rounded-lg border border-white/10 bg-white/[0.04] px-3 text-sm font-medium text-white transition hover:bg-white/[0.08]"
+            >
+              <ExternalLink className="h-3.5 w-3.5 shrink-0 text-zinc-400" />
+              Find Booking link
+            </button>
+          </div>
+          <p className="mt-2 text-xs leading-relaxed text-zinc-500">
+            Other platforms work too. Paste an iCal link from Vrbo, Google
+            Calendar, or anywhere else, and choose Custom when you add it.
+          </p>
         </div>
 
         <div className="rounded-xl border border-white/8 bg-white/[0.02] p-4">

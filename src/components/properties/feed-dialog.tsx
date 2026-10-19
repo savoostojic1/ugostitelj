@@ -151,6 +151,7 @@ export function FeedDialog({ open, onOpenChange, propertyId, feed }: FeedDialogP
       }
 
       qc.invalidateQueries({ queryKey: ["calendar_feeds", propertyId] });
+      qc.invalidateQueries({ queryKey: ["setup-feed-count"] });
       onOpenChange(false);
     } catch (err) {
       toast.error(getSupabaseErrorMessage(err, "Failed to save calendar"));
@@ -207,10 +208,29 @@ export function FeedDialog({ open, onOpenChange, propertyId, feed }: FeedDialogP
               {platform === "airbnb" &&
                 "Airbnb: Calendar → Availability → Export calendar. Copy the full link (we convert webcal:// to https)."}
               {platform === "booking" &&
-                "Booking: Rates & availability → Sync calendars → Add connection → Skip to export → Copy link. Must be ical.html?t=... or ical.booking.com/v1/export?t=... (NOT the Import link)."}
+                "Booking: Rates & availability → Sync calendars → Add connection → Skip to export → Copy link. The link must be ical.html?t=... or ical.booking.com/v1/export?t=... — not the Import link."}
               {platform === "custom" &&
                 "Paste a public .ics calendar URL (http/https)."}
             </p>
+            {platform === "booking" ? (
+              <div className="rounded-lg border border-amber-500/25 bg-amber-500/10 px-3 py-2.5 text-xs leading-relaxed text-amber-100/90">
+                <p className="font-medium text-amber-50">
+                  In Booking, set Decide what to export to Booked dates only
+                </p>
+                <p className="mt-1">
+                  After Copy link, choose{" "}
+                  <span className="font-medium text-amber-50">
+                    Booked dates only
+                  </span>{" "}
+                  and press Save. Do not leave{" "}
+                  <span className="font-medium text-amber-50">
+                    Booked and closed dates
+                  </span>
+                  . Booking labels closed days the same as real bookings, so
+                  those days would show up here as guest reservations.
+                </p>
+              </div>
+            ) : null}
           </div>
           <Button type="submit" className="w-full" disabled={loading}>
             {loading ? "Saving…" : feed ? "Save Changes" : "Add Feed"}

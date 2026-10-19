@@ -7,6 +7,7 @@ import { PropertyLockedBanner } from "@/components/properties/property-locked-ba
 import { PropertyDeleteButton } from "@/components/properties/property-delete-button";
 import { PropertyDetailNav } from "@/components/properties/property-detail-nav";
 import { PropertyNameEditor } from "@/components/properties/property-name-editor";
+import { SetupStepBanner } from "@/components/dashboard/setup-step-banner";
 import { PropertyPublishPanel } from "@/components/properties/property-publish-panel";
 import { PropertyPricingSettings } from "@/components/properties/property-pricing-settings";
 import { PropertyPublicSettings } from "@/components/properties/property-public-settings";
@@ -41,6 +42,7 @@ export default function PropertyDetailPage({
 
   return (
     <div className="hostvia-property-page hostvia-pwa-property-page space-y-8">
+      <SetupStepBanner stepId="publish-listing" />
       <Button
         variant="ghost"
         size="sm"

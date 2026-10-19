@@ -3,10 +3,60 @@
 import { RefreshCw } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { SavedMessagesDropdown } from "@/components/dashboard/saved-messages-dropdown";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import { useSyncAll } from "@/hooks/use-properties";
 import { formatSyncAllResultMessage } from "@/lib/sync/sync-all";
 import { markSyncCompleted } from "@/lib/sync/constants";
 import { toast } from "sonner";
+
+export function DashboardMobileHeaderActions() {
+  const syncAll = useSyncAll();
+
+  function handleReload() {
+    syncAll.mutate(undefined, {
+      onSuccess: (data) => {
+        toast.success(formatSyncAllResultMessage(data.results));
+        markSyncCompleted();
+      },
+      onError: (err) => {
+        toast.error(err instanceof Error ? err.message : "Sync failed");
+      },
+    });
+  }
+
+  return (
+    <div className="ml-auto flex items-center gap-1">
+      <SavedMessagesDropdown iconOnly />
+      <DropdownMenu>
+        <DropdownMenuTrigger asChild>
+          <Button
+            variant="outline"
+            size="icon"
+            aria-label="Reload data"
+            className="h-9 w-9 border-white/10 bg-white/[0.03] text-zinc-300 hover:bg-white/[0.06] hover:text-white"
+          >
+            <RefreshCw
+              className={`h-4 w-4 ${syncAll.isPending ? "animate-spin" : ""}`}
+            />
+          </Button>
+        </DropdownMenuTrigger>
+        <DropdownMenuContent align="end">
+          <DropdownMenuItem
+            disabled={syncAll.isPending}
+            onSelect={handleReload}
+          >
+            {syncAll.isPending ? "Syncing…" : "Reload data"}
+          </DropdownMenuItem>
+        </DropdownMenuContent>
+      </DropdownMenu>
+    </div>
+  );
+}
 
 export function DashboardTopbar() {
   const syncAll = useSyncAll();
@@ -42,12 +92,7 @@ export function DashboardTopbar() {
           <RefreshCw
             className={`h-3.5 w-3.5 shrink-0 ${syncAll.isPending ? "animate-spin" : ""}`}
           />
-          <span className="sm:hidden">
-            {syncAll.isPending ? "Syncing…" : "Reload data"}
-          </span>
-          <span className="hidden sm:inline">
-            {syncAll.isPending ? "Syncing…" : "Sync"}
-          </span>
+          {syncAll.isPending ? "Syncing…" : "Sync"}
         </Button>
       </div>
     </header>

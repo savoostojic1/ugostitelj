@@ -22,6 +22,7 @@ import { DashboardStatCard } from "@/components/dashboard/dashboard-stat-card";
 import { Button } from "@/components/ui/button";
 import { useAllowedProperties, useAllowedReservations } from "@/hooks/use-allowed-properties";
 import { useSetupProgress } from "@/hooks/use-setup-progress";
+import { useDashboardContext } from "@/hooks/use-team-access";
 import {
   getDashboardStats,
   groupArrivalsDepartures,
@@ -61,11 +62,14 @@ export function DashboardOverview() {
 
   const { progress: setupProgress, isLoading: setupLoading } =
     useSetupProgress();
+  const { data: dashboardContext, isLoading: contextLoading } =
+    useDashboardContext();
+  const isOwner = dashboardContext?.isOwner ?? false;
 
-  const isLoading = propsLoading || resLoading || setupLoading;
+  const isLoading = propsLoading || resLoading || setupLoading || contextLoading;
   const isNewUser = !propsLoading && properties.length === 0;
   const showGettingStarted =
-    !setupLoading && setupProgress && !setupProgress.isComplete;
+    isOwner && !setupLoading && !setupProgress.isComplete;
   const stats = getDashboardStats(properties, reservations);
   const arrivals = groupArrivalsDepartures(reservations);
 
@@ -80,14 +84,17 @@ export function DashboardOverview() {
   return (
     <div className="space-y-8">
       <DashboardPageHeader
-        eyebrow="Operations"
-        title="Dashboard"
+        eyebrow={showGettingStarted ? "Getting started" : "Operations"}
+        title={showGettingStarted ? "Set up Hostvia" : "Dashboard"}
         description={
-          isNewUser
-            ? "Let's set up your first accommodation"
-            : `${stats.weekLabel} · ${properties.length} propert${properties.length === 1 ? "y" : "ies"}`
+          showGettingStarted
+            ? "Four short steps. Open each one, finish it, and guests can find you."
+            : isNewUser
+              ? "Let's set up your first accommodation"
+              : `${stats.weekLabel} · ${properties.length} propert${properties.length === 1 ? "y" : "ies"}`
         }
         actions={
+          showGettingStarted ? undefined : (
           <>
             <Button
               variant="outline"
@@ -108,6 +115,7 @@ export function DashboardOverview() {
               Add property
             </Link>
           </>
+          )
         }
       />
 
@@ -115,6 +123,11 @@ export function DashboardOverview() {
 
       {!isLoading && !isNewUser ? (
         <>
+          {showGettingStarted ? (
+            <h2 className="hostvia-dashboard-page-inset text-sm font-medium text-zinc-500">
+              Your bookings
+            </h2>
+          ) : null}
           <div className="grid gap-4 lg:grid-cols-[1.4fr_1fr]">
             <div className="hostvia-hero-metric">
               <div className="hostvia-hero-metric-glow" />
@@ -287,7 +300,9 @@ export function DashboardOverview() {
         </>
       ) : null}
 
-      <PushNotificationsPrompt hideWhenSubscribed />
+      {!showGettingStarted ? (
+        <PushNotificationsPrompt hideWhenSubscribed />
+      ) : null}
     </div>
   );
 }

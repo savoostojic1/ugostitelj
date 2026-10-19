@@ -15,7 +15,11 @@ async function copyMessageText(text: string) {
   await navigator.clipboard.writeText(text);
 }
 
-export function SavedMessagesDropdown() {
+export function SavedMessagesDropdown({
+  iconOnly = false,
+}: {
+  iconOnly?: boolean;
+}) {
   const { data: messages = [], isLoading } = useSavedMessages();
 
   if (isLoading || messages.length === 0) {
@@ -27,15 +31,29 @@ export function SavedMessagesDropdown() {
       <DropdownMenuTrigger asChild>
         <Button
           variant="outline"
-          size="sm"
-          className="h-8 gap-2 border-white/10 bg-white/[0.03] text-zinc-300 hover:bg-white/[0.06] hover:text-white"
+          size={iconOnly ? "icon" : "sm"}
+          aria-label="Messages"
+          className={
+            iconOnly
+              ? "h-9 w-9 border-white/10 bg-white/[0.03] text-zinc-300 hover:bg-white/[0.06] hover:text-white"
+              : "h-8 gap-2 border-white/10 bg-white/[0.03] text-zinc-300 hover:bg-white/[0.06] hover:text-white"
+          }
         >
           <Copy className="h-4 w-4" />
-          Messages
-          <ChevronDown className="h-4 w-4 opacity-50" />
+          {iconOnly ? null : (
+            <>
+              Messages
+              <ChevronDown className="h-4 w-4 opacity-50" />
+            </>
+          )}
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end">
+        {iconOnly ? (
+          <p className="px-2 py-1.5 text-xs font-medium text-muted-foreground">
+            Messages
+          </p>
+        ) : null}
         {messages.map((message) => (
           <DropdownMenuItem
             key={message.id}

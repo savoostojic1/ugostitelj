@@ -1,33 +1,10 @@
 "use client";
 
-import { useEffect, useState } from "react";
 import Link from "next/link";
-import {
-  ArrowRight,
-  Check,
-  Circle,
-  Globe,
-  Home,
-  Link2,
-  Sparkles,
-  X,
-} from "lucide-react";
-import { DashboardPanel } from "@/components/dashboard/dashboard-panel";
-import { Button } from "@/components/ui/button";
+import { ArrowRight, Check, Sparkles } from "lucide-react";
 import { useSetupProgress } from "@/hooks/use-setup-progress";
 import { useDashboardContext } from "@/hooks/use-team-access";
-import {
-  SETUP_DISMISS_STORAGE_KEY,
-  type SetupStepId,
-} from "@/lib/onboarding/setup-steps";
 import { cn } from "@/lib/utils";
-
-const STEP_ICONS: Record<SetupStepId, typeof Home> = {
-  property: Home,
-  calendar: Link2,
-  "booking-site": Globe,
-  "publish-listing": Sparkles,
-};
 
 export function GettingStartedChecklist({
   variant = "default",
@@ -36,34 +13,10 @@ export function GettingStartedChecklist({
 }) {
   const { data: context } = useDashboardContext();
   const { progress, isLoading } = useSetupProgress();
-  const [dismissed, setDismissed] = useState(false);
 
   const isOwner = context?.isOwner ?? false;
 
-  useEffect(() => {
-    try {
-      setDismissed(
-        window.localStorage.getItem(SETUP_DISMISS_STORAGE_KEY) === "1"
-      );
-    } catch {
-      setDismissed(false);
-    }
-  }, []);
-
-  function handleDismiss() {
-    try {
-      window.localStorage.setItem(SETUP_DISMISS_STORAGE_KEY, "1");
-    } catch {
-      // ignore
-    }
-    setDismissed(true);
-  }
-
   if (!isOwner || isLoading || progress.isComplete) {
-    return null;
-  }
-
-  if (dismissed && progress.hasProperty) {
     return null;
   }
 
@@ -77,7 +30,7 @@ export function GettingStartedChecklist({
 
     return (
       <Link
-        href={nextStep.href}
+        href="/dashboard"
         className="hostvia-panel flex items-center gap-4 p-4 transition hover:border-violet-500/25"
       >
         <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-violet-500/15 text-violet-300">
@@ -85,7 +38,10 @@ export function GettingStartedChecklist({
         </div>
         <div className="min-w-0 flex-1">
           <p className="text-sm font-medium text-white">Continue setup</p>
-          <p className="truncate text-xs text-zinc-500">{nextStep.title}</p>
+          <p className="truncate text-xs text-zinc-500">
+            {progress.completedCount} of {progress.totalCount} done ·{" "}
+            {nextStep.title}
+          </p>
         </div>
         <ArrowRight className="h-4 w-4 shrink-0 text-zinc-500" />
       </Link>
@@ -93,26 +49,14 @@ export function GettingStartedChecklist({
   }
 
   return (
-    <DashboardPanel
-      title="Getting started"
-      description={`${progress.completedCount} of ${progress.totalCount} steps complete`}
-      icon={<Sparkles className="h-4 w-4" />}
-      action={
-        progress.hasProperty ? (
-          <Button
-            type="button"
-            variant="ghost"
-            size="sm"
-            className="h-8 text-xs text-zinc-500 hover:text-zinc-300"
-            onClick={handleDismiss}
-          >
-            <X className="h-3.5 w-3.5" />
-            Hide
-          </Button>
-        ) : null
-      }
-    >
-      <div className="mb-5">
+    <div className="space-y-4">
+      <div className="hostvia-dashboard-page-inset">
+        <div className="mb-2 flex items-center justify-between gap-3 text-xs text-zinc-500">
+          <span>
+            {progress.completedCount} of {progress.totalCount} steps done
+          </span>
+          <span className="tabular-nums">{progressPercent}%</span>
+        </div>
         <div className="h-1.5 overflow-hidden rounded-full bg-white/8">
           <div
             className="h-full rounded-full bg-gradient-to-r from-violet-500 to-cyan-500 transition-all"
@@ -121,92 +65,108 @@ export function GettingStartedChecklist({
         </div>
       </div>
 
-      {!progress.hasProperty ? (
-        <div className="mb-5 rounded-xl border border-violet-500/20 bg-violet-500/5 p-4">
-          <p className="text-sm leading-relaxed text-zinc-300">
-            Welcome to Hostvia. Start by adding your first accommodation — then
-            connect calendars and publish your direct booking site.
-          </p>
-          <Link
-            href="/dashboard/properties/new"
-            className="hostvia-btn-gradient mt-4 inline-flex h-10 items-center gap-2 rounded-lg px-5 text-sm font-semibold"
-          >
-            <Home className="h-4 w-4" />
-            Add accommodation
-          </Link>
-        </div>
-      ) : null}
-
-      <ol className="space-y-3">
+      <ol className="hostvia-dashboard-page-inset space-y-3">
         {progress.steps.map((step, index) => {
-          const Icon = STEP_ICONS[step.id];
           const isNext = !step.done && step.id === nextStep?.id;
+          const needsPlaceFirst = step.requiresProperty && !progress.hasProperty;
+          const href = needsPlaceFirst ? "/dashboard/properties/new" : step.href;
+          const actionLabel = needsPlaceFirst
+            ? "Add a place first"
+            : step.done
+              ? "Open again"
+              : step.actionLabel;
 
           return (
             <li key={step.id}>
-              <Link
-                href={step.href}
+              <article
                 className={cn(
-                  "flex items-start gap-3 rounded-xl border px-4 py-3 transition",
+                  "rounded-2xl border p-4 sm:p-5",
                   step.done
                     ? "border-emerald-500/20 bg-emerald-500/5"
                     : isNext
-                      ? "border-violet-500/30 bg-violet-500/8 hover:border-violet-500/40"
-                      : "border-white/8 bg-white/[0.02] hover:border-white/12 hover:bg-white/[0.04]"
+                      ? "border-violet-500/35 bg-violet-500/10"
+                      : "border-white/8 bg-white/[0.02]"
                 )}
               >
-                <div
-                  className={cn(
-                    "mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-lg",
-                    step.done
-                      ? "bg-emerald-500/15 text-emerald-300"
-                      : isNext
-                        ? "bg-violet-500/15 text-violet-300"
-                        : "bg-white/5 text-zinc-500"
-                  )}
-                >
-                  {step.done ? (
-                    <Check className="h-4 w-4" />
-                  ) : (
-                    <Icon className="h-4 w-4" />
-                  )}
-                </div>
-                <div className="min-w-0 flex-1">
-                  <div className="flex items-center gap-2">
-                    <span className="text-[11px] font-semibold uppercase tracking-wide text-zinc-600">
-                      Step {index + 1}
-                    </span>
-                    {isNext ? (
-                      <span className="rounded-full bg-violet-500/20 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-violet-200">
-                        Next
-                      </span>
-                    ) : null}
-                  </div>
-                  <p
+                <div className="flex items-start gap-3 sm:gap-4">
+                  <div
                     className={cn(
-                      "mt-0.5 text-sm font-medium",
-                      step.done ? "text-emerald-100" : "text-white"
+                      "flex h-9 w-9 shrink-0 items-center justify-center rounded-xl text-sm font-semibold",
+                      step.done
+                        ? "bg-emerald-500/15 text-emerald-300"
+                        : isNext
+                          ? "bg-violet-500/20 text-violet-200"
+                          : "bg-white/5 text-zinc-400"
                     )}
                   >
-                    {step.title}
-                  </p>
-                  <p className="mt-1 text-xs leading-relaxed text-zinc-500">
-                    {step.description}
-                  </p>
+                    {step.done ? <Check className="h-4 w-4" /> : index + 1}
+                  </div>
+
+                  <div className="min-w-0 flex-1">
+                    <div className="flex flex-wrap items-center gap-2">
+                      <h2
+                        className={cn(
+                          "text-base font-semibold",
+                          step.done ? "text-emerald-100" : "text-white"
+                        )}
+                      >
+                        {step.title}
+                      </h2>
+                      {step.done ? (
+                        <span className="rounded-full bg-emerald-500/15 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-emerald-200">
+                          Done
+                        </span>
+                      ) : isNext ? (
+                        <span className="rounded-full bg-violet-500/20 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-violet-200">
+                          Do this now
+                        </span>
+                      ) : null}
+                    </div>
+                    <p className="mt-1 text-sm leading-relaxed text-zinc-400">
+                      {step.description}
+                    </p>
+
+                    {!step.done ? (
+                      <ul className="mt-3 space-y-1.5">
+                        {step.tasks.map((task) => (
+                          <li
+                            key={task}
+                            className="flex items-start gap-2 text-sm leading-relaxed text-zinc-300"
+                          >
+                            <span className="mt-2 h-1 w-1 shrink-0 rounded-full bg-zinc-500" />
+                            <span>{task}</span>
+                          </li>
+                        ))}
+                      </ul>
+                    ) : null}
+
+                    {needsPlaceFirst ? (
+                      <p className="mt-3 text-xs text-zinc-500">
+                        This step opens after you add a place.
+                      </p>
+                    ) : null}
+
+                    <Link
+                      href={href}
+                      className={cn(
+                        "mt-4 inline-flex h-10 items-center gap-2 rounded-lg px-4 text-sm font-semibold",
+                        step.done
+                          ? "border border-white/10 bg-white/[0.03] text-zinc-300 hover:bg-white/[0.06] hover:text-white"
+                          : isNext
+                            ? "hostvia-btn-gradient"
+                            : "border border-white/10 bg-white/[0.04] text-white hover:bg-white/[0.08]"
+                      )}
+                    >
+                      {actionLabel}
+                      <ArrowRight className="h-4 w-4" />
+                    </Link>
+                  </div>
                 </div>
-                {!step.done ? (
-                  <ArrowRight
-                    className={cn(
-                      "mt-2 h-4 w-4 shrink-0",
-                      isNext ? "text-violet-400" : "text-zinc-600"
-                    )}
-                  />
-                ) : null}
-              </Link>
+              </article>
             </li>
           );
         })}
       </ol>
-    </DashboardPanel>
+    </div>
   );
 }

@@ -10,6 +10,7 @@ import {
   Zap,
 } from "lucide-react";
 import { HostviaHeroMockup } from "@/components/marketing/hostvia-hero-mockup";
+import { HostviaPromoVideo } from "@/components/marketing/hostvia-promo-video";
 import { MarketingPrimaryCta } from "@/components/marketing/marketing-primary-cta";
 import { PricingSection } from "@/components/marketing/pricing-section";
 
@@ -90,26 +91,56 @@ export default function HomePage() {
             </div>
           </div>
 
-          <div className="w-full lg:justify-self-end">
+          <div className="hidden w-full lg:block lg:justify-self-end">
             <HostviaHeroMockup />
+          </div>
+          <div className="w-full lg:hidden">
+            <HostviaPromoVideo />
           </div>
         </div>
       </section>
 
-      {/* Value props strip */}
-      <section className="border-y border-white/5 bg-white/[0.02] py-5 sm:py-6">
-        <div className="marketing-container grid gap-4 text-center text-sm text-zinc-500 sm:grid-cols-3 sm:gap-6">
-          <span>
-            <strong className="text-white">0%</strong> commission on direct
-            bookings
-          </span>
-          <span>
-            <strong className="text-white">Airbnb + Booking</strong> calendar
-            sync
-          </span>
-          <span>
-            <strong className="text-white">Real-time</strong> availability
-          </span>
+      {/* Product tour video */}
+      <section className="relative isolate overflow-hidden border-y border-white/[0.07] bg-[#0e0e14] py-6 sm:py-8 lg:py-24">
+        <div
+          aria-hidden
+          className="pointer-events-none absolute inset-0 -z-10 bg-[radial-gradient(rgba(255,255,255,0.12)_1px,transparent_1px)] [background-size:22px_22px] [mask-image:radial-gradient(ellipse_75%_65%_at_50%_45%,black,transparent)]"
+        />
+        <div
+          aria-hidden
+          className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-violet-400/50 to-transparent"
+        />
+        <div className="marketing-container">
+          <div className="mx-auto mb-10 hidden max-w-2xl text-center lg:block">
+            <p className="marketing-eyebrow mb-4 justify-center">
+              Product tour
+            </p>
+            <h2 className="marketing-heading text-3xl text-white md:text-4xl">
+              See Hostvia.me{" "}
+              <span className="hostvia-gradient-text">in 40 seconds</span>
+            </h2>
+            <p className="mt-4 text-base leading-relaxed text-zinc-400 sm:text-lg">
+              Calendars, manual bookings, cleanings, your booking website and
+              saved guest messages — all in one place.
+            </p>
+          </div>
+          <div className="hidden lg:block">
+            <HostviaPromoVideo />
+          </div>
+
+          <div className="mx-auto grid max-w-5xl gap-4 text-center text-sm text-zinc-500 sm:grid-cols-3 lg:mt-12 sm:gap-0 sm:divide-x sm:divide-white/[0.07]">
+            <span>
+              <strong className="text-white">0%</strong> commission on direct
+              bookings
+            </span>
+            <span>
+              <strong className="text-white">Airbnb + Booking</strong> calendar
+              sync
+            </span>
+            <span>
+              <strong className="text-white">Real-time</strong> availability
+            </span>
+          </div>
         </div>
       </section>
 

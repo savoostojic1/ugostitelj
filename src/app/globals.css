@@ -462,8 +462,7 @@
   }
 
   .hostvia-dashboard-topbar {
-    padding-left: max(10px, env(safe-area-inset-left, 0px));
-    padding-right: max(10px, env(safe-area-inset-right, 0px));
+    display: none;
   }
 
   .hostvia-dashboard-page {
@@ -503,6 +502,10 @@
 
   html[data-standalone="true"] .hostvia-sidebar.sticky.top-0.z-30.pt-safe {
     display: block !important;
+  }
+
+  html[data-standalone="true"] .hostvia-dashboard-topbar {
+    display: none;
   }
 
   html[data-standalone="true"] .hostvia-dashboard-main::before {

@@ -1,0 +1,27 @@
+{
+  "name": "hostvia-promo-video",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Hostvia.me promotional video (Remotion). Isolated from the Next.js app.",
+  "scripts": {
+    "studio": "remotion studio src/index.ts",
+    "render": "remotion render src/index.ts HostviaPromo out/hostvia-promo.mp4 --codec=h264 --crf=18 --pixel-format=yuv420p --audio-codec=aac --audio-bitrate=192k",
+    "render:no-tag": "remotion render src/index.ts HostviaPromo out/hostvia-promo-no-tag.mp4 --codec=h264 --crf=18 --pixel-format=yuv420p --audio-codec=aac --audio-bitrate=192k --props='{\"showIllustrativeTag\":false}'",
+    "poster": "remotion still src/index.ts HostviaPromo out/hostvia-promo-poster.jpg --frame=1199 --image-format=jpeg --jpeg-quality=92",
+    "contact-sheet": "node scripts/contact-sheet.mjs",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@remotion/cli": "^4.0.536",
+    "@remotion/fonts": "^4.0.536",
+    "geist": "^1.8.1",
+    "lucide-react": "^1.17.0",
+    "react": "^19.1.0",
+    "react-dom": "^19.1.0",
+    "remotion": "^4.0.536"
+  },
+  "devDependencies": {
+    "@types/react": "^19.3.0",
+    "typescript": "^7.0.2"
+  }
+}

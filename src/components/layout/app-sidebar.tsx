@@ -25,6 +25,7 @@ import { Button } from "@/components/ui/button";
 import { useUiStore } from "@/stores/ui-store";
 import { useSupabase } from "@/hooks/use-supabase";
 import { useRouter } from "next/navigation";
+import { DashboardMobileHeaderActions } from "@/components/dashboard/dashboard-topbar";
 import { InstallAppSidebarButton } from "@/components/pwa/install-app-sidebar-button";
 import { useDashboardContext } from "@/hooks/use-team-access";
 import {
@@ -245,7 +246,7 @@ export function AppSidebar() {
       </aside>
 
       <div className="hostvia-sidebar sticky top-0 z-30 pt-safe md:hidden">
-        <div className="flex h-14 items-center gap-3 px-4">
+        <div className="flex h-14 items-center gap-2 px-3">
           <Button
             variant="ghost"
             size="icon"
@@ -257,6 +258,7 @@ export function AppSidebar() {
           <span className="font-semibold text-white">
             hostvia<span className="text-violet-400">.me</span>
           </span>
+          <DashboardMobileHeaderActions />
         </div>
       </div>
 

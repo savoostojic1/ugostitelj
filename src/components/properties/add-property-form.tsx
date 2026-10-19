@@ -12,6 +12,7 @@ import {
   Loader2,
 } from "lucide-react";
 import { DashboardPageHeader } from "@/components/dashboard/dashboard-page-header";
+import { SetupStepBanner } from "@/components/dashboard/setup-step-banner";
 import { UpgradeModal } from "@/components/billing/upgrade-modal";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
@@ -77,6 +78,7 @@ export function AddPropertyForm() {
   return (
     <>
       <div className="space-y-8">
+        <SetupStepBanner stepId="property" />
         <Link
           href="/dashboard/properties"
           className="hostvia-dashboard-page-inset inline-flex items-center gap-2 text-sm text-zinc-500 transition hover:text-zinc-300"

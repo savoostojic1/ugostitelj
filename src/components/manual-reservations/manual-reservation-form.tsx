@@ -1,17 +1,11 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
+import { PropertyStayPicker } from "@/components/manual-reservations/property-stay-picker";
 import { ReservationDatePicker } from "@/components/manual-reservations/reservation-date-picker";
 import {
   useAllowedProperties,
@@ -39,7 +33,6 @@ export function ManualReservationForm({
   const router = useRouter();
   const isEdit = !!reservationId;
   const loadedReservationId = useRef<string | null>(null);
-  const previousPropertyId = useRef<string>("");
 
   const [propertyId, setPropertyId] = useState("");
   const [guestName, setGuestName] = useState("");
@@ -53,8 +46,13 @@ export function ManualReservationForm({
     useManualReservation(reservationId ?? "");
   const { data: properties = [], isLoading: propertiesLoading } =
     useAllowedProperties();
-  const { data: propertyReservations = [], isLoading: reservationsLoading } =
-    useAllowedReservations(propertyId, { enabled: !!propertyId });
+  const { data: allReservations = [], isLoading: reservationsLoading } =
+    useAllowedReservations();
+  const propertyReservations = useMemo(
+    () =>
+      allReservations.filter((stay) => stay.property_id === propertyId),
+    [allReservations, propertyId]
+  );
   const createReservation = useCreateManualReservation();
   const updateReservation = useUpdateManualReservation();
 
@@ -62,7 +60,6 @@ export function ManualReservationForm({
     if (!reservation || loadedReservationId.current === reservation.id) return;
 
     loadedReservationId.current = reservation.id;
-    previousPropertyId.current = reservation.property_id;
     setPropertyId(reservation.property_id);
     setGuestName(reservation.title);
     setCheckIn(reservation.check_in);
@@ -73,24 +70,6 @@ export function ManualReservationForm({
       reservation.price != null ? String(reservation.price) : ""
     );
   }, [reservation]);
-
-  useEffect(() => {
-    if (!propertyId || isEdit) return;
-    setCheckIn("");
-    setCheckOut("");
-  }, [propertyId, isEdit]);
-
-  useEffect(() => {
-    if (!isEdit || !propertyId) return;
-    if (previousPropertyId.current === propertyId) return;
-    if (previousPropertyId.current === "") {
-      previousPropertyId.current = propertyId;
-      return;
-    }
-    previousPropertyId.current = propertyId;
-    setCheckIn("");
-    setCheckOut("");
-  }, [propertyId, isEdit]);
 
   function handleDatesChange(nextCheckIn: string, nextCheckOut: string) {
     setCheckIn(nextCheckIn);
@@ -202,21 +181,32 @@ export function ManualReservationForm({
 
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
-      <div className="space-y-2">
-        <Label htmlFor="property">Property</Label>
-        <Select value={propertyId} onValueChange={setPropertyId} required>
-          <SelectTrigger id="property">
-            <SelectValue placeholder="Select property" />
-          </SelectTrigger>
-          <SelectContent>
-            {properties.map((p) => (
-              <SelectItem key={p.id} value={p.id}>
-                {p.name}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
-      </div>
+      <PropertyStayPicker
+        properties={properties}
+        reservations={allReservations}
+        reservationsLoading={reservationsLoading}
+        value={propertyId}
+        onChange={setPropertyId}
+        checkIn={checkIn}
+        checkOut={checkOut}
+        excludeReservationId={isEdit ? reservationId : undefined}
+        currentPropertyId={isEdit ? reservation?.property_id : undefined}
+      />
+
+      {propertyId ? (
+        <ReservationDatePicker
+          reservations={propertyReservations}
+          checkIn={checkIn}
+          checkOut={checkOut}
+          onChange={handleDatesChange}
+          isLoading={reservationsLoading}
+          excludeReservationId={isEdit ? reservationId : undefined}
+        />
+      ) : (
+        <p className="rounded-lg border border-dashed border-border p-4 text-sm text-muted-foreground">
+          Select a property to see its calendar.
+        </p>
+      )}
 
       <div className="space-y-2">
         <Label htmlFor="guestName">Guest name</Label>
@@ -226,7 +216,6 @@ export function ManualReservationForm({
           onChange={(e) => setGuestName(e.target.value)}
           placeholder="e.g. John Smith"
           required
-          autoFocus={!isEdit}
         />
       </div>
 
@@ -242,21 +231,6 @@ export function ManualReservationForm({
           placeholder="e.g. +1 555 123 4567"
         />
       </div>
-
-      {propertyId ? (
-        <ReservationDatePicker
-          reservations={propertyReservations}
-          checkIn={checkIn}
-          checkOut={checkOut}
-          onChange={handleDatesChange}
-          isLoading={reservationsLoading}
-          excludeReservationId={isEdit ? reservationId : undefined}
-        />
-      ) : (
-        <p className="rounded-lg border border-dashed border-border p-4 text-sm text-muted-foreground">
-          Select a property first to see occupied dates.
-        </p>
-      )}
 
       <div className="space-y-2">
         <Label htmlFor="source">Booking source</Label>

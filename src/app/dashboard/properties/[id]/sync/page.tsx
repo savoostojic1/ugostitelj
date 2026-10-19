@@ -12,6 +12,7 @@ import { ConnectedFeeds } from "@/components/properties/connected-feeds";
 import { PropertyExportCalendar } from "@/components/properties/property-export-calendar";
 import { usePropertyPlanLock } from "@/hooks/use-property-plan-lock";
 import { useProperty } from "@/hooks/use-properties";
+import { SetupStepBanner } from "@/components/dashboard/setup-step-banner";
 import { Button } from "@/components/ui/button";
 
 export default function PropertySyncPage({
@@ -41,6 +42,7 @@ export default function PropertySyncPage({
 
   return (
     <div className="hostvia-property-page hostvia-pwa-property-page space-y-8">
+      <SetupStepBanner stepId="calendar" />
       <Button
         variant="ghost"
         size="sm"
