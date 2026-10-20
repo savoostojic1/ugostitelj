@@ -29,6 +29,10 @@ export const marketingPublicPaths = [
   "/about",
   "/contact",
   "/guides",
+  "/vacation-rental-management-software",
+  "/property-management-software-for-small-hosts",
+  "/airbnb-calendar-sync",
+  "/vacation-rental-cleaning-management",
   "/terms",
   "/privacy",
   "/refund-policy",
@@ -53,6 +57,12 @@ export const marketingFooter = {
     { href: "/about", label: "About" },
     { href: "/contact", label: "Contact" },
     { href: "/faq", label: "FAQ" },
+  ],
+  hosts: [
+    { href: "/vacation-rental-management-software", label: "Vacation rental software" },
+    { href: "/property-management-software-for-small-hosts", label: "Software for small hosts" },
+    { href: "/airbnb-calendar-sync", label: "Airbnb calendar sync" },
+    { href: "/vacation-rental-cleaning-management", label: "Cleaning management" },
   ],
   legal: [
     { href: "/terms", label: "Terms of service" },

@@ -41,6 +41,20 @@ export default function GuidesPage() {
         description="These pages explain the operating problems Hostvia is built for. They are not a promise that software removes every overlap or every missed clean."
       />
       <section className="mx-auto grid max-w-3xl gap-4 px-4 pb-20 md:px-6">
+        <p className="text-sm leading-relaxed text-zinc-500">
+          Product pages for the same topics:{" "}
+          <Link href="/airbnb-calendar-sync" className="text-violet-300 hover:underline">
+            calendar sync
+          </Link>
+          {" and "}
+          <Link
+            href="/vacation-rental-cleaning-management"
+            className="text-violet-300 hover:underline"
+          >
+            cleaning management
+          </Link>
+          .
+        </p>
         {guides.map((guide) => (
           <article key={guide.href} className="rounded-2xl border border-white/10 bg-white/[0.03] p-6">
             <h2 className="text-xl font-semibold text-white">

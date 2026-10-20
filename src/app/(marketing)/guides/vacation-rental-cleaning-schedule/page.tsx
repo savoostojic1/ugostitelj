@@ -115,6 +115,13 @@ export default function CleaningScheduleGuidePage() {
 
         <p className="mt-10 text-sm text-zinc-400">
           Related:{" "}
+          <Link
+            href="/vacation-rental-cleaning-management"
+            className="text-violet-300 hover:underline"
+          >
+            Cleaning management
+          </Link>
+          {" · "}
           <Link href="/features" className="text-violet-300 hover:underline">
             Features
           </Link>

@@ -6,7 +6,7 @@ export function MarketingFooter() {
   return (
     <footer className="border-t border-white/5 bg-[#040408]">
       <div className="marketing-container py-12 sm:py-16">
-        <div className="grid gap-8 sm:grid-cols-2 sm:gap-10 lg:grid-cols-4">
+        <div className="grid gap-8 sm:grid-cols-2 sm:gap-10 lg:grid-cols-5">
           <div>
             <Link href="/" className="flex items-center gap-2.5 font-semibold text-white">
               <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-gradient-to-br from-violet-500 to-cyan-500">
@@ -22,6 +22,7 @@ export function MarketingFooter() {
 
           {[
             { title: "Product", links: marketingFooter.product },
+            { title: "For hosts", links: marketingFooter.hosts },
             { title: "Company", links: marketingFooter.company },
             { title: "Legal", links: marketingFooter.legal },
           ].map((col) => (

@@ -131,6 +131,11 @@ export default function BookingSitePage() {
           <Button variant="outline" asChild>
             <Link href="/guides/vacation-rental-calendar">Calendar guide</Link>
           </Button>
+          <Button variant="outline" asChild>
+            <Link href="/vacation-rental-management-software">
+              Operations software
+            </Link>
+          </Button>
         </div>
       </section>
 

@@ -119,6 +119,10 @@ export default function VacationRentalCalendarGuidePage() {
 
         <p className="mt-10 text-sm text-zinc-400">
           Related:{" "}
+          <Link href="/airbnb-calendar-sync" className="text-violet-300 hover:underline">
+            Airbnb calendar sync
+          </Link>
+          {" · "}
           <Link href="/features" className="text-violet-300 hover:underline">
             Features
           </Link>

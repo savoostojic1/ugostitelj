@@ -122,6 +122,14 @@ export default function FeaturesPage() {
           <Button variant="outline" asChild>
             <Link href="/how-it-works">How to get started</Link>
           </Button>
+          <Button variant="outline" asChild>
+            <Link href="/vacation-rental-management-software">
+              Management software
+            </Link>
+          </Button>
+          <Button variant="outline" asChild>
+            <Link href="/airbnb-calendar-sync">Airbnb calendar sync</Link>
+          </Button>
         </div>
       </section>
 

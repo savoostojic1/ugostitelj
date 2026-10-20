@@ -92,6 +92,16 @@ export default function PricingPage() {
                 Refunds and cancellation
               </Link>
             </p>
+            <p className="mt-4 text-sm text-zinc-500">
+              Written for a small portfolio:{" "}
+              <Link
+                href="/property-management-software-for-small-hosts"
+                className="text-violet-300 hover:underline"
+              >
+                property management software for small hosts
+              </Link>
+              .
+            </p>
           </div>
         </div>
       </section>

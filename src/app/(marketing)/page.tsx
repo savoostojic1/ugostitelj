@@ -158,6 +158,13 @@ export default function HomePage() {
             <Link href="/how-it-works" className="text-violet-300 hover:underline">
               See the setup steps
             </Link>
+            {" · "}
+            <Link
+              href="/vacation-rental-management-software"
+              className="text-violet-300 hover:underline"
+            >
+              Vacation rental management software
+            </Link>
           </p>
         </div>
       </section>
@@ -240,6 +247,13 @@ export default function HomePage() {
               <p className="mt-4 text-sm text-zinc-500">
                 <Link href="/guides/vacation-rental-cleaning-schedule" className="text-violet-300 hover:underline">
                   Cleaning schedule guide
+                </Link>
+                {" · "}
+                <Link
+                  href="/vacation-rental-cleaning-management"
+                  className="text-violet-300 hover:underline"
+                >
+                  Cleaning in Hostvia
                 </Link>
                 {" · "}
                 <Link href="/guides/vacation-rental-calendar" className="text-violet-300 hover:underline">

@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Link from "next/link";
 import { CheckCircle2 } from "lucide-react";
 import { CtaBanner } from "@/components/marketing/cta-banner";
 import { MarketingAuthButton } from "@/components/marketing/marketing-auth-button";
@@ -110,6 +111,13 @@ export default function HowItWorksPage() {
           <div className="mt-8">
             <SyncLimitationNote />
           </div>
+          <p className="mt-4 text-sm text-muted-foreground">
+            The limits of that refresh are spelled out on{" "}
+            <Link href="/airbnb-calendar-sync" className="text-primary hover:underline">
+              Airbnb calendar sync
+            </Link>
+            .
+          </p>
         </div>
       </section>
 
