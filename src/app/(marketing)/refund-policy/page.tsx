@@ -9,16 +9,18 @@ import {
   RelatedLegalLinks,
   UnconfirmedOperatorDetails,
 } from "@/components/marketing/legal-document";
+import { pageMetadata } from "@/lib/seo/site";
 import {
   FREE_PLAN_PROPERTY_LIMIT,
   LEGAL_EFFECTIVE_DATE,
 } from "@/lib/marketing/legal";
 
-export const metadata: Metadata = {
-  title: "Refund and cancellation policy — Hostvia",
+export const metadata: Metadata = pageMetadata({
+  title: "Refund and cancellation policy",
   description:
     "How to cancel a Hostvia Pro subscription, when access ends, and how billing mistakes and refund requests are reviewed.",
-};
+  path: "/refund-policy",
+});
 
 export default function RefundPolicyPage() {
   return (

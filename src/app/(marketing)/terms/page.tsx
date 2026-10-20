@@ -8,16 +8,18 @@ import {
   RelatedLegalLinks,
   UnconfirmedOperatorDetails,
 } from "@/components/marketing/legal-document";
+import { pageMetadata } from "@/lib/seo/site";
 import {
   FREE_PLAN_PROPERTY_LIMIT,
   LEGAL_EFFECTIVE_DATE,
 } from "@/lib/marketing/legal";
 
-export const metadata: Metadata = {
-  title: "Terms of service — Hostvia",
+export const metadata: Metadata = pageMetadata({
+  title: "Terms of service",
   description:
     "Terms for using Hostvia: host accounts, booking sites, calendar sync, and the Free and Pro subscription plans.",
-};
+  path: "/terms",
+});
 
 export default function TermsPage() {
   return (

@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import { Plus_Jakarta_Sans } from "next/font/google";
 import { AppSidebar } from "@/components/layout/app-sidebar";
 import { DashboardLoadingGate } from "@/components/dashboard/dashboard-loading-gate";
@@ -5,6 +6,12 @@ import { ConditionalDashboardTopbar } from "@/components/dashboard/conditional-d
 import { InstallPrompt } from "@/components/pwa/install-prompt";
 import { AutoSync } from "@/components/sync/auto-sync";
 import { TeamAccessGuard } from "@/components/team-access/team-access-guard";
+import { privatePageMetadata } from "@/lib/seo/site";
+
+export const metadata: Metadata = privatePageMetadata(
+  "Dashboard",
+  "Private Hostvia dashboard for the signed-in account."
+);
 
 const dashboardSans = Plus_Jakarta_Sans({
   variable: "--font-marketing-sans",

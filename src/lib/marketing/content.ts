@@ -9,13 +9,16 @@ import {
   Users,
   Wallet,
 } from "lucide-react";
-import { PRO_MONTHLY_PRICE_USD } from "@/lib/subscriptions/plans";
+import {
+  FREE_PROPERTY_LIMIT,
+  PRO_MONTHLY_PRICE_USD,
+} from "@/lib/subscriptions/plans";
 
 export const marketingNav = [
-  { href: "/funkcije", label: "Features" },
-  { href: "/kako-radi", label: "How it works" },
-  { href: "/javni-sajt", label: "Booking site" },
-  { href: "/cijene", label: "Pricing" },
+  { href: "/features", label: "Features" },
+  { href: "/how-it-works", label: "How it works" },
+  { href: "/booking-site", label: "Booking site" },
+  { href: "/pricing", label: "Pricing" },
   { href: "/faq", label: "FAQ" },
 ] as const;
 
@@ -23,13 +26,12 @@ export const marketingNav = [
 export const marketingPublicPaths = [
   "/",
   ...marketingNav.map((item) => item.href),
-  "/o-nama",
-  "/kontakt",
+  "/about",
+  "/contact",
+  "/guides",
   "/terms",
   "/privacy",
   "/refund-policy",
-  "/privatnost",
-  "/uslovi",
 ] as const;
 
 export function isMarketingPublicPath(path: string): boolean {
@@ -41,14 +43,15 @@ export function isMarketingPublicPath(path: string): boolean {
 
 export const marketingFooter = {
   product: [
-    { href: "/funkcije", label: "Features" },
-    { href: "/kako-radi", label: "How it works" },
-    { href: "/javni-sajt", label: "Booking site" },
-    { href: "/cijene", label: "Pricing" },
+    { href: "/features", label: "Features" },
+    { href: "/how-it-works", label: "How it works" },
+    { href: "/booking-site", label: "Booking site" },
+    { href: "/pricing", label: "Pricing" },
+    { href: "/guides", label: "Guides" },
   ],
   company: [
-    { href: "/o-nama", label: "About" },
-    { href: "/kontakt", label: "Contact" },
+    { href: "/about", label: "About" },
+    { href: "/contact", label: "Contact" },
     { href: "/faq", label: "FAQ" },
   ],
   legal: [
@@ -72,7 +75,7 @@ export const coreFeatures: MarketingFeature[] = [
     icon: RefreshCw,
     title: "iCal sync",
     description:
-      "Connect Airbnb and Booking.com calendars with one link. All reservations sync into a single view.",
+      "Import Airbnb and Booking.com with the iCal link each listing already provides. Refresh is about hourly, not instant.",
   },
   {
     icon: Layers,
@@ -102,7 +105,7 @@ export const coreFeatures: MarketingFeature[] = [
     icon: MessageSquare,
     title: "Booking inquiries",
     description:
-      "Guests send inquiries directly to you — no platform commission. You decide whether to accept.",
+      "Guests send an inquiry to you. Hostvia does not charge a commission on that inquiry, and you decide whether to accept it.",
   },
 ];
 
@@ -117,7 +120,7 @@ export const howItWorksSteps = [
     step: "02",
     title: "Connect calendars",
     description:
-      "Paste your iCal link from Airbnb or Booking.com. Reservations sync automatically.",
+      "Paste the iCal link from Airbnb or Booking.com. Reservations import on the next sync, which is about hourly while you are using Hostvia.",
   },
   {
     step: "03",
@@ -156,7 +159,7 @@ export const publicSiteFeatures: MarketingFeature[] = [
     icon: Users,
     title: "Direct guest relationship",
     description:
-      "Inquiries go straight to you. No middleman, no hidden fees on direct bookings.",
+      "Inquiries come to you. Hostvia does not take a commission on them, and it does not collect the guest's payment.",
   },
 ];
 
@@ -172,7 +175,7 @@ export const pricingPlans = [
   {
     tier: "free" as const,
     name: "Free",
-    price: "0€",
+    price: "$0",
     period: "month",
     description: "Everything you need to run your listings.",
     features: [
@@ -192,42 +195,60 @@ export const faqItems = [
   {
     question: "What is Hostvia?",
     answer:
-      "Hostvia is a platform for short-term rental hosts. It combines an Airbnb and Booking.com calendar with your own booking website for direct guest inquiries — all in one place.",
-  },
-  {
-    question: "Do I need the Airbnb or Booking API?",
-    answer:
-      "No. Hostvia uses iCal (ICS) calendars that platforms already provide. Paste the link and reservations import automatically — no technical integration required.",
-  },
-  {
-    question: "How do booking inquiries work?",
-    answer:
-      "On your public site, guests pick dates, see the price and send an inquiry with contact details. You get notified in the dashboard, review details and contact the guest directly.",
-  },
-  {
-    question: "Can guests pay through Hostvia?",
-    answer:
-      "Not yet — Hostvia is not a payment processor. Inquiries are reservation requests; payment and confirmation are arranged directly between you and the guest.",
-  },
-  {
-    question: "Can I use Hostvia as a calendar only?",
-    answer:
-      "Yes. The booking site is optional. You can use the dashboard only for calendar sync, manual bookings and arrivals/departures overview.",
-  },
-  {
-    question: "How does sync work?",
-    answer:
-      "Calendars refresh automatically in the background. You can also trigger a manual sync from the dashboard anytime.",
-  },
-  {
-    question: "Can I export my calendar back to Airbnb/Booking?",
-    answer:
-      "Yes. Each unit has an iCal export link you can add to Airbnb or Booking.com so platforms see your manual blocks and direct bookings.",
+      "Hostvia is software for vacation rental owners and small accommodation operators. It puts Airbnb and Booking.com calendars, manual reservations, arrivals, a cleaning overview, and a public inquiry site in one account.",
   },
   {
     question: "Who is Hostvia for?",
     answer:
-      "Independent hosts, small apartment complexes and property owners who want simpler multi-channel operations and direct guest contact.",
+      "It is for owners and small operators who manage their own places, including people with one or two rentals on the Free plan and people who need more than two properties on Pro. It is not a full channel manager and it does not replace Airbnb or Booking.com.",
+  },
+  {
+    question: "What is included in the Free plan?",
+    answer: `The Free plan includes up to ${FREE_PROPERTY_LIMIT} active properties, the public inquiry site, calendar import and export, reservations, the dashboard, arrivals and departures, the cleaning overview, and saved guest messages. No card is required.`,
+  },
+  {
+    question: "What does Pro change?",
+    answer: `Pro is $${PRO_MONTHLY_PRICE_USD} per month for the whole account, billed through Stripe. It removes the limit of ${FREE_PROPERTY_LIMIT} properties. The same tools are available on Free and Pro.`,
+  },
+  {
+    question: "Do I need the Airbnb or Booking.com API?",
+    answer:
+      "No. Hostvia uses the iCal links those platforms already give you. Paste the link and reservations import on the next sync. There is no API key to create.",
+  },
+  {
+    question: "Does calendar sync stop double bookings?",
+    answer:
+      "It lowers the risk. It does not remove it. Hostvia refreshes calendars about once an hour while the dashboard is open, and you can sync manually. Airbnb and Booking.com update imported calendars on their own schedule, so a new stay can exist on one platform before another shows it.",
+  },
+  {
+    question: "Why might Booking.com closed days look like reservations?",
+    answer:
+      "Booking.com can export closed days with the same label as real bookings. In Booking.com, choose booked dates only before you copy the export link. Airbnb dates marked unavailable or blocked are stored in Hostvia as blocks, not as guests.",
+  },
+  {
+    question: "How do guest inquiries work?",
+    answer:
+      "On your public site, a guest picks dates, sees the stay total when you have entered prices, and sends an inquiry with contact details. Hostvia does not charge the guest and does not confirm the stay. You accept or decline. Accepting turns the inquiry into a reservation on your calendar.",
+  },
+  {
+    question: "Can guests pay through Hostvia?",
+    answer:
+      "No. Hostvia is not a payment processor for stays. You arrange payment and the remaining details directly with the guest.",
+  },
+  {
+    question: "Can I use Hostvia without publishing a website?",
+    answer:
+      "Yes. The public site is optional. You can use the dashboard for calendars, manual reservations, arrivals, departures, and the cleaning overview.",
+  },
+  {
+    question: "Does the cleaning page assign work to cleaners?",
+    answer:
+      "No. The Cleanings page shows arrivals, departures, and mid-stay days for each property. The count of cleanings on a day equals the number of departures. It does not assign a cleaner, send them a job, or mark a clean as finished. Team access can let someone view the sections you choose.",
+  },
+  {
+    question: "Can I export my calendar back to Airbnb or Booking.com?",
+    answer:
+      "Yes. Each property has an iCal export link. Current stays are included. Blocks export as unavailable, and manual or imported reservations export as busy. Past stays are not exported. The other platform still decides when it reads that link.",
   },
 ];
 

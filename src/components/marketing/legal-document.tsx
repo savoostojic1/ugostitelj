@@ -119,7 +119,7 @@ export function RelatedLegalLinks({ current }: { current: string }) {
             </li>
           ))}
         <li>
-          <Link href="/kontakt" className="text-primary hover:underline">
+          <Link href="/contact" className="text-primary hover:underline">
             Contact
           </Link>
         </li>

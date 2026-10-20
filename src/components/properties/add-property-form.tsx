@@ -16,6 +16,7 @@ import { SetupStepBanner } from "@/components/dashboard/setup-step-banner";
 import { UpgradeModal } from "@/components/billing/upgrade-modal";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
+import { trackHostviaEvent } from "@/lib/analytics/track";
 
 const SETUP_STEPS = [
   { id: "name", label: "Name", icon: Building2 },
@@ -67,6 +68,7 @@ export function AddPropertyForm() {
       }
 
       toast.success("Accommodation created");
+      trackHostviaEvent("property_created");
       router.push(`/dashboard/properties/${data.property.id}/sync`);
     } catch (err) {
       toast.error(err instanceof Error ? err.message : "Something went wrong");

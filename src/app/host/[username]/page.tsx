@@ -10,8 +10,8 @@ import {
   parseBookingSubdomain,
 } from "@/lib/public/booking-site-url";
 import { buildHostMetadata } from "@/lib/public/seo";
+import { SITE_URL } from "@/lib/seo/site";
 import { getPublicHostCoverUrl } from "@/lib/public/host-cover-url";
-import { getSiteBaseUrl } from "@/lib/public/site-url";
 
 interface HostPageProps {
   params: Promise<{ username: string }>;
@@ -22,14 +22,19 @@ export async function generateMetadata({
 }: HostPageProps): Promise<Metadata> {
   const { username } = await params;
   const host = await fetchPublicHost(username);
-  if (!host) return { title: "Host not found" };
+  if (!host) {
+    return {
+      title: "Host not found",
+      robots: { index: false, follow: false },
+    };
+  }
 
   const requestHost = (await headers()).get("host") ?? "";
   const subdomain = parseBookingSubdomain(requestHost);
   const baseUrl = subdomain
     ? (getBookingSiteUrl(subdomain, { bookingDomain: BOOKING_DOMAIN }) ??
-      getSiteBaseUrl())
-    : getSiteBaseUrl();
+      SITE_URL)
+    : SITE_URL;
 
   return buildHostMetadata(
     host.business_name,

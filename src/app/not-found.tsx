@@ -1,4 +1,11 @@
 import Link from "next/link";
+import type { Metadata } from "next";
+import { privatePageMetadata } from "@/lib/seo/site";
+
+export const metadata: Metadata = privatePageMetadata(
+  "Page not found",
+  "This Hostvia page does not exist."
+);
 
 export default function NotFound() {
   return (

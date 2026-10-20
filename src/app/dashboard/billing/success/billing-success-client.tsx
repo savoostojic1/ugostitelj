@@ -6,6 +6,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { CheckCircle2, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useBillingStatus, useInvalidateBillingStatus } from "@/hooks/use-billing";
+import { trackOncePerSession } from "@/lib/analytics/track";
 
 const MAX_CONFIRM_ATTEMPTS = 15;
 
@@ -86,6 +87,13 @@ export default function BillingSuccessClient() {
   }, [sessionId, invalidateBilling, refetch]);
 
   const ready = billing?.isPro;
+  const subscriptionTracked = useRef(false);
+
+  useEffect(() => {
+    if (!ready || subscriptionTracked.current) return;
+    subscriptionTracked.current = true;
+    trackOncePerSession("subscription_started", { plan: "pro" });
+  }, [ready]);
 
   return (
     <div className="hostvia-panel mx-auto flex max-w-lg flex-col items-center py-16 text-center">

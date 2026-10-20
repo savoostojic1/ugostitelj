@@ -8,12 +8,14 @@ import {
   UnconfirmedOperatorDetails,
 } from "@/components/marketing/legal-document";
 import { LEGAL_EFFECTIVE_DATE } from "@/lib/marketing/legal";
+import { pageMetadata } from "@/lib/seo/site";
 
-export const metadata: Metadata = {
-  title: "Privacy policy — Hostvia",
+export const metadata: Metadata = pageMetadata({
+  title: "Privacy policy",
   description:
     "What personal data Hostvia collects for host accounts, booking inquiries, calendars, and Stripe subscriptions, and how to request access or deletion.",
-};
+  path: "/privacy",
+});
 
 export default function PrivacyPage() {
   return (

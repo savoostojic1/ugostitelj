@@ -3,8 +3,26 @@ import { NextResponse, type NextRequest } from "next/server";
 import { isMarketingPublicPath } from "@/lib/marketing/content";
 import { parseBookingSubdomain } from "@/lib/public/booking-site-url";
 import { PASSWORD_RECOVERY_COOKIE } from "@/lib/auth/password-recovery";
+import {
+  LEGACY_MARKETING_REDIRECTS,
+  PUBLIC_ASSET_PATHS,
+} from "@/lib/seo/routes";
 
 export async function updateSession(request: NextRequest) {
+  const path = request.nextUrl.pathname;
+  const legacyPath =
+    path.length > 1 && path.endsWith("/") ? path.slice(0, -1) : path;
+  const legacyTarget = LEGACY_MARKETING_REDIRECTS[legacyPath];
+  if (legacyTarget) {
+    const redirectUrl = request.nextUrl.clone();
+    redirectUrl.pathname = legacyTarget;
+    return NextResponse.redirect(redirectUrl, 308);
+  }
+
+  if (PUBLIC_ASSET_PATHS.has(path)) {
+    return NextResponse.next({ request });
+  }
+
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
   const key = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
 
@@ -38,7 +56,6 @@ export async function updateSession(request: NextRequest) {
     } = await supabase.auth.getUser();
 
     const host = request.headers.get("host") ?? "";
-    const path = request.nextUrl.pathname;
 
     if (path === "/sw.js" || path === "/manifest.webmanifest") {
       return NextResponse.next({ request });

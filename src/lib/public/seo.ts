@@ -15,7 +15,7 @@ export function buildHostMetadata(
   const url = getBookingSiteUrl(username, { baseUrl }) ?? `${baseUrl}/host/${username}`;
 
   return {
-    title,
+    title: { absolute: title },
     description: desc,
     openGraph: {
       title,
@@ -30,5 +30,7 @@ export function buildHostMetadata(
       description: desc,
       images: coverImage ? [coverImage] : undefined,
     },
+    alternates: { canonical: url },
+    robots: { index: true, follow: true },
   };
 }

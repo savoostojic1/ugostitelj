@@ -115,7 +115,7 @@ export function PricingSection({
                     <p className="text-sm font-medium text-zinc-400">Start at</p>
                     <div className="mt-2 flex items-end gap-2">
                       <span className="hostvia-gradient-text text-6xl font-bold leading-none tracking-tight sm:text-7xl">
-                        0€
+                        $0
                       </span>
                       <span className="pb-2 text-base text-zinc-500">/ month</span>
                     </div>
@@ -172,7 +172,7 @@ export function PricingSection({
                       Included
                     </p>
                     <p className="mt-1 text-sm text-zinc-400">
-                      All core tools, no limits on usage
+                      Same tools on Free and Pro. Free includes 2 properties.
                     </p>
                   </div>
                   <span className="hidden rounded-full border border-white/10 bg-white/[0.04] px-2.5 py-1 text-[10px] font-medium text-zinc-500 sm:inline">
@@ -219,10 +219,10 @@ export function PricingSection({
           <div className="mt-6 flex flex-wrap items-center justify-center gap-x-5 gap-y-2 text-center text-xs text-zinc-500">
             <span>No commission on direct bookings</span>
             <span className="hidden h-1 w-1 rounded-full bg-zinc-700 sm:inline" />
-            <span>Cancel anytime</span>
+            <span>Cancel in the billing portal</span>
             <span className="hidden h-1 w-1 rounded-full bg-zinc-700 sm:inline" />
             {!compact ? (
-              <Link href="/kontakt" className="text-zinc-500 transition hover:text-zinc-300">
+              <Link href="/contact" className="text-zinc-500 transition hover:text-zinc-300">
                 Questions? Contact us
               </Link>
             ) : null}

@@ -3,37 +3,42 @@ import Link from "next/link";
 import { ArrowRight } from "lucide-react";
 import { CtaBanner } from "@/components/marketing/cta-banner";
 import { FeatureGrid } from "@/components/marketing/feature-grid";
+import { MarketingBreadcrumbs } from "@/components/marketing/marketing-breadcrumbs";
 import { PageHero } from "@/components/marketing/page-hero";
+import { SyncLimitationNote } from "@/components/marketing/sync-limitation-note";
 import { Button } from "@/components/ui/button";
-import {
-  coreFeatures,
-  dashboardFeatures,
-} from "@/lib/marketing/content";
+import { coreFeatures, dashboardFeatures } from "@/lib/marketing/content";
+import { pageMetadata } from "@/lib/seo/site";
 
-export const metadata: Metadata = {
-  title: "Features — Hostvia",
+export const metadata: Metadata = pageMetadata({
+  title: "Vacation rental management features",
   description:
-    "iCal sync, multiple units, booking site, date-based pricing, booking inquiries and an operations dashboard for hosts.",
-};
+    "iCal calendar sync, a multi-property dashboard, arrivals, a cleaning overview, saved messages, and a public site for direct guest inquiries.",
+  path: "/features",
+});
 
-export default function FunkcijePage() {
+export default function FeaturesPage() {
   return (
     <>
+      <MarketingBreadcrumbs
+        items={[
+          { name: "Home", path: "/" },
+          { name: "Features", path: "/features" },
+        ]}
+      />
       <PageHero
         eyebrow="Features"
-        title="A complete toolkit for modern hosts"
-        description="Hostvia combines platform sync, an operations calendar and a public site for direct inquiries — no API integrations and no hassle."
-        primaryCta={{ label: "Start free", href: "/register" }}
+        title="Tools for running a few vacation rentals"
+        description="Hostvia combines calendar import and export, an operations dashboard, and a public page for guest inquiries. It does not use the Airbnb or Booking.com APIs."
+        primaryCta={{ label: "Create a free account", href: "/register" }}
       />
 
       <section className="mx-auto max-w-6xl px-4 py-16 md:px-6 md:py-20">
         <div className="max-w-2xl">
-          <h2 className="marketing-heading text-2xl md:text-3xl">
-            Core features
-          </h2>
+          <h2 className="marketing-heading text-2xl md:text-3xl">Core features</h2>
           <p className="mt-3 text-muted-foreground">
-            Everything you need to run your accommodation professionally,
-            whether you have one apartment or an entire property.
+            The same tools are on the Free and Pro plans. Pro removes the
+            two-property limit.
           </p>
         </div>
         <FeatureGrid features={coreFeatures} className="mt-10" />
@@ -43,11 +48,11 @@ export default function FunkcijePage() {
         <div className="mx-auto max-w-6xl px-4 md:px-6">
           <div className="max-w-2xl">
             <h2 className="marketing-heading text-2xl md:text-3xl">
-              Dashboard & operations
+              Dashboard and day-to-day work
             </h2>
             <p className="mt-3 text-muted-foreground">
-              Beyond sync, Hostvia helps with day-to-day work — arrivals,
-              messages, manual bookings and export.
+              Arrivals, departures, manual reservations, a cleaning overview,
+              and messages you can copy into the channel you already use.
             </p>
           </div>
           <div className="mt-10 grid gap-6 md:grid-cols-2">
@@ -69,53 +74,53 @@ export default function FunkcijePage() {
       <section className="mx-auto max-w-6xl px-4 py-16 md:px-6 md:py-20">
         <div className="grid gap-8 lg:grid-cols-2">
           <div className="marketing-card rounded-2xl border border-border bg-card p-8">
-            <h3 className="text-xl font-semibold">iCal sync</h3>
+            <h2 className="text-xl font-semibold">iCal import</h2>
             <p className="mt-3 text-sm leading-relaxed text-muted-foreground">
               Airbnb and Booking.com provide an iCal link for each listing.
-              Paste it into Hostvia and reservations import automatically. No API
-              keys or technical knowledge required.
-            </p>
-            <p className="mt-3 text-sm leading-relaxed text-muted-foreground">
-              Calendars refresh in the background. Trigger a manual sync
-              whenever you want a quick check.
+              Paste it into Hostvia. Reservations import on the next sync. You
+              can sync manually, and the dashboard also refreshes about once an
+              hour while it is open.
             </p>
           </div>
           <div className="marketing-card rounded-2xl border border-border bg-card p-8">
-            <h3 className="text-xl font-semibold">Export back to platforms</h3>
+            <h2 className="text-xl font-semibold">Export back to the platforms</h2>
             <p className="mt-3 text-sm leading-relaxed text-muted-foreground">
-              Manual bookings and blocks you enter in Hostvia can be exported as
-              an iCal link. Add it to Airbnb or Booking.com so platforms see
-              the same dates — reducing the risk of double bookings.
+              Each property has an export link. Current stays are included.
+              Blocks export as unavailable. Past stays are not sent. The other
+              platform reads that link on its own schedule.
             </p>
           </div>
           <div className="marketing-card rounded-2xl border border-border bg-card p-8">
-            <h3 className="text-xl font-semibold">Date-based pricing</h3>
+            <h2 className="text-xl font-semibold">Prices by date</h2>
             <p className="mt-3 text-sm leading-relaxed text-muted-foreground">
-              Set a base nightly rate, then add rules for specific periods —
-              seasons, holidays, weekends. Guests on your public site see the
-              exact total for their selected stay.
+              Set a base nightly price in euros, then add prices for specific
+              date ranges. On the public site, the guest sees the total for the
+              nights they selected when those prices exist.
             </p>
           </div>
           <div className="marketing-card rounded-2xl border border-border bg-card p-8">
-            <h3 className="text-xl font-semibold">Booking inquiries</h3>
+            <h2 className="text-xl font-semibold">Inquiries, not instant checkout</h2>
             <p className="mt-3 text-sm leading-relaxed text-muted-foreground">
-              Guests fill out a form with their name, email and phone. You
-              receive the inquiry in your dashboard, review the details and
-              contact the guest directly. You decide whether to accept the
-              booking.
+              A guest sends a name, email, phone, and an optional message. You
+              review it and contact them. Accepting creates a reservation.
+              Declining does not. Hostvia does not charge the guest.
             </p>
           </div>
         </div>
 
+        <div className="mt-8">
+          <SyncLimitationNote />
+        </div>
+
         <div className="mt-10 flex flex-wrap gap-4">
           <Button asChild>
-            <Link href="/javni-sajt">
-              Booking site in detail
+            <Link href="/booking-site">
+              Booking site
               <ArrowRight className="h-4 w-4" />
             </Link>
           </Button>
           <Button variant="outline" asChild>
-            <Link href="/kako-radi">How to get started</Link>
+            <Link href="/how-it-works">How to get started</Link>
           </Button>
         </div>
       </section>

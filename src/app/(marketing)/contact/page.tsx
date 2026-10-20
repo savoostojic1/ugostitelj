@@ -1,33 +1,41 @@
 import type { Metadata } from "next";
 import { Mail, MessageCircle } from "lucide-react";
 import { MarketingAccountPrompt } from "@/components/marketing/marketing-account-prompt";
+import { MarketingBreadcrumbs } from "@/components/marketing/marketing-breadcrumbs";
 import { PageHero } from "@/components/marketing/page-hero";
 import { Button } from "@/components/ui/button";
 import { marketingFooter } from "@/lib/marketing/content";
+import { pageMetadata } from "@/lib/seo/site";
 
-export const metadata: Metadata = {
-  title: "Contact — Hostvia",
+export const metadata: Metadata = pageMetadata({
+  title: "Contact",
   description:
-    "Contact the Hostvia team with questions about sign-up, iCal sync or your booking site.",
-};
+    "Email hello@hostvia.me with questions about setup, iCal calendars, the inquiry site, or pricing.",
+  path: "/contact",
+});
 
 const contactTopics = [
-  "Help connecting Airbnb or Booking.com calendars",
-  "Setting up your booking site and inquiries",
-  "Questions about pricing and plans",
-  "Feature suggestions",
-  "Partnerships and collaboration",
+  "Connecting an Airbnb or Booking.com calendar",
+  "Publishing the inquiry site",
+  "The Free plan and Pro",
+  "Something in the product that is not working as described",
 ];
 
-export default function KontaktPage() {
+export default function ContactPage() {
   const email = marketingFooter.contact.email;
 
   return (
     <>
+      <MarketingBreadcrumbs
+        items={[
+          { name: "Home", path: "/" },
+          { name: "Contact", path: "/contact" },
+        ]}
+      />
       <PageHero
         eyebrow="Contact"
-        title="We're here to help"
-        description="Have a question about setup, features or collaboration? Get in touch — we respond as quickly as we can."
+        title="Email the people who build Hostvia"
+        description="Questions about setup, calendars, or billing go to the address below. There is no separate priority-support queue."
       />
 
       <section className="mx-auto max-w-6xl px-4 py-16 md:px-6 md:py-20">
@@ -36,8 +44,8 @@ export default function KontaktPage() {
             <Mail className="h-8 w-8 text-primary" />
             <h2 className="mt-4 text-xl font-semibold">Email</h2>
             <p className="mt-2 text-sm text-muted-foreground">
-              The fastest way to reach us. Describe your question and attach a
-              screenshot if needed.
+              Describe the question and include a screenshot if it helps. This
+              inbox is the contact published on the site.
             </p>
             <a
               href={`mailto:${email}`}
@@ -46,21 +54,16 @@ export default function KontaktPage() {
               {email}
             </a>
             <Button className="mt-6" asChild>
-              <a href={`mailto:${email}?subject=Question%20about%20Hostvia`}>
-                Send email
-              </a>
+              <a href={`mailto:${email}?subject=Question%20about%20Hostvia`}>Send email</a>
             </Button>
           </div>
 
           <div className="rounded-2xl border border-border bg-card/60 p-8">
             <MessageCircle className="h-8 w-8 text-primary" />
-            <h2 className="mt-4 text-xl font-semibold">How we can help</h2>
+            <h2 className="mt-4 text-xl font-semibold">Useful topics</h2>
             <ul className="mt-4 space-y-3">
               {contactTopics.map((topic) => (
-                <li
-                  key={topic}
-                  className="flex items-start gap-2 text-sm text-muted-foreground"
-                >
+                <li key={topic} className="flex items-start gap-2 text-sm text-muted-foreground">
                   <span className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-primary" />
                   {topic}
                 </li>

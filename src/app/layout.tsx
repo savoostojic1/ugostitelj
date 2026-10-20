@@ -4,8 +4,10 @@ import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { HostviaGoogleAnalytics } from "@/components/analytics/google-analytics";
 import { HostviaVercelAnalytics } from "@/components/analytics/vercel-analytics";
+import { InternalTrafficMarker } from "@/components/analytics/internal-traffic-marker";
 import { Providers } from "@/components/providers";
 import { ServiceWorkerRegister } from "@/components/pwa/service-worker-register";
+import { SITE_DESCRIPTION, SITE_NAME, SITE_URL } from "@/lib/seo/site";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -15,13 +17,17 @@ const geistSans = Geist({
 const geistMono = Geist_Mono({
   variable: "--font-geist-mono",
   subsets: ["latin"],
+  preload: false,
 });
 
 export const metadata: Metadata = {
-  title: "Hostvia — Booking website & reservation dashboard",
-  description:
-    "Get your own booking website and manage all reservations in one place. Direct bookings, calendar sync, and a beautiful dashboard for property owners.",
-  applicationName: "Hostvia",
+  metadataBase: new URL(SITE_URL),
+  title: {
+    default: `${SITE_NAME} — Vacation rental management for small hosts`,
+    template: `%s · ${SITE_NAME}`,
+  },
+  description: SITE_DESCRIPTION,
+  applicationName: SITE_NAME,
   appleWebApp: {
     capable: true,
     statusBarStyle: "black-translucent",
@@ -57,11 +63,14 @@ export default function RootLayout({
         <Script id="hostvia-pwa-viewport-fix" strategy="beforeInteractive">
           {`(function(){try{var s=window.matchMedia("(display-mode: standalone)").matches||window.matchMedia("(display-mode: fullscreen)").matches||(window.navigator&&window.navigator.standalone===true);if(!s)return;document.documentElement.dataset.standalone="true";var m=document.querySelector('meta[name="viewport"]');if(m)m.setAttribute("content","width=device-width, initial-scale=1, viewport-fit=cover")}catch(e){}})();`}
         </Script>
-        <Providers>{children}</Providers>
+        <Providers>
+          <InternalTrafficMarker />
+          {children}
+        </Providers>
         <ServiceWorkerRegister />
         <HostviaVercelAnalytics />
+        <HostviaGoogleAnalytics />
       </body>
-      <HostviaGoogleAnalytics />
     </html>
   );
 }

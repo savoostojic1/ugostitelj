@@ -30,6 +30,7 @@ import {
   validateIcsUrl,
 } from "@/lib/ical/validate-feed-url";
 import { formatSyncResultMessage } from "@/lib/ical/sync-message";
+import { trackHostviaEvent } from "@/lib/analytics/track";
 
 interface FeedDialogProps {
   open: boolean;
@@ -98,6 +99,7 @@ export function FeedDialog({ open, onOpenChange, propertyId, feed }: FeedDialogP
       }
 
       let feedId = feed?.id;
+      let firstSync: "ok" | "failed" | "not_run" = "not_run";
 
       if (feed) {
         const { error } = await supabase
@@ -108,6 +110,7 @@ export function FeedDialog({ open, onOpenChange, propertyId, feed }: FeedDialogP
         feedId = feed.id;
         toast.success("Calendar updated");
       } else {
+        trackHostviaEvent("calendar_connection_initiated", { platform });
         const { data: created, error } = await supabase
           .from("calendar_feeds")
           .insert({
@@ -132,6 +135,7 @@ export function FeedDialog({ open, onOpenChange, propertyId, feed }: FeedDialogP
         const syncJson = await syncRes.json();
         if (!syncRes.ok) {
           toast.error(syncJson.error ?? "Sync failed");
+          firstSync = "failed";
         } else {
           const r = (
             syncJson.results as {
@@ -143,11 +147,17 @@ export function FeedDialog({ open, onOpenChange, propertyId, feed }: FeedDialogP
           )?.[0];
           if (r?.error) {
             toast.error(r.error);
+            firstSync = "failed";
           } else {
             toast.info(formatSyncResultMessage(r ?? {}));
+            firstSync = "ok";
           }
           qc.invalidateQueries({ queryKey: ["reservations"] });
         }
+      }
+
+      if (!feed) {
+        trackHostviaEvent("calendar_connected", { platform, first_sync: firstSync });
       }
 
       qc.invalidateQueries({ queryKey: ["calendar_feeds", propertyId] });

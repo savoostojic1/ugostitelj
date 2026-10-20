@@ -15,8 +15,8 @@ export function MarketingFooter() {
               hostvia.me
             </Link>
             <p className="mt-4 max-w-xs text-sm leading-relaxed text-zinc-500">
-              Your booking site and reservation dashboard in one place.
-              Direct reservations with no commission.
+              Calendar, arrivals, and a public site for direct guest inquiries.
+              Hostvia does not charge a commission on those inquiries.
             </p>
           </div>
 

@@ -2,6 +2,7 @@
 
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
+import { trackHostviaEvent } from "@/lib/analytics/track";
 
 export type BillingStatus = {
   isOwner: boolean;
@@ -40,6 +41,7 @@ export function useBillingStatus() {
 export function useStartCheckout() {
   return useMutation({
     mutationFn: async () => {
+      trackHostviaEvent("upgrade_initiated", { plan: "pro" });
       const res = await fetch("/api/billing/checkout", { method: "POST" });
       const data = await res.json();
       if (!res.ok) {

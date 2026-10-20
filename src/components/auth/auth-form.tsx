@@ -17,6 +17,7 @@ import { Label } from "@/components/ui/label";
 import { getBrowserClient } from "@/lib/supabase/client";
 import { isTeamAccessEmail } from "@/lib/team-access/permissions";
 import { toast } from "sonner";
+import { trackHostviaEvent } from "@/lib/analytics/track";
 import { cn } from "@/lib/utils";
 
 type AuthMode = "login" | "register" | "forgot";
@@ -135,6 +136,7 @@ export function AuthForm({ mode }: { mode: AuthMode }) {
           options: { data: { full_name: fullName } },
         });
         if (error) throw error;
+        trackHostviaEvent("sign_up", { method: "email" });
         toast.success("Check your email to confirm your account");
         router.push("/login");
       } else {

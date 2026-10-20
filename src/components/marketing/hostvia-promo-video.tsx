@@ -18,6 +18,14 @@ export function HostviaPromoVideo() {
     const video = videoRef.current;
     if (!container || !video) return;
     if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+    const connection = (
+      navigator as Navigator & {
+        connection?: { saveData?: boolean; effectiveType?: string };
+      }
+    ).connection;
+    if (connection?.saveData || connection?.effectiveType === "2g" || connection?.effectiveType === "slow-2g") {
+      return;
+    }
 
     const observer = new IntersectionObserver(
       ([entry]) => {

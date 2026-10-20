@@ -10,8 +10,8 @@ export function CtaBanner() {
             Ready to launch your booking website?
           </h2>
           <p className="mx-auto mt-4 max-w-lg text-white/80">
-            Start free. Connect your calendars. Publish your site. Receive direct
-            bookings without platform fees.
+            Create a free account for up to two properties. Connect calendars,
+            publish an inquiry site, and arrange payment with the guest yourself.
           </p>
           <MarketingPrimaryCta
             className="mt-8"

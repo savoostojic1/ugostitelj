@@ -3,9 +3,12 @@ import { Suspense } from "react";
 import { Loader2 } from "lucide-react";
 import { BillingPageClient } from "@/components/billing/billing-page-client";
 
-export const metadata: Metadata = {
-  title: "Pricing plan — Hostvia",
-};
+import { privatePageMetadata } from "@/lib/seo/site";
+
+export const metadata: Metadata = privatePageMetadata(
+  "Pricing plan",
+  "Private billing page for the signed-in Hostvia account."
+);
 
 export default function DashboardBillingPage() {
   return (

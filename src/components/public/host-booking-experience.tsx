@@ -175,7 +175,7 @@ export function HostBookingExperience({
                 <div className="mb-5 flex h-14 w-14 items-center justify-center overflow-hidden rounded-2xl border border-white/20 bg-white/95 p-2 shadow-lg backdrop-blur-sm md:mb-6">
                   <Image
                     src={host.logo_url}
-                    alt=""
+                    alt={host.business_name ? `${host.business_name} logo` : "Property logo"}
                     width={48}
                     height={48}
                     className="h-full w-full object-contain"
