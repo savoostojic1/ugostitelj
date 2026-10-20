@@ -18,6 +18,7 @@ export const PUBLIC_ASSET_PATHS = new Set([
   "/apple-icon",
   "/opengraph-image",
   "/twitter-image",
+  "/google49bf01ee11453dbf.html",
 ]);
 
 export const SITEMAP_PATHS = [
