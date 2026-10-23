@@ -48,13 +48,13 @@ export default function RefundPolicyPage() {
           {`The Free plan has no subscription fee and includes up to ${FREE_PLAN_PROPERTY_LIMIT} properties, with the same product features as a paid account. There is no Hostvia charge to refund on Free.`}
         </p>
         <p>
-          Pro is one monthly Stripe subscription for the whole owner account.
+          Pro is one monthly Creem subscription for the whole owner account.
           The fee is not charged again for each property. It renews each period
           until it is canceled. Invoices and the payment method are available
-          in Stripe&apos;s billing portal. A promotion code entered at Stripe
-          Checkout can change the amount on the receipt. Complimentary Pro,
-          when the operator grants it without Stripe, is not a payment and has
-          no charge to refund.
+          in the Creem customer portal. A discount applied on Creem Checkout
+          can change the amount on the receipt. Complimentary Pro, when the
+          operator grants it without Creem, is not a payment and has no charge
+          to refund.
         </p>
         <ProSubscriptionPrice />
       </LegalSection>
@@ -65,18 +65,18 @@ export default function RefundPolicyPage() {
           <li>Sign in to the host dashboard.</li>
           <li>Open Pricing plan.</li>
           <li>
-            Choose Manage in Stripe, which opens Stripe&apos;s billing portal.
+            Choose Cancel at period end. Manage billing opens the Creem
+            customer portal for the payment method and invoices.
           </li>
-          <li>Cancel the subscription in that portal.</li>
         </LegalList>
         <p>
           Team logins cannot open billing. Only the account owner can cancel.
-          If the Manage in Stripe button is unavailable, email{" "}
+          If Cancel at period end is unavailable, email{" "}
           <LegalMailLink subject="Billing help" /> from the account email and
           include the date you want the subscription canceled.
         </p>
         <p>
-          Closing the Stripe Checkout window before you pay does not create a
+          Closing the Creem Checkout window before you pay does not create a
           subscription. That is an abandoned upgrade, not a cancellation of a
           plan that was charged.
         </p>
@@ -84,9 +84,9 @@ export default function RefundPolicyPage() {
 
       <LegalSection id="effective" title="4. When cancellation takes effect">
         <p>
-          Cancellation in the billing portal is scheduled for the end of the
+          Cancellation from the billing page is scheduled for the end of the
           current billing period. The dashboard shows that the plan is canceling
-          and, when Stripe has provided the date, the day Pro remains active
+          and, when Creem has provided the date, the day Pro remains active
           until.
         </p>
         <p>
@@ -104,13 +104,13 @@ export default function RefundPolicyPage() {
           For a wrong amount, a charge you do not recognize, a failed renewal,
           or a portal you cannot open, email{" "}
           <LegalMailLink subject="Billing problem" />. Use the email on the
-          Hostvia account. Support will look up the Stripe subscription linked
+          Hostvia account. Support will look up the Creem subscription linked
           to that account.
         </p>
         <p>
-          If a renewal payment fails, Stripe may retry the charge and the
+          If a renewal payment fails, Creem may retry the charge and the
           subscription may be marked past due. The application keeps Pro access
-          while the subscription is past due. If Stripe ends the subscription,
+          while the subscription is past due. If Creem ends the subscription,
           the account returns to Free as described above.
         </p>
         <p>
@@ -125,7 +125,7 @@ export default function RefundPolicyPage() {
           Email <LegalMailLink subject="Duplicate or accidental charge" /> if
           you were charged twice for the same period or you completed checkout
           by mistake. Include the information in the request section below.
-          Support will compare the request with the Stripe invoices for the
+          Support will compare the request with the Creem invoices for the
           account.
         </p>
         <p>
@@ -140,7 +140,7 @@ export default function RefundPolicyPage() {
         <p>
           There is no refund button inside Hostvia. Email{" "}
           <LegalMailLink subject="Refund request" /> and a person reviews the
-          request against the account and the Stripe invoices. You will receive
+          request against the account and the Creem invoices. You will receive
           a reply at the email you wrote from, or at the account email if that
           is different.
         </p>
@@ -184,7 +184,7 @@ export default function RefundPolicyPage() {
           remain available. That can include a cooling-off or withdrawal right
           for an online subscription, and any remedy the law gives you when a
           paid digital service is not supplied. Hostvia does not ask you to
-          waive those rights, and canceling renewal in the billing portal is
+          waive those rights, and canceling renewal from the billing page is
           not a waiver.
         </p>
         <p>
@@ -212,13 +212,13 @@ export default function RefundPolicyPage() {
         <LegalList>
           <li>The email address on the Hostvia account.</li>
           <li>The account name, if you use one.</li>
-          <li>The charge date and amount, as shown on the Stripe receipt or your statement.</li>
+          <li>The charge date and amount, as shown on the Creem receipt or your statement.</li>
           <li>The invoice or receipt identifier, if you have it.</li>
           <li>
             Whether the request is a duplicate charge, an accidental payment, a
             withdrawal right, a service problem, or something else.
           </li>
-          <li>Whether you have already canceled in the billing portal.</li>
+          <li>Whether you have already canceled from the billing page.</li>
         </LegalList>
         <p>
           Do not include a full card number or card security code. The last

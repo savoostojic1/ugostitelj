@@ -219,7 +219,7 @@ export function PricingSection({
           <div className="mt-6 flex flex-wrap items-center justify-center gap-x-5 gap-y-2 text-center text-xs text-zinc-500">
             <span>No commission on direct bookings</span>
             <span className="hidden h-1 w-1 rounded-full bg-zinc-700 sm:inline" />
-            <span>Cancel in the billing portal</span>
+            <span>Cancel from the billing page</span>
             <span className="hidden h-1 w-1 rounded-full bg-zinc-700 sm:inline" />
             {!compact ? (
               <Link href="/contact" className="text-zinc-500 transition hover:text-zinc-300">

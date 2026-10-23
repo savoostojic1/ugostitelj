@@ -12,7 +12,7 @@ const rows = [
     free: "Calendars, inquiries, arrivals, cleaning view, saved messages, public site",
     pro: "The same tools",
   },
-  { label: "Payment", free: "No card", pro: "Stripe. Cancel in the billing portal." },
+  { label: "Payment", free: "No card", pro: "Creem. Cancel from the billing page." },
 ] as const;
 
 export function PlanComparison() {

@@ -93,7 +93,7 @@ export function UnconfirmedOperatorDetails() {
 export function ProSubscriptionPrice() {
   return (
     <p>
-      {`Pro is $${PRO_MONTHLY_PRICE_USD} per month for the whole owner account. The fee does not increase with the number of properties. Checkout is one Stripe subscription.`}
+      {`Pro is $${PRO_MONTHLY_PRICE_USD} per month for the whole owner account. The fee does not increase with the number of properties. Checkout is one Creem subscription.`}
     </p>
   );
 }

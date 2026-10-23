@@ -13,7 +13,7 @@ import { pageMetadata } from "@/lib/seo/site";
 export const metadata: Metadata = pageMetadata({
   title: "Privacy policy",
   description:
-    "What personal data Hostvia collects for host accounts, booking inquiries, calendars, and Stripe subscriptions, and how to request access or deletion.",
+    "What personal data Hostvia collects for host accounts, booking inquiries, calendars, and Creem subscriptions, and how to request access or deletion.",
   path: "/privacy",
 });
 
@@ -102,7 +102,7 @@ export default function PrivacyPage() {
             <strong className="font-medium text-foreground">
               Subscription records.
             </strong>{" "}
-            Stripe customer and subscription identifiers, plan status, period
+            Creem customer and subscription identifiers, plan status, period
             end, and whether cancellation is scheduled at the period end.
           </li>
         </LegalList>
@@ -148,17 +148,16 @@ export default function PrivacyPage() {
 
       <LegalSection id="payments" title="6. Payment and subscription metadata">
         <p>
-          Paid plans use Stripe Checkout and Stripe&apos;s billing portal. Both
-          are Stripe-hosted pages. Hostvia receives subscription status from
-          Stripe webhooks and from billing sync, and stores the identifiers and
-          status described above.
+          Paid plans use Creem Checkout and the Creem customer portal. Both
+          are Creem-hosted pages. Hostvia receives subscription status from
+          Creem webhooks and stores the identifiers and status described above.
         </p>
         <p>
           The Hostvia database does not have a payment-card field, and Hostvia
           pages do not ask you to enter a card number. Card details are
-          collected by Stripe. Stripe may also hold your name, email, payment
-          method, invoices, and tax information under Stripe&apos;s own terms.
-          This policy does not restate Stripe&apos;s policy.
+          collected by Creem. Creem may also hold your name, email, payment
+          method, invoices, and tax information under Creem&apos;s own terms.
+          This policy does not restate Creem&apos;s policy.
         </p>
       </LegalSection>
 
@@ -235,8 +234,8 @@ export default function PrivacyPage() {
             hosting and Vercel Analytics.
           </li>
           <li>
-            <strong className="font-medium text-foreground">Stripe</strong> —
-            subscription checkout, billing portal, invoices, and webhook
+            <strong className="font-medium text-foreground">Creem</strong> —
+            subscription checkout, customer portal, invoices, and webhook
             updates. Used for Hostvia plans, not for guest stay payments.
           </li>
           <li>
@@ -265,7 +264,7 @@ export default function PrivacyPage() {
 
       <LegalSection id="transfers" title="10. International transfers">
         <p>
-          Supabase, Vercel, Stripe, Google, and Resend can process data in
+          Supabase, Vercel, Creem, Google, and Resend can process data in
           countries other than the country where you live, including the United
           States and other countries where those companies operate. The
           application code does not set or publish a single data-region
@@ -296,9 +295,9 @@ export default function PrivacyPage() {
           can be found. The host also holds that inquiry in their dashboard.
         </p>
         <p>
-          Stripe may keep billing records under Stripe&apos;s rules after a
+          Creem may keep billing records under Creem&apos;s rules after a
           subscription ends. Deleting a Hostvia account does not, by itself,
-          erase Stripe&apos;s copy of invoices.
+          erase Creem&apos;s copy of invoices.
         </p>
       </LegalSection>
 
@@ -306,10 +305,10 @@ export default function PrivacyPage() {
         <p>
           Host data in the database is protected with row-level access rules so
           that an account is limited to its own records, and team logins are
-          limited to the host that created them. Stripe webhooks are checked
+          limited to the host that created them. Creem webhooks are checked
           with a signature before subscription status is updated. Traffic is
           served over the hosting provider&apos;s HTTPS setup. Payment card
-          entry happens on Stripe&apos;s pages.
+          entry happens on Creem&apos;s pages.
         </p>
         <p>
           These measures reduce risk. They are not a guarantee that unauthorized
@@ -332,7 +331,7 @@ export default function PrivacyPage() {
           changed or deleted. Identity may need to be confirmed before the
           request is completed. The response will follow the timing required by
           the law that applies. Some records may be kept when the law requires
-          it, including billing records held by Stripe.
+          it, including billing records held by Creem.
         </p>
       </LegalSection>
 

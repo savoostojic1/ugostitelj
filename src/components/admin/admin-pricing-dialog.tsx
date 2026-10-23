@@ -90,8 +90,8 @@ export function AdminPricingDialog({
     }
   }
 
-  const stripeActive =
-    host.plan_source === "stripe" &&
+  const paidCreem =
+    host.plan_source === "creem" &&
     (host.subscription_status === "active" ||
       host.subscription_status === "past_due");
 
@@ -134,7 +134,7 @@ export function AdminPricingDialog({
               {!host.is_pro && (
                 <span className="text-white/40">
                   {" "}
-                  Pro via Stripe is ${PRO_MONTHLY_PRICE_USD}/month when they
+                  Pro is ${PRO_MONTHLY_PRICE_USD}/month through Creem when they
                   upgrade.
                 </span>
               )}
@@ -157,7 +157,8 @@ export function AdminPricingDialog({
                 </>
               }
             />
-            <DetailRow label="Stripe status" value={host.subscription_status} />
+            <DetailRow label="Subscription" value={host.subscription_status} />
+            <DetailRow label="Paid" value={host.paid_label ?? "Unavailable"} />
             <DetailRow
               label="Period ends"
               value={
@@ -170,13 +171,13 @@ export function AdminPricingDialog({
               }
             />
             <DetailRow
-              label="Stripe customer"
-              value={host.stripe_customer_id ?? "—"}
+              label="Creem customer"
+              value={host.creem_customer_id ?? "—"}
               mono
             />
             <DetailRow
-              label="Stripe subscription"
-              value={host.stripe_subscription_id ?? "—"}
+              label="Creem subscription"
+              value={host.creem_subscription_id ?? "—"}
               mono
             />
             {host.pro_access_granted && (
@@ -203,9 +204,9 @@ export function AdminPricingDialog({
           <div className="rounded-xl border border-white/10 bg-white/[0.02] p-4">
             <p className="text-sm font-medium text-white">Admin activation</p>
             <p className="mt-1 text-xs leading-relaxed text-white/45">
-              Grant complimentary Pro without Stripe — unlimited properties, no
-              billing. User keeps Stripe subscription separately if they have
-              one.
+              Grant complimentary Pro without a Creem subscription. Unlimited
+              properties, and no charge. A paid Creem subscription, if one
+              exists, stays separate.
             </p>
 
             {!host.pro_access_granted && (
@@ -255,10 +256,10 @@ export function AdminPricingDialog({
               )}
             </div>
 
-            {stripeActive && (
+            {paidCreem && (
               <p className="mt-3 text-xs text-amber-200/80">
-                Stripe subscription is active — cancel or manage in Stripe
-                dashboard if needed.
+                This account has a Creem subscription. Canceling it is done by
+                the owner from the billing page, or in the Creem dashboard.
               </p>
             )}
           </div>

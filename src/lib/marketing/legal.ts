@@ -2,7 +2,7 @@ import { marketingFooter } from "@/lib/marketing/content";
 import { FREE_PROPERTY_LIMIT } from "@/lib/subscriptions/plans";
 
 /** Date these drafts were prepared. */
-export const LEGAL_EFFECTIVE_DATE = "14 October 2026";
+export const LEGAL_EFFECTIVE_DATE = "23 October 2026";
 
 /** Confirmed support and privacy address. */
 export const LEGAL_SUPPORT_EMAIL = marketingFooter.contact.email;

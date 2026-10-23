@@ -53,7 +53,7 @@ export function softwareApplicationJsonLd() {
         name: "Pro",
         price: String(PRO_MONTHLY_PRICE_USD),
         priceCurrency: "USD",
-        description: `$${PRO_MONTHLY_PRICE_USD} per month for the whole account. Removes the ${FREE_PROPERTY_LIMIT}-property limit. Billed through Stripe.`,
+        description: `$${PRO_MONTHLY_PRICE_USD} per month for the whole account. Removes the ${FREE_PROPERTY_LIMIT}-property limit. Billed through Creem.`,
         url: absoluteUrl("/pricing"),
         priceSpecification: {
           "@type": "UnitPriceSpecification",

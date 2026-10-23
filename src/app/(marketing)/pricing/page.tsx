@@ -69,7 +69,7 @@ export default function PricingPage() {
               Pro is ${PRO_MONTHLY_PRICE_USD} per month for the whole account,
               not per property. It is for accounts that need more than{" "}
               {FREE_PROPERTY_LIMIT} active properties. Billing is through
-              Stripe. If the account returns to Free, the two oldest properties
+              Creem. If the account returns to Free, the two oldest properties
               stay active and the others lock until you delete them or upgrade
               again.
             </p>
@@ -78,8 +78,8 @@ export default function PricingPage() {
               separate portfolio tool or a separate support channel.
             </p>
             <p className="mt-8 text-sm text-zinc-500">
-              You cancel in the Stripe billing portal. Access continues until
-              the end of the period already paid.{" "}
+              You cancel from Pricing plan with Cancel at period end. Access
+              continues until the end of the period already paid.{" "}
               <Link href="/terms" className="text-violet-300 hover:underline">
                 Terms
               </Link>

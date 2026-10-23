@@ -14,11 +14,13 @@ import {
   Users,
 } from "lucide-react";
 import type { AdminHostRow } from "@/app/api/admin/hosts/route";
-import { AdminStripeConfig } from "@/components/admin/admin-stripe-config";
+import { AdminCreemStatus } from "@/components/admin/admin-creem-status";
 import { AdminPricingDialog } from "@/components/admin/admin-pricing-dialog";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
+
+type HostTab = "all" | "active" | "complimentary" | "free";
 
 type Stats = {
   totalUsers: number;
@@ -26,9 +28,19 @@ type Stats = {
   published: number;
   pro: number;
   complimentary: number;
-  stripePro: number;
+  activePaid: number;
+  free: number;
   totalProperties: number;
+  collectedLabel: string | null;
+  paymentsLoaded: boolean;
 };
+
+const tabs: { id: HostTab; label: string }[] = [
+  { id: "all", label: "All" },
+  { id: "active", label: "Active" },
+  { id: "complimentary", label: "Complimentary" },
+  { id: "free", label: "Free" },
+];
 
 function planBadgeClass(host: AdminHostRow): string {
   if (host.pro_access_granted) {
@@ -46,6 +58,7 @@ export function AdminDashboard() {
   const [stats, setStats] = useState<Stats | null>(null);
   const [loading, setLoading] = useState(true);
   const [query, setQuery] = useState("");
+  const [tab, setTab] = useState<HostTab>("all");
   const [pricingHost, setPricingHost] = useState<AdminHostRow | null>(null);
 
   const loadHosts = useCallback(async () => {
@@ -71,18 +84,35 @@ export function AdminDashboard() {
     void loadHosts();
   }, [loadHosts]);
 
+  const counts = useMemo(
+    () => ({
+      all: hosts.length,
+      active: hosts.filter((host) => host.plan_source === "creem" && host.is_pro).length,
+      complimentary: hosts.filter((host) => host.pro_access_granted).length,
+      free: hosts.filter((host) => !host.is_pro).length,
+    }),
+    [hosts]
+  );
+
   const filtered = useMemo(() => {
     const q = query.trim().toLowerCase();
-    if (!q) return hosts;
-    return hosts.filter(
-      (h) =>
-        h.email?.toLowerCase().includes(q) ||
-        h.username?.toLowerCase().includes(q) ||
-        h.business_name?.toLowerCase().includes(q) ||
-        h.plan_label.toLowerCase().includes(q) ||
-        h.id.toLowerCase().includes(q)
-    );
-  }, [hosts, query]);
+    return hosts.filter((host) => {
+      if (tab === "active" && !(host.plan_source === "creem" && host.is_pro)) {
+        return false;
+      }
+      if (tab === "complimentary" && !host.pro_access_granted) return false;
+      if (tab === "free" && host.is_pro) return false;
+      if (!q) return true;
+      return (
+        host.email?.toLowerCase().includes(q) ||
+        host.username?.toLowerCase().includes(q) ||
+        host.business_name?.toLowerCase().includes(q) ||
+        host.plan_label.toLowerCase().includes(q) ||
+        host.paid_label?.toLowerCase().includes(q) ||
+        host.id.toLowerCase().includes(q)
+      );
+    });
+  }, [hosts, query, tab]);
 
   async function handleLogout() {
     await fetch("/api/admin/logout", { method: "POST" });
@@ -99,7 +129,7 @@ export function AdminDashboard() {
           </div>
           <div>
             <h1 className="text-2xl font-semibold text-white">Hostvia Admin</h1>
-            <p className="text-sm text-white/55">Host accounts and pricing</p>
+            <p className="text-sm text-white/55">Host accounts, plans, and Creem payments</p>
           </div>
         </div>
         <div className="flex gap-2">
@@ -123,31 +153,57 @@ export function AdminDashboard() {
         </div>
       </header>
 
-      <AdminStripeConfig />
+      <AdminCreemStatus />
 
       {stats && (
         <div className="mb-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-5">
           <StatCard icon={Users} label="Host accounts" value={stats.totalUsers} />
           <StatCard icon={Building2} label="Properties" value={stats.totalProperties} />
-          <StatCard icon={Crown} label="Pro total" value={stats.pro} />
-          <StatCard icon={Crown} label="Stripe Pro" value={stats.stripePro} />
+          <StatCard icon={Crown} label="Active Pro" value={stats.activePaid} />
           <StatCard icon={ShieldCheck} label="Complimentary" value={stats.complimentary} />
+          <StatCard
+            icon={Crown}
+            label="Collected"
+            value={stats.paymentsLoaded ? (stats.collectedLabel ?? "$0.00") : "—"}
+          />
         </div>
       )}
 
       <div className="hostvia-admin-card overflow-hidden">
-        <div className="flex flex-col gap-3 border-b border-white/8 p-4 sm:flex-row sm:items-center sm:justify-between">
-          <p className="text-sm text-white/60">
-            {filtered.length} host account{filtered.length === 1 ? "" : "s"}
-          </p>
-          <div className="relative w-full sm:max-w-xs">
-            <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-white/35" />
-            <input
-              className="hostvia-admin-input pl-10"
-              placeholder="Search email, username, plan…"
-              value={query}
-              onChange={(e) => setQuery(e.target.value)}
-            />
+        <div className="flex flex-col gap-3 border-b border-white/8 p-4">
+          <div className="flex flex-wrap gap-2">
+            {tabs.map((item) => (
+              <button
+                key={item.id}
+                type="button"
+                className={`rounded-full border px-3 py-1.5 text-sm ${
+                  tab === item.id
+                    ? "border-sky-400/40 bg-sky-500/15 text-sky-100"
+                    : "border-white/10 text-white/60 hover:bg-white/5"
+                }`}
+                onClick={() => setTab(item.id)}
+              >
+                {item.label}
+                <span className="ml-2 text-xs text-white/40">{counts[item.id]}</span>
+              </button>
+            ))}
+          </div>
+          <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+            <p className="text-sm text-white/60">
+              {filtered.length} host account{filtered.length === 1 ? "" : "s"}
+              {stats && !stats.paymentsLoaded
+                ? " · Creem payment totals are unavailable"
+                : ""}
+            </p>
+            <div className="relative w-full sm:max-w-xs">
+              <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-white/35" />
+              <input
+                className="hostvia-admin-input pl-10"
+                placeholder="Search email, username, plan…"
+                value={query}
+                onChange={(e) => setQuery(e.target.value)}
+              />
+            </div>
           </div>
         </div>
 
@@ -166,6 +222,7 @@ export function AdminDashboard() {
                   <th>Properties</th>
                   <th>Plan</th>
                   <th>Billing</th>
+                  <th>Paid</th>
                   <th>Joined</th>
                   <th>Actions</th>
                 </tr>
@@ -211,6 +268,9 @@ export function AdminDashboard() {
                         </span>
                       )}
                     </td>
+                    <td className="whitespace-nowrap text-sm text-white">
+                      {host.paid_label ?? "—"}
+                    </td>
                     <td className="whitespace-nowrap text-white/60">
                       {host.created_at
                         ? format(new Date(host.created_at), "dd MMM yyyy")
@@ -230,7 +290,7 @@ export function AdminDashboard() {
                 ))}
                 {!filtered.length && (
                   <tr>
-                    <td colSpan={7} className="py-16 text-center text-white/45">
+                    <td colSpan={8} className="py-16 text-center text-white/45">
                       No host accounts match your search.
                     </td>
                   </tr>
@@ -263,14 +323,14 @@ function StatCard({
 }: {
   icon: typeof Users;
   label: string;
-  value: number;
+  value: number | string;
 }) {
   return (
     <div className="hostvia-admin-card p-5">
       <div className="mb-3 flex h-9 w-9 items-center justify-center rounded-lg bg-white/5 text-sky-300">
         <Icon className="h-4 w-4" />
       </div>
-      <p className="text-2xl font-semibold text-white">{value}</p>
+      <p className={`text-2xl font-semibold text-white ${typeof value === "string" ? "break-words text-xl" : ""}`}>{value}</p>
       <p className="text-sm text-white/55">{label}</p>
     </div>
   );

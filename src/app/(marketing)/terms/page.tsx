@@ -154,13 +154,13 @@ export default function TermsPage() {
         <ProSubscriptionPrice />
         <p>
           Pro renews each billing period until the account owner cancels.
-          Renewal is charged to the payment method on that Stripe subscription.
-          The billing page shows the end of the current period when Stripe has
-          provided that date. A promotion code can be entered on the Stripe
-          checkout page when one is offered.
+          Renewal is charged to the payment method on that Creem subscription.
+          The billing page shows the end of the current period when Creem has
+          provided that date. A discount, when one is offered, is applied on
+          the Creem checkout page.
         </p>
         <p>
-          Some accounts may be given Pro access without a Stripe subscription.
+          Some accounts may be given Pro access without a Creem subscription.
           That access is granted inside the product and is not a paid plan. It
           does not create an invoice.
         </p>
@@ -172,20 +172,22 @@ export default function TermsPage() {
 
       <LegalSection id="payments" title="7. Payment processing">
         <p>
-          Paid subscriptions are processed by Stripe. Choosing Upgrade to Pro
-          opens Stripe Checkout. Payment methods, invoices, and cancellation are
-          handled in Stripe&apos;s billing portal, opened from Pricing plan in
-          the dashboard.
+          Paid subscriptions are processed by Creem. Choosing Upgrade to Pro
+          opens Creem Checkout. The account owner manages the payment method
+          and invoices from Pricing plan with Manage billing, which opens the
+          Creem customer portal. The same page can schedule cancellation for
+          the end of the current period, or resume a cancellation that has not
+          taken effect yet.
         </p>
         <p>
-          Hostvia stores the Stripe customer identifier, subscription
+          Hostvia stores the Creem customer identifier, subscription
           identifier, plan status, current period end, and whether cancellation
-          is scheduled. Card numbers are entered on Stripe&apos;s pages. The
+          is scheduled. Card numbers are entered on Creem&apos;s pages. The
           Hostvia database has no field for a card number, and Hostvia forms do
           not ask for one.
         </p>
         <p>
-          If a renewal charge fails, Stripe may retry it and the subscription
+          If a renewal charge fails, Creem may retry it and the subscription
           may show as past due. While the status remains past due, the
           application still treats the account as Pro. If the subscription ends,
           the account returns to the Free plan.
@@ -195,13 +197,14 @@ export default function TermsPage() {
       <LegalSection id="cancellation" title="8. Cancellation">
         <p>
           The account owner can cancel Pro from the dashboard: Pricing plan,
-          then Manage in Stripe. Cancellation is scheduled for the end of the
-          current billing period. Pro stays available until that date. After the
-          period ends, the account returns to Free.
+          then Cancel at period end. Manage billing opens the Creem customer
+          portal for the payment method and invoices. Cancellation is scheduled
+          for the end of the current billing period. Pro stays available until
+          that date. After the period ends, the account returns to Free.
         </p>
         <p>
           {`On Free, the ${FREE_PLAN_PROPERTY_LIMIT} oldest properties stay active.`}
-          Further properties are locked. They are not deleted. Leaving Stripe
+          Further properties are locked. They are not deleted. Leaving Creem
           Checkout before you pay does not start a subscription.
         </p>
         <p>
@@ -295,9 +298,8 @@ export default function TermsPage() {
         <p>
           Features can change as the product is updated. Prices shown in the
           application can change for future billing periods. A price already
-          shown and accepted at checkout applies to the subscription Stripe
-          creates, until that subscription is changed or Stripe applies a price
-          update under Stripe&apos;s billing rules.
+          shown and accepted at checkout applies to the subscription Creem
+          creates, until that subscription is changed.
         </p>
         <p>
           These terms can be updated by posting a new version on this page and

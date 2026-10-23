@@ -218,7 +218,7 @@ export const faqItems = [
   },
   {
     question: "What does Pro change?",
-    answer: `Pro is $${PRO_MONTHLY_PRICE_USD} per month for the whole account, billed through Stripe. It removes the limit of ${FREE_PROPERTY_LIMIT} properties. The same tools are available on Free and Pro.`,
+    answer: `Pro is $${PRO_MONTHLY_PRICE_USD} per month for the whole account, billed through Creem. It removes the limit of ${FREE_PROPERTY_LIMIT} properties. The same tools are available on Free and Pro.`,
   },
   {
     question: "Do I need the Airbnb or Booking.com API?",

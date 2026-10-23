@@ -1,6 +1,13 @@
 import { NextResponse } from "next/server";
 import { requireAdminSession } from "@/lib/admin/require-admin";
 import { summarizeAdminPlan } from "@/lib/admin/plan-summary";
+import { readCreemConfig } from "@/lib/creem/config";
+import { loadCreemPaidTotals } from "@/lib/creem/load-transactions";
+import {
+  formatCreemPaidTotals,
+  formatMoney,
+  type CreemCurrencyTotal,
+} from "@/lib/creem/transactions";
 import { hasProAccess } from "@/lib/subscriptions/access";
 import { FREE_PROPERTY_LIMIT } from "@/lib/subscriptions/plans";
 import type { SubscriptionStatus } from "@/lib/subscriptions/plans";
@@ -16,8 +23,11 @@ export type AdminHostRow = {
   property_count: number;
   subscription_status: SubscriptionStatus;
   subscription_current_period_end: string | null;
+  subscription_cancel_at_period_end: boolean;
   stripe_customer_id: string | null;
   stripe_subscription_id: string | null;
+  creem_customer_id: string | null;
+  creem_subscription_id: string | null;
   pro_access_granted: boolean;
   pro_access_granted_at: string | null;
   pro_access_granted_note: string | null;
@@ -27,9 +37,23 @@ export type AdminHostRow = {
   can_add_property: boolean;
   requires_upgrade: boolean;
   plan_label: string;
-  plan_source: "complimentary" | "stripe" | "free";
+  plan_source: "complimentary" | "creem" | "stripe" | "free";
+  paid_label: string | null;
   created_at: string | null;
   last_sign_in_at: string | null;
+};
+
+export type AdminHostStats = {
+  totalUsers: number;
+  withProfile: number;
+  published: number;
+  pro: number;
+  complimentary: number;
+  activePaid: number;
+  free: number;
+  totalProperties: number;
+  collectedLabel: string | null;
+  paymentsLoaded: boolean;
 };
 
 export async function GET() {
@@ -73,7 +97,7 @@ export async function GET() {
   const { data: profiles, error: profilesError } = await admin
     .from("host_profiles")
     .select(
-      "id, username, business_name, is_published, subscription_status, subscription_current_period_end, subscription_cancel_at_period_end, stripe_customer_id, stripe_subscription_id, pro_access_granted, pro_access_granted_at, pro_access_granted_note, created_at"
+      "id, username, business_name, is_published, subscription_status, subscription_current_period_end, subscription_cancel_at_period_end, stripe_customer_id, stripe_subscription_id, creem_customer_id, creem_subscription_id, pro_access_granted, pro_access_granted_at, pro_access_granted_note, created_at"
     );
 
   if (profilesError) {
@@ -107,6 +131,21 @@ export async function GET() {
   const profileById = new Map((profiles ?? []).map((p) => [p.id, p]));
   const teamAuthIds = new Set((teamRows ?? []).map((row) => row.auth_user_id));
 
+  let paymentsLoaded = false;
+  let paidByCustomer = new Map<string, CreemCurrencyTotal[]>();
+  try {
+    const payments = await loadCreemPaidTotals(readCreemConfig());
+    if (payments.ok) {
+      paymentsLoaded = true;
+      paidByCustomer = payments.totals;
+    }
+  } catch (err) {
+    console.error(
+      "[creem admin] payments",
+      err instanceof Error ? err.message : "unavailable"
+    );
+  }
+
   const hosts: AdminHostRow[] = authUsers
     .filter((user) => !teamAuthIds.has(user.id))
     .map((user) => {
@@ -121,6 +160,8 @@ export async function GET() {
                 profile.subscription_cancel_at_period_end ?? false,
               stripe_customer_id: profile.stripe_customer_id,
               stripe_subscription_id: profile.stripe_subscription_id,
+              creem_customer_id: profile.creem_customer_id,
+              creem_subscription_id: profile.creem_subscription_id,
               pro_access_granted: profile.pro_access_granted ?? false,
             }
           : null
@@ -137,8 +178,12 @@ export async function GET() {
           "free") as SubscriptionStatus,
         subscription_current_period_end:
           profile?.subscription_current_period_end ?? null,
+        subscription_cancel_at_period_end:
+          profile?.subscription_cancel_at_period_end ?? false,
         stripe_customer_id: profile?.stripe_customer_id ?? null,
         stripe_subscription_id: profile?.stripe_subscription_id ?? null,
+        creem_customer_id: profile?.creem_customer_id ?? null,
+        creem_subscription_id: profile?.creem_subscription_id ?? null,
         pro_access_granted: profile?.pro_access_granted ?? false,
         pro_access_granted_at: profile?.pro_access_granted_at ?? null,
         pro_access_granted_note: profile?.pro_access_granted_note ?? null,
@@ -157,6 +202,13 @@ export async function GET() {
         requires_upgrade: summary.requiresUpgrade,
         plan_label: summary.planLabel,
         plan_source: summary.planSource,
+        paid_label: paymentsLoaded
+          ? formatCreemPaidTotals(
+              profile?.creem_customer_id
+                ? paidByCustomer.get(profile.creem_customer_id)
+                : undefined
+            )
+          : null,
         created_at: profile?.created_at ?? user.created_at ?? null,
         last_sign_in_at: user.last_sign_in_at ?? null,
       };
@@ -168,14 +220,31 @@ export async function GET() {
     return bTime - aTime;
   });
 
-  const stats = {
+  const collected = new Map<string, number>();
+  if (paymentsLoaded) {
+    for (const totals of paidByCustomer.values()) {
+      for (const total of totals) {
+        collected.set(total.currency, (collected.get(total.currency) ?? 0) + total.netCents);
+      }
+    }
+  }
+
+  const stats: AdminHostStats = {
     totalUsers: hosts.length,
     withProfile: hosts.filter((h) => h.has_host_profile).length,
     published: hosts.filter((h) => h.is_published).length,
     pro: hosts.filter((h) => h.is_pro).length,
     complimentary: hosts.filter((h) => h.pro_access_granted).length,
-    stripePro: hosts.filter((h) => h.plan_source === "stripe" && h.is_pro).length,
+    activePaid: hosts.filter((h) => h.plan_source === "creem" && h.is_pro).length,
+    free: hosts.filter((h) => !h.is_pro).length,
     totalProperties: hosts.reduce((sum, h) => sum + h.property_count, 0),
+    collectedLabel: paymentsLoaded
+      ? [...collected.entries()]
+          .sort(([a], [b]) => a.localeCompare(b))
+          .map(([currency, cents]) => formatMoney(cents, currency))
+          .join(" + ") || formatMoney(0, "USD")
+      : null,
+    paymentsLoaded,
   };
 
   return NextResponse.json({ hosts, stats });
