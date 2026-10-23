@@ -12,7 +12,7 @@ export function MarketingBreadcrumbs({
       <JsonLd data={breadcrumbJsonLd(items)} />
       <nav
         aria-label="Breadcrumb"
-        className="mx-auto max-w-6xl px-4 pt-8 text-sm text-zinc-500 md:px-6"
+        className="mx-auto w-full max-w-6xl px-4 pt-4 text-sm text-zinc-500 md:px-6 md:pt-5"
       >
         <ol className="flex flex-wrap items-center gap-2">
           {items.map((item, index) => {

@@ -23,7 +23,7 @@ export function PageHero({
   return (
     <section className={cn("relative overflow-hidden px-4 py-20 md:px-8 md:py-28", className)}>
       <div className="pointer-events-none absolute inset-0">
-        <div className="absolute left-1/2 top-0 h-[400px] w-[600px] -translate-x-1/2 rounded-full bg-violet-600/10 blur-[100px]" />
+        <div className="absolute left-1/2 top-0 h-[min(640px,90vw)] w-[min(900px,130vw)] -translate-x-1/2 -translate-y-[35%] rounded-full bg-violet-600/20 blur-[120px]" />
       </div>
       <div
         className={cn(

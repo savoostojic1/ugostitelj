@@ -829,6 +829,52 @@
   }
 }
 
+/* Breadcrumb sits on the first section instead of pushing it below the navbar,
+   so that section's gradient starts at the header. */
+.marketing-site main:has(> nav[aria-label="Breadcrumb"]) {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  isolation: isolate;
+}
+
+.marketing-site main:has(> nav[aria-label="Breadcrumb"] + article)::before {
+  content: "";
+  grid-area: 1 / 1;
+  z-index: -1;
+  align-self: start;
+  height: 32rem;
+  margin-top: calc(-1 * (4rem + env(safe-area-inset-top, 0px)));
+  pointer-events: none;
+  background: radial-gradient(
+    ellipse 78% 88% at 50% 0%,
+    rgba(139, 92, 246, 0.28) 0%,
+    rgba(99, 102, 241, 0.1) 42%,
+    transparent 72%
+  );
+}
+
+.marketing-site main:has(> nav[aria-label="Breadcrumb"]) > nav[aria-label="Breadcrumb"] {
+  grid-area: 1 / 1;
+  z-index: 2;
+  align-self: start;
+  position: relative;
+}
+
+.marketing-site main:has(> nav[aria-label="Breadcrumb"]) > nav[aria-label="Breadcrumb"] + * {
+  grid-area: 1 / 1;
+  min-width: 0;
+}
+
+.marketing-site main > nav[aria-label="Breadcrumb"] + article {
+  padding-top: 5.5rem;
+}
+
+@media (min-width: 768px) {
+  .marketing-site main > nav[aria-label="Breadcrumb"] + article {
+    padding-top: 6.5rem;
+  }
+}
+
 .marketing-site .marketing-hero {
   position: relative;
   overflow: hidden;

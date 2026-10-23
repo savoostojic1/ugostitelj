@@ -48,14 +48,16 @@ export default function HomePage() {
               For vacation rental owners
             </div>
             <h1 className="marketing-heading text-4xl text-white sm:text-5xl lg:text-[3.25rem] xl:text-[3.5rem]">
-              One place to run a small{" "}
-              <span className="hostvia-gradient-text">vacation rental</span>{" "}
-              business.
+              Manage your rentals.{" "}
+              <span className="hostvia-gradient-text">
+                Get more direct inquiries.
+              </span>
             </h1>
             <p className="mx-auto mt-5 max-w-lg text-base leading-relaxed text-zinc-400 sm:text-lg lg:mx-0">
-              Hostvia is for owners and small operators who are tired of
-              checking Airbnb, Booking.com, and direct messages separately. Keep
-              calendars, arrivals, cleaning days, and guest inquiries together.
+              Keep calendars, guest arrivals, and cleaning schedules organized
+              in one place. Create your own booking website, showcase your
+              properties, and make it easier for guests to inquire about their
+              stay.
             </p>
             <div className="marketing-cta-row mt-8 sm:mt-10">
               <MarketingPrimaryCta loggedOutLabel="Create a free account" />
