@@ -50,13 +50,19 @@ const formCopy: Record<
 function AuthCallbackNotice() {
   const searchParams = useSearchParams();
   if (searchParams.get("error") !== "auth-callback") return null;
-  const exists = searchParams.get("reason") === "exists";
+  const reason = searchParams.get("reason");
+  const detail = searchParams.get("detail");
+  const text =
+    reason === "exists"
+      ? "That Google email already has a Hostvia account. Sign in with the email and password you used before."
+      : reason === "cancelled"
+        ? "Google sign-in was cancelled. Try again when you want to continue."
+        : "Google sign-in did not finish. Try again, or use your email and password.";
 
   return (
     <p className="rounded-xl border border-amber-400/20 bg-amber-400/10 px-3.5 py-3 text-xs leading-relaxed text-amber-100">
-      {exists
-        ? "That Google email already has a Hostvia account. Sign in with the email and password you used before."
-        : "Google sign-in did not finish. Try again, or use your email and password."}
+      {text}
+      {detail ? <span className="mt-1 block text-amber-50/80">{detail}</span> : null}
     </p>
   );
 }
