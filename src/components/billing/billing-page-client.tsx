@@ -19,6 +19,9 @@ import { Button } from "@/components/ui/button";
 import {
   useBillingPortal,
   useBillingStatus,
+  useCreemPortal,
+  useResumeCreemSubscription,
+  useScheduleCreemCancellation,
   useStartCheckout,
 } from "@/hooks/use-billing";
 import {
@@ -53,12 +56,21 @@ export function BillingPageClient() {
   const searchParams = useSearchParams();
   const { data: billing, isLoading, error } = useBillingStatus();
   const checkout = useStartCheckout();
-  const portal = useBillingPortal();
+  const stripePortal = useBillingPortal();
+  const creemPortal = useCreemPortal();
+  const scheduleCancellation = useScheduleCreemCancellation();
+  const resumeSubscription = useResumeCreemSubscription();
   const toastShown = useRef<string | null>(null);
 
   useEffect(() => {
     const upgrade = searchParams.get("upgrade");
     const portalReturn = searchParams.get("portal");
+    const checkoutReturn = searchParams.get("checkout");
+
+    if (checkoutReturn === "return" && toastShown.current !== "checkout-return") {
+      toastShown.current = "checkout-return";
+      toast.message("Checkout finished. Pro access updates after payment is confirmed.");
+    }
 
     if (portalReturn === "return" && toastShown.current !== "portal-return") {
       toastShown.current = "portal-return";
@@ -167,8 +179,10 @@ export function BillingPageClient() {
               {billing.isPro && !billing.isComplimentary && (
             <p className="mt-2 text-sm text-zinc-400">
               {billing.isCanceling
-                ? "Canceled via Stripe"
-                : `Billed via Stripe · $${PRO_MONTHLY_PRICE_USD}/month`}
+                ? "Cancellation scheduled"
+                : billing.billingProvider === "stripe"
+                  ? `Billed via Stripe · $${PRO_MONTHLY_PRICE_USD}/month`
+                  : `$${PRO_MONTHLY_PRICE_USD}/month`}
             </p>
           )}
           {!billing.isPro && (billing.lockedPropertyCount ?? 0) > 0 && (
@@ -245,28 +259,89 @@ export function BillingPageClient() {
             </p>
           )}
 
-          {billing.canManageSubscription && (
+          {billing.billingProvider === "creem" && billing.canManageSubscription && (
             <div className="mt-8 rounded-xl border border-white/10 bg-white/[0.03] p-5">
               <p className="text-sm font-medium text-white">
                 Manage subscription
               </p>
               <p className="mt-1 text-xs leading-relaxed text-zinc-500">
-                Update payment method, view invoices, or cancel your Pro plan in
-                Stripe&apos;s secure billing portal. Cancellation and refund
-                requests are described in the{" "}
+                Update your payment method or view invoices in the billing
+                portal. Cancellation and refund requests are described in the{" "}
                 <Link href="/refund-policy" className="text-violet-300 hover:underline">
                   refund and cancellation policy
                 </Link>
                 .
               </p>
+              <div className="mt-4 flex flex-col gap-2 sm:flex-row">
+                <Button
+                  type="button"
+                  variant="outline"
+                  className="hostvia-dashboard-btn h-11 gap-2 border-white/15 bg-white/[0.03] text-zinc-200 hover:bg-white/[0.06] hover:text-white"
+                  disabled={creemPortal.isPending}
+                  onClick={() => creemPortal.mutate()}
+                >
+                  {creemPortal.isPending ? (
+                    <>
+                      <Loader2 className="h-4 w-4 animate-spin" />
+                      Opening billing portal…
+                    </>
+                  ) : (
+                    <>
+                      <ExternalLink className="h-4 w-4" />
+                      Manage billing
+                    </>
+                  )}
+                </Button>
+                {billing.canCancelCreem && (
+                  <Button
+                    type="button"
+                    variant="outline"
+                    className="hostvia-dashboard-btn h-11 border-white/15 bg-white/[0.03] text-zinc-200 hover:bg-white/[0.06] hover:text-white"
+                    disabled={scheduleCancellation.isPending}
+                    onClick={() => scheduleCancellation.mutate()}
+                  >
+                    {scheduleCancellation.isPending ? "Scheduling…" : "Cancel at period end"}
+                  </Button>
+                )}
+                {billing.canResumeCreem && (
+                  <Button
+                    type="button"
+                    className="hostvia-btn-gradient h-11"
+                    disabled={resumeSubscription.isPending}
+                    onClick={() => resumeSubscription.mutate()}
+                  >
+                    {resumeSubscription.isPending ? "Resuming…" : "Resume subscription"}
+                  </Button>
+                )}
+              </div>
+              {billing.canCancelCreem && (
+                <p className="mt-3 text-xs leading-relaxed text-zinc-500">
+                  Canceling schedules the end of Pro for the close of the
+                  current period. Access stays in place until then, and
+                  properties are not deleted.
+                </p>
+              )}
+            </div>
+          )}
+
+          {billing.billingProvider === "stripe" && billing.canManageSubscription && (
+            <div className="mt-8 rounded-xl border border-white/10 bg-white/[0.03] p-5">
+              <p className="text-sm font-medium text-white">
+                Manage subscription
+              </p>
+              <p className="mt-1 text-xs leading-relaxed text-zinc-500">
+                This subscription is still billed through Stripe. Update the
+                payment method, view invoices, or cancel in Stripe&apos;s billing
+                portal.
+              </p>
               <Button
                 type="button"
                 variant="outline"
                 className="hostvia-dashboard-btn mt-4 h-11 gap-2 border-white/15 bg-white/[0.03] text-zinc-200 hover:bg-white/[0.06] hover:text-white"
-                disabled={portal.isPending}
-                onClick={() => portal.mutate()}
+                disabled={stripePortal.isPending}
+                onClick={() => stripePortal.mutate()}
               >
-                {portal.isPending ? (
+                {stripePortal.isPending ? (
                   <>
                     <Loader2 className="h-4 w-4 animate-spin" />
                     Opening Stripe…
@@ -309,7 +384,8 @@ export function BillingPageClient() {
                 )}
               </Button>
               <p className="mt-3 text-xs text-zinc-500">
-                Secure checkout via Stripe. Cancel anytime. See the{" "}
+                Secure checkout. You can cancel at the end of a billing period.
+                See the{" "}
                 <Link href="/refund-policy" className="text-violet-300 hover:underline">
                   refund and cancellation policy
                 </Link>
@@ -322,8 +398,9 @@ export function BillingPageClient() {
             !billing.isComplimentary &&
             !billing.canManageSubscription && (
             <p className="mt-6 text-xs text-zinc-500">
-              Subscription managed via Stripe. Contact support if you need help
-              with billing.
+              {billing.billingProvider === "stripe"
+                ? "Subscription managed via Stripe. Contact support if you need help with billing."
+                : "Billing details appear after the subscription is confirmed."}
             </p>
           )}
         </div>

@@ -10,9 +10,7 @@ import {
   loadHostSubscription,
   resolveBillingHostId,
 } from "@/lib/subscriptions/resolve-host-subscription";
-import { syncHostBillingFromStripe } from "@/lib/stripe/sync-host-billing";
 import { isTestHostId, loadStripeAppIdentity } from "@/lib/stripe/app-identity";
-import { hasStripeSecretKey } from "@/lib/stripe/stripe";
 
 async function buildBillingStatusResponse(
   supabase: Awaited<ReturnType<typeof createClient>>,
@@ -48,6 +46,17 @@ async function buildBillingStatusResponse(
   );
   const lockedPropertyCount = countLockedProperties(propertyCount, subscription);
   const identity = await loadStripeAppIdentity();
+  const hasCreem = Boolean(
+    subscription?.creem_customer_id || subscription?.creem_subscription_id
+  );
+  const hasStripeSubscription = Boolean(
+    subscription?.stripe_customer_id && subscription?.stripe_subscription_id
+  );
+  const billingProvider = hasCreem
+    ? "creem"
+    : hasStripeSubscription
+      ? "stripe"
+      : "none";
 
   return {
     isOwner,
@@ -59,6 +68,7 @@ async function buildBillingStatusResponse(
     isComplimentary: Boolean(subscription?.pro_access_granted),
     isTestBillingUser: isTestHostId(hostId, identity),
     stripeMode: identity.stripeMode,
+    billingProvider,
     subscriptionStatus: subscription?.subscription_status ?? "free",
     currentPeriodEnd: subscription?.subscription_current_period_end ?? null,
     allowedPropertyIds,
@@ -66,8 +76,22 @@ async function buildBillingStatusResponse(
     canManageSubscription:
       isOwner &&
       !subscription?.pro_access_granted &&
-      Boolean(subscription?.stripe_customer_id) &&
-      Boolean(subscription?.stripe_subscription_id),
+      (billingProvider === "creem"
+        ? Boolean(subscription?.creem_customer_id)
+        : hasStripeSubscription),
+    canCancelCreem:
+      isOwner &&
+      billingProvider === "creem" &&
+      !subscription?.pro_access_granted &&
+      Boolean(subscription?.creem_subscription_id) &&
+      pro &&
+      !isCanceling,
+    canResumeCreem:
+      isOwner &&
+      billingProvider === "creem" &&
+      !subscription?.pro_access_granted &&
+      Boolean(subscription?.creem_subscription_id) &&
+      isCanceling,
     canAddProperty: isOwner && (pro || propertyCount < FREE_PROPERTY_LIMIT),
     requiresUpgrade:
       isOwner && !pro && propertyCount >= FREE_PROPERTY_LIMIT,
@@ -85,14 +109,6 @@ export async function GET() {
   }
 
   const { hostId, isOwner } = await resolveBillingHostId(supabase, user.id);
-
-  if (isOwner && (await hasStripeSecretKey())) {
-    try {
-      await syncHostBillingFromStripe(hostId);
-    } catch (err) {
-      console.error("[billing status sync]", err);
-    }
-  }
 
   try {
     const payload = await buildBillingStatusResponse(supabase, hostId, isOwner);

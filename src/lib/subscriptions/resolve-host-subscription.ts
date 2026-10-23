@@ -7,6 +7,8 @@ export type HostSubscriptionRow = {
   subscription_cancel_at_period_end: boolean | null;
   stripe_customer_id: string | null;
   stripe_subscription_id?: string | null;
+  creem_customer_id?: string | null;
+  creem_subscription_id?: string | null;
   pro_access_granted: boolean | null;
 };
 
@@ -21,6 +23,8 @@ export function toSubscriptionRecord(
     subscription_cancel_at_period_end: row.subscription_cancel_at_period_end ?? false,
     stripe_customer_id: row.stripe_customer_id,
     stripe_subscription_id: row.stripe_subscription_id,
+    creem_customer_id: row.creem_customer_id,
+    creem_subscription_id: row.creem_subscription_id,
     pro_access_granted: row.pro_access_granted ?? false,
   };
 }
@@ -32,7 +36,7 @@ export async function loadHostSubscription(
   const { data, error } = await supabase
     .from("host_profiles")
     .select(
-      "subscription_status, subscription_current_period_end, subscription_cancel_at_period_end, stripe_customer_id, stripe_subscription_id, pro_access_granted"
+      "subscription_status, subscription_current_period_end, subscription_cancel_at_period_end, stripe_customer_id, stripe_subscription_id, creem_customer_id, creem_subscription_id, pro_access_granted"
     )
     .eq("id", hostId)
     .maybeSingle();

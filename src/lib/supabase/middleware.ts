@@ -100,6 +100,7 @@ export async function updateSession(request: NextRequest) {
       path.startsWith("/api/auth/team-login") ||
       path.startsWith("/api/auth/forgot-password") ||
       path.startsWith("/api/billing/webhook") ||
+      path.startsWith("/api/billing/creem/webhook") ||
       path.startsWith("/api/admin/") ||
       path.startsWith("/admin") ||
       path.startsWith("/api/public/") ||

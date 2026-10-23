@@ -108,7 +108,7 @@ export default function BillingSuccessClient() {
       <p className="mt-3 text-sm text-zinc-400">
         {ready
           ? "Unlimited properties are now unlocked. Add your next listing anytime."
-          : "We're confirming your payment with Stripe. This usually takes a few seconds."}
+          : "We're confirming your payment. This usually takes a few seconds."}
       </p>
       {confirmError && !ready ? (
         <p className="mt-4 max-w-md text-sm text-amber-300">{confirmError}</p>

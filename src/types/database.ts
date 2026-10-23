@@ -69,6 +69,9 @@ export interface HostProfile {
   is_published: boolean;
   stripe_customer_id?: string | null;
   stripe_subscription_id?: string | null;
+  creem_customer_id?: string | null;
+  creem_subscription_id?: string | null;
+  creem_subscription_updated_at?: string | null;
   subscription_status?: "free" | "active" | "canceled" | "past_due";
   subscription_current_period_end?: string | null;
   subscription_cancel_at_period_end?: boolean;
