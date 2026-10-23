@@ -14,6 +14,7 @@ import {
 } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { GoogleSignInButton } from "@/components/auth/google-sign-in-button";
 import { getBrowserClient } from "@/lib/supabase/client";
 import { isTeamAccessEmail } from "@/lib/team-access/permissions";
 import { toast } from "sonner";
@@ -45,6 +46,20 @@ const formCopy: Record<
     loading: "Sending…",
   },
 };
+
+function AuthCallbackNotice() {
+  const searchParams = useSearchParams();
+  if (searchParams.get("error") !== "auth-callback") return null;
+  const exists = searchParams.get("reason") === "exists";
+
+  return (
+    <p className="rounded-xl border border-amber-400/20 bg-amber-400/10 px-3.5 py-3 text-xs leading-relaxed text-amber-100">
+      {exists
+        ? "That Google email already has a Hostvia account. Sign in with the email and password you used before."
+        : "Google sign-in did not finish. Try again, or use your email and password."}
+    </p>
+  );
+}
 
 function RecoveryLinkNotice() {
   const searchParams = useSearchParams();
@@ -187,6 +202,22 @@ export function AuthForm({ mode }: { mode: AuthMode }) {
         </h1>
         <p className="text-sm leading-relaxed text-zinc-400">{copy.subtitle}</p>
       </div>
+
+      {mode === "login" || mode === "register" ? (
+        <div className="space-y-5">
+          {mode === "login" ? (
+            <Suspense fallback={null}>
+              <AuthCallbackNotice />
+            </Suspense>
+          ) : null}
+          <GoogleSignInButton mode={mode} />
+          <div className="flex items-center gap-3 text-xs font-medium uppercase tracking-wide text-zinc-500">
+            <span className="h-px flex-1 bg-white/10" />
+            or
+            <span className="h-px flex-1 bg-white/10" />
+          </div>
+        </div>
+      ) : null}
 
       <form onSubmit={handleSubmit} className="space-y-5">
         {mode === "register" ? (

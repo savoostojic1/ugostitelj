@@ -59,7 +59,10 @@ export function useHostProfile() {
         .insert({
           id: profileId,
           username,
-          business_name: user.user_metadata?.full_name ?? username,
+          business_name:
+            user.user_metadata?.full_name ??
+            user.user_metadata?.name ??
+            username,
           is_published: false,
         })
         .select("*")

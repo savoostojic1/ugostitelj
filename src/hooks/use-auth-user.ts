@@ -5,8 +5,12 @@ import type { User } from "@supabase/supabase-js";
 import { getBrowserClient } from "@/lib/supabase/client";
 
 export function getUserDisplayName(user: User): string {
-  const meta = user.user_metadata as { full_name?: string } | undefined;
-  if (meta?.full_name?.trim()) return meta.full_name.trim();
+  const meta = user.user_metadata as {
+    full_name?: string;
+    name?: string;
+  } | undefined;
+  const name = meta?.full_name?.trim() || meta?.name?.trim();
+  if (name) return name;
   if (user.email) return user.email;
   return "Account";
 }
