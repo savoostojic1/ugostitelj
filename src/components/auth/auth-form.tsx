@@ -1,8 +1,8 @@
 "use client";
 
 import Link from "next/link";
-import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
+import { Suspense, useState } from "react";
 import {
   ArrowRight,
   Eye,
@@ -45,6 +45,20 @@ const formCopy: Record<
     loading: "Sending…",
   },
 };
+
+function RecoveryLinkNotice() {
+  const searchParams = useSearchParams();
+  if (searchParams.get("error") !== "recovery-link") return null;
+  const sameBrowser = searchParams.get("hint") === "same-browser";
+
+  return (
+    <p className="rounded-xl border border-amber-400/20 bg-amber-400/10 px-3.5 py-3 text-xs leading-relaxed text-amber-100">
+      {sameBrowser
+        ? "That reset link only works in the browser where you requested it. Send a new link and open it here."
+        : "That reset link is invalid or has expired. Send a new one below."}
+    </p>
+  );
+}
 
 function AuthField({
   id,
@@ -234,11 +248,16 @@ export function AuthForm({ mode }: { mode: AuthMode }) {
         ) : null}
 
         {mode === "forgot" ? (
-          <p className="rounded-xl border border-white/8 bg-white/[0.03] px-3.5 py-3 text-xs leading-relaxed text-zinc-400">
-            Use the email address for your main Hostvia account. Team access
-            usernames (e.g. pregled.your-host) are reset by the owner in Give
-            access.
-          </p>
+          <>
+            <Suspense fallback={null}>
+              <RecoveryLinkNotice />
+            </Suspense>
+            <p className="rounded-xl border border-white/8 bg-white/[0.03] px-3.5 py-3 text-xs leading-relaxed text-zinc-400">
+              Use the email address for your main Hostvia account. Team access
+              usernames (e.g. pregled.your-host) are reset by the owner in Give
+              access.
+            </p>
+          </>
         ) : null}
 
         <button

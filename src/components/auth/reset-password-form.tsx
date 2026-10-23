@@ -1,18 +1,35 @@
 "use client";
 
+import type { EmailOtpType } from "@supabase/supabase-js";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
 import { ArrowRight, Eye, EyeOff, Loader2, Lock } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { getBrowserClient } from "@/lib/supabase/client";
-import { clearPasswordRecoveryPendingCookie } from "@/lib/auth/password-recovery";
+import {
+  clearPasswordRecoveryPendingCookie,
+  parseRecoveryHash,
+  parseRecoveryTokens,
+  setPasswordRecoveryPendingCookie,
+} from "@/lib/auth/password-recovery";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 
+function recoveryErrorCopy(params: { get(name: string): string | null }) {
+  if (params.get("hint") === "same-browser") {
+    return "Open the reset link in the same browser where you requested it, or send a new link and open that one.";
+  }
+  if (params.get("error_code") === "otp_expired") {
+    return "This reset link has expired or was already used. Request a new one.";
+  }
+  return "This reset link is invalid or has expired. Request a new one.";
+}
+
 export function ResetPasswordForm() {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
@@ -22,11 +39,69 @@ export function ResetPasswordForm() {
 
   useEffect(() => {
     const supabase = getBrowserClient();
+    let cancelled = false;
+
+    function markReady() {
+      if (cancelled) return;
+      setPasswordRecoveryPendingCookie();
+      setSessionReady(true);
+      setCheckingSession(false);
+    }
+
+    const hash = window.location.hash;
+    const query = new URLSearchParams(window.location.search);
+    const tokens = parseRecoveryHash(hash) ?? parseRecoveryTokens(query);
+    const tokenHash = query.get("token_hash");
+    const otpType = query.get("type");
+
+    function stripRecoveryParams() {
+      const url = new URL(window.location.href);
+      url.hash = "";
+      for (const key of [
+        "access_token",
+        "refresh_token",
+        "expires_in",
+        "expires_at",
+        "token_type",
+        "type",
+        "token_hash",
+      ]) {
+        url.searchParams.delete(key);
+      }
+      window.history.replaceState(window.history.state, "", url.toString());
+    }
 
     async function verifySession() {
+      if (tokens) {
+        const { error } = await supabase.auth.setSession({
+          access_token: tokens.accessToken,
+          refresh_token: tokens.refreshToken,
+        });
+        if (cancelled) return;
+        if (!error) {
+          stripRecoveryParams();
+          markReady();
+          return;
+        }
+      }
+
+      if (tokenHash && otpType) {
+        const { error } = await supabase.auth.verifyOtp({
+          token_hash: tokenHash,
+          type: otpType as EmailOtpType,
+        });
+        if (cancelled) return;
+        if (!error) {
+          stripRecoveryParams();
+          markReady();
+          return;
+        }
+      }
+
       const {
         data: { session },
       } = await supabase.auth.getSession();
+      if (cancelled) return;
       setSessionReady(Boolean(session));
       setCheckingSession(false);
     }
@@ -42,7 +117,10 @@ export function ResetPasswordForm() {
       }
     });
 
-    return () => subscription.unsubscribe();
+    return () => {
+      cancelled = true;
+      subscription.unsubscribe();
+    };
   }, []);
 
   async function handleSubmit(e: React.FormEvent) {
@@ -92,8 +170,7 @@ export function ResetPasswordForm() {
             Link expired or invalid
           </h1>
           <p className="text-sm leading-relaxed text-zinc-400">
-            Open the reset link in the same browser where you requested it. If
-            it still fails, request a new link.
+            {recoveryErrorCopy(searchParams)}
           </p>
         </div>
         <Link

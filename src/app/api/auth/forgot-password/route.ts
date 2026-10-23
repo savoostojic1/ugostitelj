@@ -1,6 +1,7 @@
+import { createClient } from "@supabase/supabase-js";
 import { NextResponse } from "next/server";
 import { getPasswordRecoveryRedirectUrl } from "@/lib/auth/password-recovery";
-import { createRouteHandlerClient } from "@/lib/supabase/route-handler";
+import { getSupabaseEnv } from "@/lib/supabase/env";
 import { isTeamAccessEmail } from "@/lib/team-access/permissions";
 
 type Body = {
@@ -25,8 +26,17 @@ export async function POST(request: Request) {
     );
   }
 
-  const response = NextResponse.json({ ok: true });
-  const supabase = await createRouteHandlerClient(response);
+  const { url, anonKey } = getSupabaseEnv();
+  // Implicit flow puts the session in the email link itself. PKCE would require
+  // a cookie from the browser that requested the reset, which mail apps do not keep.
+  const supabase = createClient(url, anonKey, {
+    auth: {
+      flowType: "implicit",
+      persistSession: false,
+      autoRefreshToken: false,
+      detectSessionInUrl: false,
+    },
+  });
   const origin = new URL(request.url).origin;
   const redirectTo = getPasswordRecoveryRedirectUrl(origin);
 
@@ -38,5 +48,5 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: error.message }, { status: 400 });
   }
 
-  return response;
+  return NextResponse.json({ ok: true });
 }
