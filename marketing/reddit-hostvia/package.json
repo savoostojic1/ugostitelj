@@ -1,0 +1,8 @@
+{
+  "name": "hostvia-reddit-ad",
+  "private": true,
+  "description": "Square Reddit ad for Hostvia. Rendered with the Remotion install in /video.",
+  "scripts": {
+    "render": "node render.mjs"
+  }
+}

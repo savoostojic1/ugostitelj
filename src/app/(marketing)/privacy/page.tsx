@@ -182,8 +182,10 @@ export default function PrivacyPage() {
             time, a dismissed setup checklist, and a dismissed install prompt.
           </li>
           <li>
-            Google Analytics, which is loaded in the browser and may set
-            analytics cookies and collect usage data such as pages visited.
+            Google Analytics and Google Ads, which are loaded in the browser
+            and may set analytics and advertising cookies. They collect usage
+            data such as pages visited and whether a visit came from a Hostvia
+            Google ad.
           </li>
           <li>
             Vercel Analytics, which is enabled to measure visits to the site.
@@ -239,8 +241,9 @@ export default function PrivacyPage() {
             updates. Used for Hostvia plans, not for guest stay payments.
           </li>
           <li>
-            <strong className="font-medium text-foreground">Google Analytics</strong>{" "}
-            — site measurement in the browser.
+            <strong className="font-medium text-foreground">Google</strong> —
+            Google Analytics for site measurement, and Google Ads to measure
+            visits that come from Hostvia ads.
           </li>
           <li>
             <strong className="font-medium text-foreground">Resend</strong> —
