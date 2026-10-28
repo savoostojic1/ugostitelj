@@ -123,6 +123,13 @@ export default function VacationRentalCalendarGuidePage() {
             Airbnb calendar sync
           </Link>
           {" · "}
+          <Link
+            href="/free-tools/vacation-rental-calendar-sync-guide"
+            className="text-violet-300 hover:underline"
+          >
+            Calendar sync guide
+          </Link>
+          {" · "}
           <Link href="/features" className="text-violet-300 hover:underline">
             Features
           </Link>

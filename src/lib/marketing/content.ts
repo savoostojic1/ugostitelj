@@ -20,6 +20,7 @@ export const marketingNav = [
   { href: "/booking-site", label: "Booking site" },
   { href: "/pricing", label: "Pricing" },
   { href: "/faq", label: "FAQ" },
+  { href: "/free-tools", label: "Free tools" },
 ] as const;
 
 /** Marketing pages that must stay public when logged out. */
@@ -52,6 +53,7 @@ export const marketingFooter = {
     { href: "/booking-site", label: "Booking site" },
     { href: "/pricing", label: "Pricing" },
     { href: "/guides", label: "Guides" },
+    { href: "/free-tools", label: "Free tools" },
   ],
   company: [
     { href: "/about", label: "About" },
@@ -63,6 +65,11 @@ export const marketingFooter = {
     { href: "/property-management-software-for-small-hosts", label: "Software for small hosts" },
     { href: "/airbnb-calendar-sync", label: "Airbnb calendar sync" },
     { href: "/vacation-rental-cleaning-management", label: "Cleaning management" },
+    { href: "/free-tools/vacation-rental-income-calculator", label: "Rental income calculator" },
+    {
+      href: "/free-tools/vacation-rental-calendar-sync-guide",
+      label: "Calendar sync guide",
+    },
   ],
   legal: [
     { href: "/terms", label: "Terms of service" },

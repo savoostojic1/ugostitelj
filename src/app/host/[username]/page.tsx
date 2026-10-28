@@ -1,16 +1,9 @@
-import { headers } from "next/headers";
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
 import { PublicShell } from "@/components/public/public-shell";
 import { HostBookingExperience } from "@/components/public/host-booking-experience";
 import { fetchPublicHost } from "@/lib/public/fetch";
-import {
-  BOOKING_DOMAIN,
-  getBookingSiteUrl,
-  parseBookingSubdomain,
-} from "@/lib/public/booking-site-url";
 import { buildHostMetadata } from "@/lib/public/seo";
-import { SITE_URL } from "@/lib/seo/site";
 import { getPublicHostCoverUrl } from "@/lib/public/host-cover-url";
 
 interface HostPageProps {
@@ -29,18 +22,10 @@ export async function generateMetadata({
     };
   }
 
-  const requestHost = (await headers()).get("host") ?? "";
-  const subdomain = parseBookingSubdomain(requestHost);
-  const baseUrl = subdomain
-    ? (getBookingSiteUrl(subdomain, { bookingDomain: BOOKING_DOMAIN }) ??
-      SITE_URL)
-    : SITE_URL;
-
   return buildHostMetadata(
     host.business_name,
     host.description,
     host.cover_image_url,
-    baseUrl,
     host.username
   );
 }

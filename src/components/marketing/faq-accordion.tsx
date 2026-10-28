@@ -9,8 +9,15 @@ interface FaqItem {
   answer: string;
 }
 
-export function FaqAccordion({ items }: { items: FaqItem[] }) {
+export function FaqAccordion({
+  items,
+  headingLevel = 2,
+}: {
+  items: FaqItem[];
+  headingLevel?: 2 | 3;
+}) {
   const [openIndex, setOpenIndex] = useState<number | null>(0);
+  const Heading = headingLevel === 3 ? "h3" : "h2";
 
   return (
     <div className="hostvia-glow-card divide-y divide-white/5 overflow-hidden">
@@ -18,7 +25,7 @@ export function FaqAccordion({ items }: { items: FaqItem[] }) {
         const open = openIndex === index;
         return (
           <div key={item.question} className="px-6 py-5">
-            <h2 className="text-base font-semibold text-white">
+            <Heading className="text-base font-semibold text-white">
               <button
                 type="button"
                 className="flex w-full items-start justify-between gap-4 text-left"
@@ -33,7 +40,7 @@ export function FaqAccordion({ items }: { items: FaqItem[] }) {
                   )}
                 />
               </button>
-            </h2>
+            </Heading>
             <div
               className={cn(
                 "grid transition-all duration-200",

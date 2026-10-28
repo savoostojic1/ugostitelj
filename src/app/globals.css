@@ -1770,3 +1770,46 @@ html.dark:has(.public-site) body {
 .public-stagger-children > *:nth-child(6) {
   animation-delay: 0.3s;
 }
+
+/* Rental income calculator: print only the results, in dark ink on white. */
+@media print {
+  .marketing-site:has(.rental-calc-page) {
+    background: #fff !important;
+    color: #111 !important;
+  }
+
+  .marketing-site:has(.rental-calc-page) > header,
+  .marketing-site:has(.rental-calc-page) > footer,
+  .marketing-site:has(.rental-calc-page) main > nav[aria-label="Breadcrumb"],
+  .marketing-site:has(.rental-calc-page) main::before {
+    display: none !important;
+  }
+
+  .marketing-site:has(.rental-calc-page) main {
+    padding-top: 0 !important;
+  }
+
+  .marketing-site main > nav[aria-label="Breadcrumb"] + article.rental-calc-page {
+    padding-top: 0 !important;
+  }
+
+  .rental-calc-page .hostvia-glow-card::before,
+  .rental-calc-page .marketing-eyebrow {
+    display: none !important;
+  }
+
+  .rental-calc-page,
+  .rental-calc-page * {
+    color: #111 !important;
+    background: transparent !important;
+    box-shadow: none !important;
+    border-color: #d4d4d8 !important;
+    transform: none !important;
+  }
+
+  .rental-calc-results section,
+  .rental-calc-results .hostvia-stat-card,
+  .rental-calc-results tr {
+    break-inside: avoid;
+  }
+}

@@ -1,18 +1,25 @@
 import type { Metadata } from "next";
-import { getBookingSiteUrl } from "@/lib/public/booking-site-url";
+import {
+  getBookingSiteUrl,
+  type BookingSiteUrlOptions,
+} from "@/lib/public/booking-site-url";
+import { SITE_URL } from "@/lib/seo/site";
 
 export function buildHostMetadata(
   businessName: string,
   description: string | null,
   coverImage: string | null,
-  baseUrl: string,
-  username: string
+  username: string,
+  options?: BookingSiteUrlOptions
 ): Metadata {
+  const clean = username.trim().toLowerCase();
   const title = businessName;
   const desc =
     description?.slice(0, 160) ??
     `Browse accommodation at ${businessName} and send a booking inquiry.`;
-  const url = getBookingSiteUrl(username, { baseUrl }) ?? `${baseUrl}/host/${username}`;
+  // Always build from a site origin — never from a URL that already includes /host/…
+  const url =
+    getBookingSiteUrl(clean, options) ?? `${SITE_URL}/host/${clean}`;
 
   return {
     title: { absolute: title },

@@ -133,7 +133,15 @@ export default function AirbnbCalendarSyncPage() {
             <li>If a feed shows an error, sync it before you confirm a same-day arrival.</li>
           </ol>
           <p className="mt-6 text-sm text-zinc-500">
-            A longer walkthrough is in the{" "}
+            For platform-to-platform iCal steps (Airbnb, Booking.com, Vrbo and
+            more), use the free{" "}
+            <Link
+              href="/free-tools/vacation-rental-calendar-sync-guide"
+              className="text-violet-300 hover:underline"
+            >
+              vacation rental calendar sync guide
+            </Link>
+            . A longer Hostvia walkthrough is in the{" "}
             <Link
               href="/guides/vacation-rental-calendar"
               className="text-violet-300 hover:underline"

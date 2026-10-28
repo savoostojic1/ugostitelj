@@ -21,7 +21,12 @@ export const PUBLIC_ASSET_PATHS = new Set([
   "/google49bf01ee11453dbf.html",
 ]);
 
-export const SITEMAP_PATHS = [
+/**
+ * Static indexable marketing paths (excluding free tools).
+ * Free tools are appended from `@/lib/tools/free-tools` in `getSitemapPaths()`.
+ * Keep this list aligned with marketing page.tsx routes under src/app/(marketing).
+ */
+export const SITEMAP_STATIC_PATHS = [
   "/",
   "/features",
   "/how-it-works",

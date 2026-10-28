@@ -70,6 +70,15 @@ export function getBookingSitePath(username: string): string {
   return clean ? `/host/${clean}` : "";
 }
 
+/** Strip any path so callers can safely pass a full URL without doubling /host/…. */
+export function bookingSiteOrigin(baseUrl: string): string {
+  try {
+    return new URL(baseUrl).origin;
+  } catch {
+    return baseUrl.replace(/\/$/, "").replace(/\/host\/[^/]+$/i, "");
+  }
+}
+
 export function getBookingSiteUrl(
   username: string,
   options?: BookingSiteUrlOptions
@@ -77,14 +86,14 @@ export function getBookingSiteUrl(
   const clean = username.trim().toLowerCase();
   if (!clean || !isValidUsername(clean)) return null;
 
-  const base = options?.baseUrl ?? getSiteBaseUrl();
+  const base = bookingSiteOrigin(options?.baseUrl ?? getSiteBaseUrl());
   const bookingDomain = options?.bookingDomain ?? BOOKING_DOMAIN;
 
   if (resolveUseSubdomain(base, options?.useSubdomain)) {
     return `https://${clean}.${bookingDomain}`;
   }
 
-  return `${base.replace(/\/$/, "")}${getBookingSitePath(clean)}`;
+  return `${base}${getBookingSitePath(clean)}`;
 }
 
 export function getBookingSiteLabel(

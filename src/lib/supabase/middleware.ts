@@ -19,6 +19,14 @@ export async function updateSession(request: NextRequest) {
     return NextResponse.redirect(redirectUrl, 308);
   }
 
+  // Collapse accidental /host/{user}/host/{user} URLs (bad canonicals / crawlers).
+  const doubledHostMatch = legacyPath.match(/^\/host\/([^/]+)\/host\/\1$/i);
+  if (doubledHostMatch) {
+    const redirectUrl = request.nextUrl.clone();
+    redirectUrl.pathname = `/host/${doubledHostMatch[1].toLowerCase()}`;
+    return NextResponse.redirect(redirectUrl, 308);
+  }
+
   if (PUBLIC_ASSET_PATHS.has(path)) {
     return NextResponse.next({ request });
   }
@@ -83,6 +91,14 @@ export async function updateSession(request: NextRequest) {
       !path.startsWith("/dashboard") &&
       !isAuthRoute
     ) {
+      // Subdomain root is the only public URL. /host/… on a subdomain would
+      // otherwise create crawlable duplicates like fairy-tale.hostvia.me/host/fairy-tale.
+      if (path !== "/" && path !== "") {
+        const redirectUrl = request.nextUrl.clone();
+        redirectUrl.pathname = "/";
+        return NextResponse.redirect(redirectUrl, 308);
+      }
+
       const rewriteUrl = request.nextUrl.clone();
       rewriteUrl.pathname = `/host/${bookingUsername}`;
       return NextResponse.rewrite(rewriteUrl);
