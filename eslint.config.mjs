@@ -20,6 +20,7 @@ const eslintConfig = [
       "next-env.d.ts",
       "video/**",
       "marketing/reddit-hostvia/**",
+      "marketing/tiktok1/work/**",
     ],
   },
 ];

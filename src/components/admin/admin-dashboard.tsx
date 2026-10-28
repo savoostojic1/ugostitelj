@@ -6,6 +6,7 @@ import { format } from "date-fns";
 import {
   Building2,
   Crown,
+  ExternalLink,
   Loader2,
   LogOut,
   RefreshCw,
@@ -18,6 +19,12 @@ import { AdminCreemStatus } from "@/components/admin/admin-creem-status";
 import { AdminPricingDialog } from "@/components/admin/admin-pricing-dialog";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import {
+  BOOKING_DOMAIN,
+  getBookingSiteLabel,
+  getBookingSiteUrl,
+  type BookingSiteUrlOptions,
+} from "@/lib/public/booking-site-url";
 import { toast } from "sonner";
 
 type HostTab = "all" | "active" | "complimentary" | "free";
@@ -60,7 +67,6 @@ export function AdminDashboard() {
   const [query, setQuery] = useState("");
   const [tab, setTab] = useState<HostTab>("all");
   const [pricingHost, setPricingHost] = useState<AdminHostRow | null>(null);
-
   const loadHosts = useCallback(async () => {
     setLoading(true);
     try {
@@ -239,6 +245,7 @@ export function AdminDashboard() {
                       ) : (
                         <span className="text-white/35">No profile</span>
                       )}
+                      <BookingSiteLink host={host} />
                     </td>
                     <td>
                       {host.property_count}
@@ -313,6 +320,32 @@ export function AdminDashboard() {
         }}
       />
     </div>
+  );
+}
+
+const PRODUCTION_BOOKING_URL_OPTIONS: BookingSiteUrlOptions = {
+  baseUrl: `https://${BOOKING_DOMAIN}`,
+  useSubdomain: true,
+  bookingDomain: BOOKING_DOMAIN,
+};
+
+function BookingSiteLink({ host }: { host: AdminHostRow }) {
+  if (!host.username || !host.is_published) return null;
+
+  const url = getBookingSiteUrl(host.username, PRODUCTION_BOOKING_URL_OPTIONS);
+  const label = getBookingSiteLabel(host.username, PRODUCTION_BOOKING_URL_OPTIONS);
+  if (!url || !label) return null;
+
+  return (
+    <a
+      href={url}
+      target="_blank"
+      rel="noopener noreferrer"
+      className="mt-1 flex max-w-[220px] items-center gap-1 text-xs text-white/50 hover:text-sky-200"
+    >
+      <span className="truncate">{label}</span>
+      <ExternalLink className="h-3 w-3 shrink-0" />
+    </a>
   );
 }
 

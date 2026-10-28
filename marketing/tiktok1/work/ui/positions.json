@@ -1,0 +1,119 @@
+{
+  "dashboard": {
+    "Dashboard": {
+      "top": 95,
+      "bottom": 127,
+      "left": 10
+    },
+    "Occupancy": {
+      "top": 262,
+      "bottom": 278,
+      "left": 59
+    },
+    "Arrivals today": {
+      "top": 455,
+      "bottom": 471,
+      "left": 52
+    },
+    "Upcoming arrivals": {
+      "top": 1354,
+      "bottom": 1374,
+      "left": 75
+    },
+    "Properties": {
+      "top": 0,
+      "bottom": 0,
+      "left": 0
+    },
+    "Bungalow 5": {
+      "top": 2235,
+      "bottom": 2259,
+      "left": 70
+    },
+    "__height": 2349
+  },
+  "calendars": {
+    "Calendars": {
+      "top": 95,
+      "bottom": 127,
+      "left": 10
+    },
+    "Bungalow 1": {
+      "top": 260,
+      "bottom": 280,
+      "left": 37
+    },
+    "Bungalow 3": {
+      "top": 510,
+      "bottom": 530,
+      "left": 37
+    },
+    "Bungalow 5": {
+      "top": 759,
+      "bottom": 779,
+      "left": 37
+    },
+    "__height": 1020
+  },
+  "arrivals": {
+    "Arrivals & Departures": {
+      "top": 95,
+      "bottom": 127,
+      "left": 10
+    },
+    "Today": {
+      "top": 210,
+      "bottom": 228,
+      "left": 35
+    },
+    "Tomorrow": {
+      "top": 668,
+      "bottom": 686,
+      "left": 35
+    },
+    "This Week": {
+      "top": 1036,
+      "bottom": 1054,
+      "left": 35
+    },
+    "__height": 1867
+  },
+  "cleanings": {
+    "21": {
+      "top": 727,
+      "bottom": 751,
+      "left": 39
+    },
+    "22": {
+      "top": 1130,
+      "bottom": 1154,
+      "left": 39
+    },
+    "23": {
+      "top": 1533,
+      "bottom": 1557,
+      "left": 39
+    },
+    "Cleanings": {
+      "top": 95,
+      "bottom": 127,
+      "left": 10
+    },
+    "Monthly calendar": {
+      "top": 222,
+      "bottom": 242,
+      "left": 31
+    },
+    "Free days until end of month": {
+      "top": 293,
+      "bottom": 313,
+      "left": 31
+    },
+    "October 2026": {
+      "top": 592,
+      "bottom": 616,
+      "left": 31
+    },
+    "__height": 5156
+  }
+}

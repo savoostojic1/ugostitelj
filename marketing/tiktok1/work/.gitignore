@@ -1,0 +1,9 @@
+node_modules
+stt/node_modules
+stt/whisper.cpp
+stt/narration-16k.wav
+proxies
+frames
+qa
+remotion/public/clips
+remotion/public/audio
