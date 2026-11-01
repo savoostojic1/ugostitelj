@@ -38,4 +38,17 @@ export const FREE_TOOLS: FreeTool[] = [
       "Official help links and troubleshooting",
     ],
   },
+  {
+    slug: "guest-guide-generator",
+    href: `${FREE_TOOLS_PATH}/guest-guide-generator`,
+    title: "Free Guest Guide Generator",
+    summary:
+      "Create a beautiful digital welcome book for your vacation rental. Share check-in, Wi-Fi, house rules and local tips with one link.",
+    ctaLabel: "Create your free guide",
+    highlights: [
+      "Start without an account",
+      "Premium templates included",
+      "Shareable link and QR code",
+    ],
+  },
 ];

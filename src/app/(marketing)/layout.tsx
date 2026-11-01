@@ -17,7 +17,7 @@ export default function MarketingLayout({
 }) {
   return (
     <div
-      className={`dark marketing-site hostvia-mesh-bg min-h-screen overflow-x-clip text-zinc-100 ${marketingSans.variable}`}
+      className={`dark marketing-site hostvia-mesh-bg min-h-screen text-zinc-100 ${marketingSans.variable}`}
     >
       <JsonLd data={[organizationJsonLd(), websiteJsonLd()]} />
       <MarketingHeader />

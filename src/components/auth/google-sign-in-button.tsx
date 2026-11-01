@@ -38,10 +38,39 @@ function googleErrorMessage(error: unknown) {
   return message;
 }
 
+const AUTH_NEXT_KEY = "hv_auth_next";
+
+export function rememberAuthNext(path: string) {
+  try {
+    window.sessionStorage.setItem(AUTH_NEXT_KEY, path);
+  } catch {
+    // Ignore storage failures.
+  }
+}
+
+export function consumeAuthNext(fallback = "/dashboard"): string {
+  try {
+    const value = window.sessionStorage.getItem(AUTH_NEXT_KEY);
+    window.sessionStorage.removeItem(AUTH_NEXT_KEY);
+    if (value && value.startsWith("/") && !value.startsWith("//")) {
+      return value;
+    }
+  } catch {
+    // Ignore storage failures.
+  }
+  return fallback;
+}
+
 export function GoogleSignInButton({
   mode,
+  next,
+  onBeforeSignIn,
 }: {
   mode: "login" | "register";
+  /** Post-auth path starting with /. Stored in sessionStorage for the OAuth round-trip. */
+  next?: string;
+  /** Optional hook before redirecting to Google (e.g. flush draft). */
+  onBeforeSignIn?: () => void | Promise<void>;
 }) {
   const [loading, setLoading] = useState(false);
   const label = mode === "register" ? "Sign up with Google" : "Continue with Google";
@@ -49,6 +78,8 @@ export function GoogleSignInButton({
   async function signInWithGoogle() {
     setLoading(true);
     try {
+      if (onBeforeSignIn) await onBeforeSignIn();
+      if (next) rememberAuthNext(next);
       const supabase = getBrowserClient();
       const { error } = await supabase.auth.signInWithOAuth({
         provider: "google",

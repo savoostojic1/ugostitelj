@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
-import { Suspense, useState } from "react";
+import { Suspense, useEffect, useState } from "react";
 import {
   ArrowRight,
   Eye,
@@ -14,12 +14,20 @@ import {
 } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { GoogleSignInButton } from "@/components/auth/google-sign-in-button";
+import {
+  GoogleSignInButton,
+  rememberAuthNext,
+} from "@/components/auth/google-sign-in-button";
 import { getBrowserClient } from "@/lib/supabase/client";
 import { isTeamAccessEmail } from "@/lib/team-access/permissions";
 import { toast } from "sonner";
 import { trackHostviaEvent } from "@/lib/analytics/track";
 import { cn } from "@/lib/utils";
+
+function safeNextPath(value: string | null): string | null {
+  if (!value || !value.startsWith("/") || value.startsWith("//")) return null;
+  return value;
+}
 
 type AuthMode = "login" | "register" | "forgot";
 
@@ -127,14 +135,20 @@ function AuthField({
   );
 }
 
-export function AuthForm({ mode }: { mode: AuthMode }) {
+function AuthFormInner({ mode }: { mode: AuthMode }) {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const nextPath = safeNextPath(searchParams.get("next"));
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [fullName, setFullName] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const copy = formCopy[mode];
+
+  useEffect(() => {
+    if (nextPath) rememberAuthNext(nextPath);
+  }, [nextPath]);
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -162,18 +176,27 @@ export function AuthForm({ mode }: { mode: AuthMode }) {
           });
           if (error) throw error;
         }
-        router.push("/dashboard");
+        router.push(nextPath ?? "/dashboard");
         router.refresh();
       } else if (mode === "register") {
-        const { error } = await supabase.auth.signUp({
+        const { data, error } = await supabase.auth.signUp({
           email,
           password,
           options: { data: { full_name: fullName } },
         });
         if (error) throw error;
         trackHostviaEvent("sign_up", { method: "email" });
+        if (data.session && nextPath) {
+          router.push(nextPath);
+          router.refresh();
+          return;
+        }
         toast.success("Check your email to confirm your account");
-        router.push("/login");
+        router.push(
+          nextPath
+            ? `/login?next=${encodeURIComponent(nextPath)}`
+            : "/login"
+        );
       } else {
         const normalizedEmail = email.trim().toLowerCase();
         if (isTeamAccessEmail(normalizedEmail)) {
@@ -216,7 +239,10 @@ export function AuthForm({ mode }: { mode: AuthMode }) {
               <AuthCallbackNotice />
             </Suspense>
           ) : null}
-          <GoogleSignInButton mode={mode} />
+          <GoogleSignInButton
+            mode={mode}
+            next={nextPath ?? undefined}
+          />
           <div className="flex items-center gap-3 text-xs font-medium uppercase tracking-wide text-zinc-500">
             <span className="h-px flex-1 bg-white/10" />
             or
@@ -330,7 +356,11 @@ export function AuthForm({ mode }: { mode: AuthMode }) {
             <p className="text-zinc-500">
               Don&apos;t have an account?{" "}
               <Link
-                href="/register"
+                href={
+                  nextPath
+                    ? `/register?next=${encodeURIComponent(nextPath)}`
+                    : "/register"
+                }
                 className="font-medium text-white transition hover:text-violet-200"
               >
                 Create one free
@@ -343,7 +373,11 @@ export function AuthForm({ mode }: { mode: AuthMode }) {
           <p className="text-zinc-500">
             Already have an account?{" "}
             <Link
-              href="/login"
+              href={
+                nextPath
+                  ? `/login?next=${encodeURIComponent(nextPath)}`
+                  : "/login"
+              }
               className="font-medium text-white transition hover:text-violet-200"
             >
               Sign in
@@ -364,5 +398,17 @@ export function AuthForm({ mode }: { mode: AuthMode }) {
         ) : null}
       </div>
     </div>
+  );
+}
+
+export function AuthForm({ mode }: { mode: AuthMode }) {
+  return (
+    <Suspense
+      fallback={
+        <div className="py-12 text-center text-sm text-zinc-500">Loading…</div>
+      }
+    >
+      <AuthFormInner mode={mode} />
+    </Suspense>
   );
 }

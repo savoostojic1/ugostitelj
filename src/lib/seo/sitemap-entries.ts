@@ -39,7 +39,9 @@ export function isExcludedFromSitemap(path: string): boolean {
     path.startsWith("/admin") ||
     path.startsWith("/api/") ||
     path.startsWith("/auth/") ||
-    path.startsWith("/host/")
+    path.startsWith("/host/") ||
+    path.startsWith("/guest-guide/") ||
+    path.startsWith("/guide/")
   );
 }
 

@@ -62,6 +62,7 @@ const PROPERTY_DETAIL_PATH = /^\/dashboard\/properties\/[^/]+(?:\/|$)/;
 export function permissionForDashboardPath(pathname: string): TeamPermission | null {
   if (pathname === "/dashboard/team-access") return null;
   if (pathname.startsWith("/dashboard/billing")) return null;
+  if (pathname.startsWith("/dashboard/guest-guides")) return null;
 
   if (pathname === "/dashboard" || pathname === "/dashboard/install-app") {
     return "dashboard";
@@ -99,6 +100,7 @@ export function canAccessDashboardPath(
 ): boolean {
   if (pathname === "/dashboard/team-access") return false;
   if (pathname.startsWith("/dashboard/billing")) return false;
+  if (pathname.startsWith("/dashboard/guest-guides")) return false;
 
   if (PROPERTY_CALENDAR_PATH.test(pathname)) {
     return (

@@ -2,6 +2,7 @@
 
 import { useEffect } from "react";
 import { Loader2 } from "lucide-react";
+import { consumeAuthNext } from "@/components/auth/google-sign-in-button";
 import { createPkceCallbackClient } from "@/lib/supabase/client";
 
 function loginUrl(reason: string, detail?: string) {
@@ -61,7 +62,7 @@ export function AuthCallback() {
 
     exchangeCode(code)
       .then(() => {
-        window.location.replace("/dashboard");
+        window.location.replace(consumeAuthNext("/dashboard"));
       })
       .catch((error: unknown) => {
         const message = error instanceof Error ? error.message : "Google sign-in failed";

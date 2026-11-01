@@ -109,6 +109,12 @@ const navGroups: { label: string; items: NavItem[] }[] = [
         icon: MessageSquare,
         permission: "messages",
       },
+      {
+        href: "/dashboard/guest-guides",
+        label: "Guest Guides",
+        icon: Sparkles,
+        ownerOnly: true,
+      },
     ],
   },
   {

@@ -70,6 +70,10 @@ export const marketingFooter = {
       href: "/free-tools/vacation-rental-calendar-sync-guide",
       label: "Calendar sync guide",
     },
+    {
+      href: "/free-tools/guest-guide-generator",
+      label: "Guest guide generator",
+    },
   ],
   legal: [
     { href: "/terms", label: "Terms of service" },

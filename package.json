@@ -12,7 +12,7 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
-    "test": "node --import tsx --test src/lib/creem/*.test.ts src/lib/auth/*.test.ts src/lib/tools/**/*.test.ts src/lib/seo/*.test.ts src/lib/public/*.test.ts"
+    "test": "node --import tsx --test src/lib/creem/*.test.ts src/lib/auth/*.test.ts src/lib/tools/**/*.test.ts src/lib/seo/*.test.ts src/lib/public/*.test.ts src/lib/guest-guide/*.test.ts"
   },
   "dependencies": {
     "@next/third-parties": "^16.2.9",
@@ -34,6 +34,7 @@
     "lucide-react": "^1.17.0",
     "next": "15.5.19",
     "next-themes": "^0.4.6",
+    "qrcode": "^1.5.4",
     "react": "19.1.0",
     "react-dom": "19.1.0",
     "server-only": "^0.0.1",
@@ -47,6 +48,7 @@
     "@eslint/eslintrc": "^3",
     "@tailwindcss/postcss": "^4",
     "@types/node": "^20",
+    "@types/qrcode": "^1.5.6",
     "@types/react": "^19",
     "@types/react-dom": "^19",
     "@types/web-push": "^3.6.4",

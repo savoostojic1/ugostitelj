@@ -120,7 +120,13 @@ export async function updateSession(request: NextRequest) {
       path.startsWith("/api/admin/") ||
       path.startsWith("/admin") ||
       path.startsWith("/api/public/") ||
-      path.startsWith("/host/");
+      path.startsWith("/api/guest-guides/drafts") ||
+      path.startsWith("/host/") ||
+      path.startsWith("/guide/") ||
+      path === "/guest-guide/create" ||
+      path.startsWith("/guest-guide/create/") ||
+      path === "/guest-guide/demo" ||
+      path.startsWith("/guest-guide/demo/");
 
     const recoveryPending =
       request.cookies.get(PASSWORD_RECOVERY_COOKIE)?.value === "1";

@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { ArrowRight, Calculator, CalendarRange, Sparkles, type LucideIcon } from "lucide-react";
+import { ArrowRight, BookOpen, Calculator, CalendarRange, Sparkles, type LucideIcon } from "lucide-react";
 import { MarketingBreadcrumbs } from "@/components/marketing/marketing-breadcrumbs";
 import { pageMetadata } from "@/lib/seo/site";
 import { FREE_TOOLS, FREE_TOOLS_PATH } from "@/lib/tools/free-tools";
@@ -15,6 +15,7 @@ export const metadata: Metadata = pageMetadata({
 const TOOL_ICONS: Record<string, LucideIcon> = {
   "vacation-rental-income-calculator": Calculator,
   "vacation-rental-calendar-sync-guide": CalendarRange,
+  "guest-guide-generator": BookOpen,
 };
 
 export default function FreeToolsPage() {
