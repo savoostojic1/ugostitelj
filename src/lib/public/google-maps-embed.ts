@@ -131,7 +131,6 @@ export function isGoogleMapsShareUrl(url: string): boolean {
 interface MapPin {
   lat: string;
   lng: string;
-  label?: string;
   zoom: number;
 }
 
@@ -161,40 +160,70 @@ function extractZoom(href: string): number {
   return Math.min(21, Math.max(1, Math.round(Number.parseFloat(zMatch[1]))));
 }
 
-/** Pin koordinate — !3d/!4d su tačan pin, @ su centar mape. */
+const COORD_PAIR =
+  String.raw`(-?\d+(?:\.\d+)?)\s*,\s*\+?(-?\d+(?:\.\d+)?)`;
+
+function parseCoordPair(value: string): { lat: string; lng: string } | null {
+  const match = value.trim().match(new RegExp(`^${COORD_PAIR}$`));
+  if (!match) return null;
+  return { lat: match[1], lng: match[2] };
+}
+
+/**
+ * Pin koordinate:
+ * - !8m2!3d!4d = tačan place pin (prioritet)
+ * - zadnji !3d!4d = pin (prvi često pripada drugom kontekstu u data=)
+ * - @ = samo centar kamere (fallback)
+ */
 function extractMapPin(resolvedUrl: string): MapPin | null {
   const href = resolvedUrl;
+  const zoom = extractZoom(href);
 
-  const pinMatch = href.match(/!3d(-?\d+(?:\.\d+)?)!4d(-?\d+(?:\.\d+)?)/);
+  const placePins = [
+    ...href.matchAll(/!8m2!3d(-?\d+(?:\.\d+)?)!4d(-?\d+(?:\.\d+)?)/g),
+  ];
+  const placePin = placePins.at(-1);
+  if (placePin) {
+    return { lat: placePin[1], lng: placePin[2], zoom };
+  }
+
+  const pinMatches = [
+    ...href.matchAll(/!3d(-?\d+(?:\.\d+)?)!4d(-?\d+(?:\.\d+)?)/g),
+  ];
+  const pinMatch = pinMatches.at(-1);
   if (pinMatch) {
-    return {
-      lat: pinMatch[1],
-      lng: pinMatch[2],
-      label: extractPlaceLabel(href),
-      zoom: extractZoom(href),
-    };
+    return { lat: pinMatch[1], lng: pinMatch[2], zoom };
   }
 
   try {
     const url = new URL(href);
     const ll = url.searchParams.get("ll");
-    if (ll && /^-?\d+(?:\.\d+)?,-?\d+(?:\.\d+)?$/.test(ll)) {
-      const [lat, lng] = ll.split(",");
-      return {
-        lat,
-        lng,
-        label: url.searchParams.get("q") ?? extractPlaceLabel(href),
-        zoom: extractZoom(href),
-      };
+    if (ll) {
+      const coords = parseCoordPair(ll);
+      if (coords) return { ...coords, zoom };
     }
 
     const q = url.searchParams.get("q") ?? url.searchParams.get("query");
-    if (q && /^-?\d+(?:\.\d+)?,-?\d+(?:\.\d+)?$/.test(q)) {
-      const [lat, lng] = q.split(",");
-      return { lat, lng, zoom: extractZoom(href) };
+    if (q) {
+      const coords = parseCoordPair(decodeURIComponent(q.replace(/\+/g, " ")));
+      if (coords) return { ...coords, zoom };
     }
   } catch {
     // continue
+  }
+
+  const searchMatch = href.match(
+    new RegExp(`/maps/search/${COORD_PAIR}`, "i")
+  );
+  if (searchMatch) {
+    return { lat: searchMatch[1], lng: searchMatch[2], zoom };
+  }
+
+  const dirMatch = href.match(
+    new RegExp(`/maps/dir/[^@]*/${COORD_PAIR}`, "i")
+  );
+  if (dirMatch) {
+    return { lat: dirMatch[1], lng: dirMatch[2], zoom };
   }
 
   const atMatch = href.match(
@@ -204,10 +233,9 @@ function extractMapPin(resolvedUrl: string): MapPin | null {
     return {
       lat: atMatch[1],
       lng: atMatch[2],
-      label: extractPlaceLabel(href),
       zoom: atMatch[3]
         ? Math.min(21, Math.max(1, Math.round(Number.parseFloat(atMatch[3]))))
-        : extractZoom(href),
+        : zoom,
     };
   }
 
@@ -219,10 +247,9 @@ function buildPbEmbed(pb: string): string {
 }
 
 function buildPinEmbed(pin: MapPin): string {
-  const query = pin.label
-    ? `${pin.label}@${pin.lat},${pin.lng}`
-    : `${pin.lat},${pin.lng}`;
-
+  // Coordinates-only query keeps the marker on the exact pin.
+  // Place names in `q` make Google re-geocode and often shift the marker.
+  const query = `${pin.lat},${pin.lng}`;
   return `https://www.google.com/maps?q=${encodeURIComponent(query)}&ll=${pin.lat},${pin.lng}&z=${pin.zoom}&hl=en&output=embed`;
 }
 
