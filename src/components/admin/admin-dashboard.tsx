@@ -8,6 +8,7 @@ import {
   Crown,
   ExternalLink,
   Loader2,
+  LogIn,
   LogOut,
   RefreshCw,
   Search,
@@ -67,6 +68,8 @@ export function AdminDashboard() {
   const [query, setQuery] = useState("");
   const [tab, setTab] = useState<HostTab>("all");
   const [pricingHost, setPricingHost] = useState<AdminHostRow | null>(null);
+  const [impersonatingId, setImpersonatingId] = useState<string | null>(null);
+
   const loadHosts = useCallback(async () => {
     setLoading(true);
     try {
@@ -124,6 +127,32 @@ export function AdminDashboard() {
     await fetch("/api/admin/logout", { method: "POST" });
     router.push("/admin/login");
     router.refresh();
+  }
+
+  async function handleLoginAs(host: AdminHostRow) {
+    setImpersonatingId(host.id);
+    try {
+      const res = await fetch("/api/admin/impersonate", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ hostId: host.id }),
+      });
+      const data = await res.json().catch(() => ({}));
+      if (res.status === 401) {
+        router.push("/admin/login");
+        return;
+      }
+      if (!res.ok) {
+        throw new Error(data.error ?? "Could not log in as host");
+      }
+      const label = host.username ? `@${host.username}` : host.email ?? "host";
+      toast.success(`Logged in as ${label}`);
+      window.open(data.redirectTo ?? "/dashboard", "_blank", "noopener,noreferrer");
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Could not log in as host");
+    } finally {
+      setImpersonatingId(null);
+    }
   }
 
   return (
@@ -284,14 +313,30 @@ export function AdminDashboard() {
                         : "—"}
                     </td>
                     <td>
-                      <Button
-                        size="sm"
-                        variant="outline"
-                        className="border-sky-500/30 bg-sky-500/10 text-sky-200 hover:bg-sky-500/20"
-                        onClick={() => setPricingHost(host)}
-                      >
-                        Pricing
-                      </Button>
+                      <div className="flex flex-wrap gap-2">
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          className="border-white/20 bg-white/5 text-white hover:bg-white/10"
+                          disabled={impersonatingId === host.id}
+                          onClick={() => void handleLoginAs(host)}
+                        >
+                          {impersonatingId === host.id ? (
+                            <Loader2 className="animate-spin" />
+                          ) : (
+                            <LogIn />
+                          )}
+                          Login
+                        </Button>
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          className="border-sky-500/30 bg-sky-500/10 text-sky-200 hover:bg-sky-500/20"
+                          onClick={() => setPricingHost(host)}
+                        >
+                          Pricing
+                        </Button>
+                      </div>
                     </td>
                   </tr>
                 ))}
