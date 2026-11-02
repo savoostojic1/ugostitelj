@@ -22,7 +22,9 @@ import {
   canPublicCheckInOnDay,
   validatePublicStayRange,
 } from "@/lib/public/availability";
+import { resolvePublicApiUrl } from "@/lib/public/browser-origin";
 import { isPublicDayBlocked } from "@/lib/public/day-status";
+import { parseJsonResponse } from "@/lib/public/parse-json-response";
 import type { PublicReservationSpan } from "@/lib/public/types";
 import { cn } from "@/lib/utils";
 
@@ -68,11 +70,25 @@ export function PublicPropertyAvailabilityCalendar({
     setLoading(true);
     setError(null);
 
-    fetch(`/api/public/properties/${propertyId}/reservations`)
+    const endpoint = resolvePublicApiUrl(
+      `/api/public/properties/${propertyId}/reservations`
+    );
+
+    fetch(endpoint)
       .then(async (res) => {
-        const data = await res.json();
-        if (!res.ok) throw new Error(data.error ?? "Error");
-        if (!cancelled) setReservations(data.reservations ?? []);
+        const parsed = await parseJsonResponse<{
+          reservations?: PublicReservationSpan[];
+          error?: unknown;
+        }>(res, { endpoint });
+        if (!parsed.ok) throw new Error(parsed.error);
+        if (!res.ok) {
+          throw new Error(
+            typeof parsed.data.error === "string"
+              ? parsed.data.error
+              : "Error"
+          );
+        }
+        if (!cancelled) setReservations(parsed.data.reservations ?? []);
       })
       .catch((err) => {
         if (!cancelled) {

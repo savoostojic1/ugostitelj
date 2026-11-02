@@ -5,6 +5,8 @@ import { Building2, CalendarDays, Loader2 } from "lucide-react";
 import { HostUnitCard } from "@/components/public/host-unit-card";
 import { HostUnitAvailabilityCard } from "@/components/public/host-unit-availability-card";
 import { PublicSectionHeader } from "@/components/public/public-section-header";
+import { resolvePublicApiUrl } from "@/lib/public/browser-origin";
+import { parseJsonResponse } from "@/lib/public/parse-json-response";
 import { scrollBelowUnitsActions } from "@/lib/public/scroll-anchors";
 import type { PublicHostProperty } from "@/lib/public/types";
 import { cn } from "@/lib/utils";
@@ -47,12 +49,23 @@ export function HostAllUnitsSection({
     setError(null);
 
     try {
-      const res = await fetch(
+      const endpoint = resolvePublicApiUrl(
         `/api/public/properties?username=${encodeURIComponent(username)}`
       );
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.error ?? "Failed to load");
-      setProperties(data.properties ?? []);
+      const res = await fetch(endpoint);
+      const parsed = await parseJsonResponse<{
+        properties?: PublicHostProperty[];
+        error?: unknown;
+      }>(res, { endpoint });
+      if (!parsed.ok) throw new Error(parsed.error);
+      if (!res.ok) {
+        throw new Error(
+          typeof parsed.data.error === "string"
+            ? parsed.data.error
+            : "Failed to load"
+        );
+      }
+      setProperties(parsed.data.properties ?? []);
       setLoaded(true);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Error");

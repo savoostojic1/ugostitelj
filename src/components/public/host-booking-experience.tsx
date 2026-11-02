@@ -19,7 +19,9 @@ import { HostPropertyResultCard } from "@/components/public/host-property-result
 import { HostAllUnitsSection } from "@/components/public/host-all-units-section";
 import { HostReservePanel } from "@/components/public/host-reserve-panel";
 import { PublicSectionHeader } from "@/components/public/public-section-header";
+import { resolvePublicApiUrl } from "@/lib/public/browser-origin";
 import { getPublicHostCoverUrl } from "@/lib/public/host-cover-url";
+import { parseJsonResponse } from "@/lib/public/parse-json-response";
 import { scrollBelowPublicSearch } from "@/lib/public/scroll-anchors";
 import type {
   HostSearchParams,
@@ -104,14 +106,29 @@ export function HostBookingExperience({
         guests: String(query.guests),
       });
 
-      const res = await fetch(`/api/public/availability?${params}`);
-      const data = await res.json();
+      const endpoint = resolvePublicApiUrl(
+        `/api/public/availability?${params}`
+      );
+      const res = await fetch(endpoint);
+      const parsed = await parseJsonResponse<{
+        properties?: PublicPropertySearchResult[];
+        error?: unknown;
+      }>(res, { endpoint });
 
-      if (!res.ok) {
-        throw new Error(data.error ?? "Search failed");
+      if (!parsed.ok) {
+        throw new Error(parsed.error);
       }
 
-      const properties: PublicPropertySearchResult[] = data.properties ?? [];
+      if (!res.ok) {
+        throw new Error(
+          typeof parsed.data.error === "string"
+            ? parsed.data.error
+            : "Search failed"
+        );
+      }
+
+      const properties: PublicPropertySearchResult[] =
+        parsed.data.properties ?? [];
       setResults(properties);
       setAppliedSearch(query);
       setHasSearched(true);

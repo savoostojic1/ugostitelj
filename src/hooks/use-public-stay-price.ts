@@ -1,6 +1,8 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { resolvePublicApiUrl } from "@/lib/public/browser-origin";
+import { parseJsonResponse } from "@/lib/public/parse-json-response";
 import {
   parseStartingPrice,
   resolveStayPriceQuote,
@@ -34,19 +36,24 @@ export function usePublicStayPrice(
     let cancelled = false;
     setLoading(true);
 
-    fetch(
+    const endpoint = resolvePublicApiUrl(
       `/api/public/properties/${propertyId}/price?checkIn=${encodeURIComponent(checkIn)}&checkOut=${encodeURIComponent(checkOut)}`
-    )
+    );
+
+    fetch(endpoint)
       .then(async (res) => {
-        const data = await res.json();
-        if (!res.ok) throw new Error(data.error ?? "Error");
+        const parsed = await parseJsonResponse<{
+          stay_total?: unknown;
+          error?: unknown;
+        }>(res, { endpoint });
+        if (!parsed.ok || !res.ok) throw new Error("Error");
         if (!cancelled) {
           setQuote(
             resolveStayPriceQuote(
               checkIn,
               checkOut,
               startingPrice,
-              parseStartingPrice(data.stay_total)
+              parseStartingPrice(parsed.data.stay_total)
             )
           );
         }

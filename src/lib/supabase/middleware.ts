@@ -131,6 +131,15 @@ export async function updateSession(request: NextRequest) {
     const recoveryPending =
       request.cookies.get(PASSWORD_RECOVERY_COOKIE)?.value === "1";
 
+    // API routes must never receive HTML login/dashboard redirects — clients
+    // call response.json() and would crash on "<!DOCTYPE…".
+    if (path.startsWith("/api/")) {
+      if (!user && !isPublicRoute) {
+        return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+      }
+      return supabaseResponse;
+    }
+
     if (
       user &&
       recoveryPending &&

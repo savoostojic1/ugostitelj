@@ -13,6 +13,11 @@ import {
 } from "lucide-react";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
+import { resolvePublicApiUrl } from "@/lib/public/browser-origin";
+import {
+  guestBookingRequestErrorMessage,
+  parseJsonResponse,
+} from "@/lib/public/parse-json-response";
 import type {
   HostSearchParams,
   PublicPropertySearchResult,
@@ -56,8 +61,10 @@ export function HostReservePanel({
     e.preventDefault();
     setSubmitting(true);
 
+    const endpoint = resolvePublicApiUrl("/api/booking-requests");
+
     try {
-      const res = await fetch("/api/booking-requests", {
+      const res = await fetch(endpoint, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -72,15 +79,30 @@ export function HostReservePanel({
         }),
       });
 
-      const data = await res.json();
-      if (!res.ok) {
-        throw new Error(data.error ?? "Error");
+      const parsed = await parseJsonResponse<{
+        ok?: boolean;
+        id?: unknown;
+        error?: unknown;
+      }>(res, { endpoint });
+
+      if (!parsed.ok) {
+        throw new Error(parsed.error);
+      }
+
+      if (!res.ok || parsed.data.ok === false || !parsed.data.id) {
+        throw new Error(
+          guestBookingRequestErrorMessage(parsed, res.ok)
+        );
       }
 
       setSubmitted(true);
       toast.success("Request sent! The host will contact you.");
     } catch (err) {
-      toast.error(err instanceof Error ? err.message : "Failed to send");
+      toast.error(
+        err instanceof Error
+          ? err.message
+          : "We could not send your request right now. Please try again in a moment."
+      );
     } finally {
       setSubmitting(false);
     }
