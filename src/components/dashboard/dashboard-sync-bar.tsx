@@ -37,7 +37,7 @@ export function DashboardSyncBar() {
           <RefreshCw
             className={`h-4 w-4 ${syncAll.isPending ? "animate-spin" : ""}`}
           />
-          {syncAll.isPending ? "Syncing…" : "Sync calendars"}
+          <span>{syncAll.isPending ? "Syncing…" : "Sync calendars"}</span>
         </Button>
       </div>
     </div>

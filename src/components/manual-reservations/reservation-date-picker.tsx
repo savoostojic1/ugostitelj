@@ -257,7 +257,7 @@ export function ReservationDatePicker({
                         "ring-1 ring-inset ring-emerald-500/40"
                     )}
                   >
-                    {format(day, "d")}
+                    <span translate="no">{format(day, "d")}</span>
                     {isBlockedDay && !inRange && !isSelectedStart && (
                       <span
                         className={cn(

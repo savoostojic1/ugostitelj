@@ -162,6 +162,7 @@ export function HostSearchDateRange({
               "truncate text-[15px] font-semibold leading-tight",
               checkIn ? "text-[var(--public-fg)]" : "text-[var(--public-muted)]"
             )}
+            translate="no"
           >
             {checkInLabel}
           </span>
@@ -192,6 +193,7 @@ export function HostSearchDateRange({
                 ? "text-[var(--public-fg)]"
                 : "text-[var(--public-muted)]"
             )}
+            translate="no"
           >
             {checkOutLabel}
           </span>

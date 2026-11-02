@@ -17,7 +17,7 @@ function EventList({
   type: "arrival" | "departure";
 }) {
   if (items.length === 0) {
-    return <p className="text-sm text-muted-foreground py-2">No {type}s</p>;
+    return <p className="text-sm text-muted-foreground py-2">{`No ${type}s`}</p>;
   }
   return (
     <div className="space-y-2">
@@ -33,13 +33,22 @@ function EventList({
               <p className="font-medium text-sm">{r.propertyName}</p>
               <p className="text-xs text-muted-foreground">{formatReservationLabel(r.title, r.platform)}</p>
               <p className="text-xs text-muted-foreground mt-1">
-                {type === "arrival" ? "Check-in" : "Check-out"}{" "}
-                {format(parseISO(date), "EEE, MMM d")}
-                {type === "arrival" && (
-                  <> · Out {format(parseISO(r.check_out), "MMM d")}</>
-                )}
-                {type === "departure" && (
-                  <> · In {format(parseISO(r.check_in), "MMM d")}</>
+                <span>{type === "arrival" ? "Check-in" : "Check-out"}</span>{" "}
+                <span translate="no">{format(parseISO(date), "EEE, MMM d")}</span>
+                {type === "arrival" ? (
+                  <span key="out">
+                    {" · Out "}
+                    <span translate="no">
+                      {format(parseISO(r.check_out), "MMM d")}
+                    </span>
+                  </span>
+                ) : (
+                  <span key="in">
+                    {" · In "}
+                    <span translate="no">
+                      {format(parseISO(r.check_in), "MMM d")}
+                    </span>
+                  </span>
                 )}
               </p>
             </div>

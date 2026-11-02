@@ -13,6 +13,7 @@ import {
   suggestPropertySlug,
   useUpdatePropertyPublic,
 } from "@/hooks/use-property-public";
+import { getBrowserPublicOrigin } from "@/lib/public/browser-origin";
 import { getBookingSiteUrl } from "@/lib/public/booking-site-url";
 import { openInSystemBrowser } from "@/lib/pwa/standalone";
 import type { Property } from "@/types/database";
@@ -38,7 +39,7 @@ export function PropertyPublishPanel({ property }: { property: Property }) {
   }, []);
 
   const origin =
-    typeof window !== "undefined" ? window.location.origin : undefined;
+    typeof window !== "undefined" ? getBrowserPublicOrigin() : undefined;
   const urlOptions = bookingUrlOptionsFromConfig(bookingConfig, origin);
   const hostSiteReady = Boolean(
     hostProfile?.username && hostProfile.is_published

@@ -132,12 +132,12 @@ export function HostCoverUpload({ value, onChange }: HostCoverUploadProps) {
               {uploading ? (
                 <>
                   <Loader2 className="h-4 w-4 animate-spin" />
-                  Uploading…
+                  <span>Uploading…</span>
                 </>
               ) : (
                 <>
                   <ImagePlus className="h-4 w-4" />
-                  Replace cover image
+                  <span>Replace cover image</span>
                 </>
               )}
             </button>

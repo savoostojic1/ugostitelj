@@ -215,12 +215,13 @@ export function FeedDialog({ open, onOpenChange, propertyId, feed }: FeedDialogP
               autoComplete="off"
             />
             <p className="text-xs text-muted-foreground">
-              {platform === "airbnb" &&
-                "Airbnb: Calendar → Availability → Export calendar. Copy the full link (we convert webcal:// to https)."}
-              {platform === "booking" &&
-                "Booking: Rates & availability → Sync calendars → Add connection → Skip to export → Copy link. The link must be ical.html?t=... or ical.booking.com/v1/export?t=... — not the Import link."}
-              {platform === "custom" &&
-                "Paste a public .ics calendar URL (http/https)."}
+              <span>
+                {platform === "airbnb"
+                  ? "Airbnb: Calendar → Availability → Export calendar. Copy the full link (we convert webcal:// to https)."
+                  : platform === "booking"
+                    ? "Booking: Rates & availability → Sync calendars → Add connection → Skip to export → Copy link. The link must be ical.html?t=... or ical.booking.com/v1/export?t=... — not the Import link."
+                    : "Paste a public .ics calendar URL (http/https)."}
+              </span>
             </p>
             {platform === "booking" ? (
               <div className="rounded-lg border border-amber-500/25 bg-amber-500/10 px-3 py-2.5 text-xs leading-relaxed text-amber-100/90">
@@ -243,7 +244,9 @@ export function FeedDialog({ open, onOpenChange, propertyId, feed }: FeedDialogP
             ) : null}
           </div>
           <Button type="submit" className="w-full" disabled={loading}>
-            {loading ? "Saving…" : feed ? "Save Changes" : "Add Feed"}
+            <span>
+              {loading ? "Saving…" : feed ? "Save Changes" : "Add Feed"}
+            </span>
           </Button>
         </form>
       </DialogContent>

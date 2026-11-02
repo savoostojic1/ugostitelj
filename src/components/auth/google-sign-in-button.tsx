@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { Loader2 } from "lucide-react";
 import { toast } from "sonner";
+import { getBrowserPublicOrigin } from "@/lib/public/browser-origin";
 import { getBrowserClient } from "@/lib/supabase/client";
 import { trackHostviaEvent } from "@/lib/analytics/track";
 
@@ -84,7 +85,7 @@ export function GoogleSignInButton({
       const { error } = await supabase.auth.signInWithOAuth({
         provider: "google",
         options: {
-          redirectTo: `${window.location.origin}/auth/callback`,
+          redirectTo: `${getBrowserPublicOrigin()}/auth/callback`,
           queryParams: {
             prompt: "select_account",
           },
@@ -107,8 +108,14 @@ export function GoogleSignInButton({
       disabled={loading}
       className="flex h-11 w-full items-center justify-center gap-3 rounded-xl border border-white/10 bg-white text-sm font-semibold text-zinc-900 transition hover:bg-zinc-100 disabled:cursor-not-allowed disabled:opacity-60"
     >
-      {loading ? <Loader2 className="h-4 w-4 animate-spin text-zinc-500" /> : <GoogleMark />}
-      {loading ? "Opening Google…" : label}
+      <span className="inline-flex shrink-0 items-center justify-center">
+        {loading ? (
+          <Loader2 className="h-4 w-4 animate-spin text-zinc-500" />
+        ) : (
+          <GoogleMark />
+        )}
+      </span>
+      <span>{loading ? "Opening Google…" : label}</span>
     </button>
   );
 }

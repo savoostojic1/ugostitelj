@@ -99,12 +99,14 @@ export function HostSearchBar({
               compact ? "h-11 md:min-w-[8rem]" : "h-12 md:min-h-[3rem] md:min-w-[9rem] md:px-8"
             )}
           >
-            {loading ? (
-              <Loader2 className="h-4 w-4 animate-spin" />
-            ) : (
-              <Search className="h-4 w-4" />
-            )}
-            {loading ? "Searching…" : "Search"}
+            <span className="inline-flex shrink-0 items-center justify-center">
+              {loading ? (
+                <Loader2 className="h-4 w-4 animate-spin" />
+              ) : (
+                <Search className="h-4 w-4" />
+              )}
+            </span>
+            <span>{loading ? "Searching…" : "Search"}</span>
           </button>
         </div>
       </div>

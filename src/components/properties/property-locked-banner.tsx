@@ -48,7 +48,7 @@ export function PropertyLockedBanner({
           onClick={() => checkout.mutate(undefined)}
         >
           <Sparkles className="h-3.5 w-3.5" />
-          {checkout.isPending ? "Redirecting…" : "Upgrade to Pro"}
+          <span>{checkout.isPending ? "Redirecting…" : "Upgrade to Pro"}</span>
         </Button>
         {onDelete ? (
           <Button
@@ -59,7 +59,7 @@ export function PropertyLockedBanner({
             onClick={onDelete}
           >
             <Trash2 className="h-3.5 w-3.5" />
-            Delete property
+            <span>Delete property</span>
           </Button>
         ) : null}
       </div>

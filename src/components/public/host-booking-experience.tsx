@@ -267,11 +267,11 @@ export function HostBookingExperience({
             </div>
             <h2 className="public-heading text-2xl">No available accommodation</h2>
             {appliedSearch ? (
-              <p className="mt-2 text-sm font-medium text-[var(--public-fg)]">
-                {format(new Date(appliedSearch.checkIn + "T12:00:00"), "d. MMM", { locale: appLocale })} –{" "}
-                {format(new Date(appliedSearch.checkOut + "T12:00:00"), "d. MMM yyyy", { locale: appLocale })} ·{" "}
-                {appliedSearch.guests}{" "}
-                {appliedSearch.guests === 1 ? "guest" : "guests"}
+              <p
+                className="mt-2 text-sm font-medium text-[var(--public-fg)]"
+                translate="no"
+              >
+                {`${format(new Date(appliedSearch.checkIn + "T12:00:00"), "d. MMM", { locale: appLocale })} – ${format(new Date(appliedSearch.checkOut + "T12:00:00"), "d. MMM yyyy", { locale: appLocale })} · ${appliedSearch.guests} ${appliedSearch.guests === 1 ? "guest" : "guests"}`}
               </p>
             ) : null}
             <p className="mt-3 max-w-md text-[15px] leading-relaxed text-[var(--public-muted)]">
@@ -284,7 +284,7 @@ export function HostBookingExperience({
               className="public-btn public-btn-primary mt-8 px-8 py-3.5"
             >
               <CalendarDays className="h-4 w-4" />
-              View availability for all units
+              <span>View availability for all units</span>
             </button>
           </div>
         ) : (
@@ -299,11 +299,11 @@ export function HostBookingExperience({
                 className="mb-0 max-w-xl"
               />
               {appliedSearch ? (
-                <p className="shrink-0 rounded-full border border-[var(--public-border)] bg-[var(--public-tint)] px-4 py-2 text-sm text-[var(--public-muted)]">
-                  {format(new Date(appliedSearch.checkIn + "T12:00:00"), "d MMM", { locale: appLocale })} –{" "}
-                  {format(new Date(appliedSearch.checkOut + "T12:00:00"), "d MMM yyyy", { locale: appLocale })} ·{" "}
-                  {appliedSearch.guests}{" "}
-                  {appliedSearch.guests === 1 ? "guest" : "guests"}
+                <p
+                  className="shrink-0 rounded-full border border-[var(--public-border)] bg-[var(--public-tint)] px-4 py-2 text-sm text-[var(--public-muted)]"
+                  translate="no"
+                >
+                  {`${format(new Date(appliedSearch.checkIn + "T12:00:00"), "d MMM", { locale: appLocale })} – ${format(new Date(appliedSearch.checkOut + "T12:00:00"), "d MMM yyyy", { locale: appLocale })} · ${appliedSearch.guests} ${appliedSearch.guests === 1 ? "guest" : "guests"}`}
                 </p>
               ) : null}
             </div>

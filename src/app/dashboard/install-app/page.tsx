@@ -174,7 +174,7 @@ export default function InstallAppPage() {
                 </p>
                 <Button onClick={handleAndroidInstall} className="w-full sm:w-auto">
                   <Download className="h-4 w-4" />
-                  Install again
+                  <span>Install again</span>
                 </Button>
               </>
             )}
@@ -183,7 +183,7 @@ export default function InstallAppPage() {
                 {canOneClickInstall ? (
                   <Button onClick={handleAndroidInstall} className="w-full sm:w-auto">
                     <Download className="h-4 w-4" />
-                    Install now
+                    <span>Install now</span>
                   </Button>
                 ) : (
                   <div className="space-y-3 text-sm text-zinc-400">
@@ -198,7 +198,7 @@ export default function InstallAppPage() {
                       className="w-full sm:w-auto"
                     >
                       <Download className="h-4 w-4" />
-                      Try install prompt
+                      <span>Try install prompt</span>
                     </Button>
                   </div>
                 )}

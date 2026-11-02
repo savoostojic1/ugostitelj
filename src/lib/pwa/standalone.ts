@@ -1,3 +1,4 @@
+import { getBrowserPublicOrigin } from "@/lib/public/browser-origin";
 import { parseBookingSubdomain } from "@/lib/public/booking-site-url";
 import { isMarketingPublicPath } from "@/lib/marketing/content";
 
@@ -61,7 +62,7 @@ export function setStandaloneCookie() {
 export function openInSystemBrowser(url: string): void {
   if (typeof window === "undefined") return;
 
-  const absolute = new URL(url, window.location.origin).href;
+  const absolute = new URL(url, getBrowserPublicOrigin()).href;
   const anchor = document.createElement("a");
   anchor.href = absolute;
   anchor.target = "_blank";

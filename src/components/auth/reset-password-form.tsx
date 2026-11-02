@@ -254,11 +254,11 @@ export function ResetPasswordForm() {
           {loading ? (
             <>
               <Loader2 className="h-4 w-4 animate-spin" />
-              Saving…
+              <span>Saving…</span>
             </>
           ) : (
             <>
-              Save new password
+              <span>Save new password</span>
               <ArrowRight className="h-4 w-4" />
             </>
           )}

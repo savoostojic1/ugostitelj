@@ -6,6 +6,7 @@ import { HostviaGoogleAnalytics } from "@/components/analytics/google-analytics"
 import { HostviaVercelAnalytics } from "@/components/analytics/vercel-analytics";
 import { InternalTrafficMarker } from "@/components/analytics/internal-traffic-marker";
 import { RecoveryHashRedirect } from "@/components/auth/recovery-hash-redirect";
+import { GoogleTranslateCompat } from "@/components/google-translate-compat";
 import { Providers } from "@/components/providers";
 import { ServiceWorkerRegister } from "@/components/pwa/service-worker-register";
 import { SITE_DESCRIPTION, SITE_NAME, SITE_URL } from "@/lib/seo/site";
@@ -65,6 +66,7 @@ export default function RootLayout({
           {`(function(){try{var s=window.matchMedia("(display-mode: standalone)").matches||window.matchMedia("(display-mode: fullscreen)").matches||(window.navigator&&window.navigator.standalone===true);if(!s)return;document.documentElement.dataset.standalone="true";var m=document.querySelector('meta[name="viewport"]');if(m)m.setAttribute("content","width=device-width, initial-scale=1, viewport-fit=cover")}catch(e){}})();`}
         </Script>
         <Providers>
+          <GoogleTranslateCompat />
           <RecoveryHashRedirect />
           <InternalTrafficMarker />
           {children}

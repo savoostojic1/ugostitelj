@@ -92,7 +92,7 @@ export function DashboardTopbar() {
           <RefreshCw
             className={`h-3.5 w-3.5 shrink-0 ${syncAll.isPending ? "animate-spin" : ""}`}
           />
-          {syncAll.isPending ? "Syncing…" : "Sync"}
+          <span>{syncAll.isPending ? "Syncing…" : "Sync"}</span>
         </Button>
       </div>
     </header>

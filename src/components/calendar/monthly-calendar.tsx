@@ -118,7 +118,7 @@ export function MonthlyCalendar({
       )}
     >
       <div className="flex flex-col gap-3 border-b px-4 py-4 sm:flex-row sm:items-center sm:justify-between">
-        <h3 className="text-lg font-semibold capitalize">
+        <h3 translate="no" className="text-lg font-semibold capitalize">
           {format(calendarMonth, "MMMM yyyy", { locale: appLocale })}
         </h3>
         <div className="flex items-center gap-1">
@@ -144,7 +144,7 @@ export function MonthlyCalendar({
             className="h-8"
             onClick={() => setCalendarMonth(new Date())}
           >
-            Today
+            <span>Today</span>
           </Button>
           <Button
             variant="outline"
@@ -217,6 +217,7 @@ export function MonthlyCalendar({
                     >
                       <div className="flex items-start justify-between gap-0.5">
                         <span
+                          translate="no"
                           className={cn(
                             "text-sm font-semibold tabular-nums",
                             isToday && inMonth && "text-primary"
@@ -292,27 +293,27 @@ export function MonthlyCalendar({
       <div className="flex flex-wrap gap-x-5 gap-y-2 border-t px-4 py-3 text-xs text-muted-foreground">
         <span className="flex items-center gap-1.5">
           <span className="h-2.5 w-5 rounded-md bg-[#c13545]" />
-          Airbnb
+          <span>Airbnb</span>
         </span>
         <span className="flex items-center gap-1.5">
           <span className="h-2.5 w-5 rounded-md bg-[#003580]" />
-          Booking
+          <span>Booking</span>
         </span>
         <span className="flex items-center gap-1.5">
           <span className="h-2.5 w-5 rounded-md bg-amber-700" />
-          Manually blocked
+          <span>Manually blocked</span>
         </span>
         <span className="flex items-center gap-1.5">
           <span className="rounded bg-emerald-500/15 px-1 py-px text-[9px] font-bold text-emerald-600">
             in
           </span>
-          Check-in
+          <span>Check-in</span>
         </span>
         <span className="flex items-center gap-1.5">
           <span className="rounded bg-red-500/15 px-1 py-px text-[9px] font-bold text-red-600">
             out
           </span>
-          Check-out
+          <span>Check-out</span>
         </span>
         <span className="text-muted-foreground/70">
           Each bar uses a different shade (Airbnb red, Booking blue)

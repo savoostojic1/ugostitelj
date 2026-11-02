@@ -41,6 +41,7 @@ export function PropertyExportCalendar({
         <div className="flex min-w-0 flex-col gap-2 sm:flex-row">
           <Input
             readOnly
+            translate="no"
             value={exportUrl}
             className="hostvia-input min-w-0 font-mono text-xs"
             aria-label={`Export link for ${propertyName}`}
@@ -52,7 +53,7 @@ export function PropertyExportCalendar({
             onClick={copyUrl}
           >
             <Copy className="h-4 w-4" />
-            Copy link
+            <span>Copy link</span>
           </Button>
         </div>
       </div>

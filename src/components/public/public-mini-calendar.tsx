@@ -98,19 +98,24 @@ export function PublicMiniCalendar({
         : "Select check-in first";
 
   return (
-    <div className="w-[18.5rem] select-none">
+    <div className="w-[18.5rem] select-none" translate="no">
       <div className="border-b border-[var(--public-border)] bg-[var(--public-bg-subtle)] px-4 py-3">
         <p className="text-xs font-semibold uppercase tracking-wide text-[var(--public-muted)]">
-          {hint}
+          <span translate="yes">{hint}</span>
         </p>
         {checkIn && checkOut ? (
-          <p className="mt-1 text-sm font-semibold text-[var(--public-fg)]">
-            {format(checkInDate!, "d. MMM", { locale: appLocale })} –{" "}
-            {format(checkOutDate!, "d. MMM yyyy", { locale: appLocale })}
+          <p
+            key="range"
+            className="mt-1 text-sm font-semibold text-[var(--public-fg)]"
+          >
+            {`${format(checkInDate!, "d. MMM", { locale: appLocale })} – ${format(checkOutDate!, "d. MMM yyyy", { locale: appLocale })}`}
           </p>
         ) : checkIn ? (
-          <p className="mt-1 text-sm font-semibold text-[var(--public-fg)]">
-            Check-in: {format(checkInDate!, "d. MMM yyyy", { locale: appLocale })}
+          <p
+            key="check-in"
+            className="mt-1 text-sm font-semibold text-[var(--public-fg)]"
+          >
+            {`Check-in: ${format(checkInDate!, "d. MMM yyyy", { locale: appLocale })}`}
           </p>
         ) : null}
       </div>

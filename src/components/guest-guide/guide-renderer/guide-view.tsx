@@ -213,7 +213,7 @@ function CopyRow({ label, value }: { label: string; value: string }) {
     <div className="gg-copy-row">
       <div className="gg-copy-text">
         <span>{label}</span>
-        <strong>{value}</strong>
+        <strong translate="no">{value}</strong>
       </div>
       <button
         type="button"
@@ -221,7 +221,9 @@ function CopyRow({ label, value }: { label: string; value: string }) {
         onClick={() => void copy()}
         aria-label={`Copy ${label.toLowerCase()}`}
       >
-        {copied ? <Check aria-hidden /> : <Copy aria-hidden />}
+        <span className="inline-flex shrink-0 items-center justify-center">
+          {copied ? <Check aria-hidden /> : <Copy aria-hidden />}
+        </span>
         <span>{copied ? "Copied" : "Copy"}</span>
       </button>
     </div>
@@ -778,7 +780,7 @@ export function GuideView({
                   >
                     <Phone aria-hidden />
                     <span>{item.label}</span>
-                    <strong>{item.value}</strong>
+                    <strong translate="no">{item.value}</strong>
                   </a>
                 ))}
               </div>
@@ -830,7 +832,7 @@ export function GuideView({
                 {c.phone ? (
                   <a className="gg-btn" href={telHref(c.phone)}>
                     <Phone aria-hidden />
-                    Call
+                    <span>Call</span>
                   </a>
                 ) : null}
                 {c.whatsapp ? (
@@ -841,13 +843,13 @@ export function GuideView({
                     rel="noopener noreferrer"
                   >
                     <MessageCircle aria-hidden />
-                    WhatsApp
+                    <span>WhatsApp</span>
                   </a>
                 ) : null}
                 {c.email ? (
                   <a className="gg-btn gg-btn-ghost" href={`mailto:${c.email}`}>
                     <Mail aria-hidden />
-                    Email
+                    <span>Email</span>
                   </a>
                 ) : null}
                 {c.website ? (
@@ -858,7 +860,7 @@ export function GuideView({
                     rel="noopener noreferrer"
                   >
                     <Globe aria-hidden />
-                    Website
+                    <span>Website</span>
                   </a>
                 ) : null}
               </div>
@@ -960,7 +962,15 @@ export function GuideView({
               </span>
               <span className="gg-tile-text">
                 <small>{tile.label}</small>
-                <strong>{tile.value}</strong>
+                <strong
+                  translate={
+                    tile.target === "contact" && !content.contact.hostName
+                      ? undefined
+                      : "no"
+                  }
+                >
+                  {tile.value}
+                </strong>
               </span>
             </button>
           ))}

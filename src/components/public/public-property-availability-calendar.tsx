@@ -58,10 +58,10 @@ export function PublicPropertyAvailabilityCalendar({
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    if (checkInDate) {
-      setViewMonth(startOfMonth(checkInDate));
+    if (checkIn) {
+      setViewMonth(startOfMonth(parseDateOnly(checkIn)));
     }
-  }, [checkInDate]);
+  }, [checkIn]);
 
   useEffect(() => {
     let cancelled = false;
@@ -162,7 +162,7 @@ export function PublicPropertyAvailabilityCalendar({
         <Loader2
           className={cn("mr-2 animate-spin", compact ? "h-3.5 w-3.5" : "h-4 w-4")}
         />
-        Loading…
+        <span>Loading…</span>
       </div>
     );
   }
@@ -175,7 +175,7 @@ export function PublicPropertyAvailabilityCalendar({
           compact ? "px-3 py-2 text-xs" : "px-4 py-3 text-sm"
         )}
       >
-        {error}
+        <span>{error}</span>
       </div>
     );
   }
@@ -186,6 +186,7 @@ export function PublicPropertyAvailabilityCalendar({
         "overflow-hidden border border-[var(--public-border)] bg-white",
         compact ? "rounded-xl shadow-none" : "rounded-2xl shadow-sm"
       )}
+      translate="no"
     >
       <div
         className={cn(
@@ -425,7 +426,7 @@ export function PublicPropertyAvailabilityCalendar({
                   compact ? "h-2.5 w-2.5" : "h-4 w-4 rounded-md shadow-sm shadow-emerald-500/25"
                 )}
               />
-              Available
+              <span>Available</span>
             </span>
             <span
               className={cn(
@@ -439,7 +440,7 @@ export function PublicPropertyAvailabilityCalendar({
                   compact ? "h-2.5 w-2.5" : "h-4 w-4 rounded-md"
                 )}
               />
-              Occupied
+              <span>Occupied</span>
             </span>
             {onRangeChange ? (
               <span
@@ -454,7 +455,7 @@ export function PublicPropertyAvailabilityCalendar({
                     compact ? "h-2.5 w-2.5" : "h-4 w-4 rounded-md"
                   )}
                 />
-                Your selection
+                <span>Your selection</span>
               </span>
             ) : null}
           </div>

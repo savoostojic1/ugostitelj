@@ -228,7 +228,7 @@ export function AdminLoginForm({
             {loading ? (
               <>
                 <Loader2 className="animate-spin" />
-                {setupRequired ? "Saving…" : "Signing in…"}
+                <span>{setupRequired ? "Saving…" : "Signing in…"}</span>
               </>
             ) : setupRequired ? (
               "Create admin password"

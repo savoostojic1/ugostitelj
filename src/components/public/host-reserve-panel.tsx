@@ -94,11 +94,14 @@ export function HostReservePanel({
         </div>
         <h3 className="public-heading text-2xl md:text-3xl">Request sent</h3>
         <p className="mt-4 max-w-md text-[15px] leading-relaxed text-[var(--public-muted)]">
-          Thank you, {guestName}. The host will confirm availability for{" "}
-          <strong className="font-semibold text-[var(--public-fg)]">
-            {property.name}
-          </strong>{" "}
-          and reach out at {email}.
+          <span>
+            Thank you, <span translate="no">{guestName}</span>. The host will
+            confirm availability for{" "}
+            <strong className="font-semibold text-[var(--public-fg)]">
+              {property.name}
+            </strong>{" "}
+            and reach out at <span translate="no">{email}</span>.
+          </span>
         </p>
       </div>
     );
@@ -123,11 +126,10 @@ export function HostReservePanel({
               <span className="flex h-9 w-9 items-center justify-center rounded-lg bg-[var(--public-accent-soft)] text-[var(--public-accent)]">
                 <CalendarRange className="h-4 w-4" />
               </span>
-              <span>
-                {format(parseISO(search.checkIn), "d. MMMM", { locale: appLocale })} –{" "}
-                {format(parseISO(search.checkOut), "d. MMMM yyyy", {
+              <span translate="no">
+                {`${format(parseISO(search.checkIn), "d. MMMM", { locale: appLocale })} – ${format(parseISO(search.checkOut), "d. MMMM yyyy", {
                   locale: appLocale,
-                })}
+                })}`}
               </span>
             </li>
             <li className="flex items-center gap-3 text-[var(--public-muted)]">
@@ -135,8 +137,7 @@ export function HostReservePanel({
                 <Users className="h-4 w-4" />
               </span>
               <span>
-                {search.guests}{" "}
-                {search.guests === 1 ? "guest" : "guests"}
+                {`${search.guests} ${search.guests === 1 ? "guest" : "guests"}`}
               </span>
             </li>
           </ul>
@@ -240,8 +241,8 @@ export function HostReservePanel({
             disabled={submitting}
             className="public-btn public-btn-primary w-full py-3.5"
           >
-            {submitting ? "Sending…" : "Send request"}
-            {!submitting && <Send className="h-4 w-4" />}
+            <span>{submitting ? "Sending…" : "Send request"}</span>
+            {!submitting ? <Send className="h-4 w-4" /> : null}
           </button>
         </form>
       </div>

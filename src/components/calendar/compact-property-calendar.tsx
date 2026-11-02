@@ -249,6 +249,7 @@ export function CompactPropertyCalendar({
                       )}
                     >
                       <span
+                        translate="no"
                         className={cn(
                           "absolute font-medium leading-none tabular-nums",
                           compact

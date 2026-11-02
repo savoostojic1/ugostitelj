@@ -15,6 +15,7 @@ import {
   getBookingSiteUrl,
   usesBookingSubdomain,
 } from "@/lib/public/booking-site-url";
+import { getBrowserPublicOrigin } from "@/lib/public/browser-origin";
 import { isValidUsername } from "@/lib/public/slug";
 import {
   bookingUrlOptionsFromConfig,
@@ -39,7 +40,7 @@ export function BookingSiteUrlPanel({
   const { data: bookingConfig } = useBookingSiteConfig();
 
   const origin =
-    typeof window !== "undefined" ? window.location.origin : undefined;
+    typeof window !== "undefined" ? getBrowserPublicOrigin() : undefined;
 
   const urlOptions = useMemo(
     () => bookingUrlOptionsFromConfig(bookingConfig, origin),
@@ -139,7 +140,10 @@ export function BookingSiteUrlPanel({
                 autoCapitalize="none"
                 autoCorrect="off"
               />
-              <div className="flex items-center border-l border-white/10 bg-white/[0.02] px-3 text-sm text-zinc-400">
+              <div
+                className="flex items-center border-l border-white/10 bg-white/[0.02] px-3 text-sm text-zinc-400"
+                translate="no"
+              >
                 .{bookingDomain}
               </div>
             </div>
@@ -207,7 +211,10 @@ export function BookingSiteUrlPanel({
               <p className="text-[11px] font-semibold uppercase tracking-wide text-zinc-500">
                 Public link
               </p>
-              <p className="mt-1 truncate font-mono text-sm text-violet-200">
+              <p
+                className="mt-1 truncate font-mono text-sm text-violet-200"
+                translate="no"
+              >
                 {siteLabel}
               </p>
             </div>
@@ -220,12 +227,14 @@ export function BookingSiteUrlPanel({
                 onClick={handleCopy}
                 disabled={!siteUrl}
               >
-                {copied ? (
-                  <Check className="h-4 w-4 text-emerald-400" />
-                ) : (
-                  <Copy className="h-4 w-4" />
-                )}
-                Copy
+                <span className="inline-flex shrink-0 items-center justify-center">
+                  {copied ? (
+                    <Check className="h-4 w-4 text-emerald-400" />
+                  ) : (
+                    <Copy className="h-4 w-4" />
+                  )}
+                </span>
+                <span>Copy</span>
               </Button>
               {isPublished && siteUrl && !isPwa ? (
                 <Button size="sm" className="hostvia-btn-gradient" asChild>
@@ -235,7 +244,7 @@ export function BookingSiteUrlPanel({
                     rel="noopener noreferrer"
                   >
                     <ExternalLink className="h-4 w-4" />
-                    Open site
+                    <span>Open site</span>
                   </Link>
                 </Button>
               ) : isPublished && siteUrl && isPwa ? (
@@ -246,12 +255,12 @@ export function BookingSiteUrlPanel({
                   onClick={() => openInSystemBrowser(siteUrl)}
                 >
                   <ExternalLink className="h-4 w-4" />
-                  Open in browser
+                  <span>Open in browser</span>
                 </Button>
               ) : !isPwa ? (
                 <Button size="sm" className="hostvia-btn-gradient" disabled>
                   <ExternalLink className="h-4 w-4" />
-                  Open site
+                  <span>Open site</span>
                 </Button>
               ) : null}
             </div>

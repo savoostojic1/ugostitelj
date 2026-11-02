@@ -35,7 +35,7 @@ export function UpgradeModal({ open, onOpenChange }: UpgradeModalProps) {
           <DialogHeader className="relative space-y-3 text-left">
             <div className="inline-flex w-fit items-center gap-1.5 rounded-full border border-violet-500/30 bg-violet-500/10 px-3 py-1 text-xs font-semibold text-violet-200">
               <Sparkles className="h-3.5 w-3.5" />
-              Pro
+              <span>Pro</span>
             </div>
             <DialogTitle className="text-2xl font-bold tracking-tight text-white">
               Unlock Unlimited Properties
@@ -53,7 +53,7 @@ export function UpgradeModal({ open, onOpenChange }: UpgradeModalProps) {
           <div className="relative mt-6 rounded-2xl border border-white/10 bg-white/[0.04] p-5">
             <div className="flex flex-wrap items-end gap-1">
               <span className="text-3xl font-bold tracking-tight text-white">
-                ${PRO_MONTHLY_PRICE_USD}
+                <span translate="no">{`$${PRO_MONTHLY_PRICE_USD}`}</span>
                 <span className="text-base font-medium text-zinc-400">
                   /month
                 </span>
@@ -71,10 +71,10 @@ export function UpgradeModal({ open, onOpenChange }: UpgradeModalProps) {
               {checkout.isPending ? (
                 <>
                   <Loader2 className="h-4 w-4 animate-spin" />
-                  Redirecting…
+                  <span>Redirecting…</span>
                 </>
               ) : (
-                "Upgrade to Pro"
+                <span>Upgrade to Pro</span>
               )}
             </Button>
             <Button

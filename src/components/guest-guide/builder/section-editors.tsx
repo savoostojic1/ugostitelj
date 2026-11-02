@@ -348,7 +348,7 @@ function PropertyEditor({
             onClick={() => addPreset(preset.title, preset.icon)}
             className="rounded-full border border-white/10 bg-white/[0.03] px-3 py-1.5 text-xs text-zinc-300 hover:border-violet-400/40"
           >
-            + {preset.title}
+            {`+ ${preset.title}`}
           </button>
         ))}
         <button
@@ -356,7 +356,7 @@ function PropertyEditor({
           onClick={() => addPreset("Custom facility")}
           className="inline-flex items-center gap-1 rounded-full border border-dashed border-white/15 px-3 py-1.5 text-xs text-zinc-400"
         >
-          <Plus className="h-3 w-3" /> Custom
+          <Plus className="h-3 w-3" /> <span>Custom</span>
         </button>
       </div>
       {items.map((item, index) => (
@@ -438,7 +438,7 @@ function RulesEditor({
             }
             className="rounded-full border border-white/10 bg-white/[0.03] px-3 py-1.5 text-xs text-zinc-300 hover:border-violet-400/40"
           >
-            + {preset.title}
+            {`+ ${preset.title}`}
           </button>
         ))}
       </div>
@@ -520,7 +520,7 @@ function LocalEditor({
         className="inline-flex items-center gap-1.5 rounded-xl border border-white/10 bg-white/[0.03] px-3 py-2 text-xs font-semibold text-zinc-200"
       >
         <Plus className="h-3.5 w-3.5" />
-        Add recommendation
+        <span>Add recommendation</span>
       </button>
       {items.map((item, index) => (
         <div
@@ -653,7 +653,7 @@ function EmergencyEditor({
         className="inline-flex items-center gap-1.5 rounded-xl border border-white/10 bg-white/[0.03] px-3 py-2 text-xs font-semibold text-zinc-200"
       >
         <Plus className="h-3.5 w-3.5" />
-        Add phone number
+        <span>Add phone number</span>
       </button>
       {e.numbers.map((item) => (
         <div key={item.id} className="grid gap-3 sm:grid-cols-[1fr_1fr_auto]">

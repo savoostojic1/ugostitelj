@@ -55,7 +55,7 @@ export function PropertyExcessNotice({
         onClick={() => checkout.mutate(undefined)}
       >
         <Sparkles className="h-3.5 w-3.5" />
-        {checkout.isPending ? "Redirecting…" : "Upgrade to Pro"}
+        <span>{checkout.isPending ? "Redirecting…" : "Upgrade to Pro"}</span>
       </Button>
     </div>
   );

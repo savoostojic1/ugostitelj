@@ -69,7 +69,7 @@ export function PropertyNameEditor({
         />
         <div className="flex gap-2">
           <Button type="submit" size="sm" disabled={update.isPending}>
-            {update.isPending ? "Saving…" : "Save"}
+            <span>{update.isPending ? "Saving…" : "Save"}</span>
           </Button>
           <Button
             type="button"

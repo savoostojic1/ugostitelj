@@ -99,7 +99,7 @@ export function ConnectedFeeds({ propertyId }: { propertyId: string }) {
               disabled={!feeds.length}
             >
               <RefreshCw className="h-4 w-4" />
-              Sync all
+              <span>Sync all</span>
             </Button>
             <Button
               size="sm"
@@ -142,7 +142,9 @@ export function ConnectedFeeds({ propertyId }: { propertyId: string }) {
                       <Badge variant="destructive">Sync error</Badge>
                     )}
                   </div>
-                  <p className="truncate text-xs text-muted-foreground">{feed.ics_url}</p>
+                  <p translate="no" className="truncate text-xs text-muted-foreground">
+                    {feed.ics_url}
+                  </p>
                   <p className="text-xs text-muted-foreground">
                     {feed.last_synced_at
                       ? `Last synced ${formatDistanceToNow(new Date(feed.last_synced_at), { addSuffix: true })}`
@@ -181,7 +183,7 @@ export function ConnectedFeeds({ propertyId }: { propertyId: string }) {
                     disabled={syncFeed.isPending}
                   >
                     <RefreshCw className="h-4 w-4" />
-                    Sync Now
+                    <span>Sync Now</span>
                   </Button>
                   <Button
                     variant="ghost"

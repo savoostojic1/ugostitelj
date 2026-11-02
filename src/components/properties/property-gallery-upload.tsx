@@ -203,12 +203,12 @@ export function PropertyGalleryUpload({
                 {uploading ? (
                   <>
                     <Loader2 className="h-4 w-4 animate-spin" />
-                    Uploading…
+                    <span>Uploading…</span>
                   </>
                 ) : (
                   <>
                     <ImagePlus className="h-4 w-4" />
-                    Add more photos
+                    <span>Add more photos</span>
                   </>
                 )}
               </button>

@@ -175,7 +175,7 @@ export function PublishGate({
 
         <div className="my-5 flex items-center gap-3 text-xs font-medium uppercase tracking-wide text-zinc-500">
           <span className="h-px flex-1 bg-white/10" />
-          or
+          <span>or</span>
           <span className="h-px flex-1 bg-white/10" />
         </div>
 
@@ -249,11 +249,15 @@ export function PublishGate({
             {loading ? (
               <>
                 <Loader2 className="h-4 w-4 animate-spin" />
-                Publishing…
+                <span>Publishing…</span>
               </>
             ) : (
               <>
-                {mode === "register" ? "Create account & publish" : "Sign in & publish"}
+                <span>
+                  {mode === "register"
+                    ? "Create account & publish"
+                    : "Sign in & publish"}
+                </span>
                 <ArrowRight className="h-4 w-4" />
               </>
             )}
@@ -261,19 +265,21 @@ export function PublishGate({
         </form>
 
         <p className="mt-4 text-center text-xs text-zinc-500">
-          Prefer the main signup page?{" "}
-          <Link
-            href="/register?next=/dashboard/guest-guides?claim=1"
-            className="text-violet-300 hover:text-violet-200"
-            onClick={() =>
-              trackHostviaEvent("guest_guide_registration_start", {
-                method: "register_page",
-              })
-            }
-          >
-            Continue there
-          </Link>
-          . Your draft is saved.
+          <span>
+            Prefer the main signup page?{" "}
+            <Link
+              href="/register?next=/dashboard/guest-guides?claim=1"
+              className="text-violet-300 hover:text-violet-200"
+              onClick={() =>
+                trackHostviaEvent("guest_guide_registration_start", {
+                  method: "register_page",
+                })
+              }
+            >
+              Continue there
+            </Link>
+            . Your draft is saved.
+          </span>
         </p>
       </div>
       </div>

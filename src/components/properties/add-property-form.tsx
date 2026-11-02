@@ -178,11 +178,11 @@ export function AddPropertyForm() {
               {loading ? (
                 <>
                   <Loader2 className="h-4 w-4 animate-spin" />
-                  Creating…
+                  <span>Creating…</span>
                 </>
               ) : (
                 <>
-                  Continue
+                  <span>Continue</span>
                   <ArrowRight className="h-4 w-4" />
                 </>
               )}

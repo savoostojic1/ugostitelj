@@ -68,15 +68,17 @@ export function HostPropertyResultCard({
           <div className="flex flex-col gap-4 border-t border-[var(--public-border)] pt-5 sm:flex-row sm:items-end sm:justify-between">
             {stayPrice ? (
               <div className="text-left">
-                <p className="text-2xl font-bold tracking-tight text-[var(--public-fg)]">
+                <p
+                  translate="no"
+                  className="text-2xl font-bold tracking-tight text-[var(--public-fg)]"
+                >
                   {formatEuro(stayPrice.total)}
                 </p>
                 <p className="mt-1 text-sm text-[var(--public-muted)]">
-                  total for {nightsLabel(stayPrice.nights)}
+                  {`total for ${nightsLabel(stayPrice.nights)}`}
                 </p>
                 <p className="mt-0.5 text-sm font-medium text-[var(--public-accent)]">
-                  {stayPrice.usesDatePricing ? "avg " : ""}
-                  {formatEuro(stayPrice.pricePerNight)} per night
+                  {`${stayPrice.usesDatePricing ? "avg " : ""}${formatEuro(stayPrice.pricePerNight)} per night`}
                 </p>
               </div>
             ) : (
@@ -91,7 +93,7 @@ export function HostPropertyResultCard({
               }}
               className="public-btn public-btn-primary w-full px-6 py-3.5 sm:w-auto"
             >
-              Reserve
+              <span>Reserve</span>
               <ArrowRight className="h-4 w-4" />
             </button>
           </div>

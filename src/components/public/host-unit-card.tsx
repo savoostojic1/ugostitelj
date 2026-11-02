@@ -67,13 +67,13 @@ export function HostUnitCard({
             {property.address ? (
               <p className="mt-2 flex items-start gap-2 text-sm text-[var(--public-muted)]">
                 <MapPin className="mt-0.5 h-4 w-4 shrink-0 text-[var(--public-accent)]" />
-                {property.address}
+                <span>{property.address}</span>
               </p>
             ) : null}
             {property.capacity ? (
               <p className="mt-2 flex items-center gap-2 text-sm text-[var(--public-muted)]">
                 <Users className="h-4 w-4 text-[var(--public-accent)]" />
-                Up to {property.capacity} guests
+                <span>Up to {property.capacity} guests</span>
               </p>
             ) : null}
             {property.short_description ? (
@@ -104,7 +104,7 @@ export function HostUnitCard({
           >
             <span className="inline-flex items-center gap-2">
               <CalendarDays className="h-4 w-4 text-[var(--public-accent)]" />
-              View availability
+              <span>View availability</span>
             </span>
             <ChevronDown
               className={cn(
@@ -131,22 +131,25 @@ export function HostUnitCard({
           {checkIn && checkOut && onReserve ? (
             <div className="mt-5 flex flex-col gap-4 rounded-xl border border-[var(--public-border)] bg-white p-4 sm:flex-row sm:items-center sm:justify-between">
               <div>
-                <p className="text-sm font-semibold text-[var(--public-fg)]">
-                  {format(new Date(checkIn + "T12:00:00"), "d. MMM", {
+                <p
+                  className="text-sm font-semibold text-[var(--public-fg)]"
+                  translate="no"
+                >
+                  {`${format(new Date(checkIn + "T12:00:00"), "d. MMM", {
                     locale: appLocale,
-                  })}{" "}
-                  –{" "}
-                  {format(new Date(checkOut + "T12:00:00"), "d. MMM yyyy", {
+                  })} – ${format(new Date(checkOut + "T12:00:00"), "d. MMM yyyy", {
                     locale: appLocale,
-                  })}
+                  })}`}
                 </p>
                 {priceLoading ? (
                   <p className="mt-1 text-sm text-[var(--public-muted)]">
-                    Calculating price…
+                    <span>Calculating price…</span>
                   </p>
                 ) : stayPrice ? (
                   <p className="mt-1 text-sm text-[var(--public-muted)]">
-                    {stayPrice.nights} nights · {formatEuro(stayPrice.total)} total
+                    <span translate="no">
+                      {`${stayPrice.nights} nights · ${formatEuro(stayPrice.total)} total`}
+                    </span>
                   </p>
                 ) : null}
               </div>
@@ -157,7 +160,7 @@ export function HostUnitCard({
                 className="public-btn public-btn-primary shrink-0 px-6 py-3"
               >
                 <Send className="h-4 w-4" />
-                {reserving ? "Checking…" : "Reserve"}
+                <span>{reserving ? "Checking…" : "Reserve"}</span>
               </button>
             </div>
           ) : null}

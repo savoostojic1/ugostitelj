@@ -118,7 +118,7 @@ export default function PoroukaPage() {
         actions={
           <Button onClick={openCreate} className="w-full sm:w-auto">
             <Plus className="h-4 w-4" />
-            New message
+            <span>New message</span>
           </Button>
         }
       />
@@ -227,7 +227,7 @@ export default function PoroukaPage() {
               disabled={isSaving}
               className="w-full sm:w-auto"
             >
-              {isSaving ? "Saving…" : editing ? "Save" : "Create"}
+              <span>{isSaving ? "Saving…" : editing ? "Save" : "Create"}</span>
             </Button>
           </div>
         </DialogContent>

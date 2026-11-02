@@ -320,7 +320,7 @@ export function GuestGuideBuilderShell({
               className="hostvia-btn-gradient inline-flex h-9 items-center gap-1.5 rounded-xl px-3.5 text-xs font-semibold sm:h-10 sm:px-4 sm:text-sm"
             >
               <Save className="h-3.5 w-3.5" />
-              {isOwnedEditor ? "Publish" : "Save & Publish"}
+              <span>{isOwnedEditor ? "Publish" : "Save & Publish"}</span>
             </button>
           </div>
         </div>

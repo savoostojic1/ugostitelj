@@ -149,7 +149,7 @@ function TeamAccessUserRow({
             }}
           >
             <KeyRound className="h-4 w-4" />
-            Reset password
+            <span>Reset password</span>
           </Button>
           <Button
             type="button"
@@ -164,7 +164,7 @@ function TeamAccessUserRow({
             ) : (
               <Trash2 className="h-4 w-4" />
             )}
-            Remove
+            <span>Remove</span>
           </Button>
         </div>
       </div>
@@ -425,7 +425,7 @@ export function TeamAccessPage() {
         {isLoading ? (
           <div className="flex items-center gap-2 text-sm text-zinc-400">
             <Loader2 className="h-4 w-4 animate-spin" />
-            Loading…
+            <span>Loading…</span>
           </div>
         ) : users.length === 0 ? (
           <p className="text-sm text-zinc-500">No access users yet.</p>

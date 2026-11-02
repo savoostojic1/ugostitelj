@@ -131,7 +131,7 @@ export function PushNotificationsPrompt({
               disabled
             >
               <Loader2 className="h-4 w-4 animate-spin" />
-              Loading…
+              <span>Loading…</span>
             </Button>
           ) : isSubscribed ? (
             <Button
@@ -143,7 +143,7 @@ export function PushNotificationsPrompt({
               onClick={handleDisable}
             >
               <BellOff className="h-4 w-4" />
-              Turn off
+              <span>Turn off</span>
             </Button>
           ) : (
             <Button
@@ -160,7 +160,7 @@ export function PushNotificationsPrompt({
               onClick={handleEnable}
             >
               <Bell className="h-4 w-4" />
-              Enable notifications
+              <span>Enable notifications</span>
             </Button>
           )}
           {!loading ? (

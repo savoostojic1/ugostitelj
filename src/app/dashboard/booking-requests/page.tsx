@@ -92,15 +92,16 @@ export default function BookingRequestsPage() {
                   {request.properties?.name ?? "Listing"}
                 </p>
                 <p className="text-sm text-muted-foreground">
-                  {format(parseISO(request.check_in), "d MMM yyyy", {
-                    locale: appLocale,
-                  })}{" "}
-                  –{" "}
-                  {format(parseISO(request.check_out), "d MMM yyyy", {
-                    locale: appLocale,
-                  })}{" "}
-                  · {request.guest_count}{" "}
-                  {request.guest_count === 1 ? "guest" : "guests"}
+                  <span translate="no">
+                    {`${format(parseISO(request.check_in), "d MMM yyyy", {
+                      locale: appLocale,
+                    })} – ${format(parseISO(request.check_out), "d MMM yyyy", {
+                      locale: appLocale,
+                    })}`}
+                  </span>
+                  <span>
+                    {` · ${request.guest_count} ${request.guest_count === 1 ? "guest" : "guests"}`}
+                  </span>
                 </p>
                 <div className="flex flex-wrap gap-4 text-sm text-muted-foreground">
                   <a
@@ -108,14 +109,14 @@ export default function BookingRequestsPage() {
                     className="inline-flex items-center gap-1 hover:text-foreground"
                   >
                     <Mail className="h-3.5 w-3.5" />
-                    {request.email}
+                    <span translate="no">{request.email}</span>
                   </a>
                   <a
                     href={`tel:${request.phone}`}
                     className="inline-flex items-center gap-1 hover:text-foreground"
                   >
                     <Phone className="h-3.5 w-3.5" />
-                    {request.phone}
+                    <span translate="no">{request.phone}</span>
                   </a>
                 </div>
                 {request.message ? (
@@ -124,10 +125,12 @@ export default function BookingRequestsPage() {
                   </p>
                 ) : null}
                 <p className="text-xs text-muted-foreground">
-                  Received{" "}
-                  {format(parseISO(request.created_at), "d MMM yyyy, HH:mm", {
-                    locale: appLocale,
-                  })}
+                  <span>Received </span>
+                  <span translate="no">
+                    {format(parseISO(request.created_at), "d MMM yyyy, HH:mm", {
+                      locale: appLocale,
+                    })}
+                  </span>
                 </p>
               </div>
 
@@ -138,7 +141,7 @@ export default function BookingRequestsPage() {
                   onClick={() => handleAccept(request.id, request.guest_name)}
                 >
                   <Check className="h-4 w-4" />
-                  Accept
+                  <span>Accept</span>
                 </Button>
                 <Button
                   size="sm"
@@ -148,7 +151,7 @@ export default function BookingRequestsPage() {
                   onClick={() => handleReject(request.id, request.guest_name)}
                 >
                   <X className="h-4 w-4" />
-                  Reject
+                  <span>Reject</span>
                 </Button>
                 <Button size="sm" variant="ghost" asChild>
                   <Link

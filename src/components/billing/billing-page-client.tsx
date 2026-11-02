@@ -216,12 +216,12 @@ export function BillingPageClient() {
             <div className="flex items-center justify-between text-sm">
               <span className="flex items-center gap-2 text-zinc-400">
                 <Building2 className="h-4 w-4" />
-                Properties used
+                <span>Properties used</span>
               </span>
               <span className="font-medium text-white">
-                {billing.propertyCount}
+                <span>{billing.propertyCount}</span>
                 {!billing.isPro && (
-                  <span className="text-zinc-500"> / {billing.freeLimit}</span>
+                  <span className="text-zinc-500">{` / ${billing.freeLimit}`}</span>
                 )}
                 {billing.isPro && (
                   <span className="text-zinc-500"> · unlimited</span>
@@ -283,12 +283,12 @@ export function BillingPageClient() {
                   {creemPortal.isPending ? (
                     <>
                       <Loader2 className="h-4 w-4 animate-spin" />
-                      Opening billing portal…
+                      <span>Opening billing portal…</span>
                     </>
                   ) : (
                     <>
                       <ExternalLink className="h-4 w-4" />
-                      Manage billing
+                      <span>Manage billing</span>
                     </>
                   )}
                 </Button>
@@ -344,12 +344,12 @@ export function BillingPageClient() {
                 {stripePortal.isPending ? (
                   <>
                     <Loader2 className="h-4 w-4 animate-spin" />
-                    Opening Stripe…
+                    <span>Opening Stripe…</span>
                   </>
                 ) : (
                   <>
                     <ExternalLink className="h-4 w-4" />
-                    Manage in Stripe
+                    <span>Manage in Stripe</span>
                   </>
                 )}
               </Button>
@@ -360,7 +360,7 @@ export function BillingPageClient() {
             <div className="mt-8 rounded-xl border border-violet-500/20 bg-violet-500/5 p-5">
               <div className="flex flex-wrap items-end gap-3">
                 <span className="text-3xl font-bold text-white">
-                  ${PRO_MONTHLY_PRICE_USD}
+                  <span translate="no">{`$${PRO_MONTHLY_PRICE_USD}`}</span>
                   <span className="text-base font-normal text-zinc-400">
                     /month
                   </span>
@@ -374,12 +374,12 @@ export function BillingPageClient() {
                 {checkout.isPending ? (
                   <>
                     <Loader2 className="h-4 w-4 animate-spin" />
-                    Redirecting…
+                    <span>Redirecting…</span>
                   </>
                 ) : (
                   <>
                     <Sparkles className="h-4 w-4" />
-                    Upgrade to Pro
+                    <span>Upgrade to Pro</span>
                   </>
                 )}
               </Button>
@@ -428,10 +428,10 @@ export function BillingPageClient() {
             <div className="mt-8 rounded-lg border border-white/8 bg-white/[0.02] p-4">
               <p className="flex items-center gap-2 text-sm font-medium text-white">
                 <Crown className="h-4 w-4 text-violet-400" />
-                Need more than {FREE_PROPERTY_LIMIT} properties?
+                <span>{`Need more than ${FREE_PROPERTY_LIMIT} properties?`}</span>
               </p>
               <p className="mt-1 text-xs leading-relaxed text-zinc-500">
-                Pro unlocks unlimited listings for ${PRO_MONTHLY_PRICE_USD}/month.
+                {`Pro unlocks unlimited listings for $${PRO_MONTHLY_PRICE_USD}/month.`}
               </p>
             </div>
           )}

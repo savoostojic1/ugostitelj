@@ -153,9 +153,10 @@ export function PropertyStayPicker({
         </div>
         {showAvailability ? (
           <p className="text-xs tabular-nums text-muted-foreground">
-            <span className="font-medium text-emerald-300">{freeCount}</span>
-            {" free"}
-            {busyCount > 0 ? ` · ${busyCount} taken` : ""}
+            <span>
+              <span className="font-medium text-emerald-300">{freeCount}</span>
+              {` free${busyCount > 0 ? ` · ${busyCount} taken` : ""}`}
+            </span>
           </p>
         ) : null}
       </div>

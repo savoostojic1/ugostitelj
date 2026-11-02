@@ -25,7 +25,9 @@ export function GuideQrPrint({
           className="h-56 w-56"
         />
       </div>
-      <p className="max-w-sm text-center text-sm text-zinc-600 break-all">{url}</p>
+      <p className="max-w-sm text-center text-sm text-zinc-600 break-all" translate="no">
+        {url}
+      </p>
       <div className="flex flex-wrap justify-center gap-3 print:hidden">
         <a
           href={qrImageSrc}

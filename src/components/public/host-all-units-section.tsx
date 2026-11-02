@@ -175,11 +175,11 @@ export function HostAllUnitsSection({
             {loading ? (
               <div className="flex items-center justify-center py-16 text-sm text-[var(--public-muted)]">
                 <Loader2 className="mr-2 h-5 w-5 animate-spin" />
-                Loading units…
+                <span>Loading units…</span>
               </div>
             ) : error ? (
               <div className="public-card mx-auto max-w-lg px-6 py-8 text-center text-red-700">
-                {error}
+                <span>{error}</span>
               </div>
             ) : count === 0 ? (
               <div className="public-card mx-auto max-w-lg px-6 py-12 text-center">
@@ -193,7 +193,9 @@ export function HostAllUnitsSection({
                 )}
               >
                 <p className="text-center text-sm text-[var(--public-muted)] md:col-span-full">
-                  {count} {count === 1 ? "unit" : "units"}
+                  <span>
+                    {count} {count === 1 ? "unit" : "units"}
+                  </span>
                 </p>
                 {properties.map((property) => (
                   <HostUnitCard
@@ -213,21 +215,23 @@ export function HostAllUnitsSection({
                 <div className="public-card mx-auto flex max-w-3xl flex-wrap items-center justify-center gap-4 px-5 py-4 text-sm text-[var(--public-muted)]">
                   <span className="inline-flex items-center gap-2">
                     <span className="h-3 w-3 rounded bg-emerald-500" />
-                    Available
+                    <span>Available</span>
                   </span>
                   <span className="inline-flex items-center gap-2">
                     <span className="h-3 w-3 rounded bg-stone-100 ring-1 ring-stone-200" />
-                    Occupied
+                    <span>Occupied</span>
                   </span>
                   <span className="inline-flex items-center gap-2">
                     <span className="h-3 w-3 rounded bg-[var(--public-accent)]" />
-                    Your selection
+                    <span>Your selection</span>
                   </span>
                 </div>
 
                 <p className="text-center text-sm text-[var(--public-muted)]">
-                  {count} {count === 1 ? "unit" : "units"} · click dates to
-                  reserve
+                  <span>
+                    {count} {count === 1 ? "unit" : "units"} · click dates to
+                    reserve
+                  </span>
                 </p>
 
                 <div className="grid gap-5 sm:grid-cols-2 xl:grid-cols-3">

@@ -1,4 +1,5 @@
 import { isBookingSubdomainHost } from "@/lib/public/booking-site-url";
+import { isGoogleTranslateProxyHost } from "@/lib/public/browser-origin";
 
 const SW_URL = "/sw.js";
 const READY_TIMEOUT_MS = 8000;
@@ -8,7 +9,10 @@ export async function ensureServiceWorkerRegistration(): Promise<ServiceWorkerRe
     return null;
   }
 
-  if (isBookingSubdomainHost(window.location.hostname)) {
+  if (
+    isBookingSubdomainHost(window.location.hostname) ||
+    isGoogleTranslateProxyHost(window.location.hostname)
+  ) {
     try {
       const existing = await navigator.serviceWorker.getRegistration();
       await existing?.unregister();

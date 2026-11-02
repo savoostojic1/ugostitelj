@@ -42,7 +42,7 @@ export function SavedMessagesDropdown({
           <Copy className="h-4 w-4" />
           {iconOnly ? null : (
             <>
-              Messages
+              <span>Messages</span>
               <ChevronDown className="h-4 w-4 opacity-50" />
             </>
           )}

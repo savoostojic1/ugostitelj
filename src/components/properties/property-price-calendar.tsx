@@ -282,7 +282,7 @@ export function PropertyPriceCalendar({
             disabled={adding || !rangeStart || !periodPrice.trim()}
           >
             <Plus className="h-4 w-4" />
-            {adding ? "Adding…" : "Apply price"}
+            <span>{adding ? "Adding…" : "Apply price"}</span>
           </Button>
         </div>
 

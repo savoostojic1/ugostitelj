@@ -66,7 +66,7 @@ export default function PropertyCalendarPage({
       <Button variant="ghost" size="sm" asChild className="hostvia-dashboard-page-inset w-fit">
         <Link href={backHref}>
           <ArrowLeft className="h-4 w-4" />
-          {backLabel}
+          <span>{backLabel}</span>
         </Link>
       </Button>
 

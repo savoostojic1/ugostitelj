@@ -78,8 +78,8 @@ export function PublicGalleryLightbox({
           <p className="truncate text-sm font-medium">
             {title}
             {hasMultiple ? (
-              <span className="ml-2 text-white/60">
-                {index + 1} / {images.length}
+              <span className="ml-2 text-white/60" translate="no">
+                {`${index + 1} / ${images.length}`}
               </span>
             ) : null}
           </p>

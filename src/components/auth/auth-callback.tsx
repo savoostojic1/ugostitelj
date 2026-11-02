@@ -3,10 +3,11 @@
 import { useEffect } from "react";
 import { Loader2 } from "lucide-react";
 import { consumeAuthNext } from "@/components/auth/google-sign-in-button";
+import { getBrowserPublicOrigin } from "@/lib/public/browser-origin";
 import { createPkceCallbackClient } from "@/lib/supabase/client";
 
 function loginUrl(reason: string, detail?: string) {
-  const url = new URL("/login", window.location.origin);
+  const url = new URL("/login", getBrowserPublicOrigin());
   url.searchParams.set("error", "auth-callback");
   url.searchParams.set("reason", reason);
   if (detail) url.searchParams.set("detail", detail);

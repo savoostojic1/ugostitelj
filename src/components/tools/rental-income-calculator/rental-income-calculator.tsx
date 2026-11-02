@@ -323,7 +323,7 @@ export function RentalIncomeCalculator() {
               className="hostvia-btn-gradient inline-flex h-11 items-center justify-center gap-2 rounded-xl px-6 text-sm font-semibold focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-violet-300 focus-visible:ring-offset-2 focus-visible:ring-offset-[#06060a]"
             >
               <Calculator className="h-4 w-4" aria-hidden="true" />
-              {showResults ? "Recalculate" : "Calculate results"}
+              <span>{showResults ? "Recalculate" : "Calculate results"}</span>
             </button>
           )}
         </div>

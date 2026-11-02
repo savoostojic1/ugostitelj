@@ -60,7 +60,7 @@ export function HostUnitAvailabilityCard({
             {property.capacity ? (
               <p className="mt-1 flex items-center gap-1.5 text-xs text-[var(--public-muted)]">
                 <Users className="h-3.5 w-3.5 shrink-0 text-[var(--public-accent)]" />
-                Up to {property.capacity} guests
+                <span>Up to {property.capacity} guests</span>
               </p>
             ) : null}
             {property.address ? (
@@ -93,20 +93,23 @@ export function HostUnitAvailabilityCard({
 
         {checkIn && checkOut && onReserve ? (
           <div className="mt-3 space-y-2 rounded-xl border border-[var(--public-border)] bg-white p-3">
-            <p className="text-xs font-semibold text-[var(--public-fg)]">
-              {format(new Date(checkIn + "T12:00:00"), "d. MMM", { locale: appLocale })}{" "}
-              –{" "}
-              {format(new Date(checkOut + "T12:00:00"), "d. MMM yyyy", {
+            <p
+              className="text-xs font-semibold text-[var(--public-fg)]"
+              translate="no"
+            >
+              {`${format(new Date(checkIn + "T12:00:00"), "d. MMM", { locale: appLocale })} – ${format(new Date(checkOut + "T12:00:00"), "d. MMM yyyy", {
                 locale: appLocale,
-              })}
+              })}`}
             </p>
             {priceLoading ? (
               <p className="text-[11px] text-[var(--public-muted)]">
-                Calculating price…
+                <span>Calculating price…</span>
               </p>
             ) : stayPrice ? (
               <p className="text-[11px] text-[var(--public-muted)]">
-                {stayPrice.nights} nights · {formatEuro(stayPrice.total)}
+                <span translate="no">
+                  {`${stayPrice.nights} nights · ${formatEuro(stayPrice.total)}`}
+                </span>
               </p>
             ) : null}
             <button
@@ -116,7 +119,7 @@ export function HostUnitAvailabilityCard({
               className="public-btn public-btn-primary w-full py-2.5 text-sm"
             >
               <Send className="h-3.5 w-3.5" />
-              {reserving ? "Checking…" : "Reserve"}
+              <span>{reserving ? "Checking…" : "Reserve"}</span>
             </button>
           </div>
         ) : null}
