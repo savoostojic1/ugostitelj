@@ -5,6 +5,7 @@ import { usePathname } from "next/navigation";
 import {
   CalendarDays,
   ClipboardPen,
+  Bell,
   CreditCard,
   Globe,
   Home,
@@ -120,6 +121,12 @@ const navGroups: { label: string; items: NavItem[] }[] = [
   {
     label: "Account",
     items: [
+      {
+        href: "/dashboard/notifications",
+        label: "Notifications",
+        icon: Bell,
+        ownerOnly: true,
+      },
       {
         href: "/dashboard/billing",
         label: "Pricing plan",

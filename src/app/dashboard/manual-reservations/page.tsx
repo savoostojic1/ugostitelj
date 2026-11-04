@@ -110,10 +110,35 @@ export default function ManualReservationsPage() {
   const deleteReservation = useDeleteManualReservation();
 
   function handleDelete(id: string, guestName: string) {
-    if (!confirm(`Delete manual reservation for ${guestName}?`)) return;
+    if (
+      !confirm(
+        `Remove this stay for ${guestName}? If it came from your booking site, the guest will be emailed. This does not refund any payment.`
+      )
+    ) {
+      return;
+    }
 
     deleteReservation.mutate(id, {
-      onSuccess: () => toast.success("Reservation deleted"),
+      onSuccess: (result) => {
+        if (result.guestEmail === "sent" || result.guestEmail === "duplicate") {
+          toast.success("Reservation cancelled", {
+            description: "The guest has been emailed. No refund was issued.",
+          });
+          return;
+        }
+        if (result.guestEmail === "failed") {
+          toast.success("Reservation cancelled", {
+            description:
+              "The stay was removed. The guest email could not be sent and will be retried.",
+          });
+          return;
+        }
+        toast.success(
+          result.outcome === "cancelled"
+            ? "Reservation cancelled"
+            : "Reservation deleted"
+        );
+      },
       onError: (err) =>
         toast.error(err instanceof Error ? err.message : "Delete failed"),
     });

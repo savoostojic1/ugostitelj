@@ -29,6 +29,25 @@ import {
   resolveStayPriceQuote,
 } from "@/lib/public/stay-price";
 
+function safeReference(value: unknown): string | null {
+  return typeof value === "string" &&
+    /^HV-[ABCDEFGHJKLMNPQRSTUVWXYZ23456789]{8}$/.test(value)
+    ? value
+    : null;
+}
+
+function safeManageUrl(value: unknown): string | null {
+  if (typeof value !== "string") return null;
+  try {
+    const url = new URL(value);
+    if (url.protocol !== "https:" && url.protocol !== "http:") return null;
+    if (!url.pathname.startsWith("/reservation/manage/")) return null;
+    return url.toString();
+  } catch {
+    return null;
+  }
+}
+
 interface HostReservePanelProps {
   property: PublicPropertySearchResult;
   search: HostSearchParams;
@@ -46,6 +65,9 @@ export function HostReservePanel({
   const [message, setMessage] = useState("");
   const [submitting, setSubmitting] = useState(false);
   const [submitted, setSubmitted] = useState(false);
+  const [reference, setReference] = useState<string | null>(null);
+  const [manageUrl, setManageUrl] = useState<string | null>(null);
+  const [emailSent, setEmailSent] = useState(false);
 
   const inputClass =
     "public-input w-full border border-[var(--public-border)] bg-[var(--public-bg-subtle)] px-4 py-3 text-sm text-[var(--public-fg)] placeholder:text-[var(--public-muted-soft)]";
@@ -83,6 +105,9 @@ export function HostReservePanel({
         ok?: boolean;
         id?: unknown;
         error?: unknown;
+        reference?: unknown;
+        manageUrl?: unknown;
+        emailSent?: unknown;
       }>(res, { endpoint });
 
       if (!parsed.ok) {
@@ -95,8 +120,11 @@ export function HostReservePanel({
         );
       }
 
+      setReference(safeReference(parsed.data.reference));
+      setManageUrl(safeManageUrl(parsed.data.manageUrl));
+      setEmailSent(parsed.data.emailSent === true);
       setSubmitted(true);
-      toast.success("Request sent! The host will contact you.");
+      toast.success("Request sent. It is not confirmed yet.");
     } catch (err) {
       toast.error(
         err instanceof Error
@@ -117,14 +145,32 @@ export function HostReservePanel({
         <h3 className="public-heading text-2xl md:text-3xl">Request sent</h3>
         <p className="mt-4 max-w-md text-[15px] leading-relaxed text-[var(--public-muted)]">
           <span>
-            Thank you, <span translate="no">{guestName}</span>. The host will
-            confirm availability for{" "}
+            Thank you, <span translate="no">{guestName}</span>. This is a
+            booking request for{" "}
             <strong className="font-semibold text-[var(--public-fg)]">
               {property.name}
-            </strong>{" "}
-            and reach out at <span translate="no">{email}</span>.
+            </strong>
+            , not a confirmed reservation. The host still needs to review it.
           </span>
         </p>
+        {reference ? (
+          <p className="mt-4 text-sm text-[var(--public-muted)]">
+            Reference <span translate="no" className="font-semibold text-[var(--public-fg)]">{reference}</span>
+          </p>
+        ) : null}
+        <p className="mt-3 max-w-md text-sm leading-relaxed text-[var(--public-muted)]">
+          {emailSent
+            ? "A copy of this request is on its way to your email."
+            : "Your request is saved. If the email does not arrive, use the management link below or contact the host."}
+        </p>
+        {manageUrl ? (
+          <a
+            href={manageUrl}
+            className="public-btn public-btn-primary mt-6 px-5 py-3"
+          >
+            Manage this request
+          </a>
+        ) : null}
       </div>
     );
   }

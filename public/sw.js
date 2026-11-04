@@ -1,5 +1,5 @@
 /// Hostvia PWA service worker — install + push notifications
-const CACHE = "hostvia-v7";
+const CACHE = "hostvia-v8";
 const DEFAULT_PATH = "/dashboard/booking-requests";
 
 function toAppPath(url) {
@@ -66,7 +66,7 @@ self.addEventListener("push", (event) => {
       icon: payload.icon,
       badge: "/icon",
       data: { path },
-      tag: "hostvia-booking-inquiry",
+      tag: payload.tag || "hostvia-booking",
       renotify: true,
     })
   );

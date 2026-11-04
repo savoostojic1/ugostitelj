@@ -86,7 +86,8 @@ export type BookingRequestStatus =
   | "pending"
   | "accepted"
   | "rejected"
-  | "contacted";
+  | "contacted"
+  | "cancelled";
 
 export interface BookingRequest {
   id: string;
@@ -100,6 +101,10 @@ export interface BookingRequest {
   guest_count: number;
   message: string | null;
   status: BookingRequestStatus;
+  reference_code?: string | null;
+  reservation_id?: string | null;
+  cancelled_at?: string | null;
+  cancelled_by?: "guest" | "owner" | null;
   created_at: string;
   updated_at: string;
   properties?: { name: string; slug: string | null } | null;

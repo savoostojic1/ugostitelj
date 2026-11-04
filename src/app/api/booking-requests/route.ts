@@ -1,24 +1,13 @@
-import { notifyHostOfBookingRequest } from "@/lib/notifications/send-booking-request-notification";
+import { completeBookingRequest } from "@/lib/booking-requests/complete";
+import { parseBookingRequestBody } from "@/lib/booking-requests/validate";
+import { channelResult } from "@/lib/notifications/dispatch";
+import { dispatchReservationEvent } from "@/lib/notifications/send-reservation-event";
 import {
   jsonWithPublicCors,
   publicApiOptionsResponse,
 } from "@/lib/public/public-api-cors";
+import { attachGuestAccess } from "@/lib/reservations/attach-guest-access";
 import { createClient } from "@/lib/supabase/server";
-
-type BookingRequestBody = {
-  propertySlug?: string;
-  guestName?: string;
-  email?: string;
-  phone?: string;
-  checkIn?: string;
-  checkOut?: string;
-  guestCount?: number;
-  message?: string;
-};
-
-function isIsoDateOnly(value: string): boolean {
-  return /^\d{4}-\d{2}-\d{2}$/.test(value);
-}
 
 export async function OPTIONS(request: Request) {
   return publicApiOptionsResponse(request);
@@ -35,9 +24,9 @@ export async function POST(request: Request) {
       );
     }
 
-    let body: BookingRequestBody;
+    let json: unknown;
     try {
-      body = (await request.json()) as BookingRequestBody;
+      json = await request.json();
     } catch {
       return jsonWithPublicCors(
         request,
@@ -46,67 +35,26 @@ export async function POST(request: Request) {
       );
     }
 
-    const {
-      propertySlug,
-      guestName,
-      email,
-      phone,
-      checkIn,
-      checkOut,
-      guestCount,
-      message,
-    } = body;
-
-    if (
-      !propertySlug?.trim() ||
-      !guestName?.trim() ||
-      !email?.trim() ||
-      !phone?.trim() ||
-      !checkIn ||
-      !checkOut
-    ) {
+    const parsed = parseBookingRequestBody(json);
+    if (!parsed.ok) {
       return jsonWithPublicCors(
         request,
-        { ok: false, error: "Please fill in all required fields" },
-        { status: 400 }
+        { ok: false, error: parsed.error },
+        { status: parsed.status }
       );
     }
 
-    if (!isIsoDateOnly(checkIn) || !isIsoDateOnly(checkOut)) {
-      return jsonWithPublicCors(
-        request,
-        { ok: false, error: "Invalid dates" },
-        { status: 400 }
-      );
-    }
-
-    if (checkOut <= checkIn) {
-      return jsonWithPublicCors(
-        request,
-        { ok: false, error: "Check-out must be after check-in" },
-        { status: 400 }
-      );
-    }
-
-    const guests = guestCount ?? 1;
-    if (!Number.isFinite(guests) || guests < 1 || guests > 100) {
-      return jsonWithPublicCors(
-        request,
-        { ok: false, error: "Invalid guest count" },
-        { status: 400 }
-      );
-    }
-
+    const input = parsed.value;
     const supabase = await createClient();
     const { data, error } = await supabase.rpc("submit_booking_request", {
-      p_property_slug: propertySlug.trim(),
-      p_guest_name: guestName.trim(),
-      p_email: email.trim(),
-      p_phone: phone.trim(),
-      p_check_in: checkIn,
-      p_check_out: checkOut,
-      p_guest_count: guests,
-      p_message: message?.trim() ?? null,
+      p_property_slug: input.propertySlug,
+      p_guest_name: input.guestName,
+      p_email: input.email,
+      p_phone: input.phone,
+      p_check_in: input.checkIn,
+      p_check_out: input.checkOut,
+      p_guest_count: input.guestCount,
+      p_message: input.message,
     });
 
     if (error) {
@@ -136,14 +84,23 @@ export async function POST(request: Request) {
     }
 
     const requestId = String(data);
+    const completed = await completeBookingRequest(requestId, {
+      attach: () => attachGuestAccess(requestId),
+      notify: async (token) => {
+        const dispatched = await dispatchReservationEvent(
+          requestId,
+          "request_received",
+          { manageToken: token }
+        );
+        return {
+          emailSent:
+            channelResult(dispatched.results, "email_guest") === "sent" ||
+            channelResult(dispatched.results, "email_guest") === "duplicate",
+        };
+      },
+    });
 
-    try {
-      await notifyHostOfBookingRequest(requestId);
-    } catch (err) {
-      console.error("[booking-requests] notification failed:", err);
-    }
-
-    return jsonWithPublicCors(request, { ok: true, id: requestId });
+    return jsonWithPublicCors(request, completed);
   } catch (err) {
     console.error("[booking-requests] unexpected error:", err);
     return jsonWithPublicCors(

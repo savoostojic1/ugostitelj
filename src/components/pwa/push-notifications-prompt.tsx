@@ -80,8 +80,8 @@ export function PushNotificationsPrompt({
             {loading
               ? "Checking notification support…"
               : isSubscribed
-                ? "You will get an alert when a guest sends a booking inquiry"
-                : "Get a push alert on this device for new booking inquiries"}
+                ? "You will get alerts for booking requests, confirmations, and cancellations"
+                : "Get push alerts on this device for booking requests, confirmations, and cancellations"}
           </p>
         </div>
         {isSubscribed ? (

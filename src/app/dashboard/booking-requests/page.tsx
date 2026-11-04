@@ -12,6 +12,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import {
   useAcceptBookingRequest,
+  useBookingRequestHistory,
   useBookingRequests,
   useRejectBookingRequest,
 } from "@/hooks/use-booking-requests";
@@ -20,6 +21,7 @@ import { toast } from "sonner";
 export default function BookingRequestsPage() {
   const router = useRouter();
   const { data: requests = [], isLoading } = useBookingRequests();
+  const { data: history = [] } = useBookingRequestHistory();
   const acceptRequest = useAcceptBookingRequest();
   const rejectRequest = useRejectBookingRequest();
 
@@ -28,9 +30,15 @@ export default function BookingRequestsPage() {
 
   function handleAccept(id: string, guestName: string) {
     acceptRequest.mutate(id, {
-      onSuccess: () => {
+      onSuccess: (result) => {
+        const description =
+          result.guestEmail === "sent" || result.guestEmail === "duplicate"
+            ? "The calendar was updated and the guest was emailed a confirmation. This is not a payment receipt."
+            : result.guestEmail === "failed"
+              ? "The calendar was updated. The confirmation email could not be sent and will be retried."
+              : "The calendar was updated with this stay.";
         toast.success(`${guestName} added to manual bookings`, {
-          description: "The calendar has been updated with this stay.",
+          description,
           action: {
             label: "View bookings",
             onClick: () => router.push("/dashboard/manual-reservations"),
@@ -45,7 +53,7 @@ export default function BookingRequestsPage() {
   function handleReject(id: string, guestName: string) {
     if (
       !confirm(
-        `Reject inquiry from ${guestName}? It will be removed from your inbox.`
+        `Decline the request from ${guestName}? It will leave your inbox. The guest can see that it was not confirmed.`
       )
     ) {
       return;
@@ -165,6 +173,51 @@ export default function BookingRequestsPage() {
           </Card>
         ))}
       </div>
+
+      {history.length > 0 ? (
+        <section className="space-y-3">
+          <h2 className="text-sm font-semibold text-zinc-300">
+            Recent declines and cancellations
+          </h2>
+          <div className="space-y-3">
+            {history.map((request) => {
+              const property = Array.isArray(request.properties)
+                ? request.properties[0]
+                : request.properties;
+              const label =
+                request.status === "rejected"
+                  ? "Declined"
+                  : request.cancelled_by === "guest"
+                    ? "Cancelled by guest"
+                    : request.cancelled_by === "owner"
+                      ? "Cancelled by you"
+                      : "Cancelled";
+              return (
+                <Card key={request.id}>
+                  <CardContent className="space-y-1 p-4">
+                    <div className="flex flex-wrap items-center gap-2">
+                      <p className="font-medium">{request.guest_name}</p>
+                      <Badge variant="secondary">{label}</Badge>
+                    </div>
+                    <p className="text-sm text-muted-foreground">
+                      {property?.name ?? "Listing"}
+                      {" · "}
+                      <span translate="no">
+                        {`${format(parseISO(request.check_in), "d MMM yyyy", {
+                          locale: appLocale,
+                        })} – ${format(parseISO(request.check_out), "d MMM yyyy", {
+                          locale: appLocale,
+                        })}`}
+                      </span>
+                      {` · ${request.guest_count} ${request.guest_count === 1 ? "guest" : "guests"}`}
+                    </p>
+                  </CardContent>
+                </Card>
+              );
+            })}
+          </div>
+        </section>
+      ) : null}
 
       <PushNotificationsPrompt />
     </div>

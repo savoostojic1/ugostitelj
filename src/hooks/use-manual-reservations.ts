@@ -220,37 +220,28 @@ export function useDeleteManualReservation() {
 
   return useMutation({
     mutationFn: async (id: string) => {
-      const supabase = createClient();
-      const user = await requireUser(supabase);
+      const response = await fetch(`/api/reservations/${id}/cancel`, {
+        method: "POST",
+      });
+      const body = (await response.json().catch(() => null)) as {
+        ok?: boolean;
+        error?: string;
+        outcome?: string;
+        guestEmail?: "sent" | "failed" | "skipped" | "duplicate";
+      } | null;
 
-      const { data: reservation, error: fetchError } = await supabase
-        .from("reservations")
-        .select("id, is_manual, property_id")
-        .eq("id", id)
-        .single();
-
-      if (fetchError || !reservation?.is_manual) {
-        throw new Error("Reservation not found");
+      if (!response.ok || !body?.ok) {
+        throw new Error(body?.error || "Could not cancel this reservation");
       }
 
-      const { data: property, error: propError } = await supabase
-        .from("properties")
-        .select("id")
-        .eq("id", reservation.property_id)
-        .eq("user_id", user.id)
-        .single();
-
-      if (propError || !property) throw new Error("Nemate pristup ovoj rezervaciji");
-
-      const { error } = await supabase
-        .from("reservations")
-        .delete()
-        .eq("id", id);
-
-      if (error) throw error;
+      return {
+        outcome: body.outcome ?? "deleted",
+        guestEmail: body.guestEmail ?? "skipped",
+      };
     },
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ["reservations"] });
+      qc.invalidateQueries({ queryKey: ["booking-requests"] });
     },
   });
 }

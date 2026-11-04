@@ -111,6 +111,8 @@ export async function updateSession(request: NextRequest) {
       path.startsWith("/api/calendar") ||
       path.startsWith("/api/cron/") ||
       path.startsWith("/api/booking-requests") ||
+      path.startsWith("/api/reservation") ||
+      path.startsWith("/reservation") ||
       path.startsWith("/api/push/config") ||
       path.startsWith("/api/booking/config") ||
       path.startsWith("/api/auth/team-login") ||

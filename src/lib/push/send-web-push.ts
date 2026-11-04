@@ -6,6 +6,13 @@ type PushPayload = {
   title: string;
   body: string;
   url?: string;
+  tag?: string;
+};
+
+export type WebPushResult = {
+  delivered: number;
+  subscriptions: number;
+  reason?: "not-configured" | "no-subscriptions" | "no-service-role" | "failed";
 };
 
 type PushSubscriptionRow = {
@@ -36,15 +43,15 @@ function ensureVapidConfigured(): boolean {
 export async function sendWebPushToUser(
   userId: string,
   payload: PushPayload
-): Promise<void> {
+): Promise<WebPushResult> {
   if (!hasServiceRoleKey()) {
     console.warn("[web-push] Skipped — SUPABASE_SERVICE_ROLE_KEY not set");
-    return;
+    return { delivered: 0, subscriptions: 0, reason: "no-service-role" };
   }
 
   if (!ensureVapidConfigured()) {
     console.warn("[web-push] Skipped — VAPID keys not configured");
-    return;
+    return { delivered: 0, subscriptions: 0, reason: "not-configured" };
   }
 
   const supabase = createServiceClient();
@@ -55,24 +62,26 @@ export async function sendWebPushToUser(
 
   if (error) {
     console.error("[web-push] load subscriptions failed:", error.message);
-    return;
+    return { delivered: 0, subscriptions: 0, reason: "failed" };
   }
 
   const subscriptions = (data ?? []) as PushSubscriptionRow[];
   if (subscriptions.length === 0) {
     console.warn("[web-push] No subscriptions for user", userId);
-    return;
+    return { delivered: 0, subscriptions: 0, reason: "no-subscriptions" };
   }
 
   const message = JSON.stringify({
     title: payload.title,
     body: payload.body,
     url: payload.url ?? "/dashboard/booking-requests",
+    tag: payload.tag,
     icon: "/icon",
   });
 
   const expiredIds: string[] = [];
   let sent = 0;
+  let failed = 0;
 
   await Promise.allSettled(
     subscriptions.map(async (sub) => {
@@ -99,7 +108,9 @@ export async function sendWebPushToUser(
           return;
         }
 
-        console.error("[web-push] send failed:", err);
+        failed += 1;
+        console.error("[web-push] send failed");
+        void err;
       }
     })
   );
@@ -111,4 +122,14 @@ export async function sendWebPushToUser(
   console.info(
     `[web-push] Sent ${sent}/${subscriptions.length} for user ${userId}`
   );
+
+  if (sent === 0 && failed > 0) {
+    return {
+      delivered: 0,
+      subscriptions: subscriptions.length,
+      reason: "failed",
+    };
+  }
+
+  return { delivered: sent, subscriptions: subscriptions.length };
 }
