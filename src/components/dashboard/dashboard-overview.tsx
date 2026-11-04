@@ -301,7 +301,7 @@ export function DashboardOverview() {
       ) : null}
 
       {!showGettingStarted ? (
-        <PushNotificationsPrompt hideWhenSubscribed />
+        <PushNotificationsPrompt />
       ) : null}
     </div>
   );

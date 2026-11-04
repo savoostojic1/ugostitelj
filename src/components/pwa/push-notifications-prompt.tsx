@@ -4,7 +4,7 @@ import { useState } from "react";
 import { Bell, BellOff, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { usePushNotifications } from "@/hooks/use-push-notifications";
-import { isStandaloneDisplayMode } from "@/lib/pwa/standalone";
+import { useIsStandalonePwa } from "@/hooks/use-is-standalone-pwa";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
 
@@ -28,7 +28,7 @@ export function PushNotificationsPrompt({
     canSubscribe,
   } = usePushNotifications();
   const [busy, setBusy] = useState(false);
-  const installed = isStandaloneDisplayMode();
+  const installed = useIsStandalonePwa();
 
   if (!installed) {
     return null;

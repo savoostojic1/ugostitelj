@@ -8,6 +8,8 @@ type PushSubscriptionBody = {
     p256dh?: string;
     auth?: string;
   };
+  /** Skip the confirmation push when re-syncing an existing device. */
+  silent?: boolean;
 };
 
 export async function POST(request: Request) {
@@ -35,7 +37,7 @@ export async function POST(request: Request) {
       endpoint,
       p256dh,
       auth,
-      user_agent: request.headers.get("user-agent"),
+      user_agent: request.headers.get("user-agent")?.trim() || null,
     },
     { onConflict: "user_id,endpoint" }
   );
@@ -45,14 +47,30 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "Could not save subscription" }, { status: 500 });
   }
 
-  try {
-    await sendWebPushToUser(user.id, {
-      title: "Notifications enabled",
-      body: "You will get an alert when a guest sends a booking inquiry.",
-      url: "/dashboard/booking-requests",
-    });
-  } catch (err) {
-    console.error("[push/subscribe] test push failed:", err);
+  const userAgent = request.headers.get("user-agent")?.trim();
+  if (userAgent) {
+    const { error: replaceError } = await supabase
+      .from("push_subscriptions")
+      .delete()
+      .eq("user_id", user.id)
+      .eq("user_agent", userAgent)
+      .neq("endpoint", endpoint);
+
+    if (replaceError) {
+      console.error("[push/subscribe] replace device failed", replaceError.message);
+    }
+  }
+
+  if (!body.silent) {
+    try {
+      await sendWebPushToUser(user.id, {
+        title: "Notifications enabled",
+        body: "You will get an alert when a guest sends a booking inquiry.",
+        url: "/dashboard/booking-requests",
+      });
+    } catch (err) {
+      console.error("[push/subscribe] test push failed:", err);
+    }
   }
 
   return NextResponse.json({ ok: true });
