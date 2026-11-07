@@ -30,10 +30,11 @@ function hostForTawk(hostname: string): string {
   return decodeGoogleTranslateProxyHost(hostname) ?? hostname;
 }
 
-/** Guest booking sites and the private admin area do not get the support widget. */
+/** Guest booking sites, published guest guides, and admin do not get the support widget. */
 export function shouldHideTawkChat(pathname: string, hostname = ""): boolean {
   if (pathname === "/admin" || pathname.startsWith("/admin/")) return true;
   if (pathname === "/host" || pathname.startsWith("/host/")) return true;
+  if (pathname === "/guide" || pathname.startsWith("/guide/")) return true;
   if (hostname && isBookingSubdomainHost(hostForTawk(hostname))) return true;
   return false;
 }
