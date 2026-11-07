@@ -4,6 +4,7 @@ import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { HostviaGoogleAnalytics } from "@/components/analytics/google-analytics";
 import { HostviaVercelAnalytics } from "@/components/analytics/vercel-analytics";
+import { TawkChat } from "@/components/support/tawk-chat";
 import { InternalTrafficMarker } from "@/components/analytics/internal-traffic-marker";
 import { RecoveryHashRedirect } from "@/components/auth/recovery-hash-redirect";
 import { GoogleTranslateCompat } from "@/components/google-translate-compat";
@@ -74,6 +75,7 @@ export default function RootLayout({
         <ServiceWorkerRegister />
         <HostviaVercelAnalytics />
         <HostviaGoogleAnalytics />
+        <TawkChat />
       </body>
     </html>
   );
