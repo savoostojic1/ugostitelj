@@ -120,6 +120,22 @@ export function ManageReservation({
             <dt className="public-label">Guests</dt>
             <dd className="mt-1 text-base font-semibold">{view.guestCountLabel}</dd>
           </div>
+          {view.totalLabel ? (
+            <div>
+              <dt className="public-label">Total</dt>
+              <dd className="mt-1 text-base font-semibold" translate="no">
+                {view.totalLabel}
+              </dd>
+            </div>
+          ) : null}
+          {view.nightlyLabel ? (
+            <div>
+              <dt className="public-label">Nightly rate</dt>
+              <dd className="mt-1 text-base font-semibold" translate="no">
+                {view.nightlyLabel}
+              </dd>
+            </div>
+          ) : null}
           <div>
             <dt className="public-label">Guest</dt>
             <dd className="mt-1 text-base font-semibold" translate="no">

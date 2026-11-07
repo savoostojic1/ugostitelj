@@ -22,8 +22,8 @@ import type {
   HostSearchParams,
   PublicPropertySearchResult,
 } from "@/lib/public/types";
+import { publicBookingPriceLines } from "@/lib/currency/format";
 import {
-  formatEuro,
   nightsLabel,
   parseStartingPrice,
   resolveStayPriceQuote,
@@ -76,8 +76,17 @@ export function HostReservePanel({
     search.checkIn,
     search.checkOut,
     parseStartingPrice(property.starting_price),
-    property.stay_total
+    property.stay_total,
+    property.currency_code
   );
+  const priceLines = stayPrice
+    ? publicBookingPriceLines({
+        total: stayPrice.total,
+        nightlyRate: stayPrice.pricePerNight,
+        nights: stayPrice.nights,
+        currencyCode: property.currency_code,
+      })
+    : null;
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -209,17 +218,17 @@ export function HostReservePanel({
               </span>
             </li>
           </ul>
-          {stayPrice ? (
+          {stayPrice && priceLines ? (
             <div className="rounded-xl border border-[var(--public-border)] bg-[var(--public-bg-subtle)] p-4">
               <p className="public-label mb-2">Price</p>
-              <p className="text-2xl font-bold tracking-tight">
-                {formatEuro(stayPrice.total)}
+              <p className="text-2xl font-bold tracking-tight" translate="no">
+                {priceLines.total}
               </p>
               <p className="mt-1 text-sm text-[var(--public-muted)]">
                 total for {nightsLabel(stayPrice.nights)}
               </p>
-              <p className="mt-0.5 text-sm font-medium text-[var(--public-accent)]">
-                {formatEuro(stayPrice.pricePerNight)} per night
+              <p className="mt-0.5 text-sm font-medium text-[var(--public-accent)]" translate="no">
+                {priceLines.perNight}
               </p>
             </div>
           ) : null}

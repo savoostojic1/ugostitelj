@@ -1,5 +1,6 @@
 import { addDays, differenceInCalendarDays, format } from "date-fns";
 import { parseDateOnly } from "@/lib/dates/calendar-date";
+import { roundMoney } from "@/lib/currency/format";
 
 export function countStayNights(checkIn: string, checkOut: string): number {
   return Math.max(
@@ -17,27 +18,18 @@ export function parseStartingPrice(value: unknown): number | null {
   return Number.isFinite(n) && n > 0 ? n : null;
 }
 
-export function formatEuro(amount: number): string {
-  const rounded = Math.round(amount * 100) / 100;
-  const hasDecimals = !Number.isInteger(rounded);
-  return new Intl.NumberFormat("en-US", {
-    style: "currency",
-    currency: "EUR",
-    minimumFractionDigits: hasDecimals ? 2 : 0,
-    maximumFractionDigits: 2,
-  }).format(rounded);
-}
-
 export function calculateStayPrice(
   pricePerNight: number,
-  nights: number
+  nights: number,
+  currencyCode?: string | null
 ): { nights: number; pricePerNight: number; total: number } | null {
   if (!Number.isFinite(pricePerNight) || pricePerNight <= 0 || nights <= 0) {
     return null;
   }
 
-  const total = Math.round(pricePerNight * nights * 100) / 100;
-  return { nights, pricePerNight, total };
+  const nightly = roundMoney(pricePerNight, currencyCode);
+  const total = roundMoney(nightly * nights, currencyCode);
+  return { nights, pricePerNight: nightly, total };
 }
 
 export interface StayPriceQuote {
@@ -51,7 +43,8 @@ export function resolveStayPriceQuote(
   checkIn: string,
   checkOut: string,
   startingPrice: number | null,
-  stayTotal: number | null | undefined
+  stayTotal: number | null | undefined,
+  currencyCode?: string | null
 ): StayPriceQuote | null {
   const nights = countStayNights(checkIn, checkOut);
   if (nights <= 0) return null;
@@ -60,14 +53,14 @@ export function resolveStayPriceQuote(
   if (parsedTotal !== null) {
     return {
       nights,
-      total: parsedTotal,
-      pricePerNight: Math.round((parsedTotal / nights) * 100) / 100,
+      total: roundMoney(parsedTotal, currencyCode),
+      pricePerNight: roundMoney(parsedTotal / nights, currencyCode),
       usesDatePricing: true,
     };
   }
 
   if (startingPrice === null) return null;
-  const flat = calculateStayPrice(startingPrice, nights);
+  const flat = calculateStayPrice(startingPrice, nights, currencyCode);
   if (!flat) return null;
 
   return {
@@ -143,7 +136,8 @@ export function calculateStayTotalFromRules(
   checkIn: string,
   checkOut: string,
   rules: PropertyPriceRuleSpan[],
-  defaultPrice: number | null
+  defaultPrice: number | null,
+  currencyCode?: string | null
 ): number | null {
   const nights = eachStayNight(checkIn, checkOut);
   if (nights.length === 0) return null;
@@ -155,5 +149,5 @@ export function calculateStayTotalFromRules(
     total += price;
   }
 
-  return Math.round(total * 100) / 100;
+  return roundMoney(total, currencyCode);
 }

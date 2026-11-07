@@ -8,6 +8,7 @@ import {
   type GuestReservationView,
   type StoredBookingStatus,
 } from "@/lib/reservations/guest-access";
+import { parseMoneyAmount } from "@/lib/currency/format";
 import { createServiceClient, hasServiceRoleKey } from "@/lib/supabase/service";
 
 type PropertyEmbed = {
@@ -41,6 +42,9 @@ export async function loadGuestReservation(
         check_out,
         guest_count,
         host_id,
+        currency_code,
+        nightly_rate,
+        total_amount,
         properties ( name, address, house_rules )
       `
       )
@@ -66,6 +70,9 @@ export async function loadGuestReservation(
       check_out: string;
       guest_count: number;
       host_id: string;
+      currency_code?: string | null;
+      nightly_rate?: number | string | null;
+      total_amount?: number | string | null;
       properties: PropertyEmbed | PropertyEmbed[] | null;
     };
 
@@ -99,6 +106,9 @@ export async function loadGuestReservation(
       hostName: profile?.business_name || profile?.username || null,
       hostEmail: profile?.contact_email ?? null,
       hostPhone: profile?.contact_phone ?? null,
+      currencyCode: row.currency_code,
+      totalAmount: parseMoneyAmount(row.total_amount),
+      nightlyRate: parseMoneyAmount(row.nightly_rate),
     };
 
     return buildGuestReservationView(record, now);

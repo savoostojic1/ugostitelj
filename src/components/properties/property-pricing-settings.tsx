@@ -8,13 +8,17 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { CurrencySelect } from "@/components/properties/currency-select";
 import { PropertyPriceCalendar } from "@/components/properties/property-price-calendar";
 import {
   useCreatePropertyPriceRule,
   useDeletePropertyPriceRule,
   usePropertyPriceRules,
+  useUpdatePropertyCurrency,
   useUpdatePropertyStartingPrice,
 } from "@/hooks/use-property-price-rules";
+import { currencyCodeFromUnknown } from "@/lib/currency/currencies";
+import { formatPrice } from "@/lib/format/price";
 import { parseStartingPrice } from "@/lib/public/stay-price";
 import type { Property } from "@/types/database";
 import { toast } from "sonner";
@@ -28,19 +32,37 @@ export function PropertyPricingSettings({ property }: PropertyPricingSettingsPro
   const createRule = useCreatePropertyPriceRule();
   const deleteRule = useDeletePropertyPriceRule();
   const updateStartingPrice = useUpdatePropertyStartingPrice();
+  const updateCurrency = useUpdatePropertyCurrency();
+  const currencyCode = currencyCodeFromUnknown(property.currency_code);
 
   const [defaultPrice, setDefaultPrice] = useState(
     property.starting_price?.toString() ?? ""
   );
+  const [currency, setCurrency] = useState(currencyCode);
 
   useEffect(() => {
     setDefaultPrice(property.starting_price?.toString() ?? "");
   }, [property.starting_price]);
 
+  useEffect(() => {
+    setCurrency(currencyCode);
+  }, [currencyCode]);
+
   const displayDefaultPrice =
     defaultPrice.trim() !== ""
       ? parseStartingPrice(Number.parseFloat(defaultPrice.replace(",", ".")))
       : parseStartingPrice(property.starting_price);
+
+  function handleSaveCurrency() {
+    updateCurrency.mutate(
+      { propertyId: property.id, currencyCode: currency },
+      {
+        onSuccess: () => toast.success("Currency saved"),
+        onError: (err) =>
+          toast.error(err instanceof Error ? err.message : "Error"),
+      }
+    );
+  }
 
   function handleSaveDefaultPrice() {
     const price = defaultPrice.trim()
@@ -92,10 +114,37 @@ export function PropertyPricingSettings({ property }: PropertyPricingSettingsPro
         </p>
       </CardHeader>
       <CardContent className="space-y-6 p-4 pt-0 sm:p-6 sm:pt-0">
+        <div className="space-y-2">
+          <Label htmlFor={`currency-${property.id}`}>Currency</Label>
+          <div className="flex flex-col gap-3 sm:flex-row sm:items-start">
+            <div className="min-w-0 flex-1">
+              <CurrencySelect
+                id={`currency-${property.id}`}
+                value={currency}
+                onChange={setCurrency}
+                disabled={updateCurrency.isPending}
+              />
+            </div>
+            <Button
+              type="button"
+              variant="secondary"
+              onClick={handleSaveCurrency}
+              disabled={updateCurrency.isPending || currency === currencyCode}
+            >
+              {updateCurrency.isPending ? "Saving…" : "Save currency"}
+            </Button>
+          </div>
+          <p className="text-xs text-muted-foreground">
+            Prices on this property are shown in {currency}. Amounts are not
+            converted. Reservations already made keep the currency they were
+            booked in.
+          </p>
+        </div>
+
         <div className="flex flex-col gap-3 sm:flex-row sm:items-end">
           <div className="flex-1 space-y-2">
             <Label htmlFor={`default-price-${property.id}`}>
-              Base price (€ / night)
+              Base price ({currencyCode} / night)
             </Label>
             <Input
               id={`default-price-${property.id}`}
@@ -120,6 +169,7 @@ export function PropertyPricingSettings({ property }: PropertyPricingSettingsPro
           <PropertyPriceCalendar
             rules={rules}
             defaultPrice={displayDefaultPrice}
+            currencyCode={currencyCode}
             onAddPeriod={handleAddPeriod}
             adding={createRule.isPending}
           />
@@ -139,7 +189,7 @@ export function PropertyPricingSettings({ property }: PropertyPricingSettingsPro
                       {formatPeriod(rule.start_date, rule.end_date)}
                     </p>
                     <p className="text-xs text-muted-foreground">
-                      {Number(rule.price_per_night).toFixed(0)} € per night
+                      {formatPrice(Number(rule.price_per_night), currencyCode)} per night
                     </p>
                   </div>
                   <Button

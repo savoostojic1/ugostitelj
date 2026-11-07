@@ -1,3 +1,4 @@
+import { currencyCodeFromUnknown } from "@/lib/currency/currencies";
 import {
   jsonWithPublicCors,
   publicApiOptionsResponse,
@@ -48,6 +49,7 @@ export async function GET(request: Request) {
           )
         : [],
       starting_price: parseStartingPrice(property.starting_price),
+      currency_code: currencyCodeFromUnknown(property.currency_code),
     }));
 
     return jsonWithPublicCors(request, { properties });

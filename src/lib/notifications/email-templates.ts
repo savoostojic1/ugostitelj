@@ -1,3 +1,4 @@
+import { reservationMoneyLabels } from "@/lib/currency/format";
 import type { CancellationSource } from "@/lib/reservations/guest-access";
 
 export type EmailLocale = "en";
@@ -31,6 +32,9 @@ export type ReservationEmailData = {
   cancelledAtLabel: string | null;
   cancelledBy: CancellationSource | null;
   message: string | null;
+  currencyCode?: string | null;
+  totalAmount?: number | null;
+  nightlyRate?: number | null;
 };
 
 export type EmailContent = {
@@ -143,15 +147,26 @@ function layout(input: {
 }
 
 function stayRows(data: ReservationEmailData): Array<[string, string]> {
+  const money = reservationMoneyLabels(data);
   const rows: Array<[string, string]> = [
     ["Property", data.propertyName],
     ["Check-in", data.checkInLabel],
     ["Check-out", data.checkOutLabel],
     ["Guests", data.guestCountLabel],
   ];
+  if (money.totalLabel) rows.push(["Total", money.totalLabel]);
+  if (money.nightlyLabel) rows.push(["Nightly rate", money.nightlyLabel]);
   if (data.reference) rows.push(["Reference", data.reference]);
   if (data.propertyAddress) rows.push(["Address", data.propertyAddress]);
   return rows;
+}
+
+function priceText(data: ReservationEmailData): Array<string | null> {
+  const money = reservationMoneyLabels(data);
+  return [
+    money.totalLabel ? `Total: ${money.totalLabel}` : null,
+    money.nightlyLabel ? `Nightly rate: ${money.nightlyLabel}` : null,
+  ];
 }
 
 function contactLine(
@@ -180,6 +195,7 @@ export function guestEmail(
       `Check-in: ${data.checkInLabel}`,
       `Check-out: ${data.checkOutLabel}`,
       `Guests: ${data.guestCountLabel}`,
+      ...priceText(data),
       data.reference ? `Reference: ${data.reference}` : null,
       `Name: ${data.guestName}`,
       `Email: ${data.guestEmail}`,
@@ -223,6 +239,7 @@ export function guestEmail(
       `Check-in: ${data.checkInLabel}`,
       `Check-out: ${data.checkOutLabel}`,
       `Guests: ${data.guestCountLabel}`,
+      ...priceText(data),
       data.reference ? `Reference: ${data.reference}` : null,
       data.hostName ? `Host: ${data.hostName}` : null,
       hostContact ? `Host contact: ${hostContact}` : null,
@@ -266,6 +283,7 @@ export function guestEmail(
       `Property: ${property}`,
       `Check-in: ${data.checkInLabel}`,
       `Check-out: ${data.checkOutLabel}`,
+      ...priceText(data),
       data.reference ? `Reference: ${data.reference}` : null,
       "",
       "Hostvia does not process refunds.",
@@ -300,6 +318,7 @@ export function guestEmail(
     `Property: ${property}`,
     `Check-in: ${data.checkInLabel}`,
     `Check-out: ${data.checkOutLabel}`,
+    ...priceText(data),
     data.reference ? `Reference: ${data.reference}` : null,
     hostContact ? `Host contact: ${hostContact}` : null,
     "",
@@ -346,6 +365,7 @@ export function ownerEmail(
       `Guest: ${data.guestName}`,
       `Dates: ${data.checkInLabel} – ${data.checkOutLabel}`,
       `Guests: ${data.guestCountLabel}`,
+      ...priceText(data),
       data.reference ? `Reference: ${data.reference}` : null,
       `Email: ${data.guestEmail}`,
       `Phone: ${data.guestPhone}`,
@@ -384,6 +404,7 @@ export function ownerEmail(
       `Property: ${property}`,
       `Dates: ${data.checkInLabel} – ${data.checkOutLabel}`,
       `Guests: ${data.guestCountLabel}`,
+      ...priceText(data),
       data.reference ? `Reference: ${data.reference}` : null,
       dashboardUrl ? `Open bookings: ${dashboardUrl}` : null,
       "",
@@ -411,6 +432,7 @@ export function ownerEmail(
       data.cancelledAtLabel ? `Cancelled: ${data.cancelledAtLabel}` : null,
       `Property: ${property}`,
       `Dates: ${data.checkInLabel} – ${data.checkOutLabel}`,
+      ...priceText(data),
       data.reference ? `Reference: ${data.reference}` : null,
       "The dates are no longer blocked on the Hostvia calendar.",
       dashboardUrl ? `Open inquiries: ${dashboardUrl}` : null,
@@ -447,6 +469,7 @@ export function ownerEmail(
     data.cancelledAtLabel ? `Cancelled: ${data.cancelledAtLabel}` : null,
     `Property: ${property}`,
     `Dates: ${data.checkInLabel} – ${data.checkOutLabel}`,
+    ...priceText(data),
     data.reference ? `Reference: ${data.reference}` : null,
     dashboardUrl ? `Open inquiries: ${dashboardUrl}` : null,
     "",

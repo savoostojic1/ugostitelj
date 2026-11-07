@@ -12,7 +12,7 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
-    "test": "node --import tsx --test src/lib/creem/*.test.ts src/lib/auth/*.test.ts src/lib/tools/**/*.test.ts src/lib/seo/*.test.ts src/lib/public/*.test.ts src/lib/guest-guide/*.test.ts src/lib/google-translate/*.test.ts src/lib/calendar/*.test.ts src/lib/reservations/*.test.ts src/lib/notifications/*.test.ts src/lib/booking-requests/*.test.ts src/lib/security/*.test.ts src/lib/team-access/*.test.ts src/lib/push/*.test.ts src/app/api/booking-requests/*.test.ts"
+    "test": "node --import tsx --test src/lib/creem/*.test.ts src/lib/auth/*.test.ts src/lib/tools/**/*.test.ts src/lib/seo/*.test.ts src/lib/public/*.test.ts src/lib/guest-guide/*.test.ts src/lib/google-translate/*.test.ts src/lib/calendar/*.test.ts src/lib/reservations/*.test.ts src/lib/notifications/*.test.ts src/lib/booking-requests/*.test.ts src/lib/security/*.test.ts src/lib/team-access/*.test.ts src/lib/push/*.test.ts src/lib/currency/*.test.ts src/app/api/booking-requests/*.test.ts"
   },
   "dependencies": {
     "@next/third-parties": "^16.2.9",

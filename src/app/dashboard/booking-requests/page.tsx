@@ -16,7 +16,20 @@ import {
   useBookingRequests,
   useRejectBookingRequest,
 } from "@/hooks/use-booking-requests";
+import { parseMoneyAmount, reservationMoneyLabels } from "@/lib/currency/format";
 import { toast } from "sonner";
+
+function requestTotalLabel(request: {
+  currency_code?: string | null;
+  total_amount?: unknown;
+  nightly_rate?: unknown;
+}): string | null {
+  return reservationMoneyLabels({
+    currencyCode: request.currency_code,
+    totalAmount: parseMoneyAmount(request.total_amount),
+    nightlyRate: parseMoneyAmount(request.nightly_rate),
+  }).totalLabel;
+}
 
 export default function BookingRequestsPage() {
   const router = useRouter();
@@ -88,7 +101,9 @@ export default function BookingRequestsPage() {
       )}
 
       <div className="space-y-4">
-        {requests.map((request) => (
+        {requests.map((request) => {
+          const totalLabel = requestTotalLabel(request);
+          return (
           <Card key={request.id}>
             <CardContent className="flex flex-col gap-4 p-5 lg:flex-row lg:items-start lg:justify-between">
               <div className="min-w-0 space-y-2">
@@ -110,6 +125,9 @@ export default function BookingRequestsPage() {
                   <span>
                     {` · ${request.guest_count} ${request.guest_count === 1 ? "guest" : "guests"}`}
                   </span>
+                  {totalLabel ? (
+                    <span translate="no">{` · ${totalLabel}`}</span>
+                  ) : null}
                 </p>
                 <div className="flex flex-wrap gap-4 text-sm text-muted-foreground">
                   <a
@@ -171,7 +189,8 @@ export default function BookingRequestsPage() {
               </div>
             </CardContent>
           </Card>
-        ))}
+          );
+        })}
       </div>
 
       {history.length > 0 ? (
@@ -192,6 +211,7 @@ export default function BookingRequestsPage() {
                     : request.cancelled_by === "owner"
                       ? "Cancelled by you"
                       : "Cancelled";
+              const totalLabel = requestTotalLabel(request);
               return (
                 <Card key={request.id}>
                   <CardContent className="space-y-1 p-4">
@@ -210,6 +230,9 @@ export default function BookingRequestsPage() {
                         })}`}
                       </span>
                       {` · ${request.guest_count} ${request.guest_count === 1 ? "guest" : "guests"}`}
+                      {totalLabel ? (
+                        <span translate="no">{` · ${totalLabel}`}</span>
+                      ) : null}
                     </p>
                   </CardContent>
                 </Card>

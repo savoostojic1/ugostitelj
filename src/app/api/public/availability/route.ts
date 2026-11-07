@@ -1,3 +1,4 @@
+import { currencyCodeFromUnknown } from "@/lib/currency/currencies";
 import { parseDateOnly } from "@/lib/dates/calendar-date";
 import {
   jsonWithPublicCors,
@@ -76,6 +77,7 @@ export async function GET(request: Request) {
         : [],
       starting_price: parseStartingPrice(property.starting_price),
       stay_total: parseStartingPrice(property.stay_total),
+      currency_code: currencyCodeFromUnknown(property.currency_code),
     }));
 
     return jsonWithPublicCors(request, { properties });

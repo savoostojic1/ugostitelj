@@ -37,6 +37,9 @@ export type BookingRequestHistoryItem = {
   cancelled_at: string | null;
   cancelled_by: "guest" | "owner" | null;
   updated_at: string;
+  currency_code?: string | null;
+  total_amount?: number | string | null;
+  nightly_rate?: number | string | null;
   properties?: { name: string } | { name: string }[] | null;
 };
 
@@ -50,7 +53,7 @@ export function useBookingRequestHistory() {
       const { data, error } = await supabase
         .from("booking_requests")
         .select(
-          "id, guest_name, check_in, check_out, guest_count, status, cancelled_at, cancelled_by, updated_at, properties(name)"
+          "id, guest_name, check_in, check_out, guest_count, status, cancelled_at, cancelled_by, updated_at, currency_code, nightly_rate, total_amount, properties(name)"
         )
         .eq("host_id", hostId)
         .in("status", ["cancelled", "rejected"])

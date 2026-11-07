@@ -33,6 +33,7 @@ import {
   type GuestReservationStatus,
   type StoredBookingStatus,
 } from "@/lib/reservations/guest-access";
+import { parseMoneyAmount } from "@/lib/currency/format";
 import { createServiceClient, hasServiceRoleKey } from "@/lib/supabase/service";
 
 type PropertyEmbed = {
@@ -56,6 +57,9 @@ type BookingRow = {
   manage_token_ciphertext: string | null;
   cancelled_at: string | null;
   cancelled_by: CancellationSource | null;
+  currency_code?: string | null;
+  nightly_rate?: number | string | null;
+  total_amount?: number | string | null;
   properties: PropertyEmbed | PropertyEmbed[] | null;
 };
 
@@ -99,6 +103,9 @@ async function loadNotice(
       manage_token_ciphertext,
       cancelled_at,
       cancelled_by,
+      currency_code,
+      nightly_rate,
+      total_amount,
       properties ( name, address, house_rules )
     `
     )
@@ -164,6 +171,9 @@ async function loadNotice(
     cancelledAtLabel: row.cancelled_at ? formatTimestamp(row.cancelled_at) : null,
     cancelledBy: row.cancelled_by,
     message: row.message,
+    currencyCode: row.currency_code,
+    totalAmount: parseMoneyAmount(row.total_amount),
+    nightlyRate: parseMoneyAmount(row.nightly_rate),
     ownerEmail,
   };
 }

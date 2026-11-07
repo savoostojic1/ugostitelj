@@ -16,6 +16,10 @@ import {
   useManualReservation,
   useUpdateManualReservation,
 } from "@/hooks/use-manual-reservations";
+import {
+  currencyCodeFromUnknown,
+  currencyInputStep,
+} from "@/lib/currency/currencies";
 import { validateStayRange } from "@/lib/reservations/availability";
 import { toast } from "sonner";
 
@@ -178,6 +182,10 @@ export function ManualReservationForm({
   }
 
   const isPending = createReservation.isPending || updateReservation.isPending;
+  const selectedProperty = properties.find((property) => property.id === propertyId);
+  const priceCurrency = isEdit
+    ? currencyCodeFromUnknown(reservation?.currency_code)
+    : currencyCodeFromUnknown(selectedProperty?.currency_code);
 
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
@@ -244,13 +252,13 @@ export function ManualReservationForm({
       </div>
 
       <div className="space-y-2">
-        <Label htmlFor="price">Price (€)</Label>
+        <Label htmlFor="price">Price ({priceCurrency})</Label>
         <Input
           id="price"
           type="number"
           inputMode="decimal"
           min="0"
-          step="0.01"
+          step={currencyInputStep(priceCurrency)}
           value={price}
           onChange={(e) => setPrice(e.target.value)}
           placeholder="e.g. 120"

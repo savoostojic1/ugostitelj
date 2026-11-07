@@ -1,3 +1,5 @@
+import { currencyCodeFromUnknown } from "@/lib/currency/currencies";
+import { roundMoney } from "@/lib/currency/format";
 import { parseDateOnly } from "@/lib/dates/calendar-date";
 import {
   jsonWithPublicCors,
@@ -65,19 +67,29 @@ export async function GET(
 
     const stayTotal = parseStartingPrice(data);
     const nights = countStayNights(checkIn, checkOut);
+    let currencyCode = "EUR";
+    const { data: currencyData } = await supabase.rpc(
+      "get_public_property_currency",
+      { p_property_id: id }
+    );
+    if (typeof currencyData === "string") {
+      currencyCode = currencyCodeFromUnknown(currencyData);
+    }
 
     if (stayTotal === null || nights <= 0) {
       return jsonWithPublicCors(request, {
         stay_total: null,
         nights,
         avg_per_night: null,
+        currency_code: currencyCode,
       });
     }
 
     return jsonWithPublicCors(request, {
-      stay_total: stayTotal,
+      stay_total: roundMoney(stayTotal, currencyCode),
       nights,
-      avg_per_night: Math.round((stayTotal / nights) * 100) / 100,
+      avg_per_night: roundMoney(stayTotal / nights, currencyCode),
+      currency_code: currencyCode,
     });
   } catch (err) {
     console.error("[public/price]", err);

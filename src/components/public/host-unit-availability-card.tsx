@@ -7,7 +7,8 @@ import { appLocale } from "@/lib/dates/locale";
 import { MapPin, Send, Users } from "lucide-react";
 import { PublicPropertyAvailabilityCalendar } from "@/components/public/public-property-availability-calendar";
 import { usePublicStayPrice } from "@/hooks/use-public-stay-price";
-import { formatEuro, parseStartingPrice } from "@/lib/public/stay-price";
+import { formatPropertyPrice, publicBookingPriceLines } from "@/lib/currency/format";
+import { parseStartingPrice } from "@/lib/public/stay-price";
 import type { PublicHostProperty } from "@/lib/public/types";
 
 interface HostUnitAvailabilityCardProps {
@@ -28,7 +29,9 @@ export function HostUnitAvailabilityCard({
     property.id,
     checkIn,
     checkOut,
-    startingPrice
+    startingPrice,
+    undefined,
+    property.currency_code
   );
 
   const hasImage = Boolean(property.image_url);
@@ -71,7 +74,7 @@ export function HostUnitAvailabilityCard({
             ) : null}
             {startingPrice ? (
               <p className="mt-2 text-xs font-semibold text-[var(--public-accent)]">
-                from {formatEuro(startingPrice)} / night
+                from {formatPropertyPrice(startingPrice, property.currency_code)} / night
               </p>
             ) : null}
           </div>
@@ -108,7 +111,12 @@ export function HostUnitAvailabilityCard({
             ) : stayPrice ? (
               <p className="text-[11px] text-[var(--public-muted)]">
                 <span translate="no">
-                  {`${stayPrice.nights} nights · ${formatEuro(stayPrice.total)}`}
+                  {publicBookingPriceLines({
+                    total: stayPrice.total,
+                    nightlyRate: stayPrice.pricePerNight,
+                    nights: stayPrice.nights,
+                    currencyCode: property.currency_code,
+                  }).stayLine}
                 </span>
               </p>
             ) : null}

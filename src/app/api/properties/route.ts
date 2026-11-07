@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { defaultPropertyCurrency } from "@/lib/currency/currencies";
 import { createClient } from "@/lib/supabase/server";
 import {
   canAddProperty,
@@ -67,7 +68,11 @@ export async function POST(request: Request) {
 
   const { data, error } = await supabase
     .from("properties")
-    .insert({ user_id: hostId, name })
+    .insert({
+      user_id: hostId,
+      name,
+      currency_code: defaultPropertyCurrency(),
+    })
     .select()
     .single();
 

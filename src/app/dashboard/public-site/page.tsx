@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { Globe } from "lucide-react";
 import { BookingSiteUrlPanel } from "@/components/dashboard/booking-site-url-panel";
 import { SetupStepBanner } from "@/components/dashboard/setup-step-banner";
 import { DashboardPageHeader } from "@/components/dashboard/dashboard-page-header";
@@ -11,6 +12,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { DashboardRichTextarea } from "@/components/dashboard/dashboard-rich-textarea";
 import { HostCoverUpload } from "@/components/dashboard/host-cover-upload";
+import { cn } from "@/lib/utils";
 import {
   useHostProfile,
   useUpdateHostProfile,
@@ -34,6 +36,68 @@ async function resolveMapEmbedUrl(input: string): Promise<string | null> {
   const data = await res.json();
   if (!res.ok) return null;
   return typeof data.embedUrl === "string" ? data.embedUrl : null;
+}
+
+function PublishBookingSiteSwitch({
+  checked,
+  onCheckedChange,
+}: {
+  checked: boolean;
+  onCheckedChange: (next: boolean) => void;
+}) {
+  return (
+    <button
+      type="button"
+      role="switch"
+      aria-checked={checked}
+      onClick={() => onCheckedChange(!checked)}
+      className={cn(
+        "flex w-full cursor-pointer items-center justify-between gap-4 rounded-xl border px-4 py-3.5 text-left transition-colors select-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-violet-400/70",
+        checked
+          ? "border-violet-400/25 bg-violet-500/[0.08]"
+          : "border-white/[0.08] bg-white/[0.02] hover:bg-white/[0.04]"
+      )}
+    >
+      <span className="flex min-w-0 items-start gap-3">
+        <span
+          className={cn(
+            "mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-lg",
+            checked
+              ? "bg-violet-500/15 text-violet-300"
+              : "bg-white/[0.04] text-zinc-500"
+          )}
+        >
+          <Globe className="h-4 w-4" aria-hidden />
+        </span>
+        <span className="min-w-0">
+          <span className="block text-sm font-medium text-white">
+            Publish booking site
+          </span>
+          <span className="mt-0.5 block text-xs leading-relaxed text-zinc-500">
+            {checked
+              ? "Your page is set to go live. Save to publish it for guests."
+              : "Your page stays private. Turn this on, then save, to publish it."}
+          </span>
+        </span>
+      </span>
+      <span
+        aria-hidden
+        className={cn(
+          "relative h-8 w-14 shrink-0 rounded-full p-1 transition-shadow duration-200",
+          checked
+            ? "shadow-[0_0_18px_rgba(139,92,246,0.45)] [background:var(--hostvia-gradient)]"
+            : "bg-white/10 ring-1 ring-white/10 ring-inset"
+        )}
+      >
+        <span
+          className={cn(
+            "block h-6 w-6 rounded-full bg-white shadow-[0_1px_2px_rgba(0,0,0,0.35),0_2px_6px_rgba(0,0,0,0.28)] transition-transform duration-200 ease-out",
+            checked ? "translate-x-6" : "translate-x-0"
+          )}
+        />
+      </span>
+    </button>
+  );
 }
 
 export default function PublicSiteSettingsPage() {
@@ -164,15 +228,10 @@ export default function PublicSiteSettingsPage() {
           <CardTitle>Host profile</CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
-          <label className="flex items-center gap-3">
-            <input
-              type="checkbox"
-              checked={isPublished}
-              onChange={(e) => setIsPublished(e.target.checked)}
-              className="h-4 w-4 rounded border-border"
-            />
-            <span className="text-sm font-medium">Publish booking site</span>
-          </label>
+          <PublishBookingSiteSwitch
+            checked={isPublished}
+            onCheckedChange={setIsPublished}
+          />
 
           <div className="space-y-2">
             <Label htmlFor="businessName">Business name</Label>

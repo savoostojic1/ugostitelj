@@ -17,6 +17,7 @@ import { canAccessPropertySettings } from "@/lib/team-access/permissions";
 import { PLATFORM_LABELS, PLATFORM_COLORS } from "@/lib/constants";
 import { formatReservationLabel } from "@/lib/reservations/display";
 import { formatStayPeriodLabel } from "@/lib/dates/calendar-date";
+import { currencyForReservationDisplay } from "@/lib/currency/format";
 import { formatPrice } from "@/lib/format/price";
 import { cn } from "@/lib/utils";
 
@@ -126,8 +127,16 @@ export default function PropertyCalendarPage({
                       {formatStayPeriodLabel(r.check_in, r.check_out)}
                       {r.is_manual && r.source && <> · {r.source}</>}
                       {r.is_manual && r.guest_phone && <> · {r.guest_phone}</>}
-                      {r.is_manual && r.price != null && (
-                        <> · {formatPrice(r.price)}</>
+                      {r.is_manual && (r.total_amount ?? r.price) != null && (
+                        <>
+                          {" · "}
+                          {formatPrice(
+                            Number(r.total_amount ?? r.price),
+                            currencyForReservationDisplay({
+                              reservationCurrency: r.currency_code,
+                            })
+                          )}
+                        </>
                       )}
                     </p>
                   </div>

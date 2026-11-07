@@ -32,6 +32,7 @@ export interface Property {
   amenities?: string[];
   house_rules?: string | null;
   starting_price?: number | null;
+  currency_code?: string | null;
   gallery_urls?: string[];
   is_public?: boolean;
   seo_title?: string | null;
@@ -105,6 +106,10 @@ export interface BookingRequest {
   reservation_id?: string | null;
   cancelled_at?: string | null;
   cancelled_by?: "guest" | "owner" | null;
+  currency_code?: string | null;
+  nightly_rate?: number | null;
+  total_amount?: number | null;
+  nights?: number | null;
   created_at: string;
   updated_at: string;
   properties?: { name: string; slug: string | null } | null;
@@ -137,6 +142,9 @@ export interface Reservation {
   source?: string | null;
   guest_phone?: string | null;
   price?: number | null;
+  currency_code?: string | null;
+  nightly_rate?: number | null;
+  total_amount?: number | null;
   created_at: string;
   updated_at: string;
 }

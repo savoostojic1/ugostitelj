@@ -14,7 +14,8 @@ export function usePublicStayPrice(
   checkIn: string,
   checkOut: string,
   startingPrice: number | null,
-  prefetchedStayTotal?: number | null
+  prefetchedStayTotal?: number | null,
+  currencyCode?: string | null
 ) {
   const [quote, setQuote] = useState<StayPriceQuote | null>(null);
   const [loading, setLoading] = useState(false);
@@ -28,7 +29,13 @@ export function usePublicStayPrice(
     const prefetched = parseStartingPrice(prefetchedStayTotal);
     if (prefetched !== null) {
       setQuote(
-        resolveStayPriceQuote(checkIn, checkOut, startingPrice, prefetched)
+        resolveStayPriceQuote(
+          checkIn,
+          checkOut,
+          startingPrice,
+          prefetched,
+          currencyCode
+        )
       );
       return;
     }
@@ -53,14 +60,17 @@ export function usePublicStayPrice(
               checkIn,
               checkOut,
               startingPrice,
-              parseStartingPrice(parsed.data.stay_total)
+              parseStartingPrice(parsed.data.stay_total),
+              currencyCode
             )
           );
         }
       })
       .catch(() => {
         if (!cancelled) {
-          setQuote(resolveStayPriceQuote(checkIn, checkOut, startingPrice, null));
+          setQuote(
+            resolveStayPriceQuote(checkIn, checkOut, startingPrice, null, currencyCode)
+          );
         }
       })
       .finally(() => {
@@ -70,7 +80,7 @@ export function usePublicStayPrice(
     return () => {
       cancelled = true;
     };
-  }, [propertyId, checkIn, checkOut, startingPrice, prefetchedStayTotal]);
+  }, [propertyId, checkIn, checkOut, startingPrice, prefetchedStayTotal, currencyCode]);
 
   return { quote, loading };
 }

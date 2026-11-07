@@ -11,6 +11,7 @@ import {
   type ManualReservation,
 } from "@/hooks/use-manual-reservations";
 import { formatStayPeriodLabel } from "@/lib/dates/calendar-date";
+import { currencyForReservationDisplay } from "@/lib/currency/format";
 import { formatPrice } from "@/lib/format/price";
 import { toast } from "sonner";
 
@@ -68,12 +69,17 @@ function ReservationCard({
           <p className="text-sm text-muted-foreground">
             {reservation.source}
             {reservation.guest_phone && <> · {reservation.guest_phone}</>}
-            {reservation.price != null && (
+            {(reservation.total_amount ?? reservation.price) != null && (
               <>
                 {" "}
                 ·{" "}
                 <span className="font-medium text-foreground">
-                  {formatPrice(reservation.price)}
+                  {formatPrice(
+                    Number(reservation.total_amount ?? reservation.price),
+                    currencyForReservationDisplay({
+                      reservationCurrency: reservation.currency_code,
+                    })
+                  )}
                 </span>
               </>
             )}

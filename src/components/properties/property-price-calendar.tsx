@@ -40,6 +40,7 @@ function nightHasCustomRule(
 interface PropertyPriceCalendarProps {
   rules: PropertyPriceRule[];
   defaultPrice: number | null;
+  currencyCode: string;
   onAddPeriod: (startDate: string, endDate: string, price: number) => void;
   adding?: boolean;
 }
@@ -47,6 +48,7 @@ interface PropertyPriceCalendarProps {
 export function PropertyPriceCalendar({
   rules,
   defaultPrice,
+  currencyCode,
   onAddPeriod,
   adding,
 }: PropertyPriceCalendarProps) {
@@ -250,7 +252,7 @@ export function PropertyPriceCalendar({
                                 : "text-muted-foreground"
                           )}
                         >
-                          {price !== null ? formatPrice(price) : "—"}
+                          {price !== null ? formatPrice(price, currencyCode) : "—"}
                         </span>
                       ) : null}
                     </button>
@@ -268,7 +270,9 @@ export function PropertyPriceCalendar({
 
         <div className="mt-4 flex flex-col gap-3 sm:flex-row sm:items-end">
           <div className="flex-1 space-y-2">
-            <Label htmlFor="period-price-input">Price (€ / night)</Label>
+            <Label htmlFor="period-price-input">
+              Price ({currencyCode} / night)
+            </Label>
             <Input
               id="period-price-input"
               value={periodPrice}

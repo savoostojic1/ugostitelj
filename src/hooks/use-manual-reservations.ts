@@ -1,6 +1,9 @@
 "use client";
 
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { currencyCodeFromUnknown } from "@/lib/currency/currencies";
+import { priceSnapshotFromStay } from "@/lib/currency/format";
+import { countStayNights } from "@/lib/public/stay-price";
 import { createClient } from "@/lib/supabase/client";
 import { requireUser } from "@/lib/supabase/require-user";
 import { requireDashboardContext } from "@/lib/team-access/dashboard-context";
@@ -96,7 +99,7 @@ export function useCreateManualReservation() {
 
       const { data: property, error: propError } = await supabase
         .from("properties")
-        .select("id")
+        .select("id, currency_code")
         .eq("id", input.property_id)
         .eq("user_id", user.id)
         .single();
@@ -119,6 +122,12 @@ export function useCreateManualReservation() {
         throw new Error(validation.message);
       }
 
+      const snapshot = priceSnapshotFromStay({
+        currencyCode: currencyCodeFromUnknown(property.currency_code),
+        totalAmount: input.price,
+        nights: countStayNights(input.check_in, input.check_out),
+      });
+
       const { data, error } = await supabase
         .from("reservations")
         .insert({
@@ -133,7 +142,10 @@ export function useCreateManualReservation() {
           is_manual: true,
           source: input.source.trim(),
           guest_phone: input.guest_phone?.trim() || null,
-          price: input.price,
+          price: snapshot.total_amount,
+          currency_code: snapshot.currency_code,
+          nightly_rate: snapshot.nightly_rate,
+          total_amount: snapshot.total_amount,
         })
         .select()
         .single();
@@ -157,7 +169,7 @@ export function useUpdateManualReservation() {
 
       const { data: existingReservation, error: fetchError } = await supabase
         .from("reservations")
-        .select("id, is_manual, property_id")
+        .select("id, is_manual, property_id, currency_code")
         .eq("id", input.id)
         .single();
 
@@ -191,6 +203,12 @@ export function useUpdateManualReservation() {
         throw new Error(validation.message);
       }
 
+      const snapshot = priceSnapshotFromStay({
+        currencyCode: currencyCodeFromUnknown(existingReservation.currency_code),
+        totalAmount: input.price,
+        nights: countStayNights(input.check_in, input.check_out),
+      });
+
       const { data, error } = await supabase
         .from("reservations")
         .update({
@@ -200,7 +218,9 @@ export function useUpdateManualReservation() {
           check_out: input.check_out,
           source: input.source.trim(),
           guest_phone: input.guest_phone?.trim() || null,
-          price: input.price,
+          price: snapshot.total_amount,
+          nightly_rate: snapshot.nightly_rate,
+          total_amount: snapshot.total_amount,
         })
         .eq("id", input.id)
         .select()

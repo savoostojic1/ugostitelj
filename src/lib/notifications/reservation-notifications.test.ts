@@ -44,6 +44,9 @@ function notice(overrides: Partial<BookingNotice> = {}): BookingNotice {
     cancelledBy: null,
     message: "Late arrival",
     ownerEmail: "owner@example.com",
+    currencyCode: null,
+    totalAmount: null,
+    nightlyRate: null,
     ...overrides,
   };
 }

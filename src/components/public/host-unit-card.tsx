@@ -8,7 +8,8 @@ import { FormattedMultilineText } from "@/components/public/formatted-multiline-
 import { PublicPropertyGallery } from "@/components/public/public-property-gallery";
 import { PublicPropertyAvailabilityCalendar } from "@/components/public/public-property-availability-calendar";
 import { usePublicStayPrice } from "@/hooks/use-public-stay-price";
-import { formatEuro, parseStartingPrice } from "@/lib/public/stay-price";
+import { formatPropertyPrice, publicBookingPriceLines } from "@/lib/currency/format";
+import { parseStartingPrice } from "@/lib/public/stay-price";
 import { scrollBelowUnitCalendarToggle } from "@/lib/public/scroll-anchors";
 import type { PublicHostProperty } from "@/lib/public/types";
 import { cn } from "@/lib/utils";
@@ -32,7 +33,9 @@ export function HostUnitCard({
     property.id,
     checkIn,
     checkOut,
-    startingPrice
+    startingPrice,
+    undefined,
+    property.currency_code
   );
 
   function handleRangeChange(nextCheckIn: string, nextCheckOut: string) {
@@ -83,7 +86,7 @@ export function HostUnitCard({
             ) : null}
             {startingPrice ? (
               <p className="mt-3 text-sm font-semibold text-[var(--public-accent)]">
-                from {formatEuro(startingPrice)} per night
+                from {formatPropertyPrice(startingPrice, property.currency_code)} per night
               </p>
             ) : null}
           </div>
@@ -148,7 +151,12 @@ export function HostUnitCard({
                 ) : stayPrice ? (
                   <p className="mt-1 text-sm text-[var(--public-muted)]">
                     <span translate="no">
-                      {`${stayPrice.nights} nights · ${formatEuro(stayPrice.total)} total`}
+                      {publicBookingPriceLines({
+                        total: stayPrice.total,
+                        nightlyRate: stayPrice.pricePerNight,
+                        nights: stayPrice.nights,
+                        currencyCode: property.currency_code,
+                      }).stayLine}
                     </span>
                   </p>
                 ) : null}

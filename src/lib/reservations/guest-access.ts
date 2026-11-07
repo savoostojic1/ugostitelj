@@ -1,3 +1,4 @@
+import { reservationMoneyLabels } from "@/lib/currency/format";
 import {
   createCipheriv,
   createDecipheriv,
@@ -209,6 +210,9 @@ export type GuestReservationRecord = {
   hostName?: string | null;
   hostEmail?: string | null;
   hostPhone?: string | null;
+  currencyCode?: string | null;
+  totalAmount?: number | null;
+  nightlyRate?: number | null;
 };
 
 export type GuestReservationView =
@@ -240,6 +244,8 @@ export type GuestReservationView =
       cancelledAt: string | null;
       cancelledAtLabel: string | null;
       cancelledBy: CancellationSource | null;
+      totalLabel: string | null;
+      nightlyLabel: string | null;
     };
 
 function statusCopy(
@@ -306,6 +312,7 @@ export function buildGuestReservationView(
   const cancelledAtLabel = cancelledAt ? formatTimestamp(cancelledAt) : null;
   const copy = statusCopy(status, record.cancelledBy ?? null, cancelledAtLabel);
   const rules = record.houseRules?.trim() || null;
+  const money = reservationMoneyLabels(record);
 
   return {
     state: "active",
@@ -335,5 +342,7 @@ export function buildGuestReservationView(
     cancelledAt,
     cancelledAtLabel,
     cancelledBy: record.cancelledBy ?? null,
+    totalLabel: money.totalLabel,
+    nightlyLabel: money.nightlyLabel,
   };
 }

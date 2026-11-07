@@ -22,6 +22,7 @@ export interface PublicPropertySearchResult {
   image_url: string | null;
   gallery_urls: string[];
   starting_price: number | null;
+  currency_code: string;
   stay_total?: number | null;
 }
 
@@ -57,6 +58,7 @@ export interface PublicHostProperty {
   amenities: string[];
   house_rules?: string | null;
   starting_price: number | null;
+  currency_code: string;
   stay_total?: number | null;
 }
 

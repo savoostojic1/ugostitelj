@@ -1,3 +1,4 @@
+import { currencyCodeFromUnknown } from "@/lib/currency/currencies";
 import { createClient } from "@/lib/supabase/server";
 import type {
   PublicHostProfile,
@@ -12,6 +13,7 @@ function normalizePropertyListing(
     ...p,
     gallery_urls: Array.isArray(p.gallery_urls) ? p.gallery_urls : [],
     amenities: Array.isArray(p.amenities) ? p.amenities : [],
+    currency_code: currencyCodeFromUnknown(p.currency_code),
   };
 }
 

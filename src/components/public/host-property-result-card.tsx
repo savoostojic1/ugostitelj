@@ -7,8 +7,8 @@ import type {
   HostSearchParams,
   PublicPropertySearchResult,
 } from "@/lib/public/types";
+import { publicBookingPriceLines } from "@/lib/currency/format";
 import {
-  formatEuro,
   nightsLabel,
   parseStartingPrice,
   resolveStayPriceQuote,
@@ -29,8 +29,18 @@ export function HostPropertyResultCard({
     search.checkIn,
     search.checkOut,
     parseStartingPrice(property.starting_price),
-    property.stay_total
+    property.stay_total,
+    property.currency_code
   );
+  const priceLines = stayPrice
+    ? publicBookingPriceLines({
+        total: stayPrice.total,
+        nightlyRate: stayPrice.pricePerNight,
+        nights: stayPrice.nights,
+        currencyCode: property.currency_code,
+        average: stayPrice.usesDatePricing,
+      })
+    : null;
 
   return (
     <article className="group public-card public-card-interactive overflow-hidden">
@@ -66,19 +76,19 @@ export function HostPropertyResultCard({
           </div>
 
           <div className="flex flex-col gap-4 border-t border-[var(--public-border)] pt-5 sm:flex-row sm:items-end sm:justify-between">
-            {stayPrice ? (
+            {stayPrice && priceLines ? (
               <div className="text-left">
                 <p
                   translate="no"
                   className="text-2xl font-bold tracking-tight text-[var(--public-fg)]"
                 >
-                  {formatEuro(stayPrice.total)}
+                  {priceLines.total}
                 </p>
                 <p className="mt-1 text-sm text-[var(--public-muted)]">
                   {`total for ${nightsLabel(stayPrice.nights)}`}
                 </p>
-                <p className="mt-0.5 text-sm font-medium text-[var(--public-accent)]">
-                  {`${stayPrice.usesDatePricing ? "avg " : ""}${formatEuro(stayPrice.pricePerNight)} per night`}
+                <p className="mt-0.5 text-sm font-medium text-[var(--public-accent)]" translate="no">
+                  {priceLines.perNight}
                 </p>
               </div>
             ) : (

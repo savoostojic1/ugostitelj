@@ -1,6 +1,7 @@
 "use client";
 
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { assertSupportedCurrency } from "@/lib/currency/currencies";
 import { createClient } from "@/lib/supabase/client";
 import { requireUser } from "@/lib/supabase/require-user";
 import type { PropertyPriceRule } from "@/types/database";
@@ -108,6 +109,38 @@ export function useUpdatePropertyStartingPrice() {
         .eq("user_id", user.id);
 
       if (error) throw error;
+    },
+    onSuccess: (_data, variables) => {
+      queryClient.invalidateQueries({ queryKey: ["properties"] });
+      queryClient.invalidateQueries({
+        queryKey: ["properties", variables.propertyId],
+      });
+    },
+  });
+}
+
+export function useUpdatePropertyCurrency() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async ({
+      propertyId,
+      currencyCode,
+    }: {
+      propertyId: string;
+      currencyCode: string;
+    }) => {
+      const code = assertSupportedCurrency(currencyCode);
+      const supabase = createClient();
+      const user = await requireUser(supabase);
+      const { error } = await supabase
+        .from("properties")
+        .update({ currency_code: code })
+        .eq("id", propertyId)
+        .eq("user_id", user.id);
+
+      if (error) throw error;
+      return code;
     },
     onSuccess: (_data, variables) => {
       queryClient.invalidateQueries({ queryKey: ["properties"] });
