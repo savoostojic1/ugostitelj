@@ -23,8 +23,9 @@ const PHOTO_PATTERN = /^data:image\/(jpeg|png|webp);base64,([A-Za-z0-9+/=]+)$/;
 
 type PhotoMedia = "image/jpeg" | "image/png" | "image/webp";
 
-function fail(error: string, status: number) {
-  return NextResponse.json({ error }, { status });
+/** `code` tells the host (and support) which part failed, without exposing details. */
+function fail(error: string, status: number, code?: string) {
+  return NextResponse.json({ error, code }, { status });
 }
 
 /**
@@ -35,7 +36,7 @@ function fail(error: string, status: number) {
  */
 export async function POST(request: NextRequest) {
   if (!process.env.ANTHROPIC_API_KEY) {
-    return fail("AI writing is not set up on this server yet.", 503);
+    return fail("AI writing is not set up on this server yet.", 503, "no_key");
   }
 
   const body = (await request.json().catch(() => null)) as {
@@ -84,7 +85,8 @@ export async function POST(request: NextRequest) {
     return fail("You have used today's AI writing for this website. You can still edit everything by hand, or try again tomorrow.", 429);
   }
   if (checks.includes("unavailable") && process.env.NODE_ENV === "production") {
-    return fail("AI writing is unavailable right now. Please try again later.", 503);
+    console.error("[website-ai] rate limiter unavailable; check SUPABASE_SERVICE_ROLE_KEY and consume_public_rate_limit");
+    return fail("AI writing is unavailable right now. Please try again later.", 503, "limits_unavailable");
   }
 
   const content: Anthropic.Beta.BetaContentBlockParam[] = [];
@@ -95,30 +97,43 @@ export async function POST(request: NextRequest) {
   content.push({ type: "text", text: quickStartUserText({ theme, language, listingText, photoCount: photos.length }) });
 
   const client = new Anthropic();
+  const params = {
+    model: QUICK_START_MODEL,
+    max_tokens: 32000,
+    output_config: {
+      effort: "medium" as const,
+      format: { type: "json_schema" as const, schema: QUICK_START_SCHEMA as unknown as Record<string, unknown> },
+    },
+    system: quickStartSystemPrompt(),
+    messages: [{ role: "user" as const, content }],
+  };
+  // Server-side fallback reroutes the rare declined request to another model. If the
+  // account or platform does not accept that beta, the same request runs without it.
+  const generate = async () => {
+    try {
+      return await client.beta.messages
+        .stream({ ...params, betas: ["server-side-fallback-2026-07-01"], fallbacks: "default" })
+        .finalMessage();
+    } catch (error) {
+      if (error instanceof Anthropic.BadRequestError && /fallback|beta/i.test(error.message)) {
+        console.warn("[website-ai] fallback not accepted, retrying without it:", error.message);
+        return client.beta.messages.stream(params).finalMessage();
+      }
+      throw error;
+    }
+  };
+
   try {
-    const message = await client.beta.messages
-      .stream({
-        model: QUICK_START_MODEL,
-        max_tokens: 32000,
-        betas: ["server-side-fallback-2026-07-01"],
-        fallbacks: "default",
-        output_config: {
-          effort: "medium",
-          format: { type: "json_schema", schema: QUICK_START_SCHEMA as unknown as Record<string, unknown> },
-        },
-        system: quickStartSystemPrompt(),
-        messages: [{ role: "user", content }],
-      })
-      .finalMessage();
+    const message = await generate();
 
     if (message.stop_reason === "refusal") {
-      return fail("The listing could not be turned into a website. Please check the text and try again.", 422);
+      return fail("The listing could not be turned into a website. Please check the text and try again.", 422, "refusal");
     }
     if (message.stop_reason === "max_tokens") {
-      return fail("The listing was too long to finish. Try copying a shorter part of the page.", 502);
+      return fail("The listing was too long to finish. Try copying a shorter part of the page.", 502, "too_long");
     }
     const textBlock = message.content.find((block): block is Anthropic.Beta.BetaTextBlock => block.type === "text");
-    if (!textBlock) return fail("No content came back. Please try again.", 502);
+    if (!textBlock) return fail("No content came back. Please try again.", 502, "empty");
     const result = parseQuickStartResult(JSON.parse(textBlock.text), photos.length);
     console.info("[website-ai] generated", {
       model: message.model,
@@ -131,14 +146,29 @@ export async function POST(request: NextRequest) {
     for (const cookie of authResponse.cookies.getAll()) response.cookies.set(cookie);
     return response;
   } catch (error) {
-    if (error instanceof Anthropic.RateLimitError) {
-      return fail("AI writing is busy right now. Please try again in a minute.", 503);
-    }
     if (error instanceof Anthropic.APIError) {
       console.error("[website-ai] api error", error.status, error.message);
-      return fail("AI writing is unavailable right now. Please try again later.", 502);
+    } else {
+      console.error("[website-ai] failed", error instanceof Error ? error.message : error);
     }
-    console.error("[website-ai] failed", error instanceof Error ? error.message : error);
-    return fail("Something went wrong while writing your website. Please try again.", 500);
+    if (error instanceof Anthropic.AuthenticationError || error instanceof Anthropic.PermissionDeniedError) {
+      return fail("AI writing is not set up correctly: the AI key was rejected.", 502, "key_rejected");
+    }
+    if (error instanceof Anthropic.RateLimitError) {
+      return fail("AI writing is busy right now. Please try again in a minute.", 503, "busy");
+    }
+    if (error instanceof Anthropic.BadRequestError && /credit|billing|balance/i.test(error.message)) {
+      return fail("AI writing is paused: the AI account has no credit left.", 502, "no_credit");
+    }
+    if (error instanceof Anthropic.NotFoundError) {
+      return fail("AI writing is not available for this account yet.", 502, "model_unavailable");
+    }
+    if (error instanceof Anthropic.BadRequestError) {
+      return fail("The AI service did not accept this request. Please try again with fewer photos.", 502, "rejected");
+    }
+    if (error instanceof Anthropic.APIError) {
+      return fail("AI writing is unavailable right now. Please try again later.", 502, `api_${error.status ?? "error"}`);
+    }
+    return fail("Something went wrong while writing your website. Please try again.", 500, "server");
   }
 }

@@ -213,9 +213,10 @@ export function QuickStartStep({ studio, document, onDone, onManual }: StepProps
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ listingText: tidy, theme: document.theme, language, photos: readable.map((entry) => entry.thumb) }),
       });
-      const json = (await response.json().catch(() => ({}))) as { result?: QuickStartResult; error?: string };
+      const json = (await response.json().catch(() => ({}))) as { result?: QuickStartResult; error?: string; code?: string };
       if (!response.ok || !json.result) {
-        setError(json.error ?? "Something went wrong while writing your website. Please try again.");
+        const message = json.error ?? `Something went wrong while writing your website (status ${response.status}). Please try again.`;
+        setError(json.code ? `${message} (code: ${json.code})` : message);
         await uploads;
         return;
       }
