@@ -13,6 +13,19 @@ export interface FreeTool {
 /** Published tools, in display order. Add a tool here only once its page works. */
 export const FREE_TOOLS: FreeTool[] = [
   {
+    slug: "vacation-rental-website-builder",
+    href: `${FREE_TOOLS_PATH}/vacation-rental-website-builder`,
+    title: "Free Vacation Rental Website Builder",
+    summary:
+      "Create a beautiful, professional website for your vacation rental. Choose a design, add your property details and publish your own website. No coding required.",
+    ctaLabel: "Create My Free Website",
+    highlights: [
+      "Five agency-quality designs",
+      "Start without an account",
+      "Booking inquiries through Hostvia",
+    ],
+  },
+  {
     slug: "vacation-rental-income-calculator",
     href: `${FREE_TOOLS_PATH}/vacation-rental-income-calculator`,
     title: "Vacation Rental Income Calculator",

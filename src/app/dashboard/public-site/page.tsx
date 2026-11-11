@@ -19,6 +19,7 @@ import {
 } from "@/hooks/use-host-profile";
 import { parseGoogleMapsEmbedUrl } from "@/lib/public/google-maps-embed";
 import { toast } from "sonner";
+import { WebsiteExperienceSwitch } from "@/components/website-builder/experience-switch";
 
 async function resolveMapEmbedUrl(input: string): Promise<string | null> {
   const trimmed = input.trim();
@@ -222,6 +223,8 @@ export default function PublicSiteSettingsPage() {
         onUsernameChange={setUsername}
         isPublished={isPublished}
       />
+
+      <WebsiteExperienceSwitch />
 
       <Card>
         <CardHeader>

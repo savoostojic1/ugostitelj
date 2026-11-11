@@ -1,0 +1,18 @@
+/* Builder interface motion. */
+
+@keyframes wbx-step-in {
+  from { opacity: 0; transform: translate3d(0, 14px, 0); }
+  to { opacity: 1; transform: none; }
+}
+.wbx-step { animation: wbx-step-in 0.55s cubic-bezier(0.16, 1, 0.3, 1) both; }
+
+@keyframes wbx-fade { from { opacity: 0; } }
+@keyframes wbx-rise {
+  from { opacity: 0; transform: translate3d(0, 16px, 0) scale(0.9); }
+  to { opacity: 1; transform: none; }
+}
+@keyframes wbx-drawer { from { transform: translateX(var(--wbx-drawer-from, -24px)); opacity: 0; } }
+
+@media (prefers-reduced-motion: reduce) {
+  .wbx-step { animation: none; }
+}

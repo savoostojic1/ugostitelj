@@ -27,6 +27,16 @@ export async function updateSession(request: NextRequest) {
     return NextResponse.redirect(redirectUrl, 308);
   }
 
+  const bookingHost = parseBookingSubdomain(request.headers.get("host") ?? "");
+  if (
+    bookingHost &&
+    (path === "/robots.txt" || path === "/sitemap.xml")
+  ) {
+    const rewriteUrl = request.nextUrl.clone();
+    rewriteUrl.pathname = `/host/${bookingHost}${path}`;
+    return NextResponse.rewrite(rewriteUrl);
+  }
+
   if (PUBLIC_ASSET_PATHS.has(path)) {
     return NextResponse.next({ request });
   }
@@ -91,16 +101,22 @@ export async function updateSession(request: NextRequest) {
       !path.startsWith("/dashboard") &&
       !isAuthRoute
     ) {
-      // Subdomain root is the only public URL. /host/… on a subdomain would
-      // otherwise create crawlable duplicates like fairy-tale.hostvia.me/host/fairy-tale.
-      if (path !== "/" && path !== "") {
+      if (path === "/robots.txt" || path === "/sitemap.xml") {
+        const rewriteUrl = request.nextUrl.clone();
+        rewriteUrl.pathname = `/host/${bookingUsername}${path}`;
+        return NextResponse.rewrite(rewriteUrl);
+      }
+
+      // /host/… on a subdomain would duplicate the canonical property URL.
+      if (path.startsWith("/host/")) {
         const redirectUrl = request.nextUrl.clone();
         redirectUrl.pathname = "/";
         return NextResponse.redirect(redirectUrl, 308);
       }
 
       const rewriteUrl = request.nextUrl.clone();
-      rewriteUrl.pathname = `/host/${bookingUsername}`;
+      rewriteUrl.pathname =
+        path === "/" ? `/host/${bookingUsername}` : `/host/${bookingUsername}${path}`;
       return NextResponse.rewrite(rewriteUrl);
     }
     const isPublicRoute =
@@ -123,12 +139,15 @@ export async function updateSession(request: NextRequest) {
       path.startsWith("/admin") ||
       path.startsWith("/api/public/") ||
       path.startsWith("/api/guest-guides/drafts") ||
+      path.startsWith("/api/website-builder") ||
       path.startsWith("/host/") ||
       path.startsWith("/guide/") ||
       path === "/guest-guide/create" ||
       path.startsWith("/guest-guide/create/") ||
       path === "/guest-guide/demo" ||
-      path.startsWith("/guest-guide/demo/");
+      path.startsWith("/guest-guide/demo/") ||
+      path === "/website-builder" ||
+      path.startsWith("/website-builder/");
 
     const recoveryPending =
       request.cookies.get(PASSWORD_RECOVERY_COOKIE)?.value === "1";

@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { ArrowRight, BookOpen, Calculator, CalendarRange, Sparkles, type LucideIcon } from "lucide-react";
+import { ArrowRight, BookOpen, Calculator, CalendarRange, Globe2, Sparkles, type LucideIcon } from "lucide-react";
 import { MarketingBreadcrumbs } from "@/components/marketing/marketing-breadcrumbs";
 import { pageMetadata } from "@/lib/seo/site";
 import { FREE_TOOLS, FREE_TOOLS_PATH } from "@/lib/tools/free-tools";
@@ -8,11 +8,12 @@ import { FREE_TOOLS, FREE_TOOLS_PATH } from "@/lib/tools/free-tools";
 export const metadata: Metadata = pageMetadata({
   title: "Free Tools for Vacation Rental Owners",
   description:
-    "Free, no-sign-up tools for vacation rental owners: a rental income calculator and a calendar sync guide for Airbnb, Booking.com, Vrbo and more.",
+    "Free tools for vacation rental owners: a website builder, rental income calculator, guest guide generator and calendar sync guide.",
   path: FREE_TOOLS_PATH,
 });
 
 const TOOL_ICONS: Record<string, LucideIcon> = {
+  "vacation-rental-website-builder": Globe2,
   "vacation-rental-income-calculator": Calculator,
   "vacation-rental-calendar-sync-guide": CalendarRange,
   "guest-guide-generator": BookOpen,
@@ -39,8 +40,8 @@ export default function FreeToolsPage() {
               Free Tools for Vacation Rental Owners
             </h1>
             <p className="mx-auto mt-4 max-w-lg text-base leading-relaxed text-zinc-400">
-              Simple helpers you can use without an account — from income estimates
-              to step-by-step vacation rental calendar sync instructions.
+              Start a professional vacation rental website, estimate income, or
+              follow a calendar sync guide — no account required.
             </p>
           </div>
 

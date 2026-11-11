@@ -64,6 +64,7 @@ export function permissionForDashboardPath(pathname: string): TeamPermission | n
   if (pathname.startsWith("/dashboard/billing")) return null;
   if (pathname.startsWith("/dashboard/notifications")) return null;
   if (pathname.startsWith("/dashboard/guest-guides")) return null;
+  if (pathname.startsWith("/dashboard/website")) return null;
 
   if (pathname === "/dashboard" || pathname === "/dashboard/install-app") {
     return "dashboard";
@@ -103,6 +104,7 @@ export function canAccessDashboardPath(
   if (pathname.startsWith("/dashboard/billing")) return false;
   if (pathname.startsWith("/dashboard/notifications")) return false;
   if (pathname.startsWith("/dashboard/guest-guides")) return false;
+  if (pathname.startsWith("/dashboard/website")) return false;
 
   if (PROPERTY_CALENDAR_PATH.test(pathname)) {
     return (

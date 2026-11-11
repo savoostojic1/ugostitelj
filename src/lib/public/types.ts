@@ -10,6 +10,7 @@ export interface PublicHostProfile {
   location: string | null;
   map_embed_url: string | null;
   social_links: Record<string, string>;
+  public_site_mode?: "booking" | "website";
 }
 
 /** Rezultat pretrage — samo za prikaz u listi */

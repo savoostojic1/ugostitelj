@@ -71,6 +71,10 @@ export const marketingFooter = {
       label: "Calendar sync guide",
     },
     {
+      href: "/free-tools/vacation-rental-website-builder",
+      label: "Website builder",
+    },
+    {
       href: "/free-tools/guest-guide-generator",
       label: "Guest guide generator",
     },

@@ -1,5 +1,6 @@
 import { Plus_Jakarta_Sans } from "next/font/google";
 import { ForcePublicLightTheme } from "@/components/public/force-public-light-theme";
+import "@/components/website-public/website.css";
 
 const publicSans = Plus_Jakarta_Sans({
   variable: "--font-public-sans",

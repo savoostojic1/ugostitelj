@@ -68,6 +68,7 @@ export interface HostProfile {
   map_embed_url?: string | null;
   social_links: Record<string, string>;
   is_published: boolean;
+  public_site_mode?: "booking" | "website";
   stripe_customer_id?: string | null;
   stripe_subscription_id?: string | null;
   creem_customer_id?: string | null;
