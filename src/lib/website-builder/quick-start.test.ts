@@ -193,3 +193,19 @@ describe("guided paths", () => {
     assert.equal(prepareNewDocument("luxe").wizardPath, null);
   });
 });
+
+describe("retrying photo uploads", () => {
+  it("adds photos that uploaded later without touching edited text", async () => {
+    const { addRetriedPhotos } = await import("@/lib/website-builder/ai/quick-start");
+    const result = parseQuickStartResult(rawResult(), 3);
+    const first = applyQuickStart(prepareNewDocument("luxe"), result, [null, null, null]);
+    assert.equal(first.gallery.length, 0);
+    assert.ok(first.accommodations.every((stay) => stay.photos.length === 0));
+    const edited = { ...first, profile: { ...first.profile, name: "Edited name" } };
+    const next = addRetriedPhotos(edited, result, urls);
+    assert.equal(next.profile.name, "Edited name");
+    assert.equal(next.gallery[0].url, urls[1], "cover first");
+    assert.deepEqual(next.accommodations[0].photos.map((photo) => photo.url), [urls[2], urls[1]]);
+    assert.ok(next.accommodations[1].photos.length > 0);
+  });
+});

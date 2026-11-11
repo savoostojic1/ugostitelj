@@ -552,3 +552,31 @@ export function applyQuickStart(
   }
   return sanitizeDocument(next);
 }
+
+/**
+ * Adds photographs that uploaded on a second try, without touching any text the host
+ * may have edited since: the gallery is rebuilt in the AI's order (keeping any other
+ * photos after it), and stays that still have no photographs of their own get theirs.
+ */
+export function addRetriedPhotos(
+  document: WebsiteDocument,
+  result: QuickStartResult,
+  photoUrls: (string | null)[]
+): WebsiteDocument {
+  const altFor = new Map(result.photos.map((photo) => [photo.index, photo.alt]));
+  const imageAt = (index: number): WebsiteImage | null => {
+    const url = photoUrls[index];
+    return url ? { url, alt: altFor.get(index) || result.property.name } : null;
+  };
+  const order = [result.coverIndex, ...photoUrls.map((_, index) => index).filter((index) => index !== result.coverIndex)];
+  const ordered = order.map(imageAt).filter((image): image is WebsiteImage => Boolean(image));
+  const known = new Set(ordered.map((image) => image.url));
+  const gallery = [...ordered, ...document.gallery.filter((image) => !known.has(image.url))].slice(0, WEBSITE_LIMITS.galleryImages);
+  const accommodations = document.accommodations.map((stay) => {
+    if (stay.propertyId || stay.photos.length) return stay;
+    const unit = result.units.find((item) => item.name === stay.name);
+    const own = (unit?.photoIndexes ?? []).map(imageAt).filter((image): image is WebsiteImage => Boolean(image));
+    return { ...stay, photos: own.length ? own : gallery.slice(0, 4) };
+  });
+  return sanitizeDocument({ ...document, gallery, accommodations });
+}

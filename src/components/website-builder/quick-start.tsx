@@ -32,7 +32,7 @@ import { Button, Field, Label, Select, SectionTitle } from "@/components/website
 import { withProfile } from "@/lib/website-builder/document-ops";
 import type { StepProps } from "@/components/website-builder/wizard-steps";
 import { LANGUAGE_NAMES } from "@/components/website-builder/wizard-steps";
-import { applyQuickStart, QUICK_START_LIMITS, tidyListingText, type QuickStartResult } from "@/lib/website-builder/ai/quick-start";
+import { addRetriedPhotos, applyQuickStart, QUICK_START_LIMITS, tidyListingText, type QuickStartResult } from "@/lib/website-builder/ai/quick-start";
 import { WEBSITE_LIMITS } from "@/lib/website-builder/limits";
 import { themeMeta } from "@/lib/website-builder/themes";
 import { WEBSITE_LANGUAGES, type WebsiteLanguage } from "@/lib/website-builder/types";
@@ -132,7 +132,11 @@ export function QuickStartStep({ studio, document, onDone, onManual }: StepProps
   const [phase, setPhase] = useState(0);
   const [uploaded, setUploaded] = useState(0);
   const [error, setError] = useState<string | null>(null);
-  const [done, setDone] = useState<{ result: QuickStartResult; failedUploads: number; uploadError: string | null } | null>(null);
+  const [done, setDone] = useState<{ result: QuickStartResult; files: File[]; photoUrls: (string | null)[]; uploadError: string | null } | null>(null);
+  const [retrying, setRetrying] = useState(false);
+  // Finished uploads survive a second attempt, so trying again never re-uploads a photo.
+  const uploadedUrls = useRef(new Map<string, string>());
+  const lastUploadError = useRef<string | null>(null);
   const folderInput = useRef<HTMLInputElement>(null);
   const filesInput = useRef<HTMLInputElement>(null);
   const meta = themeMeta(document.theme);
@@ -187,6 +191,48 @@ export function QuickStartStep({ studio, document, onDone, onManual }: StepProps
     }
   };
 
+  const fileKey = (file: File) => `${file.name}:${file.size}:${file.lastModified}`;
+
+  async function uploadOne(file: File): Promise<string | null> {
+    const cached = uploadedUrls.current.get(fileKey(file));
+    if (cached) {
+      setUploaded((count) => count + 1);
+      return cached;
+    }
+    const ready = await prepareForUpload(file, WEBSITE_LIMITS.uploadBytes).catch(() => file);
+    const outcome = await studio.upload(ready);
+    if (!outcome.url) {
+      lastUploadError.current = outcome.error ?? "Upload failed";
+      return null;
+    }
+    uploadedUrls.current.set(fileKey(file), outcome.url);
+    setUploaded((count) => count + 1);
+    return outcome.url;
+  }
+
+  /** The first upload runs alone so an anonymous draft is created once, then three at a time. */
+  async function uploadAll(files: File[]): Promise<(string | null)[]> {
+    if (!files.length) return [];
+    const first = await uploadOne(files[0]);
+    const rest = await mapLimit(files.slice(1), 3, (file) => uploadOne(file));
+    return [first, ...rest];
+  }
+
+  async function retryUploads() {
+    if (!done || retrying) return;
+    setRetrying(true);
+    lastUploadError.current = null;
+    const photoUrls = await mapLimit(done.files, 3, async (file, index) => done.photoUrls[index] ?? uploadOne(file));
+    const added = photoUrls.filter((url, index) => url && !done.photoUrls[index]).length;
+    if (added) {
+      const latest = studio.getDocument() ?? document;
+      studio.change(addRetriedPhotos(latest, done.result, photoUrls));
+      toast.success(`${added} ${added === 1 ? "photo" : "photos"} added to your website`);
+    }
+    setDone({ ...done, photoUrls, uploadError: photoUrls.some((url) => !url) ? lastUploadError.current : null });
+    setRetrying(false);
+  }
+
   async function create() {
     if (!enough || tooLong || busy) return;
     setBusy(true);
@@ -194,16 +240,10 @@ export function QuickStartStep({ studio, document, onDone, onManual }: StepProps
     setUploaded(0);
     setError(null);
     const files = photos.map((photo) => photo.file);
-    let uploadError: string | null = null;
+    lastUploadError.current = null;
     try {
       // Upload originals and ask for the copy at the same time.
-      const uploads = mapLimit(files, 3, async (file) => {
-        const ready = await prepareForUpload(file, WEBSITE_LIMITS.uploadBytes).catch(() => file);
-        const outcome = await studio.upload(ready);
-        if (outcome.url) setUploaded((count) => count + 1);
-        else uploadError = outcome.error ?? "Upload failed";
-        return outcome.url ?? null;
-      });
+      const uploads = uploadAll(files);
       const thumbnails = await mapLimit(files, 4, (file) =>
         thumbnailDataUrl(file, QUICK_START_LIMITS.photoEdge, QUICK_START_LIMITS.photoBytes).catch(() => null)
       );
@@ -226,8 +266,12 @@ export function QuickStartStep({ studio, document, onDone, onManual }: StepProps
       const photoUrls = readable.map((entry) => urls[entry.index] ?? null);
       const latest = studio.getDocument() ?? document;
       studio.change(applyQuickStart(latest, json.result, photoUrls));
-      const failedUploads = photoUrls.filter((url) => !url).length;
-      setDone({ result: json.result, failedUploads, uploadError: failedUploads ? uploadError : null });
+      setDone({
+        result: json.result,
+        files: readable.map((entry) => files[entry.index]),
+        photoUrls,
+        uploadError: photoUrls.some((url) => !url) ? lastUploadError.current : null,
+      });
       toast.success("Your website is written. Have a look at the preview.");
     } catch {
       setError("Could not reach the server. Check your connection and try again.");
@@ -237,6 +281,7 @@ export function QuickStartStep({ studio, document, onDone, onManual }: StepProps
   }
 
   if (done) {
+    const failedUploads = done.photoUrls.filter((url) => !url).length;
     return (
       <div className="space-y-5">
         <div className="relative overflow-hidden rounded-3xl border border-emerald-400/20 bg-gradient-to-br from-emerald-400/[0.08] via-transparent to-violet-500/[0.08] p-6">
@@ -248,12 +293,20 @@ export function QuickStartStep({ studio, document, onDone, onManual }: StepProps
             Every page is written in the {meta.name} style{done.result.units.length ? `, with ${done.result.units.length === 1 ? "a page for your stay" : `${done.result.units.length} stays`}` : ""}. Read it through in the preview and change any word you like.
           </p>
         </div>
-        {done.failedUploads ? (
-          <p className="flex gap-2 rounded-xl border border-amber-400/20 bg-amber-400/[0.06] p-3 text-[12.5px] leading-relaxed text-amber-100/80">
-            <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0" />
-            {done.failedUploads === photos.length ? "Your photos could not be uploaded" : `${done.failedUploads} photos could not be uploaded`}
-            {done.uploadError ? `: ${done.uploadError}` : "."} Add them again in the Photos step.
-          </p>
+        {failedUploads ? (
+          <div className="rounded-xl border border-amber-400/20 bg-amber-400/[0.06] p-3 text-[12.5px] leading-relaxed text-amber-100/80">
+            <p className="flex gap-2">
+              <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0" />
+              <span>
+                {failedUploads === done.files.length ? "Your photos could not be uploaded" : `${failedUploads} of ${done.files.length} photos could not be uploaded`}
+                {done.uploadError ? `: ${done.uploadError}` : "."} The text is ready; the photos can follow.
+              </span>
+            </p>
+            <Button size="sm" className="ml-6 mt-2.5" onClick={retryUploads} disabled={retrying}>
+              {retrying ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <RotateCcw className="h-3.5 w-3.5" />}
+              {retrying ? "Uploading…" : "Try the upload again"}
+            </Button>
+          </div>
         ) : null}
         <div className="rounded-2xl border border-white/[0.08] bg-white/[0.025] p-4">
           <p className="text-[13px] font-semibold text-zinc-100">Before you publish, check</p>

@@ -15,7 +15,8 @@ export const WEBSITE_LIMITS = {
   uploadBytes: 5 * 1024 * 1024,
   draftWritesPer10Min: 40,
   draftCreatesPerHour: 8,
-  uploadsPerHour: 30,
+  // The AI quick start uploads a whole photo folder (up to 30) at once; leave room for a retry.
+  uploadsPerHour: 120,
   mapResolvesPerHour: 20,
   anonymousTtlDays: 14,
   anonymousMaxAgeDays: 30,
