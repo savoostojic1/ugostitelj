@@ -24,8 +24,20 @@ const PHOTO_PATTERN = /^data:image\/(jpeg|png|webp);base64,([A-Za-z0-9+/=]+)$/;
 type PhotoMedia = "image/jpeg" | "image/png" | "image/webp";
 
 /** `code` tells the host (and support) which part failed, without exposing details. */
-function fail(error: string, status: number, code?: string) {
-  return NextResponse.json({ error, code }, { status });
+function fail(error: string, status: number, code?: string, detail?: string) {
+  return NextResponse.json({ error, code, detail }, { status });
+}
+
+/** Parses the reply, tolerating code fences or a stray sentence around the object. */
+function extractJson(text: string): unknown {
+  try {
+    return JSON.parse(text);
+  } catch {
+    const start = text.indexOf("{");
+    const end = text.lastIndexOf("}");
+    if (start < 0 || end <= start) throw new SyntaxError("No JSON object in the reply");
+    return JSON.parse(text.slice(start, end + 1));
+  }
 }
 
 /**
@@ -97,34 +109,54 @@ export async function POST(request: NextRequest) {
   content.push({ type: "text", text: quickStartUserText({ theme, language, listingText, photoCount: photos.length }) });
 
   const client = new Anthropic();
-  const params = {
+  const base = {
     model: QUICK_START_MODEL,
     max_tokens: 32000,
+    system: quickStartSystemPrompt(),
+    messages: [{ role: "user" as const, content }],
+  };
+  const withSchema = {
+    ...base,
     output_config: {
       effort: "medium" as const,
       format: { type: "json_schema" as const, schema: QUICK_START_SCHEMA as unknown as Record<string, unknown> },
     },
-    system: quickStartSystemPrompt(),
-    messages: [{ role: "user" as const, content }],
   };
-  // Server-side fallback reroutes the rare declined request to another model. If the
-  // account or platform does not accept that beta, the same request runs without it.
+  // Without enforced output the same contract goes into the prompt and the JSON is
+  // validated in code (parseQuickStartResult) exactly as before.
+  const withPromptedJson = {
+    ...base,
+    output_config: { effort: "medium" as const },
+    system: `${quickStartSystemPrompt()}\n\nReply with only one JSON object, no prose and no code fences, that matches this JSON schema:\n${JSON.stringify(QUICK_START_SCHEMA)}`,
+  };
+
+  /**
+   * Tries the richest request first and steps down when the API rejects a feature:
+   * 1. enforced schema with server-side fallback, 2. enforced schema alone,
+   * 3. JSON requested in the prompt. Credit, key and rate errors are not retried.
+   */
   const generate = async () => {
-    try {
-      return await client.beta.messages
-        .stream({ ...params, betas: ["server-side-fallback-2026-07-01"], fallbacks: "default" })
-        .finalMessage();
-    } catch (error) {
-      if (error instanceof Anthropic.BadRequestError && /fallback|beta/i.test(error.message)) {
-        console.warn("[website-ai] fallback not accepted, retrying without it:", error.message);
-        return client.beta.messages.stream(params).finalMessage();
+    const attempts: { label: string; run: () => Promise<Anthropic.Beta.BetaMessage> }[] = [
+      { label: "schema+fallback", run: () => client.beta.messages.stream({ ...withSchema, betas: ["server-side-fallback-2026-07-01"], fallbacks: "default" }).finalMessage() },
+      { label: "schema", run: () => client.beta.messages.stream(withSchema).finalMessage() },
+      { label: "prompted-json", run: () => client.beta.messages.stream(withPromptedJson).finalMessage() },
+    ];
+    let lastError: unknown = null;
+    for (const attempt of attempts) {
+      try {
+        return { message: await attempt.run(), via: attempt.label };
+      } catch (error) {
+        const retryable = error instanceof Anthropic.BadRequestError && !/credit|billing|balance/i.test(error.message);
+        if (!retryable) throw error;
+        console.warn(`[website-ai] ${attempt.label} rejected:`, error.message);
+        lastError = error;
       }
-      throw error;
     }
+    throw lastError;
   };
 
   try {
-    const message = await generate();
+    const { message, via } = await generate();
 
     if (message.stop_reason === "refusal") {
       return fail("The listing could not be turned into a website. Please check the text and try again.", 422, "refusal");
@@ -134,9 +166,10 @@ export async function POST(request: NextRequest) {
     }
     const textBlock = message.content.find((block): block is Anthropic.Beta.BetaTextBlock => block.type === "text");
     if (!textBlock) return fail("No content came back. Please try again.", 502, "empty");
-    const result = parseQuickStartResult(JSON.parse(textBlock.text), photos.length);
+    const result = parseQuickStartResult(extractJson(textBlock.text), photos.length);
     console.info("[website-ai] generated", {
       model: message.model,
+      via,
       input: message.usage.input_tokens,
       output: message.usage.output_tokens,
       photos: photos.length,
@@ -164,10 +197,13 @@ export async function POST(request: NextRequest) {
       return fail("AI writing is not available for this account yet.", 502, "model_unavailable");
     }
     if (error instanceof Anthropic.BadRequestError) {
-      return fail("The AI service did not accept this request. Please try again with fewer photos.", 502, "rejected");
+      return fail("The AI service did not accept this request.", 502, "rejected", error.message.slice(0, 300));
     }
     if (error instanceof Anthropic.APIError) {
       return fail("AI writing is unavailable right now. Please try again later.", 502, `api_${error.status ?? "error"}`);
+    }
+    if (error instanceof SyntaxError) {
+      return fail("The AI reply could not be read. Please try again.", 502, "bad_json");
     }
     return fail("Something went wrong while writing your website. Please try again.", 500, "server");
   }

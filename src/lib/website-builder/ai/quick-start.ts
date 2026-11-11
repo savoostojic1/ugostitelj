@@ -127,7 +127,8 @@ const item = {
 export const QUICK_START_SCHEMA = {
   type: "object",
   properties: {
-    language: { type: "string", enum: [...WEBSITE_LANGUAGES] },
+    // A plain string keeps the compiled grammar small; the code is validated in parseQuickStartResult.
+    language: { type: "string", description: `ISO 639-1 code, one of: ${WEBSITE_LANGUAGES.join(", ")}` },
     property: {
       type: "object",
       properties: { name: str, type: str, location: str, shortDescription: str },
