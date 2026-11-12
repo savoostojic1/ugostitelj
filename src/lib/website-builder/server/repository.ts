@@ -1,4 +1,5 @@
 import "server-only";
+import { stripLocalImages } from "@/lib/website-builder/local-images";
 
 import { hasProAccess } from "@/lib/subscriptions/access";
 import { loadHostSubscription } from "@/lib/subscriptions/resolve-host-subscription";
@@ -6,7 +7,7 @@ import { createServiceClient, hasServiceRoleKey } from "@/lib/supabase/service";
 import { suggestPropertySlug } from "@/lib/public/slug";
 import { isReservedWebsiteSlug } from "@/lib/website-builder/paths";
 import { normalizeDocument } from "@/lib/website-builder/document-ops";
-import { cleanEmail, documentTooLarge } from "@/lib/website-builder/sanitize";
+import { cleanEmail, cleanPhone, documentTooLarge } from "@/lib/website-builder/sanitize";
 import type { WebsiteDocument } from "@/lib/website-builder/types";
 
 export function websiteServiceAvailable(): boolean {
@@ -69,7 +70,8 @@ export async function publishOwnedWebsite(userId: string, email: string | null) 
   const website = await loadOwnedWebsite(userId);
   if (!website) throw new Error("Save the website to your account before publishing");
 
-  const document = normalizeDocument(website.draft_document);
+  // Photos still waiting in the host's browser cannot be shown to guests.
+  const document = stripLocalImages(normalizeDocument(website.draft_document));
   if (!document.profile.name.trim()) {
     throw new Error("Add a property name before publishing");
   }
@@ -101,7 +103,7 @@ export async function publishOwnedWebsite(userId: string, email: string | null) 
       business_name: document.profile.name,
       description: document.profile.shortDescription || null,
       contact_email: cleanEmail(document.profile.contactEmail) || email,
-      contact_phone: document.profile.contactPhone || null,
+      contact_phone: cleanPhone(document.profile.contactPhone) || null,
       location: document.profile.location || null,
       logo_url: document.profile.logoUrl || null,
       is_published: true,
@@ -117,7 +119,7 @@ export async function publishOwnedWebsite(userId: string, email: string | null) 
         business_name: profile.business_name || document.profile.name,
         description: profile.description || document.profile.shortDescription || null,
         contact_email: profile.contact_email || cleanEmail(document.profile.contactEmail) || email,
-        contact_phone: profile.contact_phone || document.profile.contactPhone || null,
+        contact_phone: profile.contact_phone || cleanPhone(document.profile.contactPhone) || null,
         location: profile.location || document.profile.location || null,
         logo_url: profile.logo_url || document.profile.logoUrl || null,
       })

@@ -21,6 +21,7 @@ import { clearLocalDraft, readLocalDraft } from "@/lib/guest-guide/local-draft";
 import { publishGuestGuideDraft } from "@/lib/guest-guide/publish-draft";
 import type { GuestGuideStatus, GuestGuideTheme } from "@/lib/guest-guide/types";
 import { absoluteUrl } from "@/lib/seo/site";
+import { GuestGuidesEmptyState } from "@/components/guest-guide/dashboard/guides-empty-state";
 
 interface GuideListItem {
   id: string;
@@ -129,9 +130,10 @@ export function GuestGuidesDashboard() {
             Guest Guides
           </h1>
           <p className="mt-1 text-sm text-zinc-400">
-            Create beautiful digital welcome books for your guests — completely free.
+            Digital welcome books with check-in, Wi-Fi, house rules and local tips. Completely free.
           </p>
         </div>
+        {guides?.length ? (
         <Link
           href={GUEST_GUIDE_CREATE_PATH}
           className="hostvia-btn-gradient inline-flex h-10 items-center justify-center gap-2 rounded-xl px-4 text-sm font-semibold"
@@ -139,6 +141,7 @@ export function GuestGuidesDashboard() {
           <Plus className="h-4 w-4" />
           New guide
         </Link>
+        ) : null}
       </div>
 
       {loading || guides === null ? (
@@ -147,19 +150,7 @@ export function GuestGuidesDashboard() {
           Loading guides…
         </div>
       ) : guides.length === 0 ? (
-        <div className="rounded-2xl border border-dashed border-white/10 bg-white/[0.02] px-6 py-14 text-center">
-          <p className="text-lg font-medium text-white">No guest guides yet</p>
-          <p className="mx-auto mt-2 max-w-md text-sm text-zinc-400">
-            Create a premium digital welcome book with check-in details, Wi-Fi,
-            house rules and local tips.
-          </p>
-          <Link
-            href={GUEST_GUIDE_CREATE_PATH}
-            className="mt-6 inline-flex h-10 items-center rounded-xl border border-white/15 px-4 text-sm font-semibold text-white hover:bg-white/5"
-          >
-            Create your first guide
-          </Link>
-        </div>
+        <GuestGuidesEmptyState />
       ) : (
         <ul className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
           {guides.map((guide) => {

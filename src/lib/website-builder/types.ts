@@ -260,6 +260,8 @@ export interface PublicWebsiteModel {
   canonicalPath: string;
   showBranding: boolean;
   preview: boolean;
+  /** The fictional showcase sites: their unconnected stays may take sample inquiries. */
+  demo: boolean;
   pro: boolean;
   breadcrumbs: { name: string; path: string }[];
 }

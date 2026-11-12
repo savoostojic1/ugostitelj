@@ -166,7 +166,7 @@ export async function POST(request: NextRequest) {
     }
     const textBlock = message.content.find((block): block is Anthropic.Beta.BetaTextBlock => block.type === "text");
     if (!textBlock) return fail("No content came back. Please try again.", 502, "empty");
-    const result = parseQuickStartResult(extractJson(textBlock.text), photos.length);
+    const result = parseQuickStartResult(extractJson(textBlock.text), photos.length, theme);
     console.info("[website-ai] generated", {
       model: message.model,
       via,

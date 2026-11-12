@@ -15,6 +15,7 @@
   --wb-narrow: 820px;
   --wb-space: clamp(5rem, 11cqi, 10.5rem);
   --wb-type: 1;
+  --wb-type-base: 1;
   --wb-ease: cubic-bezier(0.16, 1, 0.3, 1);
   --wb-ease-out: cubic-bezier(0.22, 1, 0.36, 1);
   --wb-dur: 1.1s;
@@ -35,7 +36,7 @@
   text-rendering: optimizeLegibility;
   overflow-x: clip;
 }
-.wb[data-scale="large"] { --wb-type: 1.14; }
+.wb[data-scale="large"] { --wb-type: 1.14; --wb-type-base: 1.14; }
 
 /* Resets use :where() so every component class outranks them. */
 .wb :where(*, *::before, *::after) { box-sizing: border-box; }
@@ -711,7 +712,7 @@ button.wb-quick-field:hover { background: color-mix(in srgb, var(--q-ink) 5%, tr
 }
 .wb-inq-stays button[data-on="1"] { box-shadow: inset 0 0 0 1.5px var(--wb-ink); background: color-mix(in srgb, var(--wb-bg) 60%, transparent); }
 .wb-inq-stays span { font-weight: 500; }
-.wb-inq-stays small { font-size: 0.78rem; color: var(--wb-muted); }
+.wb-inq-stays small { font-size: 0.78rem; color: color-mix(in srgb, var(--wb-ink) 78%, transparent); }
 .wb-inq-row { display: flex; flex-wrap: wrap; align-items: flex-end; justify-content: space-between; gap: 1.2rem; padding-top: 1.2rem; border-top: 1px solid var(--wb-line); }
 .wb-inq-field { display: grid; gap: 0.5rem; }
 .wb-inq-field > span { font-size: 0.7rem; letter-spacing: 0.16em; text-transform: uppercase; color: var(--wb-muted); }
@@ -743,6 +744,21 @@ button.wb-quick-field:hover { background: color-mix(in srgb, var(--q-ink) 5%, tr
 .wb-inq-line strong { font-family: var(--wb-display-font); font-weight: 400; font-size: 1.5rem; color: var(--wb-ink); }
 .wb-inq-note { font-size: 0.86rem; color: var(--wb-muted); line-height: 1.6; }
 .wb-inq-fine { font-size: 0.76rem; color: var(--wb-muted); text-align: center; }
+/* Empty states: stays not connected yet (builder) or inquiries not open (live). */
+.wb-inq-empty { justify-items: start; align-content: start; gap: 0.9rem; text-align: left; }
+.wb-inq-empty .wb-h3 { max-width: 22ch; }
+.wb-inq-empty .wb-body { max-width: 46ch; color: var(--wb-muted); }
+.wb-inq-empty .wb-inq-fine { text-align: left; padding-top: 0.8rem; border-top: 1px solid var(--wb-line); width: 100%; }
+.wb-inq-pending-icon {
+  width: 2.6rem; height: 2.6rem; border-radius: 50%; position: relative;
+  border: 1.5px solid var(--wb-ink); opacity: 0.85;
+}
+.wb-inq-pending-icon::before, .wb-inq-pending-icon::after {
+  content: ""; position: absolute; left: 50%; top: 50%; background: var(--wb-ink); border-radius: 2px;
+}
+.wb-inq-pending-icon::before { width: 1.5px; height: 0.8rem; transform: translate(-50%, -85%); }
+.wb-inq-pending-icon::after { width: 0.6rem; height: 1.5px; transform: translate(-5%, -50%); }
+.wb-quick[data-pending="1"] .wb-quick-field > strong { opacity: 0.55; }
 .wb-inq-empty { color: var(--wb-muted); }
 .wb-inq-sent { justify-items: center; text-align: center; padding-block: clamp(2.5rem, 6cqi, 4rem); }
 .wb-inq-sent .wb-body { margin-inline: auto; }

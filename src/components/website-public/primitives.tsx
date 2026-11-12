@@ -286,7 +286,7 @@ export function SiteLink({
           if (target) {
             event.preventDefault();
             target.scrollIntoView({ behavior: "smooth", block: "start" });
-          } else if (booking?.stays.length) {
+          } else if (booking?.stays.length || booking?.pending) {
             event.preventDefault();
             booking.open();
           }

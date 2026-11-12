@@ -1,3 +1,4 @@
+import { isLocalImageRef, LOCAL_IMAGE_PLACEHOLDER, localImageUrl } from "@/lib/website-builder/local-images";
 import type { WebsiteImage, WebsiteThemeId } from "@/lib/website-builder/types";
 
 /**
@@ -85,6 +86,7 @@ export function libraryPhotos(): { theme: WebsiteThemeId; image: WebsiteImage }[
 
 /** A smaller rendition for thumbnails in the builder. */
 export function thumbUrl(url: string, width = 480): string {
+  if (isLocalImageRef(url)) return localImageUrl(url) ?? LOCAL_IMAGE_PLACEHOLDER;
   if (!url.startsWith("https://images.unsplash.com/")) return url;
   return url.replace(/([?&])w=\d+/, `$1w=${width}`);
 }

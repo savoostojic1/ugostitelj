@@ -1,3 +1,4 @@
+import { isLocalImageRef } from "@/lib/website-builder/local-images";
 import { currencyCodeFromUnknown } from "@/lib/currency/currencies";
 import { googleMapsUrlToEmbed, isAllowedMapEmbedUrl } from "@/lib/public/google-maps-embed";
 import { WEBSITE_LIMITS } from "@/lib/website-builder/limits";
@@ -67,6 +68,15 @@ export function cleanImageUrl(value: unknown): string {
   if (typeof value !== "string") return "";
   const trimmed = value.trim().slice(0, 2000);
   return isSafeHttpUrl(trimmed) ? trimmed : "";
+}
+
+/**
+ * Image fields inside a website document: a safe http(s) URL, or a reference to a photo
+ * kept in the host's browser until they register (see local-images.ts).
+ */
+export function cleanDocumentImage(value: unknown): string {
+  if (isLocalImageRef(value)) return value;
+  return cleanImageUrl(value);
 }
 
 export function cleanEmail(value: unknown): string {
@@ -200,7 +210,7 @@ export function sanitizeSettings(value: unknown): SectionSettings {
     eyebrow: cleanText(raw.eyebrow, 80),
     title: cleanText(raw.title, WEBSITE_LIMITS.title),
     body: cleanText(raw.body, WEBSITE_LIMITS.text),
-    imageUrl: cleanImageUrl(raw.imageUrl),
+    imageUrl: cleanDocumentImage(raw.imageUrl),
     imageAlt: cleanText(raw.imageAlt, 180),
     imagePosition: position,
     videoUrl: toEmbedVideoUrl(raw.videoUrl),
@@ -216,7 +226,7 @@ export function sanitizeSettings(value: unknown): SectionSettings {
 
 export function sanitizeImage(value: unknown): WebsiteImage | null {
   if (!isRecord(value)) return null;
-  const url = cleanImageUrl(value.url);
+  const url = cleanDocumentImage(value.url);
   if (!url) return null;
   return { url, alt: cleanText(value.alt, 180) };
 }
@@ -244,7 +254,7 @@ function sanitizeSeo(value: unknown, title: string, description: string): PageSe
     description: seoDescription,
     ogTitle: cleanText(raw.ogTitle, WEBSITE_LIMITS.seoTitle) || seoTitle,
     ogDescription: cleanText(raw.ogDescription, WEBSITE_LIMITS.seoDescription) || seoDescription,
-    ogImage: cleanImageUrl(raw.ogImage),
+    ogImage: cleanDocumentImage(raw.ogImage),
     noindex: raw.noindex === true,
   };
 }
@@ -308,8 +318,9 @@ export function sanitizeProfile(value: unknown): WebsiteProfile {
     language,
     // Stored as typed so the field can be edited; validated wherever it is rendered.
     contactEmail: cleanText(raw.contactEmail, 180),
-    contactPhone: cleanPhone(raw.contactPhone),
-    logoUrl: cleanImageUrl(raw.logoUrl),
+    // Like the email: kept as typed (a lone "+" is a valid start), validated when rendered.
+    contactPhone: cleanText(raw.contactPhone, 40),
+    logoUrl: cleanDocumentImage(raw.logoUrl),
     mapEmbedUrl: cleanMapEmbed(raw.mapEmbedUrl),
   };
 }

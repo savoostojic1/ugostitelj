@@ -38,6 +38,7 @@ import {
   StyleStep,
 } from "@/components/website-builder/wizard-steps";
 import { mergeWebsiteModel } from "@/lib/website-builder/merge-properties";
+import { resolveLocalImages } from "@/lib/website-builder/local-images";
 import { starterPhotos } from "@/lib/website-builder/photo-library";
 import { themeMeta } from "@/lib/website-builder/themes";
 import type { WebsiteDocument, WizardPath } from "@/lib/website-builder/types";
@@ -139,7 +140,8 @@ export function WebsiteStudio() {
         window.history.replaceState(null, "", window.location.pathname);
         if (json.authenticated && !accountDoc) {
           const result = await studio.claim(false);
-          if (result.ok) toast.success("Your website is now saved to your Hostvia account");
+          if (result.ok && result.photosPending) toast.warning(`Your website is saved, but ${result.photosPending} photos did not upload yet. Retry in the Launch step.`);
+          else if (result.ok) toast.success("Your website is now saved to your Hostvia account");
           else if (result.conflict) toast.message("Your account already has a website", { description: "Choose what to keep in the Launch step." });
           else if (result.error) toast.error(result.error);
         }
@@ -189,9 +191,12 @@ export function WebsiteStudio() {
   /** Until the host adds photographs, previews borrow the theme's starter photography. */
   const previewDocument = useMemo<WebsiteDocument | null>(() => {
     if (!document) return null;
-    if (document.gallery.length) return document;
-    return { ...document, gallery: starterPhotos(document.theme) };
-  }, [document]);
+    // Photos kept in this browser (before sign-up) show through their object URLs.
+    const resolved = resolveLocalImages(document);
+    if (resolved.gallery.length) return resolved;
+    return { ...resolved, gallery: starterPhotos(document.theme) };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [document, studio.localImagesVersion]);
 
   const buildModel = useCallback(
     (id: string) => {

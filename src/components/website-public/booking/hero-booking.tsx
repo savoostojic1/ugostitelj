@@ -11,7 +11,7 @@ import { useEditApi } from "@/components/website-public/primitives";
 export function HeroBooking({ label = "Check availability" }: { label?: string }) {
   const booking = useBooking();
   const editing = Boolean(useEditApi());
-  if (!booking || !booking.stays.length) return null;
+  if (!booking || (!booking.stays.length && !booking.pending)) return null;
   const { stay } = booking;
   const open = () => {
     if (!editing) booking.open();
@@ -20,6 +20,7 @@ export function HeroBooking({ label = "Check availability" }: { label?: string }
     <form
       className="wb-quick"
       data-inert={editing ? "1" : undefined}
+      data-pending={booking.pending ? "1" : undefined}
       onSubmit={(event) => {
         event.preventDefault();
         open();
@@ -48,7 +49,7 @@ export function HeroBooking({ label = "Check availability" }: { label?: string }
       </button>
       <div className="wb-quick-field wb-quick-guests">
         <span>Guests</span>
-        <GuestStepper value={booking.guests} max={stay?.capacity ?? 30} onChange={booking.setGuests} />
+        {booking.pending ? <strong>{booking.guests}</strong> : <GuestStepper value={booking.guests} max={stay?.capacity ?? 30} onChange={booking.setGuests} />}
       </div>
       <button type="submit" className="wb-quick-go">
         <span>{label}</span>

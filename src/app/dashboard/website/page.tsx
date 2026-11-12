@@ -6,6 +6,7 @@ import { DashboardPageHeader } from "@/components/dashboard/dashboard-page-heade
 import { Button } from "@/components/ui/button";
 import { WEBSITE_BUILDER_PATH, WEBSITE_MANAGEMENT_PATH } from "@/lib/website-builder/limits";
 import { getBookingSiteUrl } from "@/lib/public/booking-site-url";
+import { WebsiteEmptyState } from "@/components/website-builder/website-empty-state";
 
 interface WebsiteState {
   website: {
@@ -93,25 +94,23 @@ export default function WebsiteManagementPage() {
     <div className="space-y-8">
       <DashboardPageHeader
         eyebrow="Website"
-        title="Website management"
-        description="Edit the full website, choose what guests see, and publish when you are ready."
+        title={website ? "Website management" : "Your website"}
+        description={
+          website
+            ? "Edit the full website, choose what guests see, and publish when you are ready."
+            : "A website of your own where guests can discover your place and book with you directly."
+        }
         actions={
-          <Button asChild>
-            <Link href={`${WEBSITE_BUILDER_PATH}?mode=editor`}>Edit website</Link>
-          </Button>
+          website ? (
+            <Button asChild>
+              <Link href={`${WEBSITE_BUILDER_PATH}?mode=editor`}>Edit website</Link>
+            </Button>
+          ) : null
         }
       />
       {message ? <p className="text-sm text-zinc-300" role="status">{message}</p> : null}
       {!website ? (
-        <div className="rounded-xl border border-white/10 p-6">
-          <h2 className="text-lg text-white">No website yet</h2>
-          <p className="mt-2 max-w-xl text-sm text-zinc-400">
-            Start from the free builder. You can design the site before you create an account, then claim it here.
-          </p>
-          <Button asChild className="mt-4">
-            <Link href={WEBSITE_BUILDER_PATH}>Create my free website</Link>
-          </Button>
-        </div>
+        <WebsiteEmptyState />
       ) : (
         <>
           <div className="grid gap-4 md:grid-cols-4">

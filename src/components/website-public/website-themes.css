@@ -583,8 +583,8 @@
   .wb-hero-foot { display: none; }
   .wb-hero--luxe .wb-hero-copy { padding-bottom: 3rem; }
   .wb-hero--nature .wb-hero-copy { padding-bottom: 3rem; }
-  .wb-hero--minimal .wb-display { font-size: clamp(3rem, 19cqi, 5rem); }
-  .wb-escape .wb-display { font-size: clamp(3.2rem, 17cqi, 5.4rem); }
+  .wb-hero--minimal .wb-display { font-size: calc(clamp(3rem, 19cqi, 5rem) * var(--wb-type)); }
+  .wb-escape .wb-display { font-size: calc(clamp(3.2rem, 17cqi, 5.4rem) * var(--wb-type)); }
   .wb-stack-card { min-height: 30rem; }
   .wb-cta { padding-block: 5rem; }
   .wb-cta.has-image { min-height: calc(var(--wb-vh, 100svh) * 0.7); }
@@ -629,6 +629,9 @@
   --wb-muted: color-mix(in srgb, var(--wb-deep-ink) 64%, transparent);
   --wb-line: color-mix(in srgb, var(--wb-deep-ink) 16%, transparent);
   --wb-surface: color-mix(in srgb, var(--wb-deep-ink) 7%, var(--wb-deep));
+  /* Accent labels and hovers stay readable on the dark ground (checked in theme-contrast.test.ts). */
+  --wb-accent: color-mix(in srgb, var(--wb-accent-src) 45%, var(--wb-deep-ink));
+  --wb-accent-ink: var(--wb-deep);
   background: var(--wb-bg);
   color: var(--wb-ink);
 }
@@ -685,3 +688,9 @@
   filter: blur(10px);
 }
 .wb-coastal .wb-arch { box-shadow: 0 40px 70px -45px color-mix(in srgb, var(--wb-ink) 55%, transparent); }
+
+/* Copy set over photographs keeps a soft shadow so busy images never swallow it. */
+.wb-hero--escape .wb-lede, .wb-hero--nature .wb-lede, .wb-hero--luxe .wb-lede,
+.wb-hero--escape .wb-kicker, .wb-hero--nature .wb-kicker, .wb-hero--luxe .wb-kicker {
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.35), 0 2px 22px rgba(0, 0, 0, 0.45);
+}

@@ -227,6 +227,19 @@ const THEME_VOICE: Record<WebsiteThemeId, string> = {
   escape: "ESCAPE: slow, poetic and immersive, written as chapters of a retreat. Rituals, light, stillness. Calm second person.",
 };
 
+/**
+ * How much text each design can carry in its large display type. The hero headline is
+ * set very large (and the Escape hero is pinned full screen), so long copy wraps into
+ * a wall of type. These limits go into the prompt and are enforced again in code.
+ */
+export const COPY_LIMITS: Record<WebsiteThemeId, { heroWords: number; heroChars: number; heroBody: number; title: number; body: number; welcomeBody: number }> = {
+  luxe: { heroWords: 5, heroChars: 34, heroBody: 120, title: 48, body: 300, welcomeBody: 240 },
+  coastal: { heroWords: 5, heroChars: 36, heroBody: 130, title: 52, body: 320, welcomeBody: 260 },
+  nature: { heroWords: 6, heroChars: 40, heroBody: 140, title: 56, body: 340, welcomeBody: 280 },
+  minimal: { heroWords: 4, heroChars: 28, heroBody: 100, title: 44, body: 260, welcomeBody: 200 },
+  escape: { heroWords: 5, heroChars: 34, heroBody: 120, title: 48, body: 300, welcomeBody: 240 },
+};
+
 export function quickStartSystemPrompt(): string {
   return [
     "You write complete holiday-rental websites for hosts on Hostvia, a property management platform.",
@@ -243,8 +256,9 @@ export function quickStartSystemPrompt(): string {
     "",
     "Structure:",
     "- property.name is the property's own name without the platform's labels. property.type is a short noun phrase such as \"Private villa\" or \"Apartments by the sea\". property.location is \"Town, Country\". property.shortDescription is one sentence of at most 200 characters for the homepage introduction and search snippet.",
-    "- eyebrow: one to three words. title: at most 70 characters. body: one to three sentences, at most 420 characters, except about.intro.body, about.story.body and location.body, which may run to 700 characters.",
-    "- home.hero.title is the headline over the main photograph: evocative, at most 7 words. hero.ctaLabel and cta.ctaLabel: two to three words inviting a booking inquiry.",
+    "- Lengths follow the \"Lengths\" line of the theme in the user message. They are hard limits: the design sets headlines in very large type and longer text breaks the layout. Shorter is better.",
+    "- eyebrow: one to three words. Body text: one to three sentences, except about.intro.body, about.story.body and location.body, which may run to 600 characters.",
+    "- home.hero.title is the headline over the main photograph: a short evocative phrase, not a sentence, never the full property name plus location. home.hero.body is one short sentence. hero.ctaLabel and cta.ctaLabel: two or three words inviting a booking inquiry.",
     "- home.featured introduces the stay or stays guests can book. home.chapter is a single quiet line for a full-width photograph; its body may be empty.",
     "- home.amenities.items: 4 to 12 short amenity names actually in the listing, most appealing first.",
     "- home.experiences.items: 3 to 5 moments of a day or nearby activities that the listing supports (title of one to three words, body of one sentence).",
@@ -264,6 +278,7 @@ export function quickStartUserText(input: {
 }): string {
   return [
     `Theme voice: ${THEME_VOICE[input.theme]}`,
+    `Lengths: hero.title at most ${COPY_LIMITS[input.theme].heroWords} words and ${COPY_LIMITS[input.theme].heroChars} characters; hero.body at most ${COPY_LIMITS[input.theme].heroBody} characters; every other title at most ${COPY_LIMITS[input.theme].title} characters; home.welcome.body at most ${COPY_LIMITS[input.theme].welcomeBody} characters; other body text at most ${COPY_LIMITS[input.theme].body} characters.`,
     `Website language: ${input.language}`,
     input.photoCount
       ? `${input.photoCount} photographs are attached above, numbered 0 to ${input.photoCount - 1} in the order of the labels.`
@@ -305,9 +320,19 @@ function text(value: unknown, max: number): string {
   return (stop > max * 0.6 ? cut.slice(0, stop + 1) : cut.replace(/\s+\S*$/, "")).trim();
 }
 
-function readCopy(value: unknown, bodyMax = 420): Copy {
+function readCopy(value: unknown, bodyMax = 420, titleMax = 110): Copy {
   const r = rec(value);
-  return { eyebrow: text(r.eyebrow, 40), title: text(r.title, 110), body: text(r.body, bodyMax) };
+  return { eyebrow: text(r.eyebrow, 32), title: headline(r.title, titleMax), body: text(r.body, bodyMax) };
+}
+
+/** A headline is cut at a word, never mid-word, and loses trailing punctuation that dangles. */
+function headline(value: unknown, maxChars: number, maxWords = 14): string {
+  const clean = text(value, 400);
+  if (!clean) return "";
+  let words = clean.split(" ").slice(0, maxWords);
+  while (words.length > 1 && words.join(" ").length > maxChars) words = words.slice(0, -1);
+  const out = words.join(" ");
+  return out === clean ? out : out.replace(/[,;:–—-]+$/, "").trim();
 }
 
 function readItems(value: unknown, max: number): ItemCopy[] {
@@ -343,12 +368,15 @@ function readIndexes(value: unknown, photoCount: number): number[] {
 }
 
 /** Turns untrusted model output into a complete, bounded result. Throws when it is unusable. */
-export function parseQuickStartResult(raw: unknown, photoCount: number): QuickStartResult {
+export function parseQuickStartResult(raw: unknown, photoCount: number, theme: WebsiteThemeId = "luxe"): QuickStartResult {
+  const limits = COPY_LIMITS[theme];
+  const copyOf = (value: unknown, bodyMax = limits.body) => readCopy(value, bodyMax, limits.title);
   const r = rec(raw);
   const property = rec(r.property);
   const home = rec(r.home);
   const name = text(property.name, 140);
-  const hero = readCopy(home.hero);
+  const heroRaw = rec(home.hero);
+  const hero = { eyebrow: text(heroRaw.eyebrow, 32), title: headline(heroRaw.title, limits.heroChars, limits.heroWords), body: text(heroRaw.body, limits.heroBody) };
   if (!name && !hero.title) throw new Error("The model returned no usable content");
   const language = WEBSITE_LANGUAGES.includes(r.language as WebsiteLanguage) ? (r.language as WebsiteLanguage) : "en";
   const amenities = rec(home.amenities);
@@ -391,20 +419,20 @@ export function parseQuickStartResult(raw: unknown, photoCount: number): QuickSt
     },
     home: {
       hero: { ...hero, ctaLabel: text(rec(home.hero).ctaLabel, 32) },
-      welcome: readCopy(home.welcome),
-      story: readCopy(home.story),
-      featured: readCopy(home.featured),
-      amenities: { ...readCopy(amenities), items: readStrings(amenities.items, 12) },
-      experiences: { ...readCopy(experiences), items: readItems(experiences.items, 6) },
-      gallery: readCopy(home.gallery),
-      chapter: readCopy(home.chapter),
-      cta: { ...readCopy(home.cta), ctaLabel: text(rec(home.cta).ctaLabel, 32) },
+      welcome: copyOf(home.welcome, limits.welcomeBody),
+      story: copyOf(home.story),
+      featured: copyOf(home.featured),
+      amenities: { ...copyOf(amenities), items: readStrings(amenities.items, 12) },
+      experiences: { ...copyOf(experiences), items: readItems(experiences.items, 6) },
+      gallery: copyOf(home.gallery),
+      chapter: copyOf(home.chapter),
+      cta: { ...copyOf(home.cta), ctaLabel: text(rec(home.cta).ctaLabel, 32) },
     },
-    about: { intro: readCopy(about.intro, 900), story: readCopy(about.story, 900) },
-    stays: { hero: readCopy(stays.hero), grid: readCopy(stays.grid) },
-    location: readCopy(r.location, 900),
+    about: { intro: copyOf(about.intro, 700), story: copyOf(about.story, 700) },
+    stays: { hero: copyOf(stays.hero), grid: copyOf(stays.grid) },
+    location: copyOf(r.location, 700),
     faq: readItems(r.faq, 8),
-    contact: readCopy(r.contact),
+    contact: copyOf(r.contact),
     seo: { title: text(seo.title, 70), description: text(seo.description, 160) },
     units,
     photos,
@@ -513,7 +541,8 @@ export function applyQuickStart(
       const enabled =
         page.enabled ||
         (page.type === "faq" && result.faq.length >= 3) ||
-        (page.type === "amenities" && result.home.amenities.items.length >= 6);
+        (page.type === "amenities" && result.home.amenities.items.length >= 6) ||
+        (page.type === "experiences" && result.home.experiences.items.length >= 3);
       return { ...page, sections, seo, enabled };
     }),
   };

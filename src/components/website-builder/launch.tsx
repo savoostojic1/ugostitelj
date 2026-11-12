@@ -1,6 +1,7 @@
 "use client";
 
 import { STEP } from "@/components/website-builder/steps";
+import { collectLocalImageRefs } from "@/lib/website-builder/local-images";
 
 import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
@@ -44,7 +45,7 @@ function Checklist({ items }: { items: { label: string; done: boolean; hint?: st
 type Choice = string; // "link:<id>" | "create" | "skip"
 
 export function LaunchStep({ studio, document, goTo }: StepProps & { goTo: (step: number) => void }) {
-  const [busy, setBusy] = useState<null | "claim" | "connect" | "publish">(null);
+  const [busy, setBusy] = useState<null | "claim" | "connect" | "publish" | "photos">(null);
   const [conflict, setConflict] = useState(false);
   const [choices, setChoices] = useState<Record<string, Choice>>({});
   const [published, setPublished] = useState<string | null>(studio.publishedUrl);
@@ -78,6 +79,7 @@ export function LaunchStep({ studio, document, goTo }: StepProps & { goTo: (step
   );
   const canPublish = Boolean(document.profile.name.trim());
   const isAccount = studio.source === "account";
+  const pendingPhotos = collectLocalImageRefs(document).length;
 
   async function claim(replace = false) {
     setBusy("claim");
@@ -96,7 +98,16 @@ export function LaunchStep({ studio, document, goTo }: StepProps & { goTo: (step
       return;
     }
     setConflict(false);
-    toast.success("Saved to your Hostvia account");
+    if (result.photosPending) toast.warning(`Saved to your account. ${result.photosPending} photos did not upload yet; use “Upload photos” below.`);
+    else toast.success("Saved to your Hostvia account");
+  }
+
+  async function uploadPendingPhotos() {
+    setBusy("photos");
+    const result = await studio.uploadLocalImages();
+    setBusy(null);
+    if (result.failed) toast.error(result.error ?? `${result.failed} photos could not be uploaded`);
+    else toast.success(`${result.uploaded} ${result.uploaded === 1 ? "photo" : "photos"} uploaded`);
   }
 
   async function connect() {
@@ -186,6 +197,17 @@ export function LaunchStep({ studio, document, goTo }: StepProps & { goTo: (step
 
       <Checklist items={checklist} />
 
+      {studio.authenticated && pendingPhotos ? (
+        <div className="flex flex-col gap-3 rounded-2xl border border-amber-400/25 bg-amber-400/[0.07] p-4 sm:flex-row sm:items-center">
+          <p className="min-w-0 flex-1 text-[12.5px] leading-relaxed text-amber-100/80">
+            <strong className="text-amber-100">{pendingPhotos} {pendingPhotos === 1 ? "photo is" : "photos are"} still only in this browser.</strong> Upload {pendingPhotos === 1 ? "it" : "them"} so guests can see {pendingPhotos === 1 ? "it" : "them"} on your published website.
+          </p>
+          <Button size="sm" onClick={uploadPendingPhotos} disabled={busy !== null}>
+            {busy === "photos" ? "Uploading…" : "Upload photos"}
+          </Button>
+        </div>
+      ) : null}
+
       {!studio.authenticated ? (
         <div className="space-y-3 rounded-2xl border border-white/10 bg-gradient-to-b from-white/[0.06] to-white/[0.02] p-5">
           <p className="flex items-center gap-2 text-[14px] font-semibold text-white">
@@ -195,6 +217,7 @@ export function LaunchStep({ studio, document, goTo }: StepProps & { goTo: (step
             <li className="flex gap-2"><Sparkles className="mt-0.5 h-3.5 w-3.5 shrink-0 text-violet-300" /> Publish on your own Hostvia address</li>
             <li className="flex gap-2"><Sparkles className="mt-0.5 h-3.5 w-3.5 shrink-0 text-violet-300" /> Receive booking inquiries with live prices and availability</li>
             <li className="flex gap-2"><Sparkles className="mt-0.5 h-3.5 w-3.5 shrink-0 text-violet-300" /> Your design, pages and photos are kept exactly as they are</li>
+            <li className="flex gap-2"><ShieldCheck className="mt-0.5 h-3.5 w-3.5 shrink-0 text-emerald-300" /> Until then your photos stay in this browser and are not uploaded anywhere</li>
           </ul>
           <div className="flex flex-col gap-2 pt-2 sm:flex-row">
             <Link href={`/register?next=${encodeURIComponent(CLAIM_RETURN)}`} className="inline-flex h-11 flex-1 items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-violet-500 to-fuchsia-500 px-5 text-[14px] font-semibold text-white shadow-[0_10px_30px_-10px_rgba(168,85,247,0.7)] hover:brightness-110">

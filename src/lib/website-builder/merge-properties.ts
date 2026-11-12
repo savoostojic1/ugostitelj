@@ -114,6 +114,7 @@ export function mergeWebsiteModel(input: {
     canonicalPath: pagePath(input.page),
     showBranding: pro ? !input.document.design.hideBranding : true,
     preview: input.preview === true,
+    demo: input.sampleRates === true,
     pro,
     breadcrumbs: breadcrumbsFor(enabled, input.page, input.document.profile.name || "Home"),
   };

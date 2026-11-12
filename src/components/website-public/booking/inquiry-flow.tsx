@@ -69,10 +69,25 @@ export function InquiryFlow({ compact }: { compact?: boolean }) {
   }, [booking?.sheetOpen]);
 
   if (!booking || !stay) {
+    // Builder preview: explain to the host. Live site: a calm note for guests.
+    if (booking?.pending) {
+      return (
+        <div className="wb-inq wb-inq-empty" data-compact={compact ? "1" : undefined} role="note">
+          <span className="wb-inq-pending-icon" aria-hidden />
+          <p className="wb-kicker">Booking inquiries</p>
+          <h3 className="wb-h3">Your stays connect after you create your account.</h3>
+          <p className="wb-body">
+            Stays are added in Hostvia, where you set their prices and calendars. Once they are connected, guests choose dates here with live availability and send you an inquiry.
+          </p>
+          <p className="wb-inq-fine">Only you see this note. It is not shown on your published website.</p>
+        </div>
+      );
+    }
     return (
-      <div className="wb-inq wb-inq-empty">
+      <div className="wb-inq wb-inq-empty" data-compact={compact ? "1" : undefined}>
         <p className="wb-kicker">Booking inquiry</p>
-        <p>Booking opens when this website is connected to a Hostvia property and published.</p>
+        <h3 className="wb-h3">Online inquiries open soon.</h3>
+        <p className="wb-body">In the meantime, please write to the host using the contact details on this website.</p>
       </div>
     );
   }

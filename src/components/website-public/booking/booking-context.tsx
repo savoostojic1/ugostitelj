@@ -23,6 +23,11 @@ export interface BookingState {
   guests: number;
   /** True when the stay is connected to a Hostvia property and the site is live. */
   canSend: boolean;
+  /**
+   * Builder preview of a site whose stays are not connected yet: the booking bar and
+   * panel still show, with a note that stays are connected in Hostvia later.
+   */
+  pending: boolean;
   preview: boolean;
   language: string;
   sheetOpen: boolean;
@@ -40,11 +45,14 @@ export function useBooking() {
   return useContext(BookingContext);
 }
 
-/** Stays a guest can ask about: connected ones on the live site; any stay in previews. */
+/**
+ * Stays a guest can ask about: only those connected to a Hostvia property, because
+ * dates, availability and prices come from there. The demo sites use their samples.
+ */
 export function bookableStays(model: PublicWebsiteModel): PublicStay[] {
   const connected = model.stays.filter((stay) => stay.propertyId && stay.propertySlug);
   if (connected.length) return connected;
-  return model.preview ? model.stays : [];
+  return model.demo ? model.stays : [];
 }
 
 export function BookingProvider({ model, children }: { model: PublicWebsiteModel; children: ReactNode }) {
@@ -98,6 +106,7 @@ export function BookingProvider({ model, children }: { model: PublicWebsiteModel
       checkOut,
       guests,
       canSend: Boolean(stay?.propertySlug) && !model.preview,
+      pending: model.preview && !model.demo && stays.length === 0,
       preview: model.preview,
       language: model.language,
       sheetOpen,
@@ -115,7 +124,7 @@ export function BookingProvider({ model, children }: { model: PublicWebsiteModel
       close: () => setSheetOpen(false),
       reservations: propertyId ? reservationCache[propertyId] ?? [] : [],
     }),
-    [checkIn, checkOut, guests, model.language, model.preview, propertyId, reservationCache, setGuests, sheetOpen, stay, stays]
+    [checkIn, checkOut, guests, model.demo, model.language, model.preview, propertyId, reservationCache, setGuests, sheetOpen, stay, stays]
   );
 
   return <BookingContext.Provider value={value}>{children}</BookingContext.Provider>;

@@ -1,4 +1,5 @@
 import "server-only";
+import { stripLocalImages } from "@/lib/website-builder/local-images";
 
 import { createClient } from "@/lib/supabase/server";
 import { currencyCodeFromUnknown } from "@/lib/currency/currencies";
@@ -68,7 +69,7 @@ export async function loadPublishedWebsite(
   if (error || !data) return { state: "absent" };
   const payload = data as PublishedPayload;
   if (!payload.document || !payload.username) return { state: "absent" };
-  const document = normalizeDocument(payload.document);
+  const document = stripLocalImages(normalizeDocument(payload.document));
   const page = pageForSlug(document, slugParts);
   if (!page) return { state: "missing-page" };
   return {

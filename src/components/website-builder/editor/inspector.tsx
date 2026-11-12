@@ -511,7 +511,7 @@ function SiteInspector({ studio, document, onRequestImage }: { studio: WebsiteSt
             <button type="button" onClick={() => onRequestImage({ kind: "logo" })} className="grid h-14 w-24 place-items-center overflow-hidden rounded-lg border border-white/10 bg-white/[0.04] text-[11.5px] text-zinc-500 hover:border-white/25">
               {p.logoUrl ? (
                 // eslint-disable-next-line @next/next/no-img-element
-                <img src={p.logoUrl} alt="Logo" className="max-h-full max-w-full object-contain" />
+                <img src={thumbUrl(p.logoUrl, 320)} alt="Logo" className="max-h-full max-w-full object-contain" />
               ) : (
                 "Add logo"
               )}

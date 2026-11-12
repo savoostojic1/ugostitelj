@@ -22,13 +22,13 @@ function rawResult(overrides: Record<string, unknown> = {}) {
       story: copy("Mornings on the terrace"),
       featured: copy("Your stay"),
       amenities: { ...copy("In the house"), items: ["Pool", "Sea view", "Wi-Fi", "Pool", "Parking", "Air conditioning", "Kitchen"] },
-      experiences: { ...copy("How the days go"), items: [{ title: "Morning", body: "A swim." }, { title: "Evening", body: "Dinner outside." }, { title: "", body: "dropped" }] },
-      gallery: copy("Inside and out"),
-      chapter: { eyebrow: "", title: "Where the day slows down", body: "" },
-      cta: { ...copy("Ask about a stay"), ctaLabel: "Check dates" },
+      experiences: { ...copy("Days around the villa"), items: [{ title: "Morning", body: "A swim." }, { title: "Evening", body: "Dinner outside." }, { title: "", body: "dropped" }] },
+      gallery: copy("Rooms and light"),
+      chapter: { eyebrow: "", title: "The bay at dusk", body: "" },
+      cta: { ...copy("Your dates in Budva"), ctaLabel: "Check dates" },
     },
     about: { intro: copy("About the villa"), story: copy("How it lives") },
-    stays: { hero: copy("Accommodation"), grid: copy("Choose a space") },
+    stays: { hero: copy("Where you stay"), grid: copy("Pick your rooms") },
     location: copy("Old town, five minutes"),
     faq: [
       { title: "Is this a reservation?", body: "No, the host confirms." },
@@ -207,5 +207,57 @@ describe("retrying photo uploads", () => {
     assert.equal(next.gallery[0].url, urls[1], "cover first");
     assert.deepEqual(next.accommodations[0].photos.map((photo) => photo.url), [urls[2], urls[1]]);
     assert.ok(next.accommodations[1].photos.length > 0);
+  });
+});
+
+describe("AI writes every page", () => {
+  // Sections that keep fixed, honest wording or have no AI copy by design.
+  const FIXED = new Set(["booking", "newsletter", "reviews", "video", "text"]);
+
+  for (const theme of ["luxe", "coastal", "nature", "minimal", "escape"] as const) {
+    it(`replaces the starter text of every page and section (${theme})`, () => {
+      const starter = prepareNewDocument(theme);
+      const raw = rawResult();
+      raw.home.experiences.items.push({ title: "Night", body: "Stars." });
+      const doc = applyQuickStart(starter, parseQuickStartResult(raw, 3, theme), urls);
+      const starterTitles = new Map(starter.pages.flatMap((page) => page.sections.map((section) => [`${page.type}:${section.type}`, section.settings.title])));
+      for (const page of doc.pages.filter((item) => item.type !== "accommodation_unit" && item.type !== "reviews")) {
+        for (const section of page.sections.filter((item) => !FIXED.has(item.type))) {
+          const key = `${page.type}:${section.type}`;
+          if (section.type === "faq" || section.type === "amenities" && page.type === "amenities") {
+            assert.ok(section.settings.items.length >= 3, `${key} has written items`);
+            continue;
+          }
+          assert.notEqual(section.settings.title, starterTitles.get(key), `${key} title was written by AI`);
+        }
+      }
+      for (const type of ["faq", "amenities", "experiences"]) {
+        assert.equal(doc.pages.find((page) => page.type === type)!.enabled, true, `${type} page is switched on`);
+      }
+    });
+  }
+
+  it("keeps hero copy short enough for each design", async () => {
+    const { COPY_LIMITS } = await import("@/lib/website-builder/ai/quick-start");
+    const long = rawResult({
+      home: { ...rawResult().home, hero: { eyebrow: "A very long eyebrow text here", title: "Vila Panorama, a beautiful stone villa above the bay of Budva in Montenegro", body: "This is a long sentence. ".repeat(20), ctaLabel: "Ask" } },
+    });
+    for (const theme of ["luxe", "coastal", "nature", "minimal", "escape"] as const) {
+      const hero = parseQuickStartResult(long, 0, theme).home.hero;
+      assert.ok(hero.title.length <= COPY_LIMITS[theme].heroChars, `${theme} title ${hero.title.length}`);
+      assert.ok(hero.title.split(" ").length <= COPY_LIMITS[theme].heroWords);
+      assert.ok(!/[,;:]$/.test(hero.title));
+      assert.ok(hero.body.length <= COPY_LIMITS[theme].heroBody);
+    }
+  });
+
+  it("lets a phone number be typed from its first character", async () => {
+    const { withProfile } = await import("@/lib/website-builder/document-ops");
+    const { cleanPhone } = await import("@/lib/website-builder/sanitize");
+    const doc = withProfile(prepareNewDocument("luxe"), { contactPhone: "+" });
+    assert.equal(doc.profile.contactPhone, "+");
+    assert.equal(cleanPhone(doc.profile.contactPhone), "", "not published until valid");
+    const home = doc.pages.find((page) => page.isHome)!;
+    assert.equal(mergeWebsiteModel({ document: withProfile(doc, { contactPhone: "+382 67 123 456" }), properties: [], username: "x", page: home }).profile.contactPhone, "+382 67 123 456");
   });
 });

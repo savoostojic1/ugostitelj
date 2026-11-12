@@ -5,6 +5,8 @@ import { currencyCodeFromUnknown } from "@/lib/currency/currencies";
 import { chooseDraft } from "@/lib/website-builder/draft-store";
 import { normalizeDocument, prepareNewDocument, switchTheme } from "@/lib/website-builder/document-ops";
 import { readLocalWebsite, writeLocalWebsite } from "@/lib/website-builder/local-draft";
+import { collectLocalImageRefs, mapDocumentImages } from "@/lib/website-builder/local-images";
+import { deleteLocalImages, loadLocalImages, readLocalImage, saveLocalImage } from "@/components/website-builder/local-image-store";
 import type { LivePropertySnapshot, WebsiteDocument, WebsiteThemeId } from "@/lib/website-builder/types";
 import { WEBSITE_THEMES } from "@/lib/website-builder/types";
 
@@ -16,6 +18,14 @@ export interface ClaimOutcome {
   error?: string;
   conflict?: boolean;
   unauthenticated?: boolean;
+  /** Photos that are still only in this browser because their upload failed. */
+  photosPending?: number;
+}
+
+export interface LocalUploadOutcome {
+  uploaded: number;
+  failed: number;
+  error: string | null;
 }
 
 export interface PublishOutcome {
@@ -76,6 +86,9 @@ export function useWebsiteStudio() {
   const [publishedUrl, setPublishedUrl] = useState<string | null>(null);
   const [lastSavedAt, setLastSavedAt] = useState<Date | null>(null);
   const [historyTick, setHistoryTick] = useState(0);
+  // Bumped when photos kept in this browser get their preview URLs.
+  const [localImagesVersion, setLocalImagesVersion] = useState(0);
+  const authenticatedRef = useRef(false);
 
   const past = useRef<WebsiteDocument[]>([]);
   const future = useRef<WebsiteDocument[]>([]);
@@ -128,8 +141,11 @@ export function useWebsiteStudio() {
   const applyServer = useCallback((json: Record<string, unknown>) => {
     const src = json.source === "account" || json.source === "project" ? json.source : "local";
     setSource(src);
-    if (typeof json.authenticated === "boolean") setAuthenticated(json.authenticated);
-    else if (src === "account") setAuthenticated(true);
+    const signedIn = typeof json.authenticated === "boolean" ? json.authenticated : src === "account" ? true : null;
+    if (signedIn !== null) {
+      setAuthenticated(signedIn);
+      authenticatedRef.current = signedIn;
+    }
     if (typeof json.status === "string") setStatus(json.status);
     if (Array.isArray(json.properties)) setProperties(rowsToProperties(json.properties));
   }, []);
@@ -158,6 +174,7 @@ export function useWebsiteStudio() {
       current.current = initial;
       setDocument(initial);
       setSaveState(json.persisted ? "saved" : "local");
+      void loadLocalImages(collectLocalImageRefs(initial)).then((ready) => ready && setLocalImagesVersion((v) => v + 1));
       return { fresh, json };
     } catch {
       let initial = local?.document ?? prepareNewDocument("luxe");
@@ -168,6 +185,7 @@ export function useWebsiteStudio() {
       current.current = initial;
       setDocument(initial);
       setSaveState("local");
+      void loadLocalImages(collectLocalImageRefs(initial)).then((ready) => ready && setLocalImagesVersion((v) => v + 1));
       return { fresh: !local, json: {} as Record<string, unknown> };
     }
   }, [applyServer]);
@@ -234,9 +252,9 @@ export function useWebsiteStudio() {
     if (current.current) void persist(current.current);
   }, [persist]);
 
-  const upload = useCallback(async (file: File): Promise<{ url?: string; error?: string }> => {
+  const serverUpload = useCallback(async (file: Blob, name = "photo.jpg"): Promise<{ url?: string; error?: string }> => {
     const body = new FormData();
-    body.set("file", file);
+    body.set("file", file, file instanceof File ? file.name : name);
     try {
       const response = await fetch("/api/website-builder/upload", { method: "POST", body });
       const json = await readJson(response);
@@ -255,7 +273,50 @@ export function useWebsiteStudio() {
     }
   }, []);
 
+  /**
+   * Adds a photo. Without an account it stays in this browser and nothing is uploaded;
+   * signed-in hosts upload straight to Hostvia storage.
+   */
+  const upload = useCallback(
+    async (file: File): Promise<{ url?: string; error?: string }> => {
+      if (authenticatedRef.current) return serverUpload(file);
+      try {
+        const ref = await saveLocalImage(file);
+        setLocalImagesVersion((v) => v + 1);
+        return { url: ref };
+      } catch {
+        return { error: "This browser could not keep the photo. Free some space or try another browser." };
+      }
+    },
+    [serverUpload]
+  );
+
+  /** Uploads every photo kept in this browser and puts its URL into the website. */
+  const uploadLocalImages = useCallback(async (): Promise<LocalUploadOutcome> => {
+    const doc = current.current;
+    const refs = doc ? collectLocalImageRefs(doc) : [];
+    const urls = new Map<string, string>();
+    let error: string | null = null;
+    for (const ref of refs) {
+      const blob = await readLocalImage(ref).catch(() => null);
+      if (!blob) {
+        error = "Some photos are no longer in this browser. Add them again in the Photos step.";
+        continue;
+      }
+      const result = await serverUpload(blob, `${ref.slice(6)}.jpg`);
+      if (result.url) urls.set(ref, result.url);
+      else error = result.error ?? "Could not upload a photo";
+    }
+    if (urls.size && current.current) {
+      change(mapDocumentImages(current.current, (url) => urls.get(url) ?? url), { history: false });
+    }
+    return { uploaded: urls.size, failed: refs.length - urls.size, error };
+  }, [change, serverUpload]);
+
   const claim = useCallback(async (replaceDraft = false): Promise<ClaimOutcome> => {
+    // Now that the host is registered, upload the photos kept in this browser first.
+    const before = current.current ? collectLocalImageRefs(current.current) : [];
+    const photos = before.length ? await uploadLocalImages() : null;
     // Make sure the newest version is on the server before it moves to the account.
     if (current.current) await persist(current.current);
     const response = await fetch("/api/website-builder/claim", {
@@ -276,8 +337,10 @@ export function useWebsiteStudio() {
       return { ok: false, error: map[code] ?? (code || "Could not save the website to your account") };
     }
     await load({ preferServer: true });
-    return { ok: true };
-  }, [load, persist]);
+    const left = current.current ? collectLocalImageRefs(current.current) : [];
+    void deleteLocalImages(before.filter((ref) => !left.includes(ref)));
+    return { ok: true, photosPending: photos?.failed ?? 0 };
+  }, [load, persist, uploadLocalImages]);
 
   const publish = useCallback(async (): Promise<PublishOutcome> => {
     if (current.current) await persist(current.current);
@@ -349,12 +412,14 @@ export function useWebsiteStudio() {
       load,
       retrySave,
       upload,
+      uploadLocalImages,
+      localImagesVersion,
       claim,
       publish,
       connectStays,
       getDocument,
     }),
-    [getDocument, document, properties, saveState, saveError, source, authenticated, status, publishedUrl, lastSavedAt, canUndo, canRedo, historyTick, change, undo, redo, load, retrySave, upload, claim, publish, connectStays]
+    [getDocument, document, properties, saveState, saveError, source, authenticated, status, publishedUrl, lastSavedAt, canUndo, canRedo, historyTick, change, undo, redo, load, retrySave, upload, uploadLocalImages, localImagesVersion, claim, publish, connectStays]
   );
 }
 

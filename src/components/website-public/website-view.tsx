@@ -245,7 +245,7 @@ function Navigation({ model }: { model: PublicWebsiteModel }) {
   const [open, setOpen] = useState(false);
   const booking = useBooking();
   const editing = Boolean(useEditApi());
-  const canInquire = Boolean(booking?.stays.length);
+  const canInquire = Boolean(booking?.stays.length || booking?.pending);
   const home = model.pages.find((page) => page.isHome);
   const items = (home ? [home, ...model.navPages.filter((page) => !page.isHome)] : model.navPages).map((page) => ({
     id: page.id,

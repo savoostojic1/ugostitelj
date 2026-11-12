@@ -37,12 +37,30 @@ function heroImages(section: WebsiteSection, model: PublicWebsiteModel) {
   };
 }
 
+/**
+ * The hero headline is set in very large display type. Longer headlines, or a single
+ * long word, step the size down so the text never runs off screen or into the
+ * booking bar, whatever the host (or the AI) writes.
+ */
+export function heroFitScale(title: string): number {
+  const length = title.trim().length;
+  const longestWord = Math.max(0, ...title.split(/\s+/).map((word) => word.length));
+  let scale = length <= 18 ? 1 : length <= 28 ? 0.86 : length <= 40 ? 0.72 : length <= 60 ? 0.6 : 0.5;
+  if (longestWord > 9) scale = Math.min(scale, Math.max(0.55, 9 / longestWord));
+  return Math.round(scale * 100) / 100;
+}
+
+function heroFit(title: string): React.CSSProperties | undefined {
+  const scale = heroFitScale(title);
+  return scale < 1 ? ({ "--wb-type": `calc(var(--wb-type-base, 1) * ${scale})`, maxWidth: `${Math.round(11 / scale)}ch`, lineHeight: scale < 0.8 ? 1.04 : 0.98 } as React.CSSProperties) : undefined;
+}
+
 function Cta({ section, model, className }: { section: WebsiteSection; model: PublicWebsiteModel; className?: string }) {
   const booking = useBooking();
   const label = section.settings.ctaLabel;
   const showBar =
     model.design.heroBooking &&
-    Boolean(booking?.stays.length) &&
+    Boolean(booking?.stays.length || booking?.pending) &&
     (model.page.isHome || model.page.type === "accommodation_unit") &&
     (section.settings.ctaHref || "#booking") === "#booking";
   if (showBar) return <HeroBooking label={label || "Check availability"} />;
@@ -69,7 +87,7 @@ export function Hero({ section, model, lead }: HeroProps) {
     <EText as="p" className="wb-kicker" path="eyebrow" value={settings.eyebrow} placeholder="Eyebrow" />
   );
   const heading = (
-    <EText as="h1" className="wb-display" path="title" value={title} split placeholder="Headline" />
+    <EText as="h1" className="wb-display" path="title" value={title} split placeholder="Headline" style={heroFit(title)} />
   );
   const lede = <EText as="p" className="wb-lede" path="body" value={body} multiline placeholder="A sentence or two" />;
   const cls = `wb-hero wb-hero--${model.theme}${compact ? " is-compact" : ""}`;
