@@ -15,8 +15,20 @@ export function isStandaloneDisplayMode(): boolean {
   );
 }
 
+/**
+ * Host tools that live outside /dashboard but are opened from it: the website
+ * builder (with its previews and demos) and the guest guide creator, editor and
+ * published guides. The installed app must not bounce these back to the dashboard.
+ */
+const PWA_HOST_TOOL_PREFIXES = ["/website-builder", "/guest-guide", "/guide"];
+
+function isUnder(path: string, prefix: string): boolean {
+  return path === prefix || path.startsWith(`${prefix}/`);
+}
+
 export function isPwaAllowedPath(path: string, host?: string | null): boolean {
   if (isMarketingPublicPath(path)) return true;
+  if (PWA_HOST_TOOL_PREFIXES.some((prefix) => isUnder(path, prefix))) return true;
 
   if (
     path === "/login" ||
