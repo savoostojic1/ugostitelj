@@ -107,7 +107,7 @@
 .wb-mono { font-family: var(--wb-mono, var(--wb-text-font)); font-size: 0.78rem; letter-spacing: 0.02em; }
 
 /* Masked words for line reveals */
-.wb-w { display: inline-block; overflow: hidden; vertical-align: top; padding-block: 0.06em; margin-block: -0.06em; }
+.wb-w { display: inline-block; overflow: hidden; overflow: clip; vertical-align: top; padding-block: 0.06em; margin-block: -0.06em; }
 .wb-w > span { display: inline-block; }
 
 /* ---------- Layout ---------- */
@@ -126,7 +126,7 @@
 
 /* ---------- Media ---------- */
 
-.wb-frame { position: relative; overflow: hidden; background: var(--wb-surface); border-radius: var(--wb-radius); }
+.wb-frame { position: relative; overflow: hidden; overflow: clip; background: var(--wb-surface); border-radius: var(--wb-radius); }
 .wb-frame-inner { position: absolute; inset: 0; display: block; }
 .wb-frame-inner[data-parallax] { inset: -9% 0; }
 .wb-photo { display: block; width: 100%; height: 100%; object-fit: cover; }
@@ -140,6 +140,40 @@
 }
 [data-parallax] { transform: translate3d(0, var(--py, 0px), 0); will-change: transform; }
 
+/*
+ * Scroll-driven motion (published pages, data-scroll="css"). The browser moves these
+ * in step with its own scrolling, so they stay smooth on phones. Parallax follows the
+ * parent box crossing the viewport, the same curve the script used: an offset of
+ * speed × amplitude × (half the viewport + half the box), from − to +.
+ */
+@property --wb-tp { syntax: "<number>"; inherits: true; initial-value: 0; }
+@keyframes wb-tp { from { --wb-tp: 0; } to { --wb-tp: 1; } }
+@keyframes wb-parallax {
+  from { transform: translate3d(0, calc(var(--wb-speed, 0) * var(--wb-amp, 1) * (50lvh + 42%) * -1), 0); }
+  to { transform: translate3d(0, calc(var(--wb-speed, 0) * var(--wb-amp, 1) * (50lvh + 42%)), 0); }
+}
+@supports (animation-timeline: view()) and (view-timeline-name: --wb-a) {
+  .wb[data-scroll="css"] :has(> [data-parallax]) { view-timeline: --wb-par block; }
+  .wb[data-scroll="css"] [data-parallax] {
+    animation: wb-parallax linear both;
+    animation-timeline: --wb-par;
+    animation-range: cover;
+  }
+  .wb[data-scroll="css"] [data-progress="view"] {
+    --p: var(--wb-tp);
+    animation: wb-tp linear both;
+    animation-timeline: view(block);
+    animation-range: cover;
+  }
+  .wb[data-scroll="css"] [data-progress="pin"],
+  .wb[data-scroll="css"] [data-pin-x][data-pinned] {
+    --p: var(--wb-tp);
+    animation: wb-tp linear both;
+    animation-timeline: view(block);
+    animation-range: contain;
+  }
+}
+
 /* ---------- Buttons & links ---------- */
 
 .wb-btn {
@@ -148,7 +182,7 @@
   background: var(--wb-ink); color: var(--wb-bg);
   font-size: 0.78rem; font-weight: 500; letter-spacing: 0.16em; text-transform: uppercase;
   border-radius: var(--wb-radius);
-  position: relative; overflow: hidden;
+  position: relative; overflow: hidden; overflow: clip;
   transition: background 0.5s var(--wb-ease), color 0.5s var(--wb-ease), transform 0.5s var(--wb-ease);
 }
 .wb-btn::before {
@@ -342,7 +376,7 @@ html.wb-js .wb:not([data-engine]) [data-reveal]:not([data-in]) .wb-photo {
 
 /* ---------- Scroll cue ---------- */
 
-.wb-scrollcue { display: inline-block; width: 1px; height: 3.5rem; background: color-mix(in srgb, currentColor 25%, transparent); position: relative; overflow: hidden; }
+.wb-scrollcue { display: inline-block; width: 1px; height: 3.5rem; background: color-mix(in srgb, currentColor 25%, transparent); position: relative; overflow: hidden; overflow: clip; }
 .wb-scrollcue i { position: absolute; left: 0; top: 0; width: 1px; height: 40%; background: currentColor; animation: wb-cue 2.4s var(--wb-ease) infinite; }
 @keyframes wb-cue { from { transform: translateY(-100%); } to { transform: translateY(260%); } }
 
@@ -382,7 +416,7 @@ html.wb-js .wb:not([data-engine]) [data-reveal]:not([data-in]) .wb-photo {
 
 /* ---------- Gallery (shared) ---------- */
 
-.wb-tile { display: block; position: relative; overflow: hidden; cursor: zoom-in; background: var(--wb-surface); border-radius: var(--wb-radius); width: 100%; }
+.wb-tile { display: block; position: relative; overflow: hidden; overflow: clip; cursor: zoom-in; background: var(--wb-surface); border-radius: var(--wb-radius); width: 100%; }
 .wb-tile .wb-photo { position: absolute; inset: 0; transition: transform 1.4s var(--wb-ease), filter 0.6s ease; }
 .wb-tile:hover .wb-photo { transform: scale(1.045); }
 .wb[data-editing="1"] .wb-tile { cursor: default; }
@@ -455,7 +489,7 @@ html.wb-js .wb:not([data-engine]) [data-reveal]:not([data-in]) .wb-photo {
 .wb-faq-list details[open] .wb-faq-icon::after { transform: rotate(0); }
 .wb-faq-list details > p { padding: 0 0 1.6rem; color: var(--wb-muted); max-width: 40em; white-space: pre-line; }
 
-.wb-cta { position: relative; padding: clamp(6rem, 14cqi, 12rem) var(--wb-gutter); text-align: center; overflow: hidden; background: var(--wb-surface); }
+.wb-cta { position: relative; padding: clamp(6rem, 14cqi, 12rem) var(--wb-gutter); text-align: center; overflow: hidden; overflow: clip; background: var(--wb-surface); }
 .wb-cta-copy { position: relative; z-index: 1; display: grid; gap: 1.5rem; justify-items: center; max-width: 60rem; margin-inline: auto; }
 .wb-cta .wb-lede { margin-inline: auto; }
 .wb-cta.has-image { color: #fff; background: var(--wb-deep); min-height: calc(var(--wb-vh, 100svh) * 0.85); display: grid; align-items: center; }
@@ -499,7 +533,7 @@ html.wb-js .wb:not([data-engine]) [data-reveal]:not([data-in]) .wb-photo {
 .wb-where-copy { display: grid; gap: 1.2rem; }
 .wb-where-copy .wb-head { margin-bottom: 0; }
 .wb-where-place { font-family: var(--wb-display-font); font-size: 1.4rem; }
-.wb-where-map { aspect-ratio: 4 / 3; overflow: hidden; background: var(--wb-surface); border-radius: var(--wb-radius); position: relative; }
+.wb-where-map { aspect-ratio: 4 / 3; overflow: hidden; overflow: clip; background: var(--wb-surface); border-radius: var(--wb-radius); position: relative; }
 .wb-where-map iframe { width: 100%; height: 100%; border: 0; filter: grayscale(0.4) contrast(1.05); }
 .wb-where-map .wb-photo { position: absolute; inset: 0; }
 
@@ -511,7 +545,7 @@ html.wb-js .wb:not([data-engine]) [data-reveal]:not([data-in]) .wb-photo {
 
 .wb-text .wb-head { max-width: var(--wb-narrow); margin-inline: auto; margin-bottom: 0; }
 .wb-text .wb-head[data-align="left"] { margin-inline: auto; }
-.wb-video-frame { aspect-ratio: 16 / 9; overflow: hidden; background: #000; border-radius: var(--wb-radius); }
+.wb-video-frame { aspect-ratio: 16 / 9; overflow: hidden; overflow: clip; background: #000; border-radius: var(--wb-radius); }
 .wb-video-frame iframe { width: 100%; height: 100%; border: 0; }
 .wb-video-empty { aspect-ratio: 16 / 9; display: grid; place-items: center; border: 1px dashed var(--wb-line); color: var(--wb-muted); padding: 1rem; text-align: center; }
 
@@ -529,7 +563,7 @@ html.wb-js .wb:not([data-engine]) [data-reveal]:not([data-in]) .wb-photo {
 
 /* ---------- Footer ---------- */
 
-.wb-footer { background: var(--wb-deep); color: var(--wb-deep-ink); padding: clamp(4rem, 9cqi, 7rem) var(--wb-gutter) 2rem; overflow: hidden; }
+.wb-footer { background: var(--wb-deep); color: var(--wb-deep-ink); padding: clamp(4rem, 9cqi, 7rem) var(--wb-gutter) 2rem; overflow: hidden; overflow: clip; }
 .wb-footer-mark { font-family: var(--wb-display-font); font-size: clamp(2.4rem, calc(150cqi / var(--len, 10)), 13rem); line-height: 0.9; letter-spacing: -0.03em; white-space: nowrap; margin-bottom: clamp(3rem, 7cqi, 6rem); opacity: 0.95; }
 .wb-footer-grid { display: grid; grid-template-columns: 1.4fr 1fr 1fr; gap: 2.5rem; padding-top: 2.5rem; border-top: 1px solid color-mix(in srgb, var(--wb-deep-ink) 18%, transparent); font-size: 0.92rem; }
 .wb-footer-grid > div, .wb-footer-grid nav { display: grid; gap: 0.6rem; align-content: start; }
@@ -794,3 +828,23 @@ button.wb-quick-field:hover { background: color-mix(in srgb, var(--q-ink) 5%, tr
   @keyframes wb-sheet-up { from { transform: translateY(100%); } }
 }
 @media (prefers-reduced-motion: reduce) { .wb-sheet, .wb-sheet-scrim { animation: none; } }
+
+/*
+ * Touch screens: every control a finger has to hit gets at least ~40px, without
+ * changing how it looks (the extra area is padding or an invisible hit box).
+ */
+@media (pointer: coarse) {
+  .wb-stepper { gap: 0.35rem; }
+  .wb-stepper button { width: 2.5rem; height: 2.5rem; font-size: 1.15rem; }
+  .wb-link { padding-block: 0.75rem 0.3rem; background-position: left calc(100% - 0.05rem); }
+  .wb-crumbs a { display: inline-block; padding-block: 0.7rem; }
+  .wb-cal-day { min-height: 2.5rem; }
+  .wb-brand { min-height: 2.75rem; display: inline-flex; align-items: center; }
+}
+
+/* Very narrow phones: the guest counter and the request button each get a full row. */
+@container wb (max-width: 400px) {
+  .wb .wb-quick-guests, .wb .wb-quick-go { grid-column: 1 / -1; }
+  .wb .wb-quick-go { border-radius: 0 0 var(--wb-radius) var(--wb-radius); min-height: 3.2rem; }
+  .wb-coastal .wb-quick-go, .wb-escape .wb-quick-go { border-radius: 20px; }
+}

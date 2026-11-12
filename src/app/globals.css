@@ -1814,3 +1814,98 @@ html.dark:has(.public-site) body {
     break-inside: avoid;
   }
 }
+
+/* ── Onboarding flow & dashboard refresh ───────────────────────────── */
+.hostvia-onboard-hero {
+  position: relative;
+  overflow: hidden;
+  border-radius: 1.25rem;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: linear-gradient(
+    135deg,
+    rgba(139, 92, 246, 0.14) 0%,
+    rgba(34, 211, 238, 0.05) 55%,
+    rgba(255, 255, 255, 0.02) 100%
+  );
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.06),
+    0 12px 40px rgba(0, 0, 0, 0.25);
+  padding: 1.25rem;
+}
+
+@media (min-width: 640px) {
+  .hostvia-onboard-hero {
+    padding: 1.5rem;
+  }
+}
+
+.hostvia-onboard-hero-glow {
+  pointer-events: none;
+  position: absolute;
+  right: -3rem;
+  top: -4rem;
+  height: 12rem;
+  width: 12rem;
+  border-radius: 999px;
+  background: radial-gradient(circle, rgba(139, 92, 246, 0.35), transparent 70%);
+  filter: blur(20px);
+}
+
+.hostvia-onboard-segment-active {
+  background: linear-gradient(90deg, #8b5cf6, #22d3ee);
+  box-shadow: 0 0 12px rgba(139, 92, 246, 0.55);
+  animation: hostvia-onboard-pulse 2.4s ease-in-out infinite;
+}
+
+@keyframes hostvia-onboard-pulse {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.65;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hostvia-onboard-segment-active {
+    animation: none;
+  }
+}
+
+.hostvia-onboard-focus {
+  position: relative;
+  border-radius: 1.25rem;
+  border: 1px solid rgba(139, 92, 246, 0.35);
+  background: linear-gradient(
+    160deg,
+    rgba(139, 92, 246, 0.14) 0%,
+    rgba(99, 102, 241, 0.05) 50%,
+    rgba(255, 255, 255, 0.015) 100%
+  );
+  box-shadow: 0 0 0 4px rgba(139, 92, 246, 0.06),
+    0 16px 48px rgba(76, 29, 149, 0.22);
+  padding: 1.25rem;
+}
+
+@media (min-width: 640px) {
+  .hostvia-onboard-focus {
+    padding: 1.75rem;
+  }
+}
+
+.hostvia-quick-action {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  border-radius: 1rem;
+  border: 1px solid rgba(255, 255, 255, 0.07);
+  background: rgba(255, 255, 255, 0.02);
+  padding: 0.75rem 0.875rem;
+  transition: border-color 0.15s, background-color 0.15s, transform 0.15s;
+}
+
+.hostvia-quick-action:hover {
+  border-color: rgba(139, 92, 246, 0.3);
+  background: rgba(139, 92, 246, 0.06);
+  transform: translateY(-1px);
+}

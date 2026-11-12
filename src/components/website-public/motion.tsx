@@ -16,6 +16,11 @@ import { useEffect, type RefObject } from "react";
  * elements near the viewport, and a single rAF pass reads all their boxes first,
  * then writes CSS variables, so layout is never thrashed. Nothing runs while the
  * page is still. prefers-reduced-motion and the "off" setting skip all of it.
+ *
+ * On a published page (the window scrolls) in a browser with scroll-driven
+ * animations, parallax and progress are handed to CSS (data-scroll="css"): the
+ * browser moves them in step with its own scrolling, on the compositor, which is
+ * what keeps phones from stuttering. The rAF pass then only handles steps and the nav.
  */
 
 type Scroller = HTMLElement | Window;
@@ -52,6 +57,14 @@ export function useWebsiteMotion(
     const scroller = findScroller(root);
     const isWindow = scroller === window;
     const scrollEl = isWindow ? null : (scroller as HTMLElement);
+    const cssScroll =
+      motion &&
+      isWindow &&
+      typeof CSS !== "undefined" &&
+      CSS.supports("animation-timeline: view()") &&
+      CSS.supports("view-timeline-name: --wb-a");
+    if (cssScroll) root.dataset.scroll = "css";
+    else delete root.dataset.scroll;
 
     let scale = 1;
     let vpTop = 0;
@@ -117,9 +130,12 @@ export function useWebsiteMotion(
         else reveal(el);
       });
       if (!linkedObserver) return;
-      root.querySelectorAll(SCROLL_LINKED).forEach((el) => {
+      root.querySelectorAll<HTMLElement>(SCROLL_LINKED).forEach((el) => {
         if (known.has(el)) return;
         known.add(el);
+        if (el.dataset.parallax) el.style.setProperty("--wb-speed", String(Number(el.dataset.parallax) || 0));
+        // CSS drives parallax and progress; only steps need the frame loop.
+        if (cssScroll && !el.hasAttribute("data-steps")) return;
         linkedObserver.observe(el);
       });
     };
@@ -132,18 +148,20 @@ export function useWebsiteMotion(
         if (!track || !motion || !wide) {
           el.style.height = "";
           delete el.dataset.pinned;
-          if (track) track.style.transform = "";
+          el.style.removeProperty("--wb-distance");
           return;
         }
         el.dataset.pinned = "1";
         const distance = Math.max(0, track.scrollWidth - el.clientWidth);
-        el.dataset.distance = String(distance);
+        // The track slides by --p × --wb-distance (see .wb-hscroll in the theme CSS).
+        el.style.setProperty("--wb-distance", `${distance}px`);
         el.style.height = `${Math.round(distance + vpHeight / scale)}px`;
       });
     };
 
     // --- Frame -------------------------------------------------------------
     const amplitude = (mode === "subtle" ? 0.45 : 1) * (root.offsetWidth < 700 ? 0.6 : 1);
+    root.style.setProperty("--wb-amp", String(amplitude));
     let lastTop = scrollTop();
     let frame = 0;
 
@@ -181,11 +199,6 @@ export function useWebsiteMotion(
               ? clamp((vpTop - rect.top) / Math.max(1, rect.height - vpHeight))
               : clamp((vpTop + vpHeight - rect.top) / (vpHeight + rect.height));
           el.style.setProperty("--p", p.toFixed(4));
-          if (el.dataset.pinned === "1") {
-            const track = el.querySelector<HTMLElement>("[data-track]");
-            const distance = Number(el.dataset.distance) || 0;
-            if (track) track.style.transform = `translate3d(${(-p * distance).toFixed(1)}px,0,0)`;
-          }
         }
         if (steps && steps.length) {
           let best = 0;
@@ -218,9 +231,16 @@ export function useWebsiteMotion(
     const target: Scroller = scroller;
     target.addEventListener("scroll", schedule, { passive: true });
 
+    // Phones resize the window whenever the address bar slides in or out. Only a
+    // width change alters the layout, so height-only resizes skip the relayout.
+    let lastWidth = root.offsetWidth;
     const onResize = () => {
       measureViewport();
-      layoutPins();
+      const width = root.offsetWidth;
+      if (width !== lastWidth || scrollEl) {
+        lastWidth = width;
+        layoutPins();
+      }
       schedule();
     };
     window.addEventListener("resize", onResize);
@@ -253,6 +273,7 @@ export function useWebsiteMotion(
         delete el.dataset.pinned;
       });
       delete root.dataset.engine;
+      delete root.dataset.scroll;
     };
   }, [rootRef, mode, refreshKey]);
 }

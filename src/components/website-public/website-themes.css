@@ -28,7 +28,7 @@
   .wb-luxe .wb-brand { font-size: 0.85rem; letter-spacing: 0.26em; }
 }
 
-.wb-hero--luxe { position: relative; min-height: var(--wb-vh, 100svh); display: grid; align-items: end; color: #fff; overflow: hidden; background: var(--wb-deep); }
+.wb-hero--luxe { position: relative; min-height: var(--wb-vh, 100svh); display: grid; align-items: end; color: #fff; overflow: hidden; overflow: clip; background: var(--wb-deep); }
 .wb-hero--luxe.is-compact { min-height: calc(var(--wb-vh, 100svh) * 0.74); }
 .wb-hero--luxe .wb-hero-media { position: absolute; inset: 0; border-radius: 0; }
 .wb-hero-shade {
@@ -77,8 +77,9 @@
 /* Pinned horizontal gallery */
 .wb-hscroll { position: relative; }
 .wb-hscroll-stage { position: relative; }
-.wb-hscroll[data-pinned] .wb-hscroll-stage { position: sticky; top: 0; height: var(--wb-vh, 100svh); overflow: hidden; display: flex; align-items: center; }
+.wb-hscroll[data-pinned] .wb-hscroll-stage { position: sticky; top: 0; height: var(--wb-vh, 100svh); overflow: hidden; overflow: clip; display: flex; align-items: center; }
 .wb-hscroll-track { display: flex; align-items: center; gap: clamp(1rem, 2.4cqi, 2.6rem); padding-inline: var(--wb-gutter); will-change: transform; }
+.wb-hscroll[data-pinned] .wb-hscroll-track { transform: translate3d(calc(var(--p, 0) * var(--wb-distance, 0px) * -1), 0, 0); }
 .wb-hscroll:not([data-pinned]) .wb-hscroll-track { overflow-x: auto; scroll-snap-type: x mandatory; scrollbar-width: none; padding-block: 1rem; }
 .wb-hscroll:not([data-pinned]) .wb-hscroll-track::-webkit-scrollbar { display: none; }
 .wb-hscroll-intro { flex: 0 0 min(30rem, 78cqi); align-self: center; padding-right: 2rem; }
@@ -152,7 +153,7 @@
 .wb-hero-place::before { content: ""; width: 8px; height: 8px; border-radius: 50%; background: var(--wb-accent); box-shadow: 0 0 0 5px color-mix(in srgb, var(--wb-accent) 18%, transparent); }
 .wb-hero-visual { position: relative; justify-self: end; width: min(100%, 34rem); }
 .wb-hero-arch { aspect-ratio: 3 / 4; box-shadow: 0 50px 80px -50px color-mix(in srgb, var(--wb-ink) 60%, transparent); }
-.wb-hero-orb { position: absolute; left: -16%; bottom: 7%; width: 36%; aspect-ratio: 1; border-radius: 50%; overflow: hidden; border: 6px solid var(--wb-bg); box-shadow: 0 20px 50px -20px rgba(0, 0, 0, 0.35); }
+.wb-hero-orb { position: absolute; left: -16%; bottom: 7%; width: 36%; aspect-ratio: 1; border-radius: 50%; overflow: hidden; overflow: clip; border: 6px solid var(--wb-bg); box-shadow: 0 20px 50px -20px rgba(0, 0, 0, 0.35); }
 .wb-hero-orb .wb-photo { width: 100%; height: 100%; object-fit: cover; }
 .wb-hero-sun { position: absolute; right: -14%; top: -8%; width: 52%; z-index: -1; fill: none; stroke: var(--wb-accent); stroke-width: 0.5; opacity: 0.55; animation: wb-float 9s ease-in-out infinite alternate; }
 @keyframes wb-float { from { transform: translate3d(0, 0, 0); } to { transform: translate3d(-10px, 18px, 0); } }
@@ -165,7 +166,7 @@
 .wb-intro--coastal { grid-template-columns: 1fr; text-align: center; justify-items: center; max-width: 58rem; margin-inline: auto; }
 .wb-intro--coastal .wb-intro-main { justify-items: center; }
 .wb-intro--coastal .wb-intro-body { margin-inline: auto; }
-.wb-intro-orb { position: absolute; right: -6rem; top: -3rem; width: clamp(7rem, 13cqi, 11rem); aspect-ratio: 1; border-radius: 50%; overflow: hidden; }
+.wb-intro-orb { position: absolute; right: -6rem; top: -3rem; width: clamp(7rem, 13cqi, 11rem); aspect-ratio: 1; border-radius: 50%; overflow: hidden; overflow: clip; }
 .wb-intro-orb .wb-photo { width: 100%; height: 100%; object-fit: cover; }
 @container wb (max-width: 1100px) { .wb-intro-orb { display: none; } }
 
@@ -194,7 +195,7 @@
 .wb-exp--coastal .wb-exp-list { text-align: center; }
 .wb-exp--coastal .wb-exp-list li { justify-items: center; }
 .wb-exp--coastal .wb-body { margin-inline: auto; }
-.wb-exp-orb { display: block; width: clamp(7rem, 12cqi, 10rem); aspect-ratio: 1; border-radius: 50%; overflow: hidden; margin-bottom: 0.6rem; }
+.wb-exp-orb { display: block; width: clamp(7rem, 12cqi, 10rem); aspect-ratio: 1; border-radius: 50%; overflow: hidden; overflow: clip; margin-bottom: 0.6rem; }
 .wb-exp-orb .wb-photo { width: 100%; height: 100%; object-fit: cover; }
 .wb-coastal .wb-head[data-align="left"] { margin-inline: 0; }
 .wb-exp--coastal .wb-head, .wb-amen--coastal .wb-head { margin-inline: auto; text-align: center; justify-items: center; }
@@ -230,7 +231,7 @@
 .wb-nature .wb-kicker { display: inline-flex; align-items: center; gap: 0.8rem; letter-spacing: 0.2em; }
 .wb-nature .wb-kicker::before { content: ""; width: 1.6rem; height: 1px; background: currentColor; }
 
-.wb-hero--nature { position: relative; min-height: calc(var(--wb-vh, 100svh) * 1.04); display: grid; align-items: end; color: #fff; overflow: hidden; background: var(--wb-deep); }
+.wb-hero--nature { position: relative; min-height: calc(var(--wb-vh, 100svh) * 1.04); display: grid; align-items: end; color: #fff; overflow: hidden; overflow: clip; background: var(--wb-deep); }
 .wb-hero--nature.is-compact { min-height: calc(var(--wb-vh, 100svh) * 0.72); }
 .wb-hero--nature .wb-hero-bg { position: absolute; inset: 0; border-radius: 0; }
 .wb-hero-veil { position: absolute; inset: 0; background: linear-gradient(180deg, rgba(12, 18, 14, 0.4) 0%, rgba(12, 18, 14, 0) 28%, rgba(12, 18, 14, 0.15) 55%, rgba(12, 18, 14, 0.72) 100%); }
@@ -415,12 +416,12 @@
 
 .wb-hero--escape { position: relative; color: #fff; background: var(--wb-deep); }
 .wb-hero--escape.is-pinned { height: calc(var(--wb-vh, 100svh) * 1.75); }
-.wb-hero-stage { position: relative; height: var(--wb-vh, 100svh); overflow: hidden; display: grid; place-items: center; }
+.wb-hero-stage { position: relative; height: var(--wb-vh, 100svh); overflow: hidden; overflow: clip; display: grid; place-items: center; }
 .wb-hero--escape.is-compact .wb-hero-stage { height: calc(var(--wb-vh, 100svh) * 0.78); }
 .wb-hero--escape.is-pinned .wb-hero-stage { position: sticky; top: 0; }
 .wb-hero-window { position: absolute; inset: 0; }
 .wb-hero-window > .wb-frame { position: absolute; inset: 0; border-radius: 0; }
-.wb-hero--escape .wb-hero-window .wb-photo { transform: scale(calc(1.04 + var(--p, 0) * 0.2)); transition: transform 0.1s linear; }
+.wb-hero--escape .wb-hero-window .wb-photo { transform: scale(calc(1.04 + var(--p, 0) * 0.2)); }
 .wb-hero-window::after {
   content: ""; position: absolute; inset: 0;
   background:
@@ -447,7 +448,7 @@
 
 .wb-scrolly { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); align-items: start; }
 .wb-escape .wb-s--experiences { padding-block: 0; }
-.wb-scrolly-media { position: sticky; top: 0; height: var(--wb-vh, 100svh); overflow: hidden; background: var(--wb-deep); }
+.wb-scrolly-media { position: sticky; top: 0; height: var(--wb-vh, 100svh); overflow: hidden; overflow: clip; background: var(--wb-deep); }
 .wb-scrolly-img { position: absolute; inset: 0; opacity: 0; transform: scale(1.1); transition: opacity 1.1s var(--wb-ease), transform 2s var(--wb-ease); }
 .wb-scrolly-img .wb-photo { width: 100%; height: 100%; object-fit: cover; }
 .wb-scrolly:not([data-current]) .wb-scrolly-img[data-i="0"],
@@ -469,7 +470,7 @@
 .wb[data-motion="off"] .wb-scrolly-copy li, .wb[data-editing="1"] .wb-scrolly-copy li { opacity: 1; }
 
 .wb-stack { display: grid; gap: 2rem; }
-.wb-stack-card { position: sticky; top: calc(var(--wb-nav-h) + var(--i) * 1.4rem); height: calc(var(--wb-vh, 100svh) - var(--wb-nav-h) - 3rem); min-height: 26rem; overflow: hidden; border-radius: var(--wb-radius); color: #fff; display: grid; align-items: end; box-shadow: 0 -30px 60px -40px rgba(0, 0, 0, 0.5); }
+.wb-stack-card { position: sticky; top: calc(var(--wb-nav-h) + var(--i) * 1.4rem); height: calc(var(--wb-vh, 100svh) - var(--wb-nav-h) - 3rem); min-height: 26rem; overflow: hidden; overflow: clip; border-radius: var(--wb-radius); color: #fff; display: grid; align-items: end; box-shadow: 0 -30px 60px -40px rgba(0, 0, 0, 0.5); }
 .wb-stack-card > .wb-frame { position: absolute; inset: 0; border-radius: 0; }
 .wb-stack-card > .wb-frame::after { content: ""; position: absolute; inset: 0; background: linear-gradient(180deg, rgba(0, 0, 0, 0.05) 30%, rgba(0, 0, 0, 0.65)); }
 .wb-stack-copy { position: relative; z-index: 1; display: grid; gap: 1rem; padding: clamp(1.5rem, 4cqi, 3.5rem); max-width: 44rem; }
@@ -479,7 +480,7 @@
 .wb-stack-foot { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 1rem; padding-top: 1rem; border-top: 1px solid rgba(255, 255, 255, 0.25); }
 .wb-stack-foot .wb-price, .wb-stack-foot .wb-price strong { color: #fff; }
 
-.wb-drift { display: grid; gap: clamp(0.75rem, 1.6cqi, 1.25rem); overflow: hidden; padding-block: 1rem; }
+.wb-drift { display: grid; gap: clamp(0.75rem, 1.6cqi, 1.25rem); overflow: hidden; overflow: clip; padding-block: 1rem; }
 .wb-drift-row { display: flex; gap: clamp(0.75rem, 1.6cqi, 1.25rem); width: max-content; will-change: transform; }
 .wb-drift-row--0 { transform: translate3d(calc(var(--p, 0.5) * -30%), 0, 0); }
 .wb-drift-row--1 { transform: translate3d(calc(-30% + var(--p, 0.5) * 30%), 0, 0); }
@@ -693,4 +694,20 @@
 .wb-hero--escape .wb-lede, .wb-hero--nature .wb-lede, .wb-hero--luxe .wb-lede,
 .wb-hero--escape .wb-kicker, .wb-hero--nature .wb-kicker, .wb-hero--luxe .wb-kicker {
   text-shadow: 0 1px 2px rgba(0, 0, 0, 0.35), 0 2px 22px rgba(0, 0, 0, 0.45);
+}
+
+/*
+ * Touch screens: a blurred backdrop on bars that stay fixed while the page moves under
+ * them has to be repainted every frame, which makes phones stutter. Use a near-solid
+ * surface there instead; it reads the same at a glance.
+ */
+@media (pointer: coarse) {
+  .wb-nav::before,
+  .wb-coastal .wb-nav-bar,
+  .wb-mbar {
+    backdrop-filter: none; -webkit-backdrop-filter: none;
+  }
+  .wb-nav::before { background: color-mix(in srgb, var(--wb-bg) 96%, transparent); }
+  .wb-coastal .wb-nav-bar { background: color-mix(in srgb, var(--wb-bg) 96%, transparent); }
+  .wb-mbar { background: color-mix(in srgb, var(--wb-bg) 98%, transparent); }
 }
