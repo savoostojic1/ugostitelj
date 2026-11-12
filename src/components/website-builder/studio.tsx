@@ -273,7 +273,7 @@ export function WebsiteStudio() {
       </div>
 
       {mode === "editor" ? (
-        <Editor studio={studio} document={document} buildModel={buildModel} pageId={activePageId ?? ""} onPageChange={setPageId} onConnectStays={() => goToStep(STEP.launch)} />
+        <Editor studio={studio} document={document} buildModel={buildModel} pageId={activePageId ?? ""} onPageChange={setPageId} />
       ) : (
         <div className="grid min-h-0 flex-1 lg:grid-cols-[minmax(400px,480px)_minmax(0,1fr)]">
           <section className="flex min-h-0 flex-col border-r border-white/[0.06] bg-[#0b0a10]">
@@ -311,7 +311,7 @@ export function WebsiteStudio() {
                 ) : null}
                 {step === STEP.place ? <PropertyStep {...stepProps} /> : null}
                 {step === STEP.photos ? <PhotosStep {...stepProps} /> : null}
-                {step === STEP.stays ? <StaysStep {...stepProps} onConnect={() => goToStep(STEP.launch)} /> : null}
+                {step === STEP.stays ? <StaysStep {...stepProps} /> : null}
                 {step === STEP.pages ? <PagesStep {...stepProps} /> : null}
                 {step === STEP.look ? <LookStep {...stepProps} /> : null}
                 {step === STEP.launch ? <LaunchStep {...stepProps} goTo={goToStep} /> : null}

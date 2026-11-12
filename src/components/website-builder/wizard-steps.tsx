@@ -1,30 +1,25 @@
 "use client";
 
-import { useState, type ReactNode } from "react";
+import type { ReactNode } from "react";
 import Link from "next/link";
 import {
   BedDouble,
   Check,
-  ChevronDown,
   Home,
   Image as ImageIcon,
   Info,
-  Link2,
   MapPin,
   MessageSquareQuote,
   Plus,
   Sparkles,
-  Trash2,
   Users,
 } from "lucide-react";
-import { Button, Field, Label, Segmented, Select, SectionTitle, TextInput, Toggle } from "@/components/website-builder/ui";
+import { Field, Label, Segmented, Select, SectionTitle, Toggle } from "@/components/website-builder/ui";
 import { Dropzone, PhotoGrid, StarterPhotosButton, useUploader } from "@/components/website-builder/photos";
 import { StayConnectionNotice } from "@/components/website-builder/stay-connection";
 import type { WebsiteStudioApi } from "@/components/website-builder/use-website-studio";
 import {
-  addAccommodation,
   addGalleryImages,
-  removeAccommodation,
   removeGalleryImage,
   setCoverImage,
   setGallery,
@@ -35,9 +30,8 @@ import {
 } from "@/lib/website-builder/document-ops";
 import { KIND_LABELS } from "@/lib/website-builder/defaults";
 import { WEBSITE_LIMITS } from "@/lib/website-builder/limits";
-import { thumbUrl } from "@/lib/website-builder/photo-library";
 import { WEBSITE_THEME_META, themeMeta, paletteFor } from "@/lib/website-builder/themes";
-import { ACCOMMODATION_KINDS, WEBSITE_LANGUAGES, type AccommodationKind, type WebsiteDocument, type WebsitePageType } from "@/lib/website-builder/types";
+import { ACCOMMODATION_KINDS, WEBSITE_LANGUAGES, type WebsiteDocument, type WebsitePageType } from "@/lib/website-builder/types";
 import { cn } from "@/lib/utils";
 
 export interface StepProps {
@@ -256,265 +250,77 @@ function studioDocument(studio: WebsiteStudioApi) {
 /* 4. Stays                                                           */
 /* ------------------------------------------------------------------ */
 
-export function StaysStep({ studio, document, onConnect }: StepProps & { onConnect?: () => void }) {
-  const [open, setOpen] = useState<string | null>(document.accommodations[0]?.id ?? null);
-  const linkedIds = new Set(document.accommodations.map((stay) => stay.propertyId).filter(Boolean));
-  const available = studio.properties.filter((property) => !linkedIds.has(property.id));
-
-  const addStay = (kind: AccommodationKind) => {
-    const name = document.accommodations.length === 0 ? document.profile.name || KIND_LABELS[kind] : KIND_LABELS[kind];
-    const next = addAccommodation(document, { name, kind });
-    const created = next.accommodations[next.accommodations.length - 1];
-    studio.change(created ? updateAccommodation(next, created.id, { photos: document.gallery.slice(0, 3) }) : next);
-    if (created) setOpen(created.id);
-  };
-
-  const linkProperty = (propertyId: string) => {
-    const property = studio.properties.find((item) => item.id === propertyId);
-    if (!property) return;
-    const next = addAccommodation(document, { name: property.name, kind: "holiday_home" });
-    const created = next.accommodations[next.accommodations.length - 1];
-    if (!created) return;
-    studio.change(updateAccommodation(next, created.id, { propertyId, name: property.name, currencyCode: property.currencyCode }));
-    setOpen(created.id);
-  };
+export function StaysStep({ studio, document }: StepProps) {
+  const byProperty = new Map(studio.properties.map((property) => [property.id, property]));
+  const stays = studio.authenticated
+    ? document.accommodations.filter((stay) => stay.propertyId && byProperty.get(stay.propertyId)?.isPublic !== false && byProperty.has(stay.propertyId))
+    : [];
 
   return (
     <div className="space-y-5">
       <SectionTitle
         eyebrow="Stays"
         title="What can guests book?"
-        description="Add each space guests can book. Every stay gets its own page and booking inquiry; its price, calendar and availability come from Hostvia."
+        description="Your website shows the same stays as your booking site. Photos, price, guests and availability come from each Hostvia property, so there is nothing to type twice."
       />
 
-      <StayConnectionNotice studio={studio} document={document} onConnect={onConnect} />
+      <StayConnectionNotice studio={studio} />
 
-      {available.length ? (
-        <div className="rounded-2xl border border-emerald-400/20 bg-emerald-400/[0.05] p-4">
-          <p className="flex items-center gap-2 text-[13px] font-semibold text-emerald-100">
-            <Link2 className="h-4 w-4" /> Your Hostvia properties
-          </p>
-          <p className="mt-1 text-[12px] leading-relaxed text-emerald-100/60">
-            Connected stays use live photos, prices, currency and availability from Hostvia. Nothing is copied or duplicated.
-          </p>
-          <ul className="mt-3 space-y-2">
-            {available.map((property) => (
-              <li key={property.id} className="flex items-center gap-3 rounded-xl bg-black/20 p-2 pr-2.5">
-                {property.imageUrl ? (
-                  // eslint-disable-next-line @next/next/no-img-element
-                  <img src={property.imageUrl} alt="" className="h-10 w-12 rounded-lg object-cover" />
-                ) : (
-                  <span className="grid h-10 w-12 place-items-center rounded-lg bg-white/5"><Home className="h-4 w-4 text-zinc-500" /></span>
-                )}
-                <span className="min-w-0 flex-1">
-                  <span className="block truncate text-[13px] font-medium text-zinc-100">{property.name}</span>
-                  <span className="block truncate text-[11.5px] text-zinc-500">
-                    {[property.address, property.startingPrice ? `${property.currencyCode} ${property.startingPrice}` : null].filter(Boolean).join(" · ") || "Hostvia property"}
+      {stays.length ? (
+        <ul className="space-y-2.5">
+          {stays.map((stay) => {
+            const property = byProperty.get(stay.propertyId as string);
+            const photo = property?.imageUrl ?? property?.galleryUrls[0];
+            return (
+              <li key={stay.id} className="space-y-3 rounded-2xl border border-white/[0.08] bg-white/[0.02] p-3">
+                <div className="flex items-center gap-3">
+                  {photo ? (
+                    // eslint-disable-next-line @next/next/no-img-element
+                    <img src={photo} alt="" className="h-11 w-14 rounded-lg object-cover" />
+                  ) : (
+                    <span className="grid h-11 w-14 place-items-center rounded-lg bg-white/5"><BedDouble className="h-4 w-4 text-zinc-500" /></span>
+                  )}
+                  <span className="min-w-0 flex-1">
+                    <span className="block truncate text-[14px] font-medium text-white">{property?.name ?? stay.name}</span>
+                    <span className="block truncate text-[12px] text-zinc-500">
+                      {[
+                        KIND_LABELS[stay.kind],
+                        property?.capacity ? `${property.capacity} guests` : null,
+                        property?.startingPrice ? `from ${property.currencyCode} ${property.startingPrice}` : null,
+                      ].filter(Boolean).join(" · ")}
+                    </span>
                   </span>
-                </span>
-                <Button size="sm" onClick={() => linkProperty(property.id)}>
-                  <Plus className="h-3.5 w-3.5" /> Add
-                </Button>
-              </li>
-            ))}
-          </ul>
-        </div>
-      ) : null}
-
-      <ul className="space-y-2.5">
-        {document.accommodations.map((stay) => {
-          const expanded = open === stay.id;
-          const linked = Boolean(stay.propertyId && studio.properties.some((property) => property.id === stay.propertyId));
-          return (
-            <li key={stay.id} className={cn("overflow-hidden rounded-2xl border transition", expanded ? "border-white/15 bg-white/[0.04]" : "border-white/[0.08] bg-white/[0.02]")}>
-              <button type="button" onClick={() => setOpen(expanded ? null : stay.id)} className="flex w-full items-center gap-3 p-3 text-left">
-                {stay.photos[0] ? (
-                  // eslint-disable-next-line @next/next/no-img-element
-                  <img src={thumbUrl(stay.photos[0].url, 160)} alt="" className="h-11 w-14 rounded-lg object-cover" />
-                ) : (
-                  <span className="grid h-11 w-14 place-items-center rounded-lg bg-white/5"><BedDouble className="h-4 w-4 text-zinc-500" /></span>
-                )}
-                <span className="min-w-0 flex-1">
-                  <span className="block truncate text-[14px] font-medium text-white">{stay.name}</span>
-                  <span className="block truncate text-[12px] text-zinc-500">
-                    {KIND_LABELS[stay.kind]}
-                    {stay.capacity ? ` · ${stay.capacity} guests` : ""}
-                  </span>
-                </span>
-                {linked ? (
                   <span className="rounded-full bg-emerald-400/15 px-2 py-0.5 text-[10.5px] font-semibold text-emerald-200">Live from Hostvia</span>
-                ) : (
-                  <span className="rounded-full bg-amber-400/15 px-2 py-0.5 text-[10.5px] font-semibold text-amber-200" title="Price and availability appear once this stay is connected to Hostvia">Not connected</span>
-                )}
-                <ChevronDown className={cn("h-4 w-4 text-zinc-500 transition", expanded && "rotate-180")} />
-              </button>
-              {expanded ? (
-                <div className="space-y-4 border-t border-white/[0.07] p-4">
-                  {linked ? (
-                    <p className="rounded-xl bg-emerald-400/[0.06] p-3 text-[12.5px] leading-relaxed text-emerald-100/80">
-                      Price, currency, capacity, photos and amenities come from the connected Hostvia property and stay up to date automatically.
-                    </p>
-                  ) : null}
-                  <Field label="Name" value={stay.name} onChange={(name) => studio.change(updateAccommodation(document, stay.id, { name }), { coalesce: `stay.${stay.id}.name` })} />
-                  <div>
-                    <Label>Type</Label>
-                    <div className="flex flex-wrap gap-1.5">
-                      {ACCOMMODATION_KINDS.map((kind) => (
-                        <button
-                          key={kind}
-                          type="button"
-                          onClick={() => studio.change(updateAccommodation(document, stay.id, { kind }))}
-                          className={cn("rounded-full border px-2.5 py-1 text-[12px] transition", stay.kind === kind ? "border-violet-400/60 bg-violet-500/15 text-violet-100" : "border-white/10 text-zinc-400 hover:text-zinc-100")}
-                        >
-                          {KIND_LABELS[kind]}
-                        </button>
-                      ))}
-                    </div>
-                  </div>
-                  <Field
-                    label="Short description"
-                    multiline
-                    rows={2}
-                    maxLength={WEBSITE_LIMITS.shortText}
-                    value={stay.summary}
-                    onChange={(summary) => studio.change(updateAccommodation(document, stay.id, { summary }), { coalesce: `stay.${stay.id}.summary` })}
-                    placeholder="Two bedrooms, a terrace and a view of the bay."
-                  />
-                  {!linked ? (
-                    <>
-                      <div className="grid grid-cols-[minmax(0,7rem)_1fr] items-end gap-3">
-                        <div>
-                          <Label hint={<Users className="h-3 w-3" />}>Guests</Label>
-                          <TextInput inputMode="numeric" value={stay.capacity ?? ""} placeholder="4" onChange={(event) => studio.change(updateAccommodation(document, stay.id, { capacity: Number(event.target.value.replace(/\D/g, "")) || null }), { coalesce: `stay.${stay.id}.cap` })} />
-                        </div>
-                        <p className="pb-2.5 text-[12px] leading-relaxed text-zinc-500">Price and calendar are set in Hostvia once this stay is connected.</p>
-                      </div>
-                      <AmenityInput
-                        value={stay.amenities}
-                        onChange={(amenities) => studio.change(updateAccommodation(document, stay.id, { amenities }))}
-                      />
-                      <StayPhotoPicker
-                        gallery={document.gallery}
-                        selected={stay.photos.map((photo) => photo.url)}
-                        onChange={(urls) =>
-                          studio.change(
-                            updateAccommodation(document, stay.id, {
-                              photos: urls.map((url) => document.gallery.find((image) => image.url === url) ?? { url, alt: stay.name }),
-                            })
-                          )
-                        }
-                      />
-                    </>
-                  ) : null}
-                  <div className="flex justify-end">
-                    <Button variant="danger" size="sm" onClick={() => studio.change(removeAccommodation(document, stay.id))}>
-                      <Trash2 className="h-3.5 w-3.5" /> Remove stay
-                    </Button>
-                  </div>
                 </div>
-              ) : null}
-            </li>
-          );
-        })}
-      </ul>
-
-      {document.accommodations.length < WEBSITE_LIMITS.accommodations ? (
-        <div className="rounded-2xl border border-dashed border-white/15 p-4">
-          <p className="mb-2.5 text-[13px] font-medium text-zinc-200">{document.accommodations.length ? "Add another stay" : "Add your first stay"}</p>
-          <div className="flex flex-wrap gap-1.5">
-            {ACCOMMODATION_KINDS.filter((kind) => kind !== "other").map((kind) => (
-              <button key={kind} type="button" onClick={() => addStay(kind)} className="inline-flex items-center gap-1 rounded-full border border-white/10 bg-white/[0.03] px-3 py-1.5 text-[12.5px] text-zinc-300 transition hover:border-violet-400/50 hover:text-white">
-                <Plus className="h-3 w-3" /> {KIND_LABELS[kind]}
-              </button>
-            ))}
-          </div>
-          {!studio.authenticated ? (
-            <p className="mt-3 text-[12px] leading-relaxed text-zinc-500">Already list your property on Hostvia? Log in at the last step and connect it instead of adding it again.</p>
-          ) : null}
-        </div>
+                <div className="flex flex-wrap gap-1.5">
+                  {ACCOMMODATION_KINDS.map((kind) => (
+                    <button
+                      key={kind}
+                      type="button"
+                      onClick={() => studio.change(updateAccommodation(document, stay.id, { kind }))}
+                      className={cn("rounded-full border px-2.5 py-1 text-[12px] transition", stay.kind === kind ? "border-violet-400/60 bg-violet-500/15 text-violet-100" : "border-white/10 text-zinc-400 hover:text-zinc-100")}
+                    >
+                      {KIND_LABELS[kind]}
+                    </button>
+                  ))}
+                </div>
+                <Field
+                  label="Short line for the website (optional)"
+                  multiline
+                  rows={2}
+                  maxLength={WEBSITE_LIMITS.shortText}
+                  value={stay.summary}
+                  onChange={(summary) => studio.change(updateAccommodation(document, stay.id, { summary }), { coalesce: `stay.${stay.id}.summary` })}
+                  placeholder={property?.shortDescription || "Two bedrooms, a terrace and a view of the bay."}
+                />
+              </li>
+            );
+          })}
+        </ul>
       ) : null}
     </div>
   );
 }
-
-function AmenityInput({ value, onChange }: { value: string[]; onChange: (value: string[]) => void }) {
-  const [draft, setDraft] = useState("");
-  const commit = () => {
-    const parts = draft.split(",").map((item) => item.trim()).filter(Boolean);
-    if (!parts.length) return;
-    onChange([...value, ...parts.filter((item) => !value.includes(item))].slice(0, WEBSITE_LIMITS.amenities));
-    setDraft("");
-  };
-  const suggestions = ["Wi-Fi", "Air conditioning", "Kitchen", "Parking", "Pool", "Sea view", "Terrace", "Washer"].filter((item) => !value.includes(item));
-  return (
-    <div>
-      <Label hint="Press Enter to add">Amenities</Label>
-      <div className="flex min-h-11 flex-wrap items-center gap-1.5 rounded-xl border border-white/[0.09] bg-white/[0.035] p-1.5">
-        {value.map((item) => (
-          <span key={item} className="inline-flex items-center gap-1 rounded-lg bg-white/10 py-1 pl-2.5 pr-1 text-[12.5px] text-zinc-100">
-            {item}
-            <button type="button" onClick={() => onChange(value.filter((entry) => entry !== item))} className="grid h-4 w-4 place-items-center rounded text-zinc-400 hover:bg-white/10 hover:text-white" aria-label={`Remove ${item}`}>
-              ×
-            </button>
-          </span>
-        ))}
-        <input
-          value={draft}
-          onChange={(event) => setDraft(event.target.value)}
-          onKeyDown={(event) => {
-            if (event.key === "Enter" || event.key === ",") {
-              event.preventDefault();
-              commit();
-            }
-            if (event.key === "Backspace" && !draft && value.length) onChange(value.slice(0, -1));
-          }}
-          onBlur={commit}
-          placeholder={value.length ? "" : "Wi-Fi, Pool, Sea view…"}
-          className="min-w-[8rem] flex-1 bg-transparent px-1.5 text-[13.5px] text-zinc-100 outline-none placeholder:text-zinc-600"
-        />
-      </div>
-      {suggestions.length ? (
-        <div className="mt-2 flex flex-wrap gap-1">
-          {suggestions.slice(0, 6).map((item) => (
-            <button key={item} type="button" onClick={() => onChange([...value, item])} className="rounded-full px-2 py-0.5 text-[11.5px] text-zinc-500 hover:bg-white/5 hover:text-zinc-200">
-              + {item}
-            </button>
-          ))}
-        </div>
-      ) : null}
-    </div>
-  );
-}
-
-function StayPhotoPicker({ gallery, selected, onChange }: { gallery: { url: string; alt: string }[]; selected: string[]; onChange: (urls: string[]) => void }) {
-  if (!gallery.length) {
-    return <p className="text-[12px] text-zinc-500">Add photographs in the previous step to choose images for this stay.</p>;
-  }
-  return (
-    <div>
-      <Label hint={`${selected.length} selected`}>Photographs for this stay</Label>
-      <div className="grid grid-cols-5 gap-1.5">
-        {gallery.map((image) => {
-          const index = selected.indexOf(image.url);
-          return (
-            <button
-              key={image.url}
-              type="button"
-              onClick={() => onChange(index >= 0 ? selected.filter((url) => url !== image.url) : [...selected, image.url].slice(0, WEBSITE_LIMITS.photosPerAccommodation))}
-              className={cn("relative aspect-square overflow-hidden rounded-lg ring-2 transition", index >= 0 ? "ring-violet-400" : "ring-transparent opacity-60 hover:opacity-100")}
-              aria-pressed={index >= 0}
-            >
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img src={thumbUrl(image.url, 160)} alt={image.alt} className="h-full w-full object-cover" />
-              {index >= 0 ? <span className="absolute right-1 top-1 grid h-4 w-4 place-items-center rounded-full bg-violet-500 text-[9px] font-bold text-white">{index + 1}</span> : null}
-            </button>
-          );
-        })}
-      </div>
-    </div>
-  );
-}
-
 /* ------------------------------------------------------------------ */
 /* 5. Pages                                                           */
 /* ------------------------------------------------------------------ */

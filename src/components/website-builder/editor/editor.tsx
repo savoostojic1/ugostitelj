@@ -33,14 +33,12 @@ export function Editor({
   buildModel,
   pageId,
   onPageChange,
-  onConnectStays,
 }: {
   studio: WebsiteStudioApi;
   document: WebsiteDocument;
   buildModel: (pageId: string) => PublicWebsiteModel | null;
   pageId: string;
   onPageChange: (id: string) => void;
-  onConnectStays: () => void;
 }) {
   const [device, setDevice] = useState<Device>("desktop");
   const [selected, setSelected] = useState<string | null>(null);
@@ -182,7 +180,6 @@ export function Editor({
       onRequestImage={setImageTarget}
       onSectionAction={sectionAction}
       onSelectPage={onPageChange}
-      onConnectStays={onConnectStays}
     />
   );
 

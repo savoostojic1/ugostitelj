@@ -225,6 +225,8 @@ export interface LivePropertySnapshot {
   amenities: string[];
   startingPrice: number | null;
   currencyCode: string;
+  /** False when the host keeps the property off their booking site; missing means public. */
+  isPublic?: boolean;
 }
 
 export interface PublicStay {

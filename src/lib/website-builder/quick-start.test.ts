@@ -121,19 +121,14 @@ describe("applying a quick start result", () => {
     assert.equal(doc.gallery[0].alt, "View over the bay");
   });
 
-  it("creates stays with pages and their own photos, without prices", () => {
+  it("never invents stays from the listing: they come from Hostvia properties", () => {
     const result = parseQuickStartResult(rawResult(), 3);
     const doc = applyQuickStart(prepareNewDocument("coastal"), result, urls);
-    assert.deepEqual(doc.accommodations.map((stay) => stay.name), ["Sea View Apartment", "Garden Studio"]);
-    assert.ok(doc.accommodations.every((stay) => stay.pricePerNight === null && stay.propertyId === null));
-    assert.deepEqual(doc.accommodations[0].photos.map((photo) => photo.url), [urls[2], urls[1]]);
-    assert.equal(doc.accommodations[1].photos.length > 0, true, "falls back to gallery photos");
-    const unitPages = doc.pages.filter((page) => page.type === "accommodation_unit");
-    assert.equal(unitPages.length, 2);
-    assert.equal(unitPages[0].sections[0].settings.body, "Two bedrooms and a terrace.");
+    assert.equal(doc.accommodations.length, 0);
+    assert.equal(doc.pages.filter((page) => page.type === "accommodation_unit").length, 0);
   });
 
-  it("keeps stays connected to Hostvia and replaces only unconnected ones", () => {
+  it("keeps stays connected to Hostvia and drops unconnected ones", () => {
     let doc = prepareNewDocument("nature");
     doc = addAccommodation(doc, { name: "Linked", kind: "villa" });
     doc = updateAccommodation(doc, doc.accommodations[0].id, { propertyId: "prop-1" });
@@ -156,13 +151,13 @@ describe("applying a quick start result", () => {
 });
 
 describe("stay prices come from Hostvia", () => {
-  it("shows no price for stays that are not connected", () => {
+  it("never shows stays that belong to no Hostvia property", () => {
     let doc = prepareNewDocument("luxe");
     doc = addAccommodation(doc, { name: "Draft", kind: "villa" });
     doc = updateAccommodation(doc, doc.accommodations[0].id, { pricePerNight: 300 });
-    assert.equal(mergeStays(doc, [])[0].pricePerNight, null);
+    assert.equal(mergeStays(doc, []).length, 0);
     const home = doc.pages.find((page) => page.isHome)!;
-    assert.equal(mergeWebsiteModel({ document: doc, properties: [], username: "x", page: home }).stays[0].pricePerNight, null);
+    assert.equal(mergeWebsiteModel({ document: doc, properties: [], username: "x", page: home }).stays.length, 0);
   });
 
   it("keeps illustrative rates on the demo sites", () => {
@@ -200,13 +195,10 @@ describe("retrying photo uploads", () => {
     const result = parseQuickStartResult(rawResult(), 3);
     const first = applyQuickStart(prepareNewDocument("luxe"), result, [null, null, null]);
     assert.equal(first.gallery.length, 0);
-    assert.ok(first.accommodations.every((stay) => stay.photos.length === 0));
     const edited = { ...first, profile: { ...first.profile, name: "Edited name" } };
     const next = addRetriedPhotos(edited, result, urls);
     assert.equal(next.profile.name, "Edited name");
     assert.equal(next.gallery[0].url, urls[1], "cover first");
-    assert.deepEqual(next.accommodations[0].photos.map((photo) => photo.url), [urls[2], urls[1]]);
-    assert.ok(next.accommodations[1].photos.length > 0);
   });
 });
 

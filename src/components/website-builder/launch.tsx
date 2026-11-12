@@ -3,14 +3,15 @@
 import { STEP } from "@/components/website-builder/steps";
 import { collectLocalImageRefs } from "@/lib/website-builder/local-images";
 
-import { useEffect, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import Link from "next/link";
 import { toast } from "sonner";
-import { ArrowUpRight, Check, Circle, Copy, Globe, Link2, Loader2, LogIn, Rocket, ShieldCheck, Sparkles, UserPlus } from "lucide-react";
-import { Button, SectionTitle, Select } from "@/components/website-builder/ui";
+import { ArrowUpRight, Check, Circle, Copy, Globe, Loader2, LogIn, Rocket, ShieldCheck, Sparkles, UserPlus } from "lucide-react";
+import { Button, SectionTitle } from "@/components/website-builder/ui";
+import { StayConnectionNotice } from "@/components/website-builder/stay-connection";
 import type { StepProps } from "@/components/website-builder/wizard-steps";
 import { WEBSITE_BUILDER_PATH, WEBSITE_MANAGEMENT_PATH } from "@/lib/website-builder/limits";
-import { findEquivalentProperties } from "@/lib/website-builder/property-match";
+import { websiteProperties } from "@/lib/website-builder/property-stays";
 import { cn } from "@/lib/utils";
 
 const CLAIM_RETURN = `${WEBSITE_BUILDER_PATH}?claim=1`;
@@ -42,40 +43,23 @@ function Checklist({ items }: { items: { label: string; done: boolean; hint?: st
   );
 }
 
-type Choice = string; // "link:<id>" | "create" | "skip"
-
 export function LaunchStep({ studio, document, goTo }: StepProps & { goTo: (step: number) => void }) {
-  const [busy, setBusy] = useState<null | "claim" | "connect" | "publish" | "photos">(null);
+  const [busy, setBusy] = useState<null | "claim" | "publish" | "photos">(null);
   const [conflict, setConflict] = useState(false);
-  const [choices, setChoices] = useState<Record<string, Choice>>({});
   const [published, setPublished] = useState<string | null>(studio.publishedUrl);
 
-  const owned = studio.properties;
-  const ownedIds = new Set(owned.map((property) => property.id));
-  const unconnected = document.accommodations.filter((stay) => !stay.propertyId || !ownedIds.has(stay.propertyId));
-
-  useEffect(() => {
-    // Suggest an existing property with the same name instead of creating a duplicate.
-    setChoices((current) => {
-      const next = { ...current };
-      for (const stay of unconnected) {
-        if (next[stay.id]) continue;
-        const match = findEquivalentProperties(stay.name, owned)[0];
-        next[stay.id] = match ? `link:${match.id}` : "create";
-      }
-      return next;
-    });
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [owned.length, unconnected.length]);
+  const liveStays = websiteProperties(studio.properties).length;
 
   const checklist = useMemo(
     () => [
       { label: "Property name", done: Boolean(document.profile.name.trim()), hint: "Required to publish", action: () => goTo(STEP.place) },
       { label: "Photographs", done: document.gallery.length >= 3, hint: "Add at least three", action: () => goTo(STEP.photos) },
-      { label: "At least one stay", done: document.accommodations.length > 0, hint: "Guests need something to ask about", action: () => goTo(STEP.stays) },
+      ...(studio.authenticated
+        ? [{ label: "At least one stay", done: liveStays > 0, hint: "Add or publish a property in Hostvia", action: () => goTo(STEP.stays) }]
+        : []),
       { label: "Contact email", done: Boolean(document.profile.contactEmail), hint: "Shown on your contact page", action: () => goTo(STEP.place) },
     ],
-    [document, goTo]
+    [document, goTo, liveStays, studio.authenticated]
   );
   const canPublish = Boolean(document.profile.name.trim());
   const isAccount = studio.source === "account";
@@ -108,27 +92,6 @@ export function LaunchStep({ studio, document, goTo }: StepProps & { goTo: (step
     setBusy(null);
     if (result.failed) toast.error(result.error ?? `${result.failed} photos could not be uploaded`);
     else toast.success(`${result.uploaded} ${result.uploaded === 1 ? "photo" : "photos"} uploaded`);
-  }
-
-  async function connect() {
-    setBusy("connect");
-    const decisions = unconnected.map((stay) => {
-      const choice = choices[stay.id] ?? "create";
-      if (choice.startsWith("link:")) return { accommodationId: stay.id, action: "link" as const, propertyId: choice.slice(5) };
-      if (choice === "skip") return { accommodationId: stay.id, action: "skip" as const };
-      return {
-        accommodationId: stay.id,
-        action: "create" as const,
-        acknowledgeDuplicate: findEquivalentProperties(stay.name, owned).length > 0,
-      };
-    });
-    const result = await studio.connectStays(decisions);
-    setBusy(null);
-    if (!result.ok) {
-      toast.error(result.upgradeRequired ? "Your plan's property limit is reached. Link an existing property or upgrade." : result.error ?? "Could not connect");
-      return;
-    }
-    toast.success("Stays connected to Hostvia");
   }
 
   async function publish() {
@@ -187,10 +150,10 @@ export function LaunchStep({ studio, document, goTo }: StepProps & { goTo: (step
     <div className="space-y-6">
       <SectionTitle
         eyebrow="Launch"
-        title={isAccount ? "Connect and go live." : "Your website is ready."}
+        title={isAccount ? "Ready to go live." : "Your website is ready."}
         description={
           isAccount
-            ? "Connect each stay to a Hostvia property so prices, availability and booking inquiries work, then publish."
+            ? "Your stays, prices and availability come from your Hostvia properties. Publish when you are happy with it."
             : "Create a free Hostvia account to publish. Everything you made moves with you."
         }
       />
@@ -234,7 +197,7 @@ export function LaunchStep({ studio, document, goTo }: StepProps & { goTo: (step
       ) : !isAccount ? (
         <div className="space-y-3 rounded-2xl border border-white/10 bg-white/[0.03] p-5">
           <p className="text-[14px] font-semibold text-white">Save this website to your account</p>
-          <p className="text-[12.5px] leading-relaxed text-zinc-400">You are signed in. Move this draft to your account to connect your properties and publish.</p>
+          <p className="text-[12.5px] leading-relaxed text-zinc-400">You are signed in. Move this draft to your account to show your Hostvia stays and publish.</p>
           {conflict ? (
             <div className="space-y-3 rounded-xl border border-amber-300/20 bg-amber-300/[0.06] p-4">
               <p className="text-[13px] leading-relaxed text-amber-100">
@@ -257,45 +220,7 @@ export function LaunchStep({ studio, document, goTo }: StepProps & { goTo: (step
         </div>
       ) : (
         <>
-          {unconnected.length ? (
-            <div className="space-y-3 rounded-2xl border border-white/10 bg-white/[0.03] p-5">
-              <p className="flex items-center gap-2 text-[14px] font-semibold text-white">
-                <Link2 className="h-4 w-4 text-violet-300" /> Connect your stays
-              </p>
-              <p className="text-[12.5px] leading-relaxed text-zinc-400">
-                Booking inquiries need a Hostvia property. Use one you already have, or create it from this stay. Hostvia never creates a duplicate without asking.
-              </p>
-              <ul className="space-y-2.5">
-                {unconnected.map((stay) => {
-                  const matches = findEquivalentProperties(stay.name, owned);
-                  return (
-                    <li key={stay.id} className="rounded-xl bg-black/20 p-3">
-                      <p className="mb-2 text-[13px] font-medium text-zinc-100">
-                        {stay.name}
-                        {matches.length ? <span className="ml-2 text-[11.5px] font-normal text-amber-200/80">matches “{matches[0].name}”</span> : null}
-                      </p>
-                      <Select value={choices[stay.id] ?? "create"} onChange={(event) => setChoices((current) => ({ ...current, [stay.id]: event.target.value }))}>
-                        {owned.map((property) => (
-                          <option key={property.id} value={`link:${property.id}`}>
-                            Use my property “{property.name}”
-                          </option>
-                        ))}
-                        <option value="create">{matches.length ? "Create another new property anyway" : "Create a new Hostvia property"}</option>
-                        <option value="skip">Leave unconnected for now</option>
-                      </Select>
-                    </li>
-                  );
-                })}
-              </ul>
-              <Button className="w-full" disabled={busy !== null} onClick={() => void connect()}>
-                {busy === "connect" ? <Loader2 className="h-4 w-4 animate-spin" /> : <Link2 className="h-4 w-4" />} Connect stays
-              </Button>
-            </div>
-          ) : document.accommodations.length ? (
-            <p className="flex items-center gap-2 rounded-xl bg-emerald-400/[0.06] p-3 text-[13px] text-emerald-100/90">
-              <Check className="h-4 w-4" /> All stays are connected to Hostvia properties.
-            </p>
-          ) : null}
+          <StayConnectionNotice studio={studio} />
 
           <div className="rounded-2xl border border-violet-400/25 bg-gradient-to-b from-violet-500/[0.12] to-transparent p-5">
             <p className="text-[14px] font-semibold text-white">{studio.status === "published" ? "Publish your changes" : "Publish your website"}</p>

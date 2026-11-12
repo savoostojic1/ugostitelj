@@ -30,6 +30,7 @@ interface WebsiteState {
       }[];
     };
   } | null;
+  properties?: { id: string; name: string; isPublic: boolean }[];
   publicSiteMode: "booking" | "website";
   hostPublished: boolean;
   username: string | null;
@@ -119,10 +120,7 @@ export default function WebsiteManagementPage() {
             <Stat label="Last saved" value={formatWhen(website.updatedAt)} />
             <Stat label="Last published" value={website.publishedAt ? formatWhen(website.publishedAt) : "Not published"} />
           </div>
-          <StayAlert
-            stays={website.document.accommodations}
-            onConnect={() => setTab("Accommodations")}
-          />
+          <StayAlert properties={state.properties ?? []} />
           <div className="flex flex-wrap gap-2" role="tablist">
             {["Overview", "Pages", "Accommodations", "Design", "SEO", "Domain", "Publishing", "Settings"].map((item) => (
               <button key={item} type="button" role="tab" aria-selected={tab === item} className={`rounded-full px-3 py-1 text-sm ${tab === item ? "bg-white text-black" : "text-zinc-400"}`} onClick={() => setTab(item)}>
@@ -149,7 +147,7 @@ export default function WebsiteManagementPage() {
               ))}
             </ul>
           ) : null}
-          {tab === "Accommodations" ? <PropertyConnect onDone={load} /> : null}
+          {tab === "Accommodations" ? <StayList properties={state.properties ?? []} /> : null}
           {tab === "Design" ? <p className="text-sm text-zinc-400">Theme: {website.theme}. Open the editor to change layout, palette and motion.</p> : null}
           {tab === "SEO" ? (
             <div className="max-w-2xl space-y-4 text-sm leading-relaxed text-zinc-300">
@@ -199,33 +197,45 @@ export default function WebsiteManagementPage() {
   );
 }
 
-/** Prices, availability and inquiries work only for stays connected to a Hostvia property. */
-function StayAlert({ stays, onConnect }: { stays: { id: string; name: string; propertyId: string | null }[]; onConnect: () => void }) {
-  const waiting = stays.filter((stay) => !stay.propertyId);
-  if (stays.length && !waiting.length) return null;
+/** The website shows the host's public Hostvia properties, exactly like the booking site. */
+function StayAlert({ properties }: { properties: { id: string; name: string; isPublic: boolean }[] }) {
+  if (properties.some((property) => property.isPublic)) return null;
   return (
     <div className="flex flex-col gap-3 rounded-xl border border-amber-400/25 bg-amber-400/[0.07] p-4 sm:flex-row sm:items-center" role="alert">
       <div className="min-w-0 flex-1 text-sm">
-        <p className="font-medium text-amber-100">
-          {!stays.length
-            ? "Your website has no bookable stays yet"
-            : waiting.length === 1
-              ? `“${waiting[0].name}” is not connected to Hostvia yet`
-              : `${waiting.length} stays are not connected to Hostvia yet`}
-        </p>
+        <p className="font-medium text-amber-100">Your website has no stays yet</p>
         <p className="mt-1 text-amber-100/70">
-          {!stays.length
-            ? "Add your stays in the builder. Each one connects to a Hostvia property, which supplies its price, calendar and availability."
-            : "Guests cannot see a price or send inquiries for them. Connect each stay to a new or existing Hostvia property and the website stays in sync automatically."}
+          {properties.length
+            ? "Your properties are hidden from your booking site. Make them public and they appear on the website with their price, calendar and availability."
+            : "Add your accommodation in Properties. It appears on the website automatically with its price, calendar and availability."}
         </p>
       </div>
-      {stays.length ? (
-        <Button type="button" onClick={onConnect}>Connect stays</Button>
-      ) : (
-        <Button asChild>
-          <Link href={`${WEBSITE_BUILDER_PATH}?mode=wizard&step=stays`}>Add stays</Link>
-        </Button>
-      )}
+      <Button asChild>
+        <Link href="/dashboard/properties">Open Properties</Link>
+      </Button>
+    </div>
+  );
+}
+
+function StayList({ properties }: { properties: { id: string; name: string; isPublic: boolean }[] }) {
+  const shown = properties.filter((property) => property.isPublic);
+  const hidden = properties.filter((property) => !property.isPublic);
+  return (
+    <div className="max-w-xl space-y-3 text-sm text-zinc-300">
+      <p className="text-zinc-400">
+        Your website shows the same stays as your booking site. Photos, prices, guests and availability come from each property.
+      </p>
+      {shown.length ? (
+        <ul className="space-y-1">
+          {shown.map((property) => (
+            <li key={property.id}>{property.name}</li>
+          ))}
+        </ul>
+      ) : null}
+      {hidden.length ? (
+        <p className="text-zinc-500">Hidden from guests: {hidden.map((property) => property.name).join(", ")}</p>
+      ) : null}
+      <Link className="text-violet-300" href="/dashboard/properties">Manage properties</Link>
     </div>
   );
 }
@@ -243,71 +253,4 @@ function formatWhen(value: string): string {
   const date = new Date(value);
   if (Number.isNaN(date.getTime())) return value;
   return date.toLocaleString();
-}
-
-function PropertyConnect({ onDone }: { onDone: () => Promise<void> }) {
-  const [rows, setRows] = useState<{ id: string; name: string; propertyId: string | null; matches: { id: string; name: string }[] }[]>([]);
-  const [properties, setProperties] = useState<{ id: string; name: string }[]>([]);
-  const [choices, setChoices] = useState<Record<string, string>>({});
-  const [error, setError] = useState<string | null>(null);
-
-  useEffect(() => {
-    void fetch("/api/websites/import").then(async (response) => {
-      const json = await response.json();
-      setRows(json.accommodations ?? []);
-      setProperties(json.properties ?? []);
-    });
-  }, []);
-
-  async function apply() {
-    const decisions = rows.map((row) => {
-      const choice = choices[row.id] ?? (row.propertyId ? `link:${row.propertyId}` : row.matches[0] ? `link:${row.matches[0].id}` : "skip");
-      if (choice.startsWith("link:")) {
-        return { accommodationId: row.id, action: "link" as const, propertyId: choice.slice(5) };
-      }
-      if (choice === "create") {
-        return { accommodationId: row.id, action: "create" as const, acknowledgeDuplicate: row.matches.length > 0 };
-      }
-      return { accommodationId: row.id, action: "skip" as const };
-    });
-    const response = await fetch("/api/websites/import", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ decisions }),
-    });
-    const json = await response.json();
-    if (!response.ok) {
-      setError(json.error ?? "Could not connect properties");
-      return;
-    }
-    setError(null);
-    await onDone();
-  }
-
-  if (rows.length === 0) return <p className="text-sm text-zinc-400">Add an accommodation in the editor, then connect it to a Hostvia property.</p>;
-
-  return (
-    <div className="space-y-4">
-      {rows.map((row) => (
-        <label key={row.id} className="block text-sm">
-          {row.name}
-          {row.matches.length ? <span className="text-zinc-500"> · matches {row.matches.map((match) => match.name).join(", ")}</span> : null}
-          <select
-            className="mt-1 w-full max-w-md bg-transparent"
-            value={choices[row.id] ?? ""}
-            onChange={(event) => setChoices((current) => ({ ...current, [row.id]: event.target.value }))}
-          >
-            <option value="">Choose</option>
-            {properties.map((property) => (
-              <option key={property.id} value={`link:${property.id}`}>Use {property.name}</option>
-            ))}
-            <option value="create">Create a new property{row.matches.length ? " anyway" : ""}</option>
-            <option value="skip">Leave unconnected</option>
-          </select>
-        </label>
-      ))}
-      {error ? <p className="text-sm text-rose-300" role="alert">{error}</p> : null}
-      <Button type="button" onClick={() => void apply()}>Connect accommodations</Button>
-    </div>
-  );
 }

@@ -36,7 +36,18 @@ export async function GET() {
       .select("username, is_published, public_site_mode")
       .eq("id", user.id)
       .maybeSingle();
+    // The website shows the same stays as the booking site: the public properties.
+    const { data: properties } = await admin
+      .from("properties")
+      .select("id, name, is_public")
+      .eq("user_id", user.id)
+      .order("created_at", { ascending: true });
     const response = NextResponse.json({
+      properties: (properties ?? []).map((property) => ({
+        id: property.id as string,
+        name: property.name as string,
+        isPublic: property.is_public !== false,
+      })),
       website: website
         ? {
             id: website.id,

@@ -1,5 +1,6 @@
 import "server-only";
 import { stripLocalImages } from "@/lib/website-builder/local-images";
+import { rowsToProperties, syncStaysWithProperties } from "@/lib/website-builder/property-stays";
 
 import { hasProAccess } from "@/lib/subscriptions/access";
 import { loadHostSubscription } from "@/lib/subscriptions/resolve-host-subscription";
@@ -70,8 +71,19 @@ export async function publishOwnedWebsite(userId: string, email: string | null) 
   const website = await loadOwnedWebsite(userId);
   if (!website) throw new Error("Save the website to your account before publishing");
 
+  // Stays are the host's public Hostvia properties, as on the booking site.
+  const { data: propertyRows, error: propertiesError } = await admin
+    .from("properties")
+    .select("id, slug, name, short_description, description, address, image_url, gallery_urls, capacity, amenities, starting_price, currency_code, is_public")
+    .eq("user_id", userId)
+    .order("created_at", { ascending: true });
+  if (propertiesError) throw new Error(propertiesError.message);
+
   // Photos still waiting in the host's browser cannot be shown to guests.
-  const document = stripLocalImages(normalizeDocument(website.draft_document));
+  const document = syncStaysWithProperties(
+    stripLocalImages(normalizeDocument(website.draft_document)),
+    rowsToProperties(propertyRows)
+  );
   if (!document.profile.name.trim()) {
     throw new Error("Add a property name before publishing");
   }
@@ -139,11 +151,13 @@ export async function publishOwnedWebsite(userId: string, email: string | null) 
       .in("id", propertyIds)
       .eq("user_id", userId);
     if (error) throw new Error(error.message);
+    // Shown stays are already public; give any that lacks an address its slug.
     for (const property of properties ?? []) {
-      const slug = property.slug || (await uniquePropertySlug(admin, property.name));
+      if (property.slug) continue;
+      const slug = await uniquePropertySlug(admin, property.name);
       const { error: updateError } = await admin
         .from("properties")
-        .update({ is_public: true, slug })
+        .update({ slug })
         .eq("id", property.id)
         .eq("user_id", userId);
       if (updateError) throw new Error(updateError.message);

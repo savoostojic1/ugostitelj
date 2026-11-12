@@ -1,12 +1,12 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { currencyCodeFromUnknown } from "@/lib/currency/currencies";
 import { chooseDraft } from "@/lib/website-builder/draft-store";
 import { normalizeDocument, prepareNewDocument, switchTheme } from "@/lib/website-builder/document-ops";
 import { readLocalWebsite, writeLocalWebsite } from "@/lib/website-builder/local-draft";
 import { collectLocalImageRefs, mapDocumentImages } from "@/lib/website-builder/local-images";
 import { deleteLocalImages, loadLocalImages, readLocalImage, saveLocalImage } from "@/components/website-builder/local-image-store";
+import { rowsToProperties, syncStaysWithProperties } from "@/lib/website-builder/property-stays";
 import type { LivePropertySnapshot, WebsiteDocument, WebsiteThemeId } from "@/lib/website-builder/types";
 import { WEBSITE_THEMES } from "@/lib/website-builder/types";
 
@@ -32,36 +32,6 @@ export interface PublishOutcome {
   ok: boolean;
   url?: string | null;
   error?: string;
-}
-
-function rowsToProperties(rows: unknown): LivePropertySnapshot[] {
-  if (!Array.isArray(rows)) return [];
-  return rows.flatMap((row) => {
-    if (!row || typeof row !== "object") return [];
-    const item = row as Record<string, unknown>;
-    if (typeof item.id !== "string" || typeof item.name !== "string") return [];
-    const price = Number(item.starting_price);
-    return [
-      {
-        id: item.id,
-        slug: typeof item.slug === "string" ? item.slug : null,
-        name: item.name,
-        shortDescription: typeof item.short_description === "string" ? item.short_description : null,
-        description: typeof item.description === "string" ? item.description : null,
-        address: typeof item.address === "string" ? item.address : null,
-        imageUrl: typeof item.image_url === "string" ? item.image_url : null,
-        galleryUrls: Array.isArray(item.gallery_urls)
-          ? item.gallery_urls.filter((url): url is string => typeof url === "string")
-          : [],
-        capacity: typeof item.capacity === "number" ? item.capacity : null,
-        amenities: Array.isArray(item.amenities)
-          ? item.amenities.filter((amenity): amenity is string => typeof amenity === "string")
-          : [],
-        startingPrice: Number.isFinite(price) && price > 0 ? price : null,
-        currencyCode: currencyCodeFromUnknown(item.currency_code),
-      },
-    ];
-  });
 }
 
 async function readJson(response: Response): Promise<Record<string, unknown>> {
@@ -168,7 +138,13 @@ export function useWebsiteStudio() {
         initial = switchTheme(initial, requestedTheme as WebsiteThemeId);
       }
       applyServer(json);
-      skipSave.current = true;
+      // Signed-in hosts see their public Hostvia properties as the website's stays.
+      const synced = json.authenticated === true && Array.isArray(json.properties)
+        ? syncStaysWithProperties(initial, rowsToProperties(json.properties))
+        : initial;
+      // Save only when the stays had to change.
+      skipSave.current = synced === initial;
+      initial = synced;
       past.current = [];
       future.current = [];
       current.current = initial;
@@ -359,35 +335,6 @@ export function useWebsiteStudio() {
     return { ok: true, url };
   }, [persist]);
 
-  /** Link or create Hostvia properties for each stay through the existing import route. */
-  const connectStays = useCallback(
-    async (
-      decisions: ({ accommodationId: string } & (
-        | { action: "link"; propertyId: string }
-        | { action: "create"; acknowledgeDuplicate: boolean }
-        | { action: "skip" }
-      ))[]
-    ): Promise<{ ok: boolean; error?: string; upgradeRequired?: boolean }> => {
-      if (current.current) await persist(current.current);
-      const response = await fetch("/api/websites/import", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ decisions }),
-      });
-      const json = await readJson(response);
-      if (!response.ok) {
-        return {
-          ok: false,
-          error: typeof json.error === "string" ? json.error : "Could not connect properties",
-          upgradeRequired: json.upgradeRequired === true,
-        };
-      }
-      await load({ preferServer: true });
-      return { ok: true };
-    },
-    [load, persist]
-  );
-
   const getDocument = useCallback(() => current.current, []);
   const canUndo = past.current.length > 0;
   const canRedo = future.current.length > 0;
@@ -416,10 +363,9 @@ export function useWebsiteStudio() {
       localImagesVersion,
       claim,
       publish,
-      connectStays,
       getDocument,
     }),
-    [getDocument, document, properties, saveState, saveError, source, authenticated, status, publishedUrl, lastSavedAt, canUndo, canRedo, historyTick, change, undo, redo, load, retrySave, upload, uploadLocalImages, localImagesVersion, claim, publish, connectStays]
+    [getDocument, document, properties, saveState, saveError, source, authenticated, status, publishedUrl, lastSavedAt, canUndo, canRedo, historyTick, change, undo, redo, load, retrySave, upload, uploadLocalImages, localImagesVersion, claim, publish]
   );
 }
 

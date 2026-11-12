@@ -1,6 +1,6 @@
 "use client";
 
-import { StayConnectionNotice, unconnectedStays } from "@/components/website-builder/stay-connection";
+import { StayConnectionNotice } from "@/components/website-builder/stay-connection";
 import { useState } from "react";
 import { ArrowDown, ArrowUp, Copy, ImagePlus, Plus, Trash2, X } from "lucide-react";
 import { Button, CommitField, Field, Label, PanelHeading, Segmented, Select, Toggle } from "@/components/website-builder/ui";
@@ -40,14 +40,12 @@ export function Inspector({
   onRequestImage,
   onSectionAction,
   onSelectPage,
-  onConnectStays,
 }: {
   studio: WebsiteStudioApi;
   document: WebsiteDocument;
   page: WebsitePage;
   section: WebsiteSection | null;
   tab: Tab;
-  onConnectStays: () => void;
   onTab: (tab: Tab) => void;
   onRequestImage: (target: { kind: "section"; sectionId: string } | { kind: "og" } | { kind: "logo" }) => void;
   onSectionAction: (sectionId: string, action: "up" | "down" | "duplicate" | "delete") => void;
@@ -77,9 +75,9 @@ export function Inspector({
         {tab === "section" ? (
           section ? (
             <>
-              {STAY_SECTIONS.has(section.type) && unconnectedStays(document, studio).length ? (
+              {STAY_SECTIONS.has(section.type) ? (
                 <div className="mb-4">
-                  <StayConnectionNotice studio={studio} document={document} onConnect={onConnectStays} compact />
+                  <StayConnectionNotice studio={studio} compact />
                 </div>
               ) : null}
               <SectionInspector studio={studio} document={document} page={page} section={section} onRequestImage={onRequestImage} onSectionAction={onSectionAction} />
@@ -96,11 +94,9 @@ export function Inspector({
         {tab === "page" ? <PageInspector studio={studio} document={document} page={page} onRequestImage={onRequestImage} onSelectPage={onSelectPage} /> : null}
         {tab === "site" ? (
           <>
-            {document.accommodations.length ? (
-              <div className="mb-6">
-                <StayConnectionNotice studio={studio} document={document} onConnect={onConnectStays} />
-              </div>
-            ) : null}
+            <div className="mb-6">
+              <StayConnectionNotice studio={studio} />
+            </div>
             <SiteInspector studio={studio} document={document} onRequestImage={onRequestImage} />
           </>
         ) : null}

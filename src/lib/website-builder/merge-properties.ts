@@ -1,6 +1,7 @@
 import { KIND_LABELS } from "@/lib/website-builder/defaults";
 import { breadcrumbsFor, pagePath } from "@/lib/website-builder/paths";
 import { cleanEmail, cleanImageUrl, cleanMapEmbed, cleanPhone, cleanText } from "@/lib/website-builder/sanitize";
+import { stayForProperty, websiteProperties } from "@/lib/website-builder/property-stays";
 import type {
   LivePropertySnapshot,
   PublicStay,
@@ -27,9 +28,11 @@ function propertyPhotos(property: LivePropertySnapshot, alt: string): WebsiteIma
 }
 
 /**
- * Prices, currency and capacity of a bookable stay come only from its connected Hostvia
- * property, so the website can never show a rate the host does not manage in Hostvia.
- * `sampleRates` lets the fictional demo sites show their illustrative rates.
+ * The stays guests see are the host's public Hostvia properties, exactly as on the
+ * booking site. A document entry for a property adds the host's own wording and page;
+ * a property without one still appears with everything taken from Hostvia. Stays that
+ * belong to no public property are never shown. Only the fictional demo sites
+ * (`sampleRates`) show the stays written in their document.
  */
 export function mergeStays(
   document: WebsiteDocument,
@@ -37,7 +40,16 @@ export function mergeStays(
   options: { sampleRates?: boolean } = {}
 ): PublicStay[] {
   const byId = new Map(properties.map((property) => [property.id, property]));
-  return document.accommodations.map((stay) => {
+  const entries = options.sampleRates
+    ? document.accommodations
+    : websiteProperties(properties).map(
+        (property) =>
+          document.accommodations.find((stay) => stay.propertyId === property.id) ?? {
+            ...stayForProperty(property, document),
+            id: `property-${property.id}`,
+          }
+      );
+  return entries.map((stay) => {
     const property = stay.propertyId ? byId.get(stay.propertyId) : undefined;
     const linked = Boolean(property);
     const name =

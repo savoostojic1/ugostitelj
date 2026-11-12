@@ -1,5 +1,5 @@
 import { KIND_LABELS } from "@/lib/website-builder/defaults";
-import { addAccommodation, syncAccommodationPages, updateAccommodation, withProfile } from "@/lib/website-builder/document-ops";
+import { syncAccommodationPages, withProfile } from "@/lib/website-builder/document-ops";
 import { WEBSITE_LIMITS } from "@/lib/website-builder/limits";
 import { sanitizeDocument } from "@/lib/website-builder/sanitize";
 import {
@@ -500,9 +500,8 @@ function slotFor(result: QuickStartResult, pageType: WebsitePageType, sectionTyp
 
 /**
  * Writes a generated result into the document. `photoUrls[i]` is the uploaded URL of
- * photograph i, or null when that upload failed. Stays already connected to a Hostvia
- * property are kept untouched; unconnected stays are replaced by the units found in
- * the listing. Prices are never written: they come from Hostvia.
+ * photograph i, or null when that upload failed. Stays are not written: they are the
+ * host's Hostvia properties (see property-stays), so only connected ones are kept.
  */
 export function applyQuickStart(
   document: WebsiteDocument,
@@ -547,38 +546,11 @@ export function applyQuickStart(
     }),
   };
 
-  // Stays: keep connected ones, replace the rest with the units from the listing.
-  const connected = next.accommodations.filter((stay) => stay.propertyId);
-  next = syncAccommodationPages(sanitizeDocument({ ...next, accommodations: connected }));
-  const units = result.units.length
-    ? result.units
-    : connected.length
-      ? []
-      : [{ name: result.property.name || "Stay", kind: "holiday_home" as AccommodationKind, capacity: null, summary: result.property.shortDescription, description: "", amenities: result.home.amenities.items, photoIndexes: [] }];
-  for (const unit of units) {
-    if (next.accommodations.length >= WEBSITE_LIMITS.accommodations) break;
-    const added = addAccommodation(next, { name: unit.name, kind: unit.kind });
-    const created = added.accommodations[added.accommodations.length - 1];
-    if (!created || added === next) break;
-    const photos = unit.photoIndexes.map(imageAt).filter((image): image is WebsiteImage => Boolean(image));
-    next = updateAccommodation(added, created.id, {
-      capacity: unit.capacity,
-      summary: unit.summary,
-      description: unit.description,
-      amenities: unit.amenities,
-      location: next.profile.location,
-      photos: photos.length ? photos : gallery.slice(0, 4),
-    });
-    // The unit page opens with the unit's own summary.
-    next = {
-      ...next,
-      pages: next.pages.map((page) =>
-        page.type === "accommodation_unit" && page.accommodationId === created.id
-          ? { ...page, sections: page.sections.map((section) => (section.type === "hero" ? { ...section, settings: { ...section.settings, body: unit.summary || section.settings.body } } : section)) }
-          : page
-      ),
-    };
-  }
+  // Stays are the host's Hostvia properties, never invented from the listing: keep
+  // the connected ones and drop any written by hand before.
+  next = syncAccommodationPages(
+    sanitizeDocument({ ...next, accommodations: next.accommodations.filter((stay) => stay.propertyId) })
+  );
   return sanitizeDocument(next);
 }
 

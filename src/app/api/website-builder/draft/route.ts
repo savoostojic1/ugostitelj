@@ -34,7 +34,7 @@ async function currentUserId(): Promise<string | null> {
 }
 
 const PROPERTY_COLUMNS =
-  "id, slug, name, short_description, description, address, image_url, gallery_urls, capacity, amenities, starting_price, currency_code";
+  "id, slug, name, short_description, description, address, image_url, gallery_urls, capacity, amenities, starting_price, currency_code, is_public";
 
 async function ownedProperties(userId: string) {
   const { data } = await websiteAdmin()

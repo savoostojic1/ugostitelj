@@ -29,7 +29,7 @@ function EmptyStays({ model }: { model: PublicWebsiteModel }) {
       <span className="wb-photo-empty" aria-hidden />
       <div>
         <p className="wb-kicker">Accommodation</p>
-        <p>Add a stay in the builder, or connect a Hostvia property, and its name, photographs and live nightly price appear here.</p>
+        <p>Your public Hostvia properties appear here with their photos and live nightly price, just like on your booking site.</p>
       </div>
     </div>
   );

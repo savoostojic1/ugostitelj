@@ -75,9 +75,9 @@ export function InquiryFlow({ compact }: { compact?: boolean }) {
         <div className="wb-inq wb-inq-empty" data-compact={compact ? "1" : undefined} role="note">
           <span className="wb-inq-pending-icon" aria-hidden />
           <p className="wb-kicker">Booking inquiries</p>
-          <h3 className="wb-h3">Your stays connect after you create your account.</h3>
+          <h3 className="wb-h3">Your stays come from your Hostvia properties.</h3>
           <p className="wb-body">
-            Stays are added in Hostvia, where you set their prices and calendars. Once they are connected, guests choose dates here with live availability and send you an inquiry.
+            Add your accommodation in Hostvia, with its price and calendar, and it appears here automatically, like on your booking site. Guests then choose dates with live availability and send you an inquiry.
           </p>
           <p className="wb-inq-fine">Only you see this note. It is not shown on your published website.</p>
         </div>
@@ -276,7 +276,7 @@ export function InquiryFlow({ compact }: { compact?: boolean }) {
             </button>
           ) : (
             <p className="wb-inq-note">
-              {booking.preview ? "Preview. Guests send this inquiry from your published website once the stay is connected to Hostvia." : "This stay is not yet open for inquiries."}
+              {booking.preview ? "Preview. Guests send this inquiry from your published website once it is published." : "This stay is not yet open for inquiries."}
             </p>
           )}
           <p className="wb-inq-fine">No payment is taken. The host confirms availability before anything is reserved.</p>
