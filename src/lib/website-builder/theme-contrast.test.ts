@@ -3,8 +3,8 @@ import { describe, it } from "node:test";
 import { WEBSITE_THEME_META } from "@/lib/website-builder/themes";
 
 /**
- * Every palette must keep text readable: body text and buttons at WCAG AA (4.5:1),
- * accent-coloured labels and numbers at 3:1, also inside the dark "deep" sections,
+ * Every palette must keep all text readable at WCAG AA (4.5:1): body, muted and
+ * accent-coloured labels, buttons and their hover state, also inside the dark "deep" sections,
  * where the accent is mixed toward the light ink (see website-themes.css).
  */
 const DEEP_ACCENT_SHARE = 0.45;
@@ -36,13 +36,17 @@ describe("palette contrast", () => {
           assert.ok(contrast(a, b) >= min, `${label}: ${contrast(a, b).toFixed(2)} < ${min}`);
         check("text on background", t.ink, t.bg, 4.5);
         check("text on surface", t.ink, t.surface, 4.5);
-        check("muted on background", t.muted, t.bg, 3);
+        // Muted text is body-sized (descriptions, calendar hints), so it needs AA too.
+        check("muted on background", t.muted, t.bg, 4.5);
+        check("muted on surface", t.muted, t.surface, 4.5);
         check("button (background colour on ink)", t.bg, t.ink, 4.5);
         check("button hover (accent ink on accent)", t.accentInk, t.accent, 4.5);
         check("text in deep sections", t.deepInk, t.deep, 4.5);
-        check("accent labels on background", t.accent, t.bg, 3);
+        // Accent colours small uppercase labels and numbers, so they need AA as well.
+        check("accent labels on background", t.accent, t.bg, 4.5);
+        check("accent labels on surface", t.accent, t.surface, 4.5);
         const deepAccent = mix(t.accent, t.deepInk, DEEP_ACCENT_SHARE);
-        check("accent labels in deep sections", deepAccent, t.deep, 3);
+        check("accent labels in deep sections", deepAccent, t.deep, 4.5);
         check("button hover in deep sections", t.deep, deepAccent, 4.5);
       });
     }
