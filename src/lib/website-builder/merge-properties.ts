@@ -102,6 +102,7 @@ export function mergeWebsiteModel(input: {
   preview?: boolean;
   pro?: boolean;
   sampleRates?: boolean;
+  origin?: string;
 }): PublicWebsiteModel {
   const stays = mergeStays(input.document, input.properties, { sampleRates: input.sampleRates });
   const enabled = input.document.pages.filter((page) => page.enabled);
@@ -126,6 +127,7 @@ export function mergeWebsiteModel(input: {
     canonicalPath: pagePath(input.page),
     showBranding: pro ? !input.document.design.hideBranding : true,
     preview: input.preview === true,
+    origin: input.origin,
     demo: input.sampleRates === true,
     pro,
     breadcrumbs: breadcrumbsFor(enabled, input.page, input.document.profile.name || "Home"),

@@ -1,6 +1,8 @@
 import "server-only";
 import { stripLocalImages } from "@/lib/website-builder/local-images";
 
+import { headers } from "next/headers";
+import { getBookingSiteUrlForHost } from "@/lib/public/booking-site-url";
 import { createClient } from "@/lib/supabase/server";
 import { currencyCodeFromUnknown } from "@/lib/currency/currencies";
 import { normalizeDocument } from "@/lib/website-builder/document-ops";
@@ -48,6 +50,12 @@ function asProperties(value: unknown): LivePropertySnapshot[] {
   });
 }
 
+/** The site's public address for this request: name.hostvia.me when subdomains are live. */
+export async function publicWebsiteOrigin(username: string): Promise<string | null> {
+  const host = (await headers()).get("host");
+  return getBookingSiteUrlForHost(username, host);
+}
+
 export type PublishedWebsiteLoad =
   | { state: "absent" }
   | { state: "missing-page" }
@@ -82,6 +90,7 @@ export async function loadPublishedWebsite(
       username: payload.username,
       page,
       pro: payload.pro === true,
+      origin: (await publicWebsiteOrigin(payload.username)) ?? undefined,
     }),
   };
 }

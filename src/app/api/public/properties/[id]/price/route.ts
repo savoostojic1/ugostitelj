@@ -6,7 +6,7 @@ import {
   publicApiOptionsResponse,
 } from "@/lib/public/public-api-cors";
 import { countStayNights, parseStartingPrice } from "@/lib/public/stay-price";
-import { createClient } from "@/lib/supabase/server";
+import { createAnonClient } from "@/lib/supabase/anon";
 import { startOfDay } from "date-fns";
 
 export async function OPTIONS(request: Request) {
@@ -47,15 +47,16 @@ export async function GET(
   }
 
   try {
-    const supabase = await createClient();
-    const { data, error } = await supabase.rpc(
-      "calculate_public_property_stay_total",
-      {
+    const supabase = createAnonClient();
+    // Both lookups are independent: run them together.
+    const [{ data, error }, { data: currencyData }] = await Promise.all([
+      supabase.rpc("calculate_public_property_stay_total", {
         p_property_id: id,
         p_check_in: checkIn,
         p_check_out: checkOut,
-      }
-    );
+      }),
+      supabase.rpc("get_public_property_currency", { p_property_id: id }),
+    ]);
 
     if (error) {
       return jsonWithPublicCors(
@@ -68,10 +69,6 @@ export async function GET(
     const stayTotal = parseStartingPrice(data);
     const nights = countStayNights(checkIn, checkOut);
     let currencyCode = "EUR";
-    const { data: currencyData } = await supabase.rpc(
-      "get_public_property_currency",
-      { p_property_id: id }
-    );
     if (typeof currencyData === "string") {
       currencyCode = currencyCodeFromUnknown(currencyData);
     }
@@ -85,12 +82,15 @@ export async function GET(
       });
     }
 
-    return jsonWithPublicCors(request, {
+    const response = jsonWithPublicCors(request, {
       stay_total: roundMoney(stayTotal, currencyCode),
       nights,
       avg_per_night: roundMoney(stayTotal / nights, currencyCode),
       currency_code: currencyCode,
     });
+    // A quote changes only when the host edits prices: let browsers and the CDN reuse it briefly.
+    response.headers.set("Cache-Control", "public, max-age=60, s-maxage=300, stale-while-revalidate=600");
+    return response;
   } catch (err) {
     console.error("[public/price]", err);
     return jsonWithPublicCors(

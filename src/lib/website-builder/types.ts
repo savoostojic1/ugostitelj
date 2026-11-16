@@ -262,6 +262,8 @@ export interface PublicWebsiteModel {
   canonicalPath: string;
   showBranding: boolean;
   preview: boolean;
+  /** Public address of the site (e.g. https://name.hostvia.me), resolved for the request. */
+  origin?: string;
   /** The fictional showcase sites: their unconnected stays may take sample inquiries. */
   demo: boolean;
   pro: boolean;

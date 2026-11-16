@@ -8,8 +8,17 @@ export function websiteOrigin(username: string): string {
   return getBookingSiteUrl(username) ?? `${SITE_URL}/host/${username}`;
 }
 
-export function canonicalFor(username: string, page: Pick<WebsitePage, "slug" | "isHome" | "type">): string {
-  const origin = websiteOrigin(username);
+/** The model's address for this request, falling back to the configured one. */
+function originOf(model: PublicWebsiteModel): string {
+  return model.origin || websiteOrigin(model.username);
+}
+
+export function canonicalFor(
+  username: string,
+  page: Pick<WebsitePage, "slug" | "isHome" | "type">,
+  base?: string
+): string {
+  const origin = base || websiteOrigin(username);
   const path = pagePath(page);
   return path === "/" ? origin : `${origin}${path}`;
 }
@@ -53,7 +62,7 @@ export function buildWebsiteMetadata(model: PublicWebsiteModel): Metadata {
     model.gallery[0]?.url ||
     model.stays[0]?.photos[0]?.url ||
     "";
-  const canonical = canonicalFor(model.username, page);
+  const canonical = canonicalFor(model.username, page, model.origin);
   const robots = model.preview
     ? { index: false, follow: false }
     : indexableRobots(page, model.pro);
@@ -99,7 +108,7 @@ export function lodgingJsonLd(model: PublicWebsiteModel): Record<string, unknown
       name: stay.name,
       price: stay.pricePerNight,
       priceCurrency: stay.currencyCode,
-      url: `${websiteOrigin(model.username)}${stay.href === "/" ? "" : stay.href}`,
+      url: `${originOf(model)}${stay.href === "/" ? "" : stay.href}`,
       availability: "https://schema.org/LimitedAvailability",
     }));
   const places = model.stays.map((stay) => ({
@@ -119,7 +128,7 @@ export function lodgingJsonLd(model: PublicWebsiteModel): Record<string, unknown
     "@type": ["LodgingBusiness", "VacationRental"],
     name: model.profile.name || model.page.title,
     description: model.profile.shortDescription || resolvedSeoDescription(model),
-    url: canonicalFor(model.username, model.page),
+    url: canonicalFor(model.username, model.page, model.origin),
     image: photos.slice(0, 8),
     telephone: model.profile.contactPhone || undefined,
     email: model.profile.contactEmail || undefined,
@@ -132,7 +141,7 @@ export function lodgingJsonLd(model: PublicWebsiteModel): Record<string, unknown
 }
 
 export function breadcrumbJsonLd(model: PublicWebsiteModel): Record<string, unknown> {
-  const origin = websiteOrigin(model.username);
+  const origin = originOf(model);
   return {
     "@context": "https://schema.org",
     "@type": "BreadcrumbList",

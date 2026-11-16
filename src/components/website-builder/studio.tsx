@@ -38,7 +38,7 @@ import {
   StyleStep,
 } from "@/components/website-builder/wizard-steps";
 import { mergeWebsiteModel } from "@/lib/website-builder/merge-properties";
-import { resolveLocalImages } from "@/lib/website-builder/local-images";
+import { collectLocalImageRefs, resolveLocalImages } from "@/lib/website-builder/local-images";
 import { starterPhotos } from "@/lib/website-builder/photo-library";
 import { themeMeta } from "@/lib/website-builder/themes";
 import type { WebsiteDocument, WizardPath } from "@/lib/website-builder/types";
@@ -112,6 +112,7 @@ export function WebsiteStudio() {
   const [pageId, setPageId] = useState<string | null>(null);
   const [device, setDevice] = useState<Device>("desktop");
   const [fullPreview, setFullPreview] = useState(false);
+  const [publishing, setPublishing] = useState(false);
   const [mobilePreview, setMobilePreview] = useState(false);
   const booted = useRef(false);
   const formScroll = useRef<HTMLDivElement>(null);
@@ -127,6 +128,46 @@ export function WebsiteStudio() {
     },
     [studio]
   );
+
+  /**
+   * Header button. A site already on the host's account publishes right away (photos
+   * still waiting in this browser are uploaded first); anything else still needs the
+   * Launch step, where the host signs up or moves the draft to their account.
+   */
+  async function publishNow() {
+    const current = studio.getDocument();
+    if (!current || publishing) return;
+    if (studio.source !== "account" || !studio.authenticated) {
+      goToStep(STEP.launch);
+      return;
+    }
+    if (!current.profile.name.trim()) {
+      toast.error("Add a property name before publishing");
+      goToStep(STEP.place);
+      return;
+    }
+    setPublishing(true);
+    const toastId = toast.loading(studio.status === "published" ? "Publishing your changes…" : "Publishing your website…");
+    try {
+      if (collectLocalImageRefs(current).length) {
+        const uploaded = await studio.uploadLocalImages();
+        if (uploaded.failed) toast.warning(`${uploaded.failed} photos could not be uploaded and are left out for now.`);
+      }
+      const result = await studio.publish();
+      if (!result.ok) {
+        toast.error(result.error ?? "Could not publish", { id: toastId });
+        return;
+      }
+      const url = result.url;
+      toast.success("Your website is live", {
+        id: toastId,
+        description: url ? url.replace(/^https?:\/\//, "") : undefined,
+        action: url ? { label: "Open", onClick: () => window.open(url, "_blank", "noopener,noreferrer") } : undefined,
+      });
+    } finally {
+      setPublishing(false);
+    }
+  }
 
   // Initial load, then claim the anonymous draft when returning from sign-up or login.
   useEffect(() => {
@@ -260,8 +301,9 @@ export function WebsiteStudio() {
           <Button size="sm" variant="ghost" className="hidden sm:inline-flex" onClick={() => setFullPreview(true)}>
             <Eye className="h-4 w-4" /> Preview
           </Button>
-          <Button size="sm" variant="primary" onClick={() => goToStep(STEP.launch)}>
-            <Rocket className="h-3.5 w-3.5" /> <span className="hidden sm:inline">{studio.status === "published" ? "Publish" : "Launch"}</span>
+          <Button size="sm" variant="primary" onClick={() => void publishNow()} disabled={publishing} aria-busy={publishing}>
+            {publishing ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Rocket className="h-3.5 w-3.5" />}
+            <span className="hidden sm:inline">{studio.source === "account" && studio.authenticated ? "Publish" : "Launch"}</span>
           </Button>
         </div>
       </header>

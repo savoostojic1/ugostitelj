@@ -3,7 +3,8 @@
 import { createContext, useCallback, useContext, useEffect, useMemo, useState, type ReactNode } from "react";
 import { resolvePublicApiUrl } from "@/lib/public/browser-origin";
 import { parseJsonResponse } from "@/lib/public/parse-json-response";
-import { parseStartingPrice, resolveStayPriceQuote, type StayPriceQuote } from "@/lib/public/stay-price";
+import { resolveStayPriceQuote, type StayPriceQuote } from "@/lib/public/stay-price";
+import { cachedStayTotal, fetchStayTotal, prefetchStayTotals } from "@/lib/public/stay-totals";
 import type { PublicReservationSpan } from "@/lib/public/types";
 import type { PublicStay, PublicWebsiteModel } from "@/lib/website-builder/types";
 
@@ -138,32 +139,34 @@ export function useStayQuote(stay: PublicStay | null, checkIn: string, checkOut:
   const nightly = stay?.pricePerNight ?? null;
   const currency = stay?.currencyCode ?? "EUR";
 
+  // Warm the likely totals as soon as the guest has an arrival date.
+  useEffect(() => {
+    if (propertyId && !preview && checkIn && !checkOut) prefetchStayTotals(propertyId, checkIn);
+  }, [checkIn, checkOut, preview, propertyId]);
+
   useEffect(() => {
     if (!checkIn || !checkOut || checkOut <= checkIn) {
       setQuote(null);
+      setLoading(false);
       return;
     }
     if (!propertyId || preview) {
       setQuote(resolveStayPriceQuote(checkIn, checkOut, nightly, null, currency));
       return;
     }
+    const known = cachedStayTotal(propertyId, checkIn, checkOut);
+    if (known !== undefined) {
+      setQuote(resolveStayPriceQuote(checkIn, checkOut, nightly, known, currency));
+      setLoading(false);
+      return;
+    }
     let cancelled = false;
     setLoading(true);
-    const endpoint = resolvePublicApiUrl(
-      `/api/public/properties/${propertyId}/price?checkIn=${encodeURIComponent(checkIn)}&checkOut=${encodeURIComponent(checkOut)}`
-    );
-    fetch(endpoint)
-      .then(async (response) => {
-        const parsed = await parseJsonResponse<{ stay_total?: unknown }>(response, { endpoint });
-        const total = parsed.ok && response.ok ? parseStartingPrice(parsed.data.stay_total) : null;
-        if (!cancelled) setQuote(resolveStayPriceQuote(checkIn, checkOut, nightly, total, currency));
-      })
-      .catch(() => {
-        if (!cancelled) setQuote(resolveStayPriceQuote(checkIn, checkOut, nightly, null, currency));
-      })
-      .finally(() => {
-        if (!cancelled) setLoading(false);
-      });
+    void fetchStayTotal(propertyId, checkIn, checkOut).then((total) => {
+      if (cancelled) return;
+      setQuote(resolveStayPriceQuote(checkIn, checkOut, nightly, total, currency));
+      setLoading(false);
+    });
     return () => {
       cancelled = true;
     };

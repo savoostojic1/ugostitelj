@@ -4,6 +4,8 @@ import { PublicShell } from "@/components/public/public-shell";
 import { HostBookingExperience } from "@/components/public/host-booking-experience";
 import { PublishedWebsitePage } from "@/components/website-public/published-page";
 import { fetchPublicHost } from "@/lib/public/fetch";
+import { headers } from "next/headers";
+import { bookingSubdomainsForHost } from "@/lib/public/booking-site-url";
 import { buildHostMetadata } from "@/lib/public/seo";
 import { getPublicHostCoverUrl } from "@/lib/public/host-cover-url";
 import { loadPublishedWebsite } from "@/lib/website-builder/server/load-public";
@@ -29,7 +31,8 @@ export async function generateMetadata({
     host.business_name,
     host.description,
     host.cover_image_url,
-    host.username
+    host.username,
+    { useSubdomain: bookingSubdomainsForHost((await headers()).get("host")) }
   );
 }
 

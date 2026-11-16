@@ -10,7 +10,7 @@ import {
 import { createRouteHandlerClient } from "@/lib/supabase/route-handler";
 import { requireUser } from "@/lib/supabase/require-user";
 import { resolveBillingHostId } from "@/lib/subscriptions/resolve-host-subscription";
-import { getBookingSiteUrl } from "@/lib/public/booking-site-url";
+import { getBookingSiteUrlForHost } from "@/lib/public/booking-site-url";
 
 async function owner() {
   const authResponse = new NextResponse();
@@ -20,7 +20,7 @@ async function owner() {
   return { authResponse, supabase, user, ...billing };
 }
 
-export async function GET() {
+export async function GET(request: Request) {
   if (!websiteServiceAvailable()) {
     return NextResponse.json({ website: null, persisted: false });
   }
@@ -63,7 +63,7 @@ export async function GET() {
       publicSiteMode: profile?.public_site_mode ?? "booking",
       hostPublished: profile?.is_published === true,
       username: profile?.username ?? null,
-      url: profile?.username ? getBookingSiteUrl(profile.username) : null,
+      url: profile?.username ? getBookingSiteUrlForHost(profile.username, request.headers.get("host")) : null,
     });
     for (const cookie of authResponse.cookies.getAll()) response.cookies.set(cookie);
     return response;
@@ -119,7 +119,7 @@ export async function POST(request: Request) {
     const response = NextResponse.json({
       website: result.website,
       username: result.username,
-      url: getBookingSiteUrl(result.username),
+      url: getBookingSiteUrlForHost(result.username, request.headers.get("host")),
       pro: result.pro,
     });
     for (const cookie of authResponse.cookies.getAll()) response.cookies.set(cookie);

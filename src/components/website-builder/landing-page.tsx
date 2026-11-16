@@ -67,11 +67,8 @@ function Showcase() {
         <div key={theme} className="relative h-[min(68vh,640px)] min-h-[380px] animate-[wbx-fade_0.6s_ease]">
           <PreviewFrame model={model} device="desktop" />
         </div>
-        <div key={`${theme}-phone`} className="absolute -bottom-8 right-2 hidden h-[460px] w-[230px] animate-[wbx-rise_0.9s_cubic-bezier(0.16,1,0.3,1)_both] md:block lg:-right-8">
-          <PreviewFrame model={model} device="mobile" />
-        </div>
       </div>
-      <div className="relative mx-auto mt-14 grid max-w-[1240px] grid-cols-2 gap-2 sm:grid-cols-3 lg:grid-cols-5" role="tablist" aria-label="Website designs">
+      <div className="relative mx-auto mt-10 grid max-w-[1240px] grid-cols-2 gap-2 sm:grid-cols-3 lg:grid-cols-5" role="tablist" aria-label="Website designs">
         {WEBSITE_THEME_META.map((item) => {
           const selected = item.id === theme;
           return (

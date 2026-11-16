@@ -41,6 +41,12 @@ export async function updateSession(request: NextRequest) {
     return NextResponse.next({ request });
   }
 
+  // Guest-facing read APIs (prices, availability) use an anonymous client and never
+  // need the session: skip the auth round trip so they answer as fast as possible.
+  if (path.startsWith("/api/public/properties/")) {
+    return NextResponse.next({ request });
+  }
+
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
   const key = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
 

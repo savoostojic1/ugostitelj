@@ -11,6 +11,7 @@ import { resolvePublicApiUrl } from "@/lib/public/browser-origin";
 import { guestBookingRequestErrorMessage, parseJsonResponse } from "@/lib/public/parse-json-response";
 import { nightsLabel } from "@/lib/public/stay-price";
 import { bookingInquiryPayload } from "@/lib/website-builder/booking";
+import type { PublicStay } from "@/lib/website-builder/types";
 
 function safeReference(value: unknown): string | null {
   return typeof value === "string" && /^HV-[A-Z0-9]{6,12}$/.test(value) ? value : null;
@@ -25,6 +26,30 @@ function safeManageUrl(value: unknown): string | null {
   } catch {
     return null;
   }
+}
+
+/**
+ * Photos of the stay being requested, so a guest sees exactly what they are asking
+ * about. Changes with the stay picker; scrolls sideways when there are many.
+ */
+function StayPreview({ stay }: { stay: PublicStay }) {
+  const photos = stay.photos.slice(0, 8);
+  if (!photos.length) return null;
+  const facts = [stay.kindLabel, stay.capacity ? `up to ${stay.capacity} guests` : null].filter(Boolean).join(" · ");
+  return (
+    <figure className="wb-inq-preview">
+      <div className="wb-inq-photos" data-single={photos.length === 1 ? "1" : undefined} tabIndex={photos.length > 2 ? 0 : undefined} aria-label={`Photos of ${stay.name}`}>
+        {photos.map((photo, index) => (
+          <Photo key={`${photo.url}-${index}`} src={photo.url} alt={photo.alt || `${stay.name}, photo ${index + 1}`} sizes="(max-width: 640px) 80vw, 320px" />
+        ))}
+      </div>
+      <figcaption>
+        <strong className="wb-inq-stay">{stay.name}</strong>
+        {facts ? <span className="wb-inq-meta">{facts}</span> : null}
+        {stay.summary ? <span className="wb-inq-blurb">{stay.summary}</span> : null}
+      </figcaption>
+    </figure>
+  );
 }
 
 export function GuestStepper({ value, max, onChange }: { value: number; max: number; onChange: (value: number) => void }) {
@@ -199,12 +224,16 @@ export function InquiryFlow({ compact }: { compact?: boolean }) {
             <div className="wb-inq-stays" role="radiogroup" aria-label="Accommodation">
               {booking.stays.map((item) => (
                 <button key={item.id} type="button" role="radio" aria-checked={item.id === stay.id} onClick={() => booking.setStay(item.id)} data-on={item.id === stay.id ? "1" : "0"}>
-                  <span>{item.name}</span>
-                  <small>{priceLabel(item) ? `${priceLabel(item)} / night` : item.kindLabel}</small>
+                  <Photo className="wb-inq-stays-thumb" src={item.photos[0]?.url} alt="" sizes="96px" />
+                  <span className="wb-inq-stays-text">
+                    <span>{item.name}</span>
+                    <small>{priceLabel(item) ? `${priceLabel(item)} / night` : item.kindLabel}</small>
+                  </span>
                 </button>
               ))}
             </div>
           ) : null}
+          <StayPreview key={stay.id} stay={stay} />
           <RangeCalendar checkIn={booking.checkIn} checkOut={booking.checkOut} reservations={booking.reservations} language={booking.language} onChange={booking.setDates} />
           <div className="wb-inq-row">
             <div className="wb-inq-field">

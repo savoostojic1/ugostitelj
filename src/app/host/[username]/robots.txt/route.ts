@@ -1,5 +1,5 @@
 import { fetchPublicHost } from "@/lib/public/fetch";
-import { loadPublishedWebsite } from "@/lib/website-builder/server/load-public";
+import { loadPublishedWebsite, publicWebsiteOrigin } from "@/lib/website-builder/server/load-public";
 import { websiteOrigin } from "@/lib/website-builder/seo";
 
 export async function GET(
@@ -8,7 +8,7 @@ export async function GET(
 ) {
   const { username } = await context.params;
   const website = await loadPublishedWebsite(username, []);
-  const origin = websiteOrigin(username);
+  const origin = (await publicWebsiteOrigin(username)) ?? websiteOrigin(username);
   const host = website.state === "page" ? null : await fetchPublicHost(username);
   const indexable = website.state === "page" || (host && host.public_site_mode !== "website");
   const body = indexable

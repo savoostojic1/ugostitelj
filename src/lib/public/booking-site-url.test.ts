@@ -38,3 +38,19 @@ test("host metadata canonical stays a single /host/{username} path", () => {
   assert.equal(metadata.alternates?.canonical, "https://hostvia.me/host/fairy-tale");
   assert.equal(metadata.openGraph?.url, "https://hostvia.me/host/fairy-tale");
 });
+
+test("links for a request on the main domain use the subdomain", async () => {
+  const { getBookingSiteUrlForHost, bookingSubdomainsForHost } = await import("@/lib/public/booking-site-url");
+  assert.equal(getBookingSiteUrlForHost("fairy-tale", "hostvia.me"), "https://fairy-tale.hostvia.me");
+  assert.equal(getBookingSiteUrlForHost("fairy-tale", "www.hostvia.me"), "https://fairy-tale.hostvia.me");
+  // On the site itself (crawlers, sitemap) the subdomain is kept too.
+  assert.equal(getBookingSiteUrlForHost("fairy-tale", "fairy-tale.hostvia.me"), "https://fairy-tale.hostvia.me");
+  assert.equal(bookingSubdomainsForHost("hostvia.me:443"), true);
+});
+
+test("local and preview deployments keep /host/ paths", async () => {
+  const { getBookingSiteUrlForHost } = await import("@/lib/public/booking-site-url");
+  assert.match(getBookingSiteUrlForHost("fairy-tale", "localhost:3000") ?? "", /\/host\/fairy-tale$/);
+  assert.match(getBookingSiteUrlForHost("fairy-tale", "hostvia-git-main.vercel.app") ?? "", /\/host\/fairy-tale$/);
+  assert.match(getBookingSiteUrlForHost("fairy-tale", null) ?? "", /\/host\/fairy-tale$/);
+});

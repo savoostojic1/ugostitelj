@@ -2,7 +2,7 @@ import {
   jsonWithPublicCors,
   publicApiOptionsResponse,
 } from "@/lib/public/public-api-cors";
-import { createClient } from "@/lib/supabase/server";
+import { createAnonClient } from "@/lib/supabase/anon";
 
 interface RouteParams {
   params: Promise<{ id: string }>;
@@ -20,7 +20,7 @@ export async function GET(request: Request, { params }: RouteParams) {
   }
 
   try {
-    const supabase = await createClient();
+    const supabase = createAnonClient();
     const { data, error } = await supabase.rpc(
       "get_public_property_reservations",
       { p_property_id: id }

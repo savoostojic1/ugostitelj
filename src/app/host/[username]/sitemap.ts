@@ -1,6 +1,7 @@
 import type { MetadataRoute } from "next";
 import { fetchPublicHost } from "@/lib/public/fetch";
 import { loadPublishedWebsite } from "@/lib/website-builder/server/load-public";
+import { publicWebsiteOrigin } from "@/lib/website-builder/server/load-public";
 import { websiteOrigin, websiteSitemapPaths } from "@/lib/website-builder/seo";
 
 export default async function sitemap({
@@ -10,7 +11,7 @@ export default async function sitemap({
 }): Promise<MetadataRoute.Sitemap> {
   const { username } = await params;
   const website = await loadPublishedWebsite(username, []);
-  const origin = websiteOrigin(username);
+  const origin = (await publicWebsiteOrigin(username)) ?? websiteOrigin(username);
   if (website.state === "page") {
     return websiteSitemapPaths(website.model.pages).map((path) => ({
       url: path === "/" ? origin : `${origin}${path}`,

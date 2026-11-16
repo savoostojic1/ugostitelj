@@ -117,6 +117,31 @@ export function getBookingSiteLabel(
   }
 }
 
+/**
+ * Whether booking links should use subdomains for a request arriving at `host`.
+ * Same rule as the dashboard's booking site panel: the env setting wins, otherwise
+ * a request on the main domain (hostvia.me / www.hostvia.me) means subdomains are live.
+ */
+export function bookingSubdomainsForHost(host: string | null): boolean {
+  if (bookingSubdomainsEnabled()) return true;
+  const hostname = host?.split(":")[0]?.toLowerCase() ?? "";
+  if (!hostname || hostname.includes("localhost")) return false;
+  if (hostname.endsWith(".vercel.app")) return false;
+  const domain = BOOKING_DOMAIN.toLowerCase();
+  return hostname === domain || hostname === `www.${domain}` || parseBookingSubdomain(hostname) !== null;
+}
+
+/** Public booking/website URL for a server request, matching what the dashboard shows. */
+export function getBookingSiteUrlForHost(username: string, host: string | null): string | null {
+  if (!bookingSubdomainsForHost(host)) return getBookingSiteUrl(username, { useSubdomain: false });
+  // The request already proves the domain is live, whatever the configured base URL says.
+  const hostname = host?.split(":")[0]?.toLowerCase();
+  return getBookingSiteUrl(username, {
+    useSubdomain: true,
+    baseUrl: hostname && !hostname.includes("localhost") ? `https://${hostname}` : undefined,
+  });
+}
+
 export function parseBookingSubdomain(host: string): string | null {
   const hostname = host.split(":")[0]?.toLowerCase() ?? "";
   if (!hostname || hostname === "localhost") return null;
