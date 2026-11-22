@@ -293,6 +293,8 @@ html.wb-js .wb:not([data-engine]) [data-reveal]:not([data-in]) .wb-photo {
   transition: opacity 0.5s ease;
 }
 .wb[data-nav-hidden="1"] .wb-nav:not([data-open="1"]) { transform: translateY(-100%); }
+/* Its own compositor layer on touch screens, so sliding it never repaints the page. */
+@media (pointer: coarse) { .wb-nav { will-change: transform; } }
 .wb[data-editing="1"] .wb-nav { transform: none !important; }
 .wb[data-overlay="1"] .wb-nav { margin-bottom: calc(-1 * var(--wb-nav-h)); }
 .wb[data-overlay="1"][data-scrolled="0"] .wb-nav:not([data-open="1"]) { color: #fff; }

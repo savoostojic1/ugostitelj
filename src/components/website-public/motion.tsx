@@ -1,5 +1,6 @@
 "use client";
 
+import { initialNavState, nextNavState } from "@/lib/website-builder/nav-visibility";
 import { useEffect, type RefObject } from "react";
 
 /**
@@ -162,19 +163,22 @@ export function useWebsiteMotion(
     // --- Frame -------------------------------------------------------------
     const amplitude = (mode === "subtle" ? 0.45 : 1) * (root.offsetWidth < 700 ? 0.6 : 1);
     root.style.setProperty("--wb-amp", String(amplitude));
-    let lastTop = scrollTop();
+    // Positions past either end (the rubber band on phones) are clamped before they reach
+    // the nav logic, which only reacts to a run in one direction (see nav-visibility).
+    const maxScroll = () =>
+      scrollEl ? scrollEl.scrollHeight - scrollEl.clientHeight : document.documentElement.scrollHeight - window.innerHeight;
+    let nav = initialNavState(scrollTop());
     let frame = 0;
 
     const update = () => {
       frame = 0;
-      const top = scrollTop();
+      const top = Math.min(Math.max(scrollTop(), 0), Math.max(0, maxScroll()));
       // Only touch the root's attributes when they change: every write restyles the whole site.
       const scrolled = top > 24 ? "1" : "0";
       if (root.dataset.scrolled !== scrolled) root.dataset.scrolled = scrolled;
-      const hide =
-        top > lastTop + 6 && top > 280 ? "1" : top < lastTop - 6 || top < 120 ? "0" : root.dataset.navHidden;
-      if (hide !== undefined && root.dataset.navHidden !== hide) root.dataset.navHidden = hide;
-      lastTop = top;
+      nav = nextNavState(nav, top);
+      const hide = nav.hidden ? "1" : "0";
+      if (root.dataset.navHidden !== hide) root.dataset.navHidden = hide;
       if (!motion || active.size === 0) return;
 
       const center = vpTop + vpHeight / 2;
