@@ -172,15 +172,16 @@ export function Photo({
   style?: CSSProperties;
 }) {
   if (!src) return <span className={`wb-photo wb-photo-empty ${className ?? ""}`} aria-hidden />;
-  const srcSet = unsplashSrcSet(src);
+  const sources = photoSources(src);
   return (
-    // Host and property photos live on storage domains outside the image optimizer.
+    // Sized copies come from the image optimizer (or Unsplash) through srcSet; next/image
+    // is not used because the frames, parallax and reveals style the bare <img>.
     // eslint-disable-next-line @next/next/no-img-element
     <img
       className={`wb-photo ${className ?? ""}`}
-      src={src}
-      srcSet={srcSet}
-      sizes={srcSet ? sizes ?? "100vw" : undefined}
+      src={sources.src}
+      srcSet={sources.srcSet}
+      sizes={sources.srcSet ? sizes ?? "100vw" : undefined}
       alt={alt}
       loading={priority ? "eager" : "lazy"}
       fetchPriority={priority ? "high" : undefined}
@@ -190,11 +191,31 @@ export function Photo({
   );
 }
 
-function unsplashSrcSet(src: string): string | undefined {
-  if (!src.startsWith("https://images.unsplash.com/") || !/[?&]w=\d+/.test(src)) return undefined;
-  return [640, 1080, 1600, 2200]
-    .map((width) => `${src.replace(/([?&])w=\d+/, `$1w=${width}`)} ${width}w`)
-    .join(", ");
+/** Widths the Next.js image optimizer accepts by default (deviceSizes + imageSizes). */
+const OPTIMIZER_WIDTHS = [96, 256, 384, 640, 828, 1080, 1200, 1920, 2048];
+const UNSPLASH_WIDTHS = [640, 1080, 1600, 2200];
+
+/**
+ * Responsive sources for a photo. Host and property photos are stored at up to 2400px
+ * (often 1–2 MB), so phones and thumbnails get a resized WebP/AVIF copy from the image
+ * optimizer, the same one the booking site uses. Photos still in the browser (blob:,
+ * data:) are shown as they are.
+ */
+export function photoSources(src: string): { src: string; srcSet?: string } {
+  if (src.startsWith("https://images.unsplash.com/") && /[?&]w=\d+/.test(src)) {
+    return {
+      src,
+      srcSet: UNSPLASH_WIDTHS.map((width) => `${src.replace(/([?&])w=\d+/, `$1w=${width}`)} ${width}w`).join(", "),
+    };
+  }
+  if (!/^https?:\/\//i.test(src) && !(src.startsWith("/") && !src.startsWith("//"))) return { src };
+  // The optimizer does not resize vector or animated images.
+  if (/\.(svg|gif)(\?|#|$)/i.test(src)) return { src };
+  const sized = (width: number) => `/_next/image?url=${encodeURIComponent(src)}&w=${width}&q=75`;
+  return {
+    src: sized(1200),
+    srcSet: OPTIMIZER_WIDTHS.map((width) => `${sized(width)} ${width}w`).join(", "),
+  };
 }
 
 /**

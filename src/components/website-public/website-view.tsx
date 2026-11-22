@@ -2,7 +2,9 @@
 
 import { useEffect, useRef, useState, type CSSProperties } from "react";
 import { ArrowDown, ArrowUp, Copy, Eye, EyeOff, Plus, Trash2 } from "lucide-react";
-import { useWebsiteMotion } from "@/components/website-public/motion";
+import { createPortal } from "react-dom";
+import { websiteFontClassName } from "@/components/website-public/fonts";
+import { findScroller, useWebsiteMotion } from "@/components/website-public/motion";
 import {
   SectionIdProvider,
   SiteLink,
@@ -256,6 +258,9 @@ function Navigation({ model }: { model: PublicWebsiteModel }) {
   const reserve = bookingHref(model);
   const limit = model.theme === "luxe" ? 4 : 5;
   const inline = items.slice(0, limit);
+  // Long names wrap onto two lines in a smaller size instead of being cut (see .wb-nav[data-name]).
+  const nameLength = (model.profile.name || "Your stay").trim().length;
+  const nameFit = nameLength > 30 ? "long" : nameLength > 18 ? "mid" : undefined;
   const brand = (
     <SiteLink href="/" className="wb-brand" preview={model.preview} ariaLabel={`${model.profile.name || "Home"}, home`}>
       {model.profile.logoUrl ? (
@@ -274,7 +279,7 @@ function Navigation({ model }: { model: PublicWebsiteModel }) {
   }, [open]);
 
   return (
-    <header className="wb-nav" data-open={open ? "1" : "0"} data-more={items.length > limit ? "1" : "0"}>
+    <header className="wb-nav" data-name={nameFit} data-open={open ? "1" : "0"} data-more={items.length > limit ? "1" : "0"}>
       <div className="wb-nav-bar">
         {brand}
         <nav className="wb-nav-links" aria-label="Main">
@@ -343,15 +348,39 @@ function Navigation({ model }: { model: PublicWebsiteModel }) {
   );
 }
 
-/** Phone-only sticky bar so a guest can always start an inquiry. */
-function MobileBookBar({ model }: { model: PublicWebsiteModel }) {
+/**
+ * Phone-only booking bar so a guest can always start an inquiry. On the live site it is
+ * fixed to the window (outside the site's container), which the browser keeps in place
+ * while the address bar collapses; a sticky bar inside the page shakes on phones. Where the
+ * site scrolls inside a container (the builder preview), the bar stays sticky there.
+ */
+function MobileBookBar({ model, themeClass, style }: { model: PublicWebsiteModel; themeClass: string; style: CSSProperties }) {
   const booking = useBooking();
   const editing = Boolean(useEditApi());
-  if (!booking?.stays.length || editing) return null;
+  const anchorRef = useRef<HTMLSpanElement>(null);
+  const [fixed, setFixed] = useState(false);
+  const [shown, setShown] = useState(false);
+  const active = Boolean(booking?.stays.length) && !editing;
+
+  useEffect(() => {
+    const root = anchorRef.current?.closest<HTMLElement>(".wb");
+    if (!active || !root || findScroller(root) !== window) return;
+    setFixed(true);
+    const sync = () => setShown(root.dataset.scrolled === "1");
+    sync();
+    const observer = new MutationObserver(sync);
+    observer.observe(root, { attributes: true, attributeFilter: ["data-scrolled"] });
+    return () => {
+      observer.disconnect();
+      setFixed(false);
+    };
+  }, [active]);
+
+  if (!booking || !active) return null;
   const priced = booking.stays.filter((stay) => stay.pricePerNight);
   const low = priced.length ? priced.reduce((a, b) => (a.pricePerNight! <= b.pricePerNight! ? a : b)) : null;
-  return (
-    <div className="wb-mbar">
+  const bar = (
+    <div className="wb-mbar" data-shown={fixed ? (shown ? "1" : "0") : undefined}>
       <p className="wb-mbar-price">
         {low ? (
           <>
@@ -367,6 +396,25 @@ function MobileBookBar({ model }: { model: PublicWebsiteModel }) {
         <span className="wb-btn-arrow" aria-hidden />
       </button>
     </div>
+  );
+  if (!fixed) {
+    return (
+      <>
+        <span ref={anchorRef} hidden />
+        {bar}
+      </>
+    );
+  }
+  return (
+    <>
+      <span ref={anchorRef} hidden />
+      {createPortal(
+        <div className={`wb-mbar-root ${themeClass}`} style={style}>
+          {bar}
+        </div>,
+        document.body
+      )}
+    </>
   );
 }
 
@@ -433,6 +481,8 @@ export function WebsiteView({
 
   const sections = model.page.sections.filter((section) => edit || section.visible);
   const themeStyle = paletteStyle(model.theme, model.paletteId) as CSSProperties;
+  // Layers portaled to <body> (sheet, phone bar) need the theme and its font variables.
+  const layerClass = `${websiteFontClassName} wb-${model.theme}`;
   const overlayNav = sections[0]?.type === "hero" && ["luxe", "nature", "escape"].includes(model.theme);
 
   const content = (
@@ -484,7 +534,7 @@ export function WebsiteView({
           </div>
         ) : null}
       </main>
-      <MobileBookBar model={model} />
+      <MobileBookBar model={model} themeClass={layerClass} style={themeStyle} />
       <Footer model={model} />
     </div>
   );
@@ -492,7 +542,7 @@ export function WebsiteView({
   const page = (
     <BookingProvider model={model}>
       {content}
-      <BookingSheet themeClass={`wb-${model.theme}`} style={themeStyle} />
+      <BookingSheet themeClass={layerClass} style={themeStyle} />
     </BookingProvider>
   );
   return edit ? <WebsiteEditContext.Provider value={edit}>{page}</WebsiteEditContext.Provider> : page;

@@ -20,12 +20,16 @@
 .wb-luxe .wb-display { font-size: calc(clamp(3.4rem, 10.6cqi, 11.5rem) * var(--wb-type)); line-height: 0.9; letter-spacing: -0.03em; }
 .wb-luxe .wb-kicker { letter-spacing: 0.32em; font-weight: 400; }
 
-.wb-luxe .wb-nav-bar { display: grid; grid-template-columns: 1fr auto 1fr; }
+.wb-luxe .wb-nav-bar { display: grid; grid-template-columns: minmax(auto, 1fr) minmax(0, max-content) minmax(auto, 1fr); }
 .wb-luxe .wb-brand { grid-column: 2; grid-row: 1; font-size: 1.05rem; letter-spacing: 0.34em; text-transform: uppercase; }
 .wb-luxe .wb-nav-links { grid-column: 1; grid-row: 1; margin-left: 0; justify-self: start; }
 .wb-luxe .wb-nav-end { grid-column: 3; grid-row: 1; justify-self: end; }
 @container wb (max-width: 900px) {
   .wb-luxe .wb-brand { font-size: 0.85rem; letter-spacing: 0.26em; }
+  /* A long name moves to the left so it has the width of two columns. */
+  .wb-luxe .wb-nav[data-name] .wb-nav-bar { grid-template-columns: minmax(0, 1fr) auto; }
+  .wb-luxe .wb-nav[data-name] .wb-brand { grid-column: 1; justify-self: start; letter-spacing: 0.16em; }
+  .wb-luxe .wb-nav[data-name] .wb-nav-end { grid-column: 2; }
 }
 
 .wb-hero--luxe { position: relative; min-height: var(--wb-vh, 100svh); display: grid; align-items: end; color: #fff; overflow: hidden; overflow: clip; background: var(--wb-deep); }
@@ -599,6 +603,13 @@
   .wb-cta.has-image { min-height: calc(var(--wb-vh, 100svh) * 0.7); }
   .wb-full { min-height: calc(var(--wb-vh, 100svh) * 0.66); }
   .wb-nav-cta { display: inline-flex; height: 2.3rem; padding: 0 0.9rem; font-size: 0.68rem; }
+  /* Tighter bar on phones so the name has room. */
+  .wb-nav-bar { gap: 0.9rem; }
+  .wb-nav-end { gap: 0.6rem; }
+  .wb-coastal .wb-nav-bar { padding-left: 18px; }
+  .wb-coastal .wb-brand { font-size: 1.25rem; }
+  /* A long name gets the room instead: Reserve is still in the menu and the phone bar. */
+  .wb-nav[data-name="long"] .wb-nav-cta { display: none; }
   .wb-nav-toggle > span:last-child { display: none; }
   .wb-nav-toggle { width: 2.3rem; justify-content: center; }
 }
@@ -622,11 +633,23 @@
   transform: translateY(140%); transition: transform 0.6s var(--wb-ease);
 }
 .wb[data-scrolled="1"] .wb-mbar { transform: none; }
+/* Live site: the bar sits in its own fixed layer on the window (see MobileBookBar). */
+.wb-mbar-root {
+  position: fixed; left: 0; right: 0; bottom: 0; z-index: 2147481000; pointer-events: none;
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+}
+.wb-mbar-root .wb-mbar { position: relative; pointer-events: auto; will-change: transform; }
+.wb-mbar-root .wb-mbar[data-shown="1"] { transform: none; }
+.wb-mbar-root .wb-mbar[data-shown="0"] { visibility: hidden; transition: transform 0.6s var(--wb-ease), visibility 0s linear 0.6s; }
 .wb-mbar-price { display: grid; line-height: 1.2; font-size: 0.75rem; color: var(--wb-muted); }
 .wb-mbar-price strong { font-family: var(--wb-display-font); font-weight: 400; font-size: 1.25rem; color: var(--wb-ink); }
 .wb-mbar .wb-btn { min-height: 2.9rem; padding: 0 1.1rem; font-size: 0.7rem; }
 .wb-minimal .wb-mbar { border-radius: 0; box-shadow: inset 0 0 0 1px var(--wb-ink); }
-@container wb (max-width: 760px) { .wb-mbar { display: flex; } }
+@container wb (max-width: 760px) {
+  .wb-mbar { display: flex; }
+  /* Room under the footer so the fixed bar never covers its last line. */
+  .wb-footer-base { padding-bottom: 5.5rem; }
+}
 
 /* =========================================================================
    Rhythm and identity refinements

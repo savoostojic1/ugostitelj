@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useState, type CSSProperties, type ReactNode } from "react";
 import { createPortal } from "react-dom";
-import { Photo, useEditApi } from "@/components/website-public/primitives";
+import { Photo, photoSources, useEditApi } from "@/components/website-public/primitives";
 import type { PublicWebsiteModel, WebsiteImage, WebsiteSection } from "@/lib/website-builder/types";
 
 export function galleryImages(model: PublicWebsiteModel, section: WebsiteSection): WebsiteImage[] {
@@ -33,10 +33,17 @@ function Lightbox({ images, index, onClose, onMove }: { images: WebsiteImage[]; 
   }, [onClose, onMove]);
   const image = images[index];
   if (!image) return null;
+  const sources = photoSources(image.url);
   return createPortal(
     <div className="wb-lightbox" role="dialog" aria-modal="true" aria-label="Photographs" onClick={onClose}>
       {/* eslint-disable-next-line @next/next/no-img-element */}
-      <img src={image.url} alt={image.alt} onClick={(event) => event.stopPropagation()} />
+      <img
+        src={sources.src}
+        srcSet={sources.srcSet}
+        sizes={sources.srcSet ? "100vw" : undefined}
+        alt={image.alt}
+        onClick={(event) => event.stopPropagation()}
+      />
       <p className="wb-lightbox-count">
         {index + 1} / {images.length}
       </p>

@@ -27,7 +27,7 @@ type Scroller = HTMLElement | Window;
 
 const SCROLL_LINKED = "[data-parallax],[data-progress],[data-pin-x],[data-steps]";
 
-function findScroller(node: HTMLElement): Scroller {
+export function findScroller(node: HTMLElement): Scroller {
   let current: HTMLElement | null = node.parentElement;
   while (current && current !== document.body) {
     const style = getComputedStyle(current);
@@ -168,9 +168,12 @@ export function useWebsiteMotion(
     const update = () => {
       frame = 0;
       const top = scrollTop();
-      root.dataset.scrolled = top > 24 ? "1" : "0";
-      if (top > lastTop + 6 && top > 280) root.dataset.navHidden = "1";
-      else if (top < lastTop - 6 || top < 120) root.dataset.navHidden = "0";
+      // Only touch the root's attributes when they change: every write restyles the whole site.
+      const scrolled = top > 24 ? "1" : "0";
+      if (root.dataset.scrolled !== scrolled) root.dataset.scrolled = scrolled;
+      const hide =
+        top > lastTop + 6 && top > 280 ? "1" : top < lastTop - 6 || top < 120 ? "0" : root.dataset.navHidden;
+      if (hide !== undefined && root.dataset.navHidden !== hide) root.dataset.navHidden = hide;
       lastTop = top;
       if (!motion || active.size === 0) return;
 
