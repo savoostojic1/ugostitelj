@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
-import { Suspense, useEffect, useState } from "react";
+import { Suspense, useEffect, useRef, useState } from "react";
 import {
   ArrowRight,
   Eye,
@@ -19,6 +19,11 @@ import {
   rememberAuthNext,
 } from "@/components/auth/google-sign-in-button";
 import { getBrowserClient } from "@/lib/supabase/client";
+import {
+  TurnstileWidget,
+  turnstileRequired,
+  type TurnstileHandle,
+} from "@/components/security/turnstile-widget";
 import { isTeamAccessEmail } from "@/lib/team-access/permissions";
 import { toast } from "sonner";
 import { trackHostviaEvent } from "@/lib/analytics/track";
@@ -144,6 +149,8 @@ function AuthFormInner({ mode }: { mode: AuthMode }) {
   const [fullName, setFullName] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [captchaToken, setCaptchaToken] = useState<string | null>(null);
+  const turnstileRef = useRef<TurnstileHandle>(null);
   const copy = formCopy[mode];
 
   useEffect(() => {
@@ -152,7 +159,12 @@ function AuthFormInner({ mode }: { mode: AuthMode }) {
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
+    if (turnstileRequired() && !captchaToken) {
+      toast.error("Please wait for the security check to finish, then try again.");
+      return;
+    }
     setLoading(true);
+    const token = captchaToken ?? undefined;
 
     try {
       const supabase = getBrowserClient();
@@ -163,7 +175,11 @@ function AuthFormInner({ mode }: { mode: AuthMode }) {
           const res = await fetch("/api/auth/team-login", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ username: identifier, password }),
+            body: JSON.stringify({
+              username: identifier,
+              password,
+              captchaToken: token,
+            }),
           });
           const json = (await res.json()) as { error?: string };
           if (!res.ok) {
@@ -173,6 +189,7 @@ function AuthFormInner({ mode }: { mode: AuthMode }) {
           const { error } = await supabase.auth.signInWithPassword({
             email: identifier,
             password,
+            options: { captchaToken: token },
           });
           if (error) throw error;
         }
@@ -182,7 +199,7 @@ function AuthFormInner({ mode }: { mode: AuthMode }) {
         const { data, error } = await supabase.auth.signUp({
           email,
           password,
-          options: { data: { full_name: fullName } },
+          options: { data: { full_name: fullName }, captchaToken: token },
         });
         if (error) throw error;
         trackHostviaEvent("sign_up", { method: "email" });
@@ -208,7 +225,7 @@ function AuthFormInner({ mode }: { mode: AuthMode }) {
         const res = await fetch("/api/auth/forgot-password", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ email: normalizedEmail }),
+          body: JSON.stringify({ email: normalizedEmail, captchaToken: token }),
         });
         const json = (await res.json()) as { error?: string };
         if (!res.ok) {
@@ -219,6 +236,8 @@ function AuthFormInner({ mode }: { mode: AuthMode }) {
     } catch (err) {
       toast.error(err instanceof Error ? err.message : "Something went wrong");
     } finally {
+      // Captcha tokens are single use: get a fresh one for the next attempt.
+      turnstileRef.current?.reset();
       setLoading(false);
     }
   }
@@ -322,6 +341,13 @@ function AuthFormInner({ mode }: { mode: AuthMode }) {
             </p>
           </>
         ) : null}
+
+        <TurnstileWidget
+          ref={turnstileRef}
+          action={mode}
+          theme="dark"
+          onToken={setCaptchaToken}
+        />
 
         <button
           type="submit"

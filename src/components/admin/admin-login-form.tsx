@@ -1,9 +1,14 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Loader2, Lock, Shield, User } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
+import {
+  TurnstileWidget,
+  turnstileRequired,
+  type TurnstileHandle,
+} from "@/components/security/turnstile-widget";
 
 const adminFetch = (input: RequestInfo, init?: RequestInit) =>
   fetch(input, { ...init, credentials: "include" });
@@ -24,13 +29,23 @@ export function AdminLoginForm({
 }: {
   setupRequiredInitially?: boolean;
 }) {
-  const [username, setUsername] = useState("admin-savo");
+  const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const [checking, setChecking] = useState(true);
   const [setupRequired, setSetupRequired] = useState(setupRequiredInitially);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const [captchaToken, setCaptchaToken] = useState<string | null>(null);
+  const turnstileRef = useRef<TurnstileHandle>(null);
+
+  function captchaMissing(): boolean {
+    if (turnstileRequired() && !captchaToken) {
+      setErrorMessage("Wait for the security check to finish, then try again.");
+      return true;
+    }
+    return false;
+  }
 
   useEffect(() => {
     void (async () => {
@@ -66,25 +81,19 @@ export function AdminLoginForm({
       return;
     }
 
+    if (captchaMissing()) return;
+
     setLoading(true);
     try {
       const res = await adminFetch("/api/admin/setup", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ username, password }),
+        body: JSON.stringify({ username, password, captchaToken }),
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error ?? "Setup failed");
 
       toast.success("Admin password saved. Signing you in…");
-
-      const loginRes = await adminFetch("/api/admin/login", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ username, password }),
-      });
-      const loginData = await loginRes.json();
-      if (!loginRes.ok) throw new Error(loginData.error ?? "Login failed");
 
       await redirectToDashboard();
     } catch (err) {
@@ -92,6 +101,7 @@ export function AdminLoginForm({
       setErrorMessage(message);
       toast.error(message);
     } finally {
+      turnstileRef.current?.reset();
       setLoading(false);
     }
   }
@@ -99,13 +109,14 @@ export function AdminLoginForm({
   async function handleLogin(e: React.FormEvent) {
     e.preventDefault();
     setErrorMessage(null);
+    if (captchaMissing()) return;
     setLoading(true);
 
     try {
       const res = await adminFetch("/api/admin/login", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ username, password }),
+        body: JSON.stringify({ username, password, captchaToken }),
       });
       const data = await res.json();
 
@@ -120,6 +131,7 @@ export function AdminLoginForm({
       setErrorMessage(message);
       toast.error(message);
     } finally {
+      turnstileRef.current?.reset();
       setLoading(false);
     }
   }
@@ -219,6 +231,13 @@ export function AdminLoginForm({
               {errorMessage}
             </p>
           )}
+
+          <TurnstileWidget
+            ref={turnstileRef}
+            action="admin"
+            theme="dark"
+            onToken={setCaptchaToken}
+          />
 
           <Button
             type="submit"

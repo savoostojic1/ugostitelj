@@ -3,14 +3,48 @@ import { NextResponse } from "next/server";
 import { getPasswordRecoveryRedirectUrl } from "@/lib/auth/password-recovery";
 import { getSupabaseEnv } from "@/lib/supabase/env";
 import { isTeamAccessEmail } from "@/lib/team-access/permissions";
+import { consumeRateLimits } from "@/lib/security/consume-rate-limit";
+import {
+  clientIpFromHeaders,
+  PASSWORD_RESET_EMAIL_LIMIT,
+  PASSWORD_RESET_IP_LIMIT,
+  PASSWORD_RESET_WINDOW_SECONDS,
+} from "@/lib/security/rate-limit";
 
 type Body = {
   email?: string;
+  captchaToken?: string;
 };
 
 export async function POST(request: Request) {
-  const body = (await request.json()) as Body;
+  let body: Body;
+  try {
+    body = (await request.json()) as Body;
+  } catch {
+    return NextResponse.json({ error: "Invalid request" }, { status: 400 });
+  }
   const normalizedEmail = body.email?.trim().toLowerCase() ?? "";
+
+  const limited = await consumeRateLimits([
+    {
+      action: "password_reset_ip",
+      key: clientIpFromHeaders(request.headers),
+      limit: PASSWORD_RESET_IP_LIMIT,
+      windowSeconds: PASSWORD_RESET_WINDOW_SECONDS,
+    },
+    {
+      action: "password_reset_email",
+      key: normalizedEmail || "-",
+      limit: PASSWORD_RESET_EMAIL_LIMIT,
+      windowSeconds: PASSWORD_RESET_WINDOW_SECONDS,
+    },
+  ]);
+  if (limited === "deny") {
+    return NextResponse.json(
+      { error: "Too many reset requests. Try again in an hour." },
+      { status: 429 }
+    );
+  }
 
   if (!normalizedEmail || !normalizedEmail.includes("@")) {
     return NextResponse.json({ error: "Enter a valid email address." }, { status: 400 });
@@ -42,6 +76,7 @@ export async function POST(request: Request) {
 
   const { error } = await supabase.auth.resetPasswordForEmail(normalizedEmail, {
     redirectTo,
+    captchaToken: body.captchaToken || undefined,
   });
 
   if (error) {

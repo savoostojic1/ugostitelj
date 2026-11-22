@@ -44,6 +44,20 @@ export function parseBookingRequestBody(
     };
   }
 
+  if (
+    propertySlug.length > 120 ||
+    guestName.length > 120 ||
+    email.length > 254 ||
+    phone.length > 40 ||
+    (message?.length ?? 0) > 2000
+  ) {
+    return { ok: false, status: 400, error: "One of the fields is too long" };
+  }
+
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+    return { ok: false, status: 400, error: "Enter a valid email address" };
+  }
+
   if (!isIsoDateOnly(checkIn) || !isIsoDateOnly(checkOut)) {
     return { ok: false, status: 400, error: "Invalid dates" };
   }

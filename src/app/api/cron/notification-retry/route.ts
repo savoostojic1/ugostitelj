@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { retryDueReservationNotifications } from "@/lib/notifications/send-reservation-event";
+import { createServiceClient, hasServiceRoleKey } from "@/lib/supabase/service";
 
 export const runtime = "nodejs";
 export const maxDuration = 60;
@@ -30,6 +31,11 @@ export async function GET(request: Request) {
 
   try {
     const result = await retryDueReservationNotifications();
+    if (hasServiceRoleKey()) {
+      // Housekeeping for the bot rate limiter; failure here must not fail the cron.
+      const { error } = await createServiceClient().rpc("prune_public_endpoint_hits");
+      if (error) console.error("[notification-retry] prune rate limits:", error.message);
+    }
     return NextResponse.json({ ok: true, ...result });
   } catch (error) {
     console.error("[notification-retry] failed");

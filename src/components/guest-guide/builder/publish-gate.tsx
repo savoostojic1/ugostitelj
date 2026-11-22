@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import {
   ArrowRight,
   Eye,
@@ -17,6 +17,11 @@ import { GoogleSignInButton } from "@/components/auth/google-sign-in-button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { getBrowserClient } from "@/lib/supabase/client";
+import {
+  TurnstileWidget,
+  turnstileRequired,
+  type TurnstileHandle,
+} from "@/components/security/turnstile-widget";
 import { trackHostviaEvent } from "@/lib/analytics/track";
 import { clearLocalDraft } from "@/lib/guest-guide/local-draft";
 import {
@@ -48,6 +53,8 @@ export function PublishGate({
   const [fullName, setFullName] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [captchaToken, setCaptchaToken] = useState<string | null>(null);
+  const turnstileRef = useRef<TurnstileHandle>(null);
 
   useEffect(() => {
     if (!open) return;
@@ -78,6 +85,10 @@ export function PublishGate({
 
   async function onSubmit(event: React.FormEvent) {
     event.preventDefault();
+    if (turnstileRequired() && !captchaToken) {
+      toast.error("Please wait for the security check to finish, then try again.");
+      return;
+    }
     setLoading(true);
     try {
       const supabase = getBrowserClient();
@@ -85,6 +96,7 @@ export function PublishGate({
         const { error } = await supabase.auth.signInWithPassword({
           email: email.trim(),
           password,
+          options: { captchaToken: captchaToken ?? undefined },
         });
         if (error) throw error;
       } else {
@@ -92,7 +104,10 @@ export function PublishGate({
         const { data, error } = await supabase.auth.signUp({
           email: email.trim(),
           password,
-          options: { data: { full_name: fullName } },
+          options: {
+            data: { full_name: fullName },
+            captchaToken: captchaToken ?? undefined,
+          },
         });
         if (error) throw error;
         if (!data.session) {
@@ -106,6 +121,7 @@ export function PublishGate({
     } catch (err) {
       toast.error(err instanceof Error ? err.message : "Something went wrong");
     } finally {
+      turnstileRef.current?.reset();
       setLoading(false);
     }
   }
@@ -241,6 +257,12 @@ export function PublishGate({
               </button>
             </div>
           </div>
+          <TurnstileWidget
+            ref={turnstileRef}
+            action={mode}
+            theme="dark"
+            onToken={setCaptchaToken}
+          />
           <button
             type="submit"
             disabled={loading}

@@ -1,25 +1,30 @@
 import { NextResponse } from "next/server";
+import { cookies } from "next/headers";
 import {
   adminSetupRequired,
   DEFAULT_ADMIN_USERNAME,
-  getAdminUsername,
   setupAdminCredentials,
 } from "@/lib/admin/credentials";
+import {
+  ADMIN_COOKIE,
+  adminCookieOptions,
+  createAdminSessionToken,
+} from "@/lib/admin/session";
+import { guardAdminAttempt } from "@/lib/security/admin-login-guard";
 
 type Body = {
   username?: string;
   password?: string;
+  captchaToken?: string;
 };
 
 export async function GET() {
   const setupRequired = await adminSetupRequired();
-  const username = setupRequired
-    ? DEFAULT_ADMIN_USERNAME
-    : await getAdminUsername();
 
+  // Never reveal the configured admin username: it is half of the credentials.
   return NextResponse.json({
     setupRequired,
-    username,
+    username: setupRequired ? DEFAULT_ADMIN_USERNAME : null,
   });
 }
 
@@ -31,7 +36,18 @@ export async function POST(request: Request) {
     );
   }
 
-  const body = (await request.json()) as Body;
+  let body: Body;
+  try {
+    body = (await request.json()) as Body;
+  } catch {
+    return NextResponse.json({ error: "Invalid request" }, { status: 400 });
+  }
+
+  const guard = await guardAdminAttempt(request, body.captchaToken);
+  if (!guard.ok) {
+    return NextResponse.json({ error: guard.error }, { status: guard.status });
+  }
+
   const username = body.username?.trim() || DEFAULT_ADMIN_USERNAME;
   const password = body.password ?? "";
 
@@ -53,6 +69,11 @@ export async function POST(request: Request) {
       { status: 500 }
     );
   }
+
+  // Sign in right away: the captcha token above is single use.
+  const token = await createAdminSessionToken();
+  const cookieStore = await cookies();
+  cookieStore.set(ADMIN_COOKIE, token, adminCookieOptions());
 
   return NextResponse.json({ ok: true, username });
 }

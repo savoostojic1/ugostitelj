@@ -32,3 +32,26 @@ export async function consumePublicRateLimit(
     return "unavailable";
   }
 }
+
+export type RateLimitRule = {
+  action: string;
+  /** Hashed before storage: an IP, an email, a username… */
+  key: string;
+  limit: number;
+  windowSeconds: number;
+};
+
+/**
+ * Consumes every rule and denies if any rule is over its limit.
+ * "unavailable" (no service key / DB error) fails open so sign-in keeps working.
+ */
+export async function consumeRateLimits(
+  rules: RateLimitRule[]
+): Promise<"allow" | "deny"> {
+  const results = await Promise.all(
+    rules.map((rule) =>
+      consumePublicRateLimit(rule.action, rule.key, rule.limit, rule.windowSeconds)
+    )
+  );
+  return results.includes("deny") ? "deny" : "allow";
+}

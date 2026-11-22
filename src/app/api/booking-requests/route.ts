@@ -7,7 +7,18 @@ import {
   publicApiOptionsResponse,
 } from "@/lib/public/public-api-cors";
 import { attachGuestAccess } from "@/lib/reservations/attach-guest-access";
+import { randomUUID } from "crypto";
+import { evaluateBotGuard, looksLikeLinkSpam } from "@/lib/security/bot-guard";
+import { consumeRateLimits } from "@/lib/security/consume-rate-limit";
+import {
+  BOOKING_EMAIL_LIMIT,
+  BOOKING_EMAIL_WINDOW_SECONDS,
+  BOOKING_IP_LIMIT,
+  BOOKING_IP_WINDOW_SECONDS,
+  clientIpFromHeaders,
+} from "@/lib/security/rate-limit";
 import { createClient } from "@/lib/supabase/server";
+import { createServiceClient, hasServiceRoleKey } from "@/lib/supabase/service";
 
 export async function OPTIONS(request: Request) {
   return publicApiOptionsResponse(request);
@@ -35,6 +46,27 @@ export async function POST(request: Request) {
       );
     }
 
+    const guard = evaluateBotGuard(
+      json && typeof json === "object" ? (json as Record<string, unknown>) : {}
+    );
+    if (guard === "honeypot") {
+      // Look successful so the bot moves on; nothing is saved or sent to the host.
+      return jsonWithPublicCors(request, {
+        ok: true,
+        id: randomUUID(),
+        reference: null,
+        manageUrl: null,
+        emailSent: false,
+      });
+    }
+    if (guard === "too_fast") {
+      return jsonWithPublicCors(
+        request,
+        { ok: false, error: "Please check your details and send again." },
+        { status: 400 }
+      );
+    }
+
     const parsed = parseBookingRequestBody(json);
     if (!parsed.ok) {
       return jsonWithPublicCors(
@@ -45,7 +77,47 @@ export async function POST(request: Request) {
     }
 
     const input = parsed.value;
-    const supabase = await createClient();
+
+    if (looksLikeLinkSpam(input.message)) {
+      return jsonWithPublicCors(
+        request,
+        { ok: false, error: "Please remove the links from your message." },
+        { status: 400 }
+      );
+    }
+
+    const ip = clientIpFromHeaders(request.headers);
+    const limited = await consumeRateLimits([
+      {
+        action: "booking_request_ip",
+        key: ip,
+        limit: BOOKING_IP_LIMIT,
+        windowSeconds: BOOKING_IP_WINDOW_SECONDS,
+      },
+      {
+        action: "booking_request_email",
+        key: input.email.toLowerCase(),
+        limit: BOOKING_EMAIL_LIMIT,
+        windowSeconds: BOOKING_EMAIL_WINDOW_SECONDS,
+      },
+    ]);
+    if (limited === "deny") {
+      return jsonWithPublicCors(
+        request,
+        {
+          ok: false,
+          error:
+            "Too many inquiries were sent. Please try again later or contact the host directly.",
+        },
+        { status: 429 }
+      );
+    }
+
+    // The RPC is service-role only (migration 042) so bots cannot skip these checks
+    // by calling Supabase directly with the public anon key.
+    const supabase = hasServiceRoleKey()
+      ? createServiceClient()
+      : await createClient();
     const { data, error } = await supabase.rpc("submit_booking_request", {
       p_property_slug: input.propertySlug,
       p_guest_name: input.guestName,

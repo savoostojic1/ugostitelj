@@ -11,6 +11,7 @@ import { resolvePublicApiUrl } from "@/lib/public/browser-origin";
 import { guestBookingRequestErrorMessage, parseJsonResponse } from "@/lib/public/parse-json-response";
 import { nightsLabel } from "@/lib/public/stay-price";
 import { bookingInquiryPayload } from "@/lib/website-builder/booking";
+import { FORM_STARTED_FIELD, HONEYPOT_FIELD } from "@/lib/security/bot-guard";
 import type { PublicStay } from "@/lib/website-builder/types";
 
 function safeReference(value: unknown): string | null {
@@ -83,6 +84,12 @@ export function InquiryFlow({ compact }: { compact?: boolean }) {
   const [sending, setSending] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [result, setResult] = useState<{ reference: string | null; manageUrl: string | null; emailSent: boolean } | null>(null);
+  const [honeypot, setHoneypot] = useState("");
+  const [formStartedAt, setFormStartedAt] = useState<number | null>(null);
+
+  useEffect(() => {
+    if (step === "details") setFormStartedAt((current) => current ?? Date.now());
+  }, [step]);
 
   const stay = booking?.stay ?? null;
   const { quote, loading } = useStayQuote(stay, booking?.checkIn ?? "", booking?.checkOut ?? "", booking?.preview ?? true);
@@ -137,8 +144,8 @@ export function InquiryFlow({ compact }: { compact?: boolean }) {
       const response = await fetch(endpoint, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(
-          bookingInquiryPayload({
+        body: JSON.stringify({
+          ...bookingInquiryPayload({
             propertySlug: stay.propertySlug,
             guestName: name,
             email,
@@ -147,8 +154,10 @@ export function InquiryFlow({ compact }: { compact?: boolean }) {
             checkOut: booking.checkOut,
             guestCount: booking.guests,
             message,
-          })
-        ),
+          }),
+          [HONEYPOT_FIELD]: honeypot,
+          [FORM_STARTED_FIELD]: formStartedAt,
+        }),
       });
       const parsed = await parseJsonResponse<{ ok?: boolean; id?: unknown; reference?: unknown; manageUrl?: unknown; emailSent?: unknown; error?: unknown }>(response, { endpoint });
       if (!parsed.ok || !response.ok || parsed.data.ok === false || !parsed.data.id) {
@@ -274,6 +283,12 @@ export function InquiryFlow({ compact }: { compact?: boolean }) {
           <button type="button" className="wb-inq-back" onClick={() => setStep("dates")}>
             ← Change dates or guests
           </button>
+          <div aria-hidden="true" style={{ position: "absolute", left: "-10000px", top: "auto", width: 1, height: 1, overflow: "hidden" }}>
+            <label>
+              Company website
+              <input type="text" name={HONEYPOT_FIELD} tabIndex={-1} autoComplete="off" value={honeypot} onChange={(event) => setHoneypot(event.target.value)} />
+            </label>
+          </div>
           <label>
             Full name
             <input value={name} onChange={(event) => setName(event.target.value)} required autoComplete="name" />
